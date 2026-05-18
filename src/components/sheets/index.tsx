@@ -434,7 +434,7 @@ export function AddFriendSheet({
   const [name, setName] = useState("");
 
   const sharePayload = buildInviteShareMessage(profile, inviteUrl, previewPlaces);
-  const canSend = hasHandle && inviteUrl.length > 0;
+  const canSend = inviteUrl.length > 0;
   const navigatorHasShare =
     typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
 
@@ -452,11 +452,9 @@ export function AddFriendSheet({
       onToast("Your invite link is still syncing — try again in a moment.");
       return;
     }
-    const hook = sharePayload.split("\n\n")[0] ?? sharePayload;
     const result = await nativeShare({
       title: `${profile.name.trim().split(/\s+/)[0] || "Friend"}'s Vouch invite`,
-      text: hook,
-      url: inviteUrl
+      text: sharePayload
     });
     if (result === "shared") onToast("Sent!");
     else if (result === "copied") onToast("Message copied — paste anywhere");
@@ -476,9 +474,7 @@ export function AddFriendSheet({
 
         <section className="share-v3-msg invite-msg-preview">
           <blockquote>
-            {canSend
-              ? sharePayload.split("\n\n")[0]
-              : "Your invite message will show here once your link is ready."}
+            {canSend ? sharePayload : "Your invite message will show here once your link is ready."}
           </blockquote>
           {canSend ? (
             <p className="share-v3-link-summary">{shareLinkSummary(inviteUrl)}</p>

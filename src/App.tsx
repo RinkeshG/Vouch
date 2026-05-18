@@ -26,12 +26,13 @@ import { friendsVouchingFor } from "./lib/circle";
 import { MIN_VOUCHED_PLACES_PER_LIST } from "./lib/collectionRules";
 import { fetchFriendVouchCard, fetchPublicVouchByHandle, isCloudEnabled, placesForPublicPayload } from "./lib/cloud";
 import { recordPlaceSave } from "./lib/influence";
-import { parseInviteFromUrl } from "./lib/invite";
+import { buildInviteUrl, parseInviteFromUrl } from "./lib/invite";
 import { slugifyListTitle } from "./lib/listSlug";
 import { placesFromFriend } from "./lib/selectors";
 import {
   buildCollectionShareBlurb,
   buildInviteLink,
+  inviteOrigin,
   buildPlaceShareBlurb,
   buildShareableCardUrl,
   buildTopFourShareBlurb,
@@ -128,6 +129,7 @@ function App() {
     finishOnboarding,
     resetApp,
     flushCloudSync,
+    ensureInviteHandle,
     circleFeed,
     circleLoading,
     friendVouchCards,
@@ -281,7 +283,28 @@ function App() {
       flushCloudSync();
     }
   }, [sheet, cloudEnabled, profile.handle, flushCloudSync]);
-  const inviteUrl = buildInviteLink(profile);
+
+  const [inviteUrl, setInviteUrl] = useState(() => buildInviteLink(profile));
+
+  useEffect(() => {
+    const built = buildInviteLink(profile);
+    if (built) {
+      setInviteUrl(built);
+      return;
+    }
+    if (sheet !== "friend") return;
+
+    let cancelled = false;
+    void (async () => {
+      const handle = await ensureInviteHandle();
+      if (cancelled || !handle) return;
+      setInviteUrl(buildInviteUrl(inviteOrigin(), handle));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sheet, profile.handle, profile.name, ensureInviteHandle]);
   const sharePlaces = activePlace
     ? [activePlace]
     : activeCollection
@@ -585,7 +608,7 @@ function App() {
             profile={profile}
             inviteUrl={inviteUrl}
             previewPlaces={topPlaces.map((item) => placeById[item.placeId]).filter(Boolean)}
-            hasHandle={Boolean(profile.handle)}
+            hasHandle={Boolean(profile.handle) || inviteUrl.length > 0}
             cloudSyncing={cloudSyncing}
             onClose={() => setSheet(null)}
             onToast={showToast}

@@ -6,11 +6,25 @@ export type AuthUserInfo = {
   isAnonymous: boolean;
 };
 
+/** Absolute app origin for magic-link redirects — must include `https://`. */
 export function authRedirectUrl(): string {
-  if (typeof window !== "undefined" && window.location.origin) {
-    return window.location.origin;
-  }
-  return "";
+  const fromWindow =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin.replace(/\/$/, "")
+      : "";
+
+  const fromEnv =
+    typeof import.meta !== "undefined" && import.meta.env?.VITE_PUBLIC_SITE_URL
+      ? String(import.meta.env.VITE_PUBLIC_SITE_URL).trim().replace(/\/$/, "")
+      : "";
+
+  const raw = fromWindow || fromEnv;
+  if (!raw) return "";
+
+  if (/^https?:\/\//i.test(raw)) return raw;
+
+  // Supabase treats host-only values as paths on *.supabase.co (invalid path error).
+  return `https://${raw.replace(/^\/+/, "")}`;
 }
 
 export async function getAuthUser(): Promise<AuthUserInfo | null> {
@@ -111,7 +125,11 @@ export async function linkEmailToAccount(email: string): Promise<{ ok: boolean; 
     }
   }
 
-  const { error } = await supabase.auth.updateUser({ email: normalized });
+  const redirectTo = authRedirectUrl();
+  const { error } = await supabase.auth.updateUser(
+    { email: normalized },
+    redirectTo ? { emailRedirectTo: redirectTo } : undefined
+  );
   if (error) {
     const msg = error.message.toLowerCase();
     if (msg.includes("session") || msg.includes("jwt")) {

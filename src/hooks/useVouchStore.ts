@@ -17,6 +17,7 @@ import {
   saveCloudProfile
 } from "../lib/cloud";
 import { clearPendingInvite, readPendingInvite } from "../lib/invite";
+import { slugifyHandle } from "../lib/handle";
 import { allocateListSlug } from "../lib/listSlug";
 import { MIN_VOUCHED_PLACES_PER_LIST } from "../lib/collectionRules";
 import { defaultPersistedState, loadState, saveState } from "../lib/storage";
@@ -633,17 +634,26 @@ export function useVouchStore() {
       }
     }
 
-    if (userId && handle && isCloudEnabled) {
-      skipNextSyncRef.current = true;
-      const withHandle: VouchPersistedState = {
+    if (handle) {
+      nextState = {
         ...nextState,
         profile: { ...nextState.profile, handle }
       };
-      setState(withHandle);
-      await saveCloudProfile(userId, withHandle, handle);
-      await publishPublicVouch(userId, handle, withHandle);
-    } else {
-      setState(nextState);
+    } else if (!isCloudEnabled && nextState.profile.name.trim().length >= 2) {
+      const localHandle = slugifyHandle(nextState.profile.name);
+      nextState = {
+        ...nextState,
+        profile: { ...nextState.profile, handle: localHandle }
+      };
+      handle = localHandle;
+    }
+
+    skipNextSyncRef.current = true;
+    setState(nextState);
+
+    if (userId && handle && isCloudEnabled) {
+      await saveCloudProfile(userId, nextState, handle);
+      await publishPublicVouch(userId, handle, nextState);
     }
 
     await refreshCircle();
@@ -675,6 +685,43 @@ export function useVouchStore() {
     if (syncTimerRef.current) window.clearTimeout(syncTimerRef.current);
     void syncToCloud(state, state.profile.handle);
   }, [state, syncToCloud]);
+
+  /** Reserve or restore a handle so invite links can be built before sharing. */
+  const ensureInviteHandle = useCallback(async (): Promise<string | null> => {
+    const existing = state.profile.handle?.trim().toLowerCase();
+    if (existing) return existing;
+
+    if (!state.profile.onboarded || state.profile.name.trim().length < 2) return null;
+
+    if (!isCloudEnabled) {
+      const localHandle = slugifyHandle(state.profile.name);
+      skipNextSyncRef.current = true;
+      setState((current) => ({
+        ...current,
+        profile: { ...current.profile, handle: localHandle }
+      }));
+      return localHandle;
+    }
+
+    const userId = userIdRef.current ?? (await ensureAuthSession());
+    if (!userId) return null;
+    userIdRef.current = userId;
+
+    setCloudSyncing(true);
+    try {
+      const handle = await reserveHandle(state.profile.name, userId);
+      const next: VouchPersistedState = {
+        ...state,
+        profile: { ...state.profile, handle }
+      };
+      skipNextSyncRef.current = true;
+      setState(next);
+      await saveCloudProfile(userId, next, handle);
+      return handle;
+    } finally {
+      setCloudSyncing(false);
+    }
+  }, [state]);
 
   return {
     hydrated: hydrated && cloudReady,
@@ -731,6 +778,7 @@ export function useVouchStore() {
     finishOnboarding,
     resetApp,
     flushCloudSync,
+    ensureInviteHandle,
     circleFeed,
     circleLoading,
     friendVouchCards,

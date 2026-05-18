@@ -20,7 +20,9 @@ Without Supabase env vars, the app still runs as a **local-only** demo (localSto
 2. **SQL Editor** → paste and run everything in `supabase/schema.sql`
    - If you migrated from an earlier beta, re-run the file — `create table if not exists` makes it safe, and the new `place_saves` table powers the Home influence row ("3 saves from your list").
 3. **Authentication** → **Providers** → turn **Anonymous sign-ins** and **Email** ON
-4. **Authentication** → **URL configuration** → Site URL = your deploy URL; add same URL to Redirect URLs
+4. **Authentication** → **URL configuration** (must include **`https://`**):
+   - **Site URL**: `https://vouch-cyan.vercel.app` (your real deploy URL — not `vouch-cyan.vercel.app` alone)
+   - **Redirect URLs**: add `https://vouch-cyan.vercel.app/**` and `https://vouch-cyan.vercel.app`
 5. **Project Settings** → **API** → copy:
    - Project URL → `VITE_SUPABASE_URL`
    - `anon` `public` key → `VITE_SUPABASE_ANON_KEY`
@@ -65,9 +67,12 @@ Redeploy after adding env vars. `vercel.json` configures link previews (`/:handl
 ### Email account setup
 
 1. Supabase → **Authentication** → **Email** → enable
-2. **You** tab in app → **Your account** → enter email → **Send save link**
-3. Tap link in inbox — same Vouch, now follows you across devices
-4. New phone → **Sign in elsewhere** with the same email
+2. Supabase → **Authentication** → **URL configuration** → **Site URL** = `https://YOUR-DEPLOY.vercel.app` (with `https://`)
+3. Add the same URL under **Redirect URLs** (wildcard `https://YOUR-DEPLOY.vercel.app/**` is fine)
+4. Vercel env: `VITE_PUBLIC_SITE_URL=https://YOUR-DEPLOY.vercel.app` (with `https://`) — redeploy
+5. **You** tab in app → enter email → **Send save link**
+6. Tap link in inbox — should open your app (not `*.supabase.co/vouch-cyan...`)
+7. New phone → **Sign in elsewhere** with the same email
 
 ### Other hosts
 
@@ -96,3 +101,4 @@ Any static host works (Netlify, Cloudflare Pages, GitHub Pages with redirects). 
 | Build works locally, not on Vercel | Env vars must be set on Vercel and redeployed |
 | Google search never returns results | Set `GOOGLE_PLACES_API_KEY` on Vercel; enable **Places API (New)** + billing in Google Cloud; redeploy. Local: `npm run dev:vercel` or set `VITE_GOOGLE_PLACES_API_KEY` in `.env` |
 | Places API works on wrong domain only | Fixed in app: search calls `/api/...` on the **same host** you’re visiting — don’t rely on `vouch.vercel.app` unless that domain points at this project |
+| Email link opens `*.supabase.co/vouch-cyan.vercel.app` or “requested path is invalid” | **Site URL** in Supabase was set without `https://`. Set Site URL + Redirect URLs to `https://vouch-cyan.vercel.app` (full URL), save, request a **new** magic link |

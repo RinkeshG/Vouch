@@ -27,7 +27,10 @@ export function canonicalSiteOrigin(): string {
     typeof import.meta !== "undefined" && import.meta.env?.VITE_PUBLIC_SITE_URL
       ? String(import.meta.env.VITE_PUBLIC_SITE_URL).trim()
       : "";
-  if (env) return env.replace(/\/$/, "");
+  if (env) {
+    const trimmed = env.replace(/\/$/, "");
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed.replace(/^\/+/, "")}`;
+  }
   if (typeof window !== "undefined" && window.location?.origin)
     return window.location.origin.replace(/\/$/, "");
   return "https://vouch.app";
@@ -67,11 +70,18 @@ export function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] || "Someone";
 }
 
+/** Origin for `?invite=` links — always the tab the user is on, not a stale env hostname. */
+export function inviteOrigin(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin.replace(/\/$/, "");
+  }
+  return canonicalSiteOrigin();
+}
+
 export function buildInviteLink(profile: UserProfile): string {
-  const base = canonicalSiteOrigin();
-  if (profile.handle?.trim())
-    return buildInviteUrl(base, profile.handle);
-  return "";
+  const handle = profile.handle?.trim().toLowerCase();
+  if (!handle) return "";
+  return buildInviteUrl(inviteOrigin(), handle);
 }
 
 /** Short WhatsApp-friendly message — link does the heavy lifting */
