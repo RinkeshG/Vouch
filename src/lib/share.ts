@@ -16,63 +16,124 @@ type CompactShareData = {
   p: string[];
 };
 
+const TEASER_PLACES = 3;
+
+/** Reserved first path segments — must not collide with `@handle` public routes */
+export const RESERVED_HANDLE_PATHS = new Set(["api", "p", "assets", "static", "sw.js"]);
+
+/** Canonical hostname for pasted links (`VITE_PUBLIC_SITE_URL` in production). */
+export function canonicalSiteOrigin(): string {
+  const env =
+    typeof import.meta !== "undefined" && import.meta.env?.VITE_PUBLIC_SITE_URL
+      ? String(import.meta.env.VITE_PUBLIC_SITE_URL).trim()
+      : "";
+  if (env) return env.replace(/\/$/, "");
+  if (typeof window !== "undefined" && window.location?.origin)
+    return window.location.origin.replace(/\/$/, "");
+  return "https://vouch.app";
+}
+
+/** `https://vouch.app/{handle}` — profile card */
+export function buildPublicProfileUrl(handle: string): string {
+  const h = handle.trim().toLowerCase();
+  if (!h || RESERVED_HANDLE_PATHS.has(h)) return "";
+  return `${canonicalSiteOrigin()}/${h}`;
+}
+
+/** `https://vouch.app/{handle}/{listSlug}` — a specific place list */
+export function buildPublicListUrl(handle: string, collection: Pick<Collection, "slug">): string {
+  const base = buildPublicProfileUrl(handle);
+  if (!base || !collection.slug) return "";
+  return `${base}/${collection.slug}`;
+}
+
+/** Share URL uses only canonical cloud links — never hash payloads */
+export function buildShareableCardUrl(
+  payload: PublicSharePayload,
+  handle?: string,
+  opts?: { collection?: Collection | null }
+): string {
+  const h = handle?.trim().toLowerCase();
+  if (!h) return "";
+  if (opts?.collection?.slug) return buildPublicListUrl(h, opts.collection);
+  return buildPublicProfileUrl(h);
+}
+
 export function appBaseUrl(): string {
-  if (typeof window !== "undefined" && window.location.origin) {
-    return window.location.origin;
-  }
+  return canonicalSiteOrigin();
+}
+
+export function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || "Someone";
+}
+
+export function buildInviteLink(profile: UserProfile): string {
+  const base = canonicalSiteOrigin();
+  if (profile.handle?.trim())
+    return buildInviteUrl(base, profile.handle);
   return "";
 }
 
+/** Short WhatsApp-friendly message — link does the heavy lifting */
+export function buildTopFourShareBlurb(
+  profile: UserProfile,
+  topPlaces: UserPlace[],
+  placeById: Record<string, Place>
+): string {
+  const name = firstName(profile.name);
+  const count = topPlaces.length;
+  if (count === 0) {
+    return `${name} is sharing their taste in ${profile.city} on Vouch.`;
+  }
+
+  const previewNames = topPlaces
+    .slice(0, 2)
+    .map((item) => placeById[item.placeId]?.name)
+    .filter(Boolean);
+
+  const taste = profile.tasteTags.slice(0, 2).join(" · ");
+  const spots =
+    previewNames.length >= 2
+      ? `${previewNames[0]} & ${previewNames[1]}`
+      : previewNames[0] || `${count} spots`;
+
+  return taste
+    ? `${name}'s ${count} vouched spots in ${profile.city} — ${spots}. ${taste}.`
+    : `${name}'s ${count} vouched spots in ${profile.city} — ${spots}.`;
+}
+
+export function buildPlaceShareBlurb(place: Place, profile: UserProfile): string {
+  return `${firstName(profile.name)} vouches for ${place.name} (${place.area})`;
+}
+
+export function buildCollectionShareBlurb(collection: Collection, profile: UserProfile): string {
+  return `${firstName(profile.name)} shared "${collection.title}" on Vouch`;
+}
+
+export function buildShareMessage(blurb: string, url: string): string {
+  if (!url) return blurb;
+  return `${blurb.trim()}\n\n${url}`;
+}
+
+/** @deprecated Long-form — only for in-app reference */
 export function buildTopFourShareText(
   profile: UserProfile,
   topPlaces: UserPlace[],
   placeById: Record<string, Place>
 ): string {
-  const lines = topPlaces
-    .map((item, index) => {
-      const place = placeById[item.placeId];
-      if (!place) return null;
-      return `${index + 1}. ${place.name} (${place.area}) — ${item.why || place.tip}`;
-    })
-    .filter(Boolean);
-
-  return [
-    `${profile.name}'s Top 4 in ${profile.city}`,
-    tasteBio(profile.tasteTags),
-    "",
-    ...lines,
-    "",
-    "Places I'd actually send a friend."
-  ].join("\n");
+  return buildTopFourShareBlurb(profile, topPlaces, placeById);
 }
 
 export function buildPlaceShareText(place: Place, why: string, profile: UserProfile): string {
-  return [
-    `${profile.name} vouches for ${place.name}`,
-    `${place.area} · ${place.city}`,
-    "",
-    why,
-    "",
-    place.caveat ? `Heads up: ${place.caveat}` : ""
-  ]
-    .filter(Boolean)
-    .join("\n");
+  return buildPlaceShareBlurb(place, profile);
 }
 
 export function buildCollectionShareText(
   collection: Collection,
   profile: UserProfile,
-  placeById: Record<string, Place>
+  _placeById: Record<string, Place>
 ): string {
-  const lines = collection.placeIds
-    .map((id, index) => {
-      const place = placeById[id];
-      if (!place) return null;
-      return `${index + 1}. ${place.name} — ${place.area}`;
-    })
-    .filter(Boolean);
-
-  return [collection.title, collection.note, "", ...lines, "", `— ${profile.name}, via Vouch`].join("\n");
+  return buildCollectionShareBlurb(collection, profile);
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
@@ -98,70 +159,63 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 }
 
 export function inviteMessage(profile: UserProfile): string {
-  const first = profile.name.trim().split(/\s+/)[0] || "I";
-  return `${first} is on Vouch — real places they'd send you in ${profile.city}. Make yours and we'll be connected.`;
+  const name = firstName(profile.name);
+  return `${name} invited you to Vouch — see their picks in ${profile.city} and make yours.`;
 }
 
-/** Public card URL — prefers stable handle link when cloud sync is active */
-export function buildPublicProfileUrl(
-  payload: PublicSharePayload,
-  handle?: string
-): string {
-  const base = appBaseUrl() || "https://vouch.app";
+export type PublicShareRoute = { handle: string; listSlug?: string };
 
-  if (handle) {
-    const url = new URL(base);
-    url.search = "";
-    url.hash = "";
-    url.searchParams.set("u", handle.toLowerCase());
-    return url.toString();
+/**
+ * Parses public profile URLs: `/:handle`, `/:handle/:list`, legacy `/p/:handle[/:list]`, `?u=&list=`.
+ */
+export function readPublicShareRoute(): PublicShareRoute | null {
+  if (typeof window === "undefined") return null;
+
+  const qs = new URLSearchParams(window.location.search);
+  const qh = qs.get("u")?.trim().toLowerCase();
+  const ql = qs.get("list")?.trim().toLowerCase();
+  if (qh?.length && /^[a-z0-9][a-z0-9-]{1,62}$/.test(qh)) {
+    const handle = RESERVED_HANDLE_PATHS.has(qh) ? null : qh;
+    if (handle && ql?.length && /^[a-z0-9][a-z0-9-]{0,80}$/.test(ql))
+      return { handle, listSlug: ql };
+    if (handle) return { handle };
   }
 
-  const topPlaces = payload.userPlaces
-    .filter((p) => p.top && p.state === "vouched")
-    .slice(0, 4)
-    .map((p) => p.placeId);
+  const path = window.location.pathname.replace(/\/$/, "") || "/";
 
-  const compact: CompactShareData = {
-    n: payload.profile.name,
-    c: payload.profile.city,
-    t: payload.profile.tasteTags.slice(0, 3),
-    p: topPlaces
-  };
-
-  const url = new URL(base);
-  url.search = "";
-  url.hash = `v=${encodeURIComponent(JSON.stringify(compact))}`;
-  return url.toString();
-}
-
-export function buildInviteLink(profile: UserProfile): string {
-  const base = appBaseUrl();
-  if (profile.handle) {
-    return buildInviteUrl(base, profile.handle);
-  }
-  return buildPublicProfileUrl(
-    {
-      profile: {
-        name: profile.name,
-        city: profile.city,
-        tasteTags: profile.tasteTags
-      },
-      userPlaces: [],
-      collections: [],
-      sharedAt: Date.now()
-    },
-    undefined
+  const legacy = path.match(
+    /^\/p\/([a-z0-9][a-z0-9-]{1,62})(?:\/([a-z0-9][a-z0-9-]{0,80}))?$/i
   );
+  if (legacy?.[1]) {
+    const handle = legacy[1].toLowerCase();
+    if (!RESERVED_HANDLE_PATHS.has(handle))
+      return legacy[2]?.length ? { handle, listSlug: legacy[2].toLowerCase() } : { handle };
+  }
+
+  const two = path.match(
+    /^\/([a-z0-9][a-z0-9-]{1,62})\/([a-z0-9][a-z0-9-]{0,80})$/i
+  );
+  if (two?.[1] && two[2]) {
+    const handle = two[1].toLowerCase();
+    if (!RESERVED_HANDLE_PATHS.has(handle)) return { handle, listSlug: two[2].toLowerCase() };
+  }
+
+  const one = path.match(/^\/([a-z0-9][a-z0-9-]{1,62})$/i);
+  if (one?.[1]) {
+    const handle = one[1].toLowerCase();
+    if (!RESERVED_HANDLE_PATHS.has(handle)) return { handle };
+  }
+
+  return null;
+}
+
+export function readHandleFromUrl(): string | null {
+  return readPublicShareRoute()?.handle ?? null;
 }
 
 export function readPublicProfileFromUrl(): PublicSharePayload | null {
   try {
-    const params = new URLSearchParams(window.location.search);
-    const handle = params.get("u");
-    if (handle) {
-      return null;
-    }
+    if (readHandleFromUrl()) return null;
 
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const compactRaw = hashParams.get("v");
@@ -189,9 +243,12 @@ export function readPublicProfileFromUrl(): PublicSharePayload | null {
   }
 }
 
-export function readHandleFromUrl(): string | null {
-  const handle = new URLSearchParams(window.location.search).get("u")?.trim().toLowerCase();
-  return handle || null;
+export function teaserPlaceCount(total: number): number {
+  return Math.min(TEASER_PLACES, total);
+}
+
+export function lockedPlaceCount(total: number): number {
+  return Math.max(0, total - TEASER_PLACES);
 }
 
 export function openWhatsApp(text: string): void {
@@ -202,17 +259,23 @@ export function openWhatsApp(text: string): void {
 export async function nativeShare(data: {
   title: string;
   text: string;
-  url: string;
+  /** Optional — included in body text and passed to Navigator.share where supported */
+  url?: string;
 }): Promise<"shared" | "copied" | "failed"> {
+  const message = data.url ? buildShareMessage(data.text, data.url) : `${data.text}`.trim();
+
   if (navigator.share) {
     try {
-      await navigator.share(data);
+      const payload: ShareData = { title: data.title };
+      if (message) payload.text = message;
+      if (data.url && data.url.length > 0) payload.url = data.url;
+      await navigator.share(payload);
       return "shared";
     } catch {
-      // User cancelled or share failed — fall through to clipboard
+      // cancelled
     }
   }
 
-  const copied = await copyToClipboard(`${data.text}\n\n${data.url}`);
+  const copied = await copyToClipboard(message);
   return copied ? "copied" : "failed";
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { HomeScreen } from "./components/screens/HomeScreen";
 import { CollectionDetail } from "./components/screens/CollectionDetail";
 import { FriendDetail } from "./components/screens/FriendDetail";
@@ -21,29 +21,40 @@ import { BottomNav } from "./components/ui/BottomNav";
 import { StampOverlay } from "./components/ui/StampOverlay";
 import { Toast } from "./components/ui/Toast";
 import { useVouchStore } from "./hooks/useVouchStore";
-import { fetchPublicVouchByHandle, isCloudEnabled, placesForPublicPayload } from "./lib/cloud";
+import type { CircleFeedItem, FriendVouchCard } from "./types";
+import { friendsVouchingFor } from "./lib/circle";
+import { MIN_VOUCHED_PLACES_PER_LIST } from "./lib/collectionRules";
+import { fetchFriendVouchCard, fetchPublicVouchByHandle, isCloudEnabled, placesForPublicPayload } from "./lib/cloud";
+import { recordPlaceSave } from "./lib/influence";
 import { parseInviteFromUrl } from "./lib/invite";
+import { slugifyListTitle } from "./lib/listSlug";
 import { placesFromFriend } from "./lib/selectors";
 import {
-  buildCollectionShareText,
+  buildCollectionShareBlurb,
   buildInviteLink,
-  buildPlaceShareText,
-  buildPublicProfileUrl,
-  buildTopFourShareText,
+  buildPlaceShareBlurb,
+  buildShareableCardUrl,
+  buildTopFourShareBlurb,
+  canonicalSiteOrigin,
   copyToClipboard,
   inviteMessage,
   nativeShare,
   openWhatsApp,
-  readHandleFromUrl,
-  readPublicProfileFromUrl
+  readPublicProfileFromUrl,
+  readPublicShareRoute,
+  type PublicSharePayload
 } from "./lib/share";
 
 function App() {
   const hashProfile = useMemo(() => readPublicProfileFromUrl(), []);
-  const publicHandle = useMemo(() => readHandleFromUrl(), []);
+  const publicRoute = useMemo(() => readPublicShareRoute(), []);
+  const publicHandle = publicRoute?.handle ?? null;
+  const publicListSlug = publicRoute?.listSlug ?? null;
   const [remoteProfile, setRemoteProfile] = useState<Awaited<ReturnType<typeof fetchPublicVouchByHandle>> | undefined>(
     publicHandle ? undefined : null
   );
+
+  const store = useVouchStore();
 
   useEffect(() => {
     parseInviteFromUrl();
@@ -65,7 +76,15 @@ function App() {
 
   const publicProfile = publicHandle ? remoteProfile ?? undefined : hashProfile;
 
-  const store = useVouchStore();
+  const publicFeaturedCollectionId = useMemo(() => {
+    if (!publicProfile?.collections?.length || !publicListSlug) return null;
+    const want = publicListSlug.toLowerCase();
+    const bySlug = publicProfile.collections.find((c) => c.slug?.toLowerCase() === want);
+    if (bySlug) return bySlug.id;
+    return (
+      publicProfile.collections.find((c) => slugifyListTitle(c.title).toLowerCase() === want)?.id ?? null
+    );
+  }, [publicProfile, publicListSlug]);
   const {
     hydrated,
     cloudSyncing,
@@ -111,11 +130,93 @@ function App() {
     setActiveCollectionId,
     finishOnboarding,
     resetApp,
-    flushCloudSync
+    flushCloudSync,
+    circleFeed,
+    circleLoading,
+    friendVouchCards,
+    influenceEvents,
+    refreshCircle,
+    getFriendCard,
+    cloudEnabled,
+    authEmail,
+    authAnonymous,
+    authBusy,
+    linkEmail,
+    signInEmail,
+    addDiscoveredPlace,
+    addLinkedFriend
   } = store;
 
+  const tryOpenCollectionSheet = useCallback(() => {
+    if (vouched.length < MIN_VOUCHED_PLACES_PER_LIST) {
+      showToast(`Vouch ${MIN_VOUCHED_PLACES_PER_LIST} places first — lists only bundle spots you stamped.`);
+      return;
+    }
+    setSheet("collection");
+  }, [vouched.length, showToast, setSheet]);
+
   const [activeFriendId, setActiveFriendId] = useState<string | null>(null);
+  const [activeFriendCard, setActiveFriendCard] = useState<FriendVouchCard | null>(null);
+  const [activeFriendCardLoading, setActiveFriendCardLoading] = useState(false);
   const activeFriend = activeFriendId ? friends.find((f) => f.id === activeFriendId) : undefined;
+
+  const savedPlaceIds = useMemo(() => new Set(saved.map((s) => s.placeId)), [saved]);
+
+  useEffect(() => {
+    if (!profile.onboarded) return;
+    if (tab === "home") void refreshCircle();
+  }, [tab, profile.onboarded, refreshCircle]);
+
+  useEffect(() => {
+    if (!profile.onboarded) return;
+    const onFocus = () => void refreshCircle();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [profile.onboarded, refreshCircle]);
+
+  useEffect(() => {
+    if (!activeFriend?.profileHandle) {
+      setActiveFriendCard(null);
+      setActiveFriendCardLoading(false);
+      return;
+    }
+    const handle = activeFriend.profileHandle.toLowerCase();
+    const cached = friendVouchCards[handle];
+    if (cached) {
+      setActiveFriendCard(cached);
+      setActiveFriendCardLoading(false);
+      return;
+    }
+    setActiveFriendCardLoading(true);
+    let cancelled = false;
+    void getFriendCard(activeFriend.profileHandle).then((card) => {
+      if (!cancelled) {
+        setActiveFriendCard(card);
+        setActiveFriendCardLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeFriend?.id, activeFriend?.profileHandle, friendVouchCards, getFriendCard]);
+
+  const handleSaveFromCircle = (item: CircleFeedItem) => {
+    saveFromFriend(item.placeId, item.friendId, item.why);
+
+    const myHandle = profile.handle;
+    const friend = friends.find((f) => f.id === item.friendId);
+    const sourceHandle = friend?.profileHandle ?? item.friendHandle;
+    if (cloudEnabled && myHandle && sourceHandle) {
+      void recordPlaceSave({
+        sourceHandle,
+        actorHandle: myHandle,
+        actorName: profile.name,
+        placeId: item.placeId,
+        placeName: item.placeName,
+        placeImage: item.image
+      });
+    }
+  };
 
   const queryTerm = query.trim().toLowerCase();
   const filteredVouched = useMemo(
@@ -165,19 +266,37 @@ function App() {
     [profile, userPlaces, collections]
   );
 
-  const shareTitle = activePlace ? activePlace.name : activeCollection ? activeCollection.title : "Share your Top 4";
-  const shareBody = activePlace
-    ? buildPlaceShareText(activePlace, activeUserPlace?.why || activePlace.tip, profile)
+  const shareBlurb = activePlace
+    ? buildPlaceShareBlurb(activePlace, profile)
     : activeCollection
-      ? buildCollectionShareText(activeCollection, profile, placeById)
-      : buildTopFourShareText(profile, topPlaces, placeById);
-  const shareUrl = buildPublicProfileUrl(sharePayload, profile.handle);
+      ? buildCollectionShareBlurb(activeCollection, profile)
+      : buildTopFourShareBlurb(profile, topPlaces, placeById);
+  const shareUrl = useMemo(
+    () =>
+      buildShareableCardUrl(sharePayload as PublicSharePayload, profile.handle, {
+        collection: activeCollection?.slug ? activeCollection : undefined
+      }),
+    [sharePayload, profile.handle, activeCollection]
+  );
+
+  useEffect(() => {
+    if (sheet === "share" && cloudEnabled && !profile.handle) {
+      flushCloudSync();
+    }
+  }, [sheet, cloudEnabled, profile.handle, flushCloudSync]);
   const inviteUrl = buildInviteLink(profile);
   const sharePlaces = activePlace
     ? [activePlace]
     : activeCollection
       ? activeCollection.placeIds.map((id) => placeById[id]).filter(Boolean)
       : topPlaces.map((item) => placeById[item.placeId]).filter(Boolean);
+
+  /** Clean URL bar after server redirect (?u=&list=) */
+  useEffect(() => {
+    if (!hydrated || !publicProfile || !publicHandle) return;
+    const tail = publicListSlug ? `/${publicListSlug}` : "";
+    window.history.replaceState(window.history.state, "", `/${publicHandle}${tail}`);
+  }, [hydrated, publicProfile, publicHandle, publicListSlug]);
 
   if (!hydrated && !publicProfile && publicHandle && remoteProfile === undefined) {
     return (
@@ -232,10 +351,11 @@ function App() {
             payload={publicProfile}
             placeById={publicPlaces}
             inviterHandle={invite}
+            featuredCollectionId={publicFeaturedCollectionId}
             onStart={() => {
-              window.history.replaceState(null, "", window.location.pathname);
+              window.history.replaceState(window.history.state, "", "/");
               if (invite) {
-                window.location.href = `${window.location.origin}${window.location.pathname}?invite=${invite}`;
+                window.location.href = `${canonicalSiteOrigin()}/?invite=${encodeURIComponent(invite)}`;
               } else {
                 window.location.reload();
               }
@@ -275,19 +395,21 @@ function App() {
           />
         ) : (
           <>
-            {!inDetail && tab !== "home" && <AppHeader tab={tab} onShare={() => setSheet("share")} />}
+            {!inDetail && tab !== "home" && tab !== "you" && <AppHeader tab={tab} onShare={() => setSheet("share")} />}
             <div className="screen">
               {activePlace ? (
                 <PlaceDetail
                   place={activePlace}
                   userPlace={activeUserPlace}
                   friend={activeUserPlace?.addedFrom ? friends.find((f) => f.id === activeUserPlace.addedFrom) : undefined}
+                  circleVouchers={friendsVouchingFor(activePlace.id, friends, friendVouchCards)}
                   onBack={closeDetail}
                   onWant={() => setPlaceState(activePlace.id, "want")}
                   onVouch={(why, tags) => confirmVouch(activePlace.id, why, tags)}
                   onUpdateNote={(why, tags) => updatePlaceNote(activePlace.id, why, tags)}
                   onRemove={() => removePlace(activePlace.id)}
                   onShare={() => setSheet("share")}
+                  onOpenFriend={setActiveFriendId}
                 />
               ) : activeCollection ? (
                 <CollectionDetail
@@ -303,9 +425,15 @@ function App() {
                   friend={activeFriend}
                   recsFromFriend={placesFromFriend(userPlaces, activeFriend.id)}
                   placeById={placeById}
+                  liveCard={activeFriendCard}
+                  liveCardLoading={activeFriendCardLoading}
+                  savedPlaceIds={savedPlaceIds}
                   onBack={() => setActiveFriendId(null)}
                   onLogRec={() => setSheet("friend-rec")}
                   onOpenPlace={openPlace}
+                  onSaveFromLive={(placeId, why) =>
+                    saveFromFriend(placeId, activeFriend.id, why)
+                  }
                 />
               ) : (
                 <>
@@ -314,21 +442,29 @@ function App() {
                       profile={profile}
                       topPlaces={topPlaces}
                       vouched={vouched}
+                      want={want}
                       saved={saved}
                       friends={friends}
                       collections={collections}
                       placeById={placeById}
+                      circleFeed={circleFeed}
+                      circleLoading={circleLoading}
+                      influenceEvents={influenceEvents}
+                      cloudEnabled={cloudEnabled}
                       onShare={() => setSheet("share")}
                       onOpenTopFour={() => setSheet("top-four")}
                       onOpenPlace={openPlace}
                       onOpenCollection={setActiveCollectionId}
+                      onOpenAddPlace={() => setSheet("add")}
                       onAddFriend={() => setSheet("friend")}
                       onLogFriendRec={() => setSheet("friend-rec")}
-                      onCreateCollection={() => setSheet("collection")}
+                      onCreateCollection={tryOpenCollectionSheet}
                       onQuickPlan={(contextId) => {
                         setPlanContext(contextId);
                         setTab("places");
                       }}
+                      onRefreshCircle={() => void refreshCircle()}
+                      onSaveFromCircle={handleSaveFromCircle}
                     />
                   )}
                   {tab === "places" && (
@@ -352,18 +488,25 @@ function App() {
                       saved={filteredSaved}
                       placeById={placeById}
                       friends={friends}
+                      circleFeed={circleFeed}
                       onOpenAddSheet={() => setSheet("add")}
                       onOpenPlace={openPlace}
+                      onSaveFromCircle={handleSaveFromCircle}
                     />
                   )}
                   {tab === "friends" && (
                     <FriendsScreen
                       friends={friends}
                       userPlaces={userPlaces}
-                      placeById={placeById}
+                      friendVouchCards={friendVouchCards}
+                      cloudEnabled={cloudEnabled}
                       onInvite={() => setSheet("friend")}
                       onOpenFriend={setActiveFriendId}
                       onLogRecommendation={() => setSheet("friend-rec")}
+                      onLookupHandle={fetchFriendVouchCard}
+                      onAddLinkedFriend={(card) => {
+                        addLinkedFriend(card);
+                      }}
                     />
                   )}
                   {tab === "you" && (
@@ -377,10 +520,16 @@ function App() {
                       onOpenPlace={openPlace}
                       onOpenCollection={setActiveCollectionId}
                       onOpenTopFour={() => setSheet("top-four")}
-                      onCreateCollection={() => setSheet("collection")}
+                      onCreateCollection={tryOpenCollectionSheet}
                       onShare={() => setSheet("share")}
                       onUpdateProfile={updateProfile}
                       onReset={resetApp}
+                      cloudEnabled={cloudEnabled}
+                      authEmail={authEmail}
+                      authAnonymous={authAnonymous}
+                      authBusy={authBusy}
+                      onLinkEmail={linkEmail}
+                      onSignInEmail={signInEmail}
                     />
                   )}
                 </>
@@ -400,21 +549,20 @@ function App() {
             profile={profile}
             onClose={() => setSheet(null)}
             onOpenPlace={openPlace}
-            onWant={(placeId) => {
-              setPlaceState(placeId, "want");
-              setSheet(null);
-            }}
-            onVouch={(placeId, why, tags) => confirmVouch(placeId, why, tags)}
             onAddCustomPlace={addCustomPlace}
+            onAddGooglePlace={addDiscoveredPlace}
           />
         )}
         {sheet === "share" && (
           <ShareSheet
-            title={shareTitle}
-            body={shareBody}
+            profile={profile}
+            blurb={shareBlurb}
             url={shareUrl}
             places={sharePlaces}
+            cloudEnabled={cloudEnabled}
+            cloudSyncing={cloudSyncing}
             onClose={() => setSheet(null)}
+            onSyncLink={flushCloudSync}
             onCopy={async (text) => {
               const copied = await copyToClipboard(text);
               showToast(copied ? "Copied to clipboard" : "Copy failed");

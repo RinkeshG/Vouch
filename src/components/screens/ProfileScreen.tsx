@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Check, Share2 } from "lucide-react";
+import { Check, Plus, Settings, Share2 } from "lucide-react";
 import { CITY_OPTIONS, TASTE_TAGS } from "../../data/taste";
 import { tasteBio } from "../../lib/format";
+import { MIN_VOUCHED_PLACES_PER_LIST } from "../../lib/collectionRules";
 import type { Collection, Place, UserPlace, UserProfile } from "../../types";
-import { EmptyState } from "../ui/EmptyState";
-import { PlaceCard } from "../ui/PlaceCard";
-import { SectionTitle } from "../ui/SectionTitle";
 
 export function ProfileScreen({
   profile,
@@ -20,7 +18,13 @@ export function ProfileScreen({
   onCreateCollection,
   onShare,
   onUpdateProfile,
-  onReset
+  onReset,
+  cloudEnabled,
+  authEmail,
+  authAnonymous,
+  authBusy,
+  onLinkEmail,
+  onSignInEmail
 }: {
   profile: UserProfile;
   topPlaces: UserPlace[];
@@ -35,215 +39,364 @@ export function ProfileScreen({
   onShare: () => void;
   onUpdateProfile: (partial: Partial<UserProfile>) => void;
   onReset: () => void;
+  cloudEnabled: boolean;
+  authEmail: string | null;
+  authAnonymous: boolean;
+  authBusy: boolean;
+  onLinkEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
+  onSignInEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
 }) {
-  const [editingSettings, setEditingSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [draftName, setDraftName] = useState(profile.name);
   const [draftCity, setDraftCity] = useState(profile.city);
   const [draftTags, setDraftTags] = useState<string[]>([...profile.tasteTags]);
+  const [emailInput, setEmailInput] = useState(authEmail ?? "");
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+
+  const pinned = topPlaces.slice(0, 4).map((item) => placeById[item.placeId]).filter(Boolean);
 
   function openSettings() {
     setDraftName(profile.name);
     setDraftCity(profile.city);
     setDraftTags([...profile.tasteTags]);
-    setEditingSettings(true);
+    setShowSettings(true);
   }
 
   function saveSettings() {
     onUpdateProfile({ name: draftName, city: draftCity, tasteTags: draftTags });
-    setEditingSettings(false);
+    setShowSettings(false);
   }
 
-  function toggleTag(tag: string) {
-    setDraftTags((current) =>
-      current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag]
+  async function handleEmail() {
+    setEmailError(null);
+    const fn = authAnonymous ? onLinkEmail : onSignInEmail;
+    const result = await fn(emailInput);
+    if (result.ok) setEmailSent(true);
+    else setEmailError(result.error ?? "Something went wrong");
+  }
+
+  if (showSettings) {
+    return (
+      <SettingsView
+        profile={profile}
+        draftName={draftName}
+        setDraftName={setDraftName}
+        draftCity={draftCity}
+        setDraftCity={setDraftCity}
+        draftTags={draftTags}
+        setDraftTags={setDraftTags}
+        onClose={() => setShowSettings(false)}
+        onSave={saveSettings}
+        onReset={onReset}
+        confirmReset={confirmReset}
+        setConfirmReset={setConfirmReset}
+        cloudEnabled={cloudEnabled}
+        authEmail={authEmail}
+        authBusy={authBusy}
+        emailInput={emailInput}
+        setEmailInput={setEmailInput}
+        emailSent={emailSent}
+        emailError={emailError}
+        handleEmail={handleEmail}
+      />
     );
   }
 
   return (
-    <div className="content-stack profile-screen">
-      <section className="profile-hero">
-        <div className="profile-topline">
-          <div className="profile-avatar">
-            {(profile.name || "Y").trim().charAt(0).toUpperCase()}
-          </div>
-          <button type="button" className="small-button" onClick={onShare}>
-            <Share2 size={14} /> Share
-          </button>
+    <div className="you">
+      <header className="you-head">
+        <div className="you-avatar">{(profile.name || "V").trim().charAt(0).toUpperCase()}</div>
+        <div className="you-meta">
+          <h1 className="you-name">{profile.name}</h1>
+          <p className="you-city">{profile.city}</p>
         </div>
-        <p className="eyebrow">{profile.city}</p>
-        <h2>{profile.name}'s Vouch</h2>
-        {profile.handle && <p className="profile-handle">vouch.app/u/{profile.handle}</p>}
-        <p className="profile-bio">{tasteBio(profile.tasteTags)}</p>
-      </section>
+        <button
+          type="button"
+          className="you-cog"
+          onClick={openSettings}
+          aria-label="Settings"
+        >
+          <Settings size={18} />
+        </button>
+      </header>
 
-      <section className="impact-strip">
-        <div>
-          <strong>{vouched.length}</strong>
-          <span>vouched</span>
-        </div>
-        <div>
-          <strong>{savesFromFriends}</strong>
-          <span>from friends</span>
-        </div>
-        <div>
-          <strong>{collections.length}</strong>
-          <span>lists</span>
-        </div>
-      </section>
+      <p className="you-taste">{tasteBio(profile.tasteTags)}</p>
 
-      <SectionTitle title="Top 4" action="Reorder" onAction={onOpenTopFour} />
-      {topPlaces.length === 0 ? (
-        <EmptyState icon={<Share2 size={18} />}>
-          <p>Vouch at least four places to unlock your Top 4.</p>
-        </EmptyState>
-      ) : (
-        <div className="stack-list">
-          {topPlaces.map((item, index) => {
-            const place = placeById[item.placeId];
-            if (!place) return null;
-            return (
-              <PlaceCard
-                key={item.placeId}
-                place={place}
-                userPlace={item}
-                onClick={() => onOpenPlace(item.placeId)}
-                index={index + 1}
-                stamped
-              />
-            );
-          })}
-        </div>
-      )}
-
-      <SectionTitle title="Collections" action="New" onAction={onCreateCollection} />
-      {collections.length === 0 ? (
-        <EmptyState icon={<Share2 size={18} />}>
-          <p>Group places into themed lists — date spots, brunch picks, visitor musts.</p>
-        </EmptyState>
-      ) : (
-        <div className="stack-list">
-          {collections.map((collection) => (
-            <button
-              type="button"
-              className="collection-wide-card"
-              key={collection.id}
-              onClick={() => onOpenCollection(collection.id)}
-            >
-              <div className="collection-preview">
-                {collection.placeIds.slice(0, 3).map((id) => (
-                  <img src={placeById[id]?.image} alt="" key={id} />
-                ))}
-              </div>
-              <div>
-                <strong>{collection.title}</strong>
-                <p>{collection.note}</p>
-              </div>
-              <span className="mini-stamp">{collection.placeIds.length} places</span>
-            </button>
+      {profile.tasteTags.length > 0 && (
+        <div className="you-tags">
+          {profile.tasteTags.slice(0, 6).map((tag) => (
+            <span key={tag} className="you-tag">{tag}</span>
           ))}
         </div>
       )}
 
-      <SectionTitle
-        title="Settings"
-        action={editingSettings ? undefined : "Edit"}
-        onAction={editingSettings ? undefined : openSettings}
-      />
+      <div className="you-stats">
+        <span><strong>{vouched.length}</strong> vouched</span>
+        <span className="you-stats-dot" aria-hidden>·</span>
+        <span><strong>{collections.length}</strong> {collections.length === 1 ? "list" : "lists"}</span>
+        <span className="you-stats-dot" aria-hidden>·</span>
+        <span><strong>{savesFromFriends}</strong> saves from friends</span>
+      </div>
 
-      {editingSettings ? (
-        <div className="inline-edit-form">
-          <label className="field">
-            <span>Name</span>
-            <input
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              placeholder="Your name"
-            />
-          </label>
-          <label className="field">
-            <span>City</span>
-            <div className="city-row-grid">
-              {CITY_OPTIONS.map((city) => (
-                <button
-                  type="button"
-                  key={city}
-                  className={draftCity === city ? "city-chip selected" : "city-chip"}
-                  onClick={() => setDraftCity(city)}
-                >
-                  {draftCity === city && <Check size={13} />}
-                  {city}
-                </button>
-              ))}
-            </div>
-          </label>
-          <label className="field">
-            <span>Taste tags</span>
-            <div className="tag-cloud">
-              {TASTE_TAGS.map((tag) => (
-                <button
-                  type="button"
-                  key={tag}
-                  className={draftTags.includes(tag) ? "taste-tag active" : "taste-tag"}
-                  onClick={() => toggleTag(tag)}
-                >
-                  {draftTags.includes(tag) && <Check size={12} />}
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </label>
-          <div className="dual-actions">
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => setEditingSettings(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="primary-button"
-              onClick={saveSettings}
-              disabled={draftName.trim().length < 2}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      ) : (
-        <section className="settings-section">
-          <div className="settings-row">
-            <strong>Name</strong>
-            <span>{profile.name}</span>
-          </div>
-          <div className="settings-row">
-            <strong>City</strong>
-            <span>{profile.city}</span>
-          </div>
-          <div className="settings-row">
-            <strong>Taste</strong>
-            <span>{profile.tasteTags.slice(0, 3).join(", ")}</span>
-          </div>
-          <div className="settings-row">
-            <strong>Reset</strong>
-            {confirmReset ? (
-              <div style={{ display: "flex", gap: 8 }}>
-                <button type="button" onClick={() => setConfirmReset(false)}>
-                  Cancel
-                </button>
-                <button type="button" className="danger-text" onClick={onReset}>
-                  Confirm reset
-                </button>
-              </div>
-            ) : (
-              <button type="button" className="danger-text" onClick={() => setConfirmReset(true)}>
-                Start over
+      <button type="button" className="you-share" onClick={onShare}>
+        <Share2 size={15} /> Share my Vouch
+      </button>
+
+      {pinned.length > 0 && (
+        <div className="you-pinned">
+          <div className="you-pinned-row">
+            {pinned.map((place) => (
+              <button
+                type="button"
+                key={place.id}
+                className="you-pinned-thumb"
+                onClick={() => onOpenPlace(place.id)}
+                aria-label={place.name}
+              >
+                <img src={place.image} alt="" loading="lazy" />
               </button>
-            )}
+            ))}
+            {Array.from({ length: Math.max(0, 4 - pinned.length) }).map((_, i) => (
+              <div key={`empty-${i}`} className="you-pinned-thumb empty" aria-hidden />
+            ))}
+          </div>
+          <button type="button" className="you-pinned-edit" onClick={onOpenTopFour}>
+            {pinned.length === 4 ? "Edit pinned" : `Pin ${4 - pinned.length} more`}
+          </button>
+        </div>
+      )}
+
+      {vouched.length === 0 ? (
+        <section className="you-empty">
+          <p>Start your Vouch list — add the places you actually recommend.</p>
+        </section>
+      ) : (
+        <section className="you-section">
+          <h2 className="you-section-title">Vouched</h2>
+          <div className="you-list">
+            {vouched.map((item) => {
+              const place = placeById[item.placeId];
+              if (!place) return null;
+              return (
+                <button
+                  type="button"
+                  key={item.placeId}
+                  className="you-row"
+                  onClick={() => onOpenPlace(item.placeId)}
+                >
+                  <img src={place.image} alt="" loading="lazy" />
+                  <div className="you-row-body">
+                    <strong>{place.name}</strong>
+                    <span>{place.area}</span>
+                    {item.why && <p>{item.why}</p>}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
+
+      <section className="you-section">
+        <div className="you-section-head">
+          <h2 className="you-section-title">Lists</h2>
+          {collections.length > 0 && (
+            <button type="button" className="you-section-action" onClick={onCreateCollection}>
+              + New
+            </button>
+          )}
+        </div>
+        {collections.length === 0 ? (
+          vouched.length >= MIN_VOUCHED_PLACES_PER_LIST ? (
+            <button type="button" className="you-list-empty" onClick={onCreateCollection}>
+              <Plus size={16} />
+              <div>
+                <strong>Start a list</strong>
+                <span>Group your vouches — Goa picks, date spots, visitor musts.</span>
+              </div>
+            </button>
+          ) : (
+            <p className="you-list-hint">
+              Stamp at least {MIN_VOUCHED_PLACES_PER_LIST} places — then you can weave them into shareable lists
+              (&ldquo;visitor breakfast,&rdquo; &ldquo;late chai,&rdquo; etc.).
+            </p>
+          )
+        ) : (
+          <div className="you-lists">
+            {collections.map((c) => (
+              <button
+                type="button"
+                key={c.id}
+                className="you-list-card"
+                onClick={() => onOpenCollection(c.id)}
+              >
+                <div className="you-list-thumbs">
+                  {c.placeIds.slice(0, 3).map((id) => (
+                    <img key={id} src={placeById[id]?.image} alt="" loading="lazy" />
+                  ))}
+                </div>
+                <strong>{c.title}</strong>
+                <span>{c.placeIds.length} place{c.placeIds.length === 1 ? "" : "s"}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function SettingsView({
+  profile,
+  draftName,
+  setDraftName,
+  draftCity,
+  setDraftCity,
+  draftTags,
+  setDraftTags,
+  onClose,
+  onSave,
+  onReset,
+  confirmReset,
+  setConfirmReset,
+  cloudEnabled,
+  authEmail,
+  authBusy,
+  emailInput,
+  setEmailInput,
+  emailSent,
+  emailError,
+  handleEmail
+}: {
+  profile: UserProfile;
+  draftName: string;
+  setDraftName: (v: string) => void;
+  draftCity: string;
+  setDraftCity: (v: string) => void;
+  draftTags: string[];
+  setDraftTags: (updater: (current: string[]) => string[]) => void;
+  onClose: () => void;
+  onSave: () => void;
+  onReset: () => void;
+  confirmReset: boolean;
+  setConfirmReset: (v: boolean) => void;
+  cloudEnabled: boolean;
+  authEmail: string | null;
+  authBusy: boolean;
+  emailInput: string;
+  setEmailInput: (v: string) => void;
+  emailSent: boolean;
+  emailError: string | null;
+  handleEmail: () => void;
+}) {
+  return (
+    <div className="you-settings">
+      <header className="you-settings-head">
+        <h2>Edit profile</h2>
+        <button type="button" onClick={onClose}>Done</button>
+      </header>
+
+      <label className="field">
+        <span>Name</span>
+        <input
+          value={draftName}
+          onChange={(e) => setDraftName(e.target.value)}
+          placeholder="Your name"
+        />
+      </label>
+
+      <label className="field">
+        <span>City</span>
+        <div className="city-row-grid">
+          {CITY_OPTIONS.map((city) => (
+            <button
+              type="button"
+              key={city}
+              className={draftCity === city ? "city-chip selected" : "city-chip"}
+              onClick={() => setDraftCity(city)}
+            >
+              {draftCity === city && <Check size={13} />}
+              {city}
+            </button>
+          ))}
+        </div>
+      </label>
+
+      <label className="field">
+        <span>Trusted for</span>
+        <div className="tag-cloud">
+          {TASTE_TAGS.map((tag) => (
+            <button
+              type="button"
+              key={tag}
+              className={draftTags.includes(tag) ? "taste-tag active" : "taste-tag"}
+              onClick={() =>
+                setDraftTags((current) =>
+                  current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag]
+                )
+              }
+            >
+              {draftTags.includes(tag) && <Check size={12} />}
+              {tag}
+            </button>
+          ))}
+        </div>
+      </label>
+
+      {cloudEnabled && !authEmail && (
+        <section className="you-settings-email">
+          <p>Save to your email so you never lose your Vouch.</p>
+          {emailSent ? (
+            <p className="you-settings-ok">Check your inbox for a confirmation link.</p>
+          ) : (
+            <div className="you-settings-email-row">
+              <input
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="you@example.com"
+              />
+              <button
+                type="button"
+                onClick={handleEmail}
+                disabled={authBusy || emailInput.trim().length < 5}
+              >
+                {authBusy ? "…" : "Save"}
+              </button>
+            </div>
+          )}
+          {emailError && <p className="you-settings-err">{emailError}</p>}
+        </section>
+      )}
+
+      {authEmail && <p className="you-settings-linked">Signed in as {authEmail}</p>}
+
+      <button
+        type="button"
+        className="you-settings-save"
+        onClick={onSave}
+        disabled={draftName.trim().length < 2}
+      >
+        Save changes
+      </button>
+
+      <div className="you-settings-reset">
+        {confirmReset ? (
+          <>
+            <span>This will erase everything.</span>
+            <button type="button" onClick={() => setConfirmReset(false)}>Cancel</button>
+            <button type="button" className="danger-text" onClick={onReset}>Confirm</button>
+          </>
+        ) : (
+          <button type="button" className="danger-text" onClick={() => setConfirmReset(true)}>
+            Start over
+          </button>
+        )}
+      </div>
     </div>
   );
 }

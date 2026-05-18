@@ -1,76 +1,65 @@
-# Vouch beta — what ships now vs later
+# Vouch v1 — what ships now vs later
 
-## Ships in this beta (real, not fake)
+## Ships in v1 (real, not fake)
 
 | Feature | How it works |
 |---------|----------------|
 | Your Top 4 + vouches | Stored in Supabase + local cache |
-| Public Vouch card | `?u=handle` — loaded from server |
+| Public Vouch card | `/p/handle` — teaser + join CTA |
 | Invite friends | `?invite=handle` — auto-connects after they onboard |
-| Share sheet | WhatsApp, copy link, native share |
-| Friend recs | Log place + attribution; shows on home |
+| **Live circle feed** | Home shows friends' vouched places from their public cards |
+| **Email sign-in** | You tab → save link or sign-in link; same account across devices |
+| **Google Places search** | Add a spot → search any restaurant/cafe in your city |
+| Share sheet | Short message + clean link, WhatsApp preview |
 | Need a spot? | Filters your vouched places by plan |
-| Place catalog | Real editorial copy for 6 Indian cities (not user-generated reviews) |
-| Custom places | You add name/area; stored in your profile |
+| Place catalog | Editorial picks for 6 Indian cities + Google long tail |
 | PWA | Installable, offline shell |
+
+**Requires cloud for sync + social:** `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` + `supabase/schema.sql`.
+
+**Google search on Vercel:** `GOOGLE_PLACES_API_KEY` (see DEPLOY.md).
 
 ---
 
-## Intentionally not in v1 (and why)
+## Intentionally not in v1 (upgrades, not blockers)
 
-### 1. Email / phone login
-**Why later:** Anonymous auth ships fastest for a friends-only beta. Downside: new browser or cleared data = new account unless you add email.  
-**v2:** Magic link or Google sign-in so your Vouch follows you across devices.
+### 1. Phone / SMS login
+Email magic link only for now.
 
-### 2. Live friend feed (“see what friends vouched today”)
-**Why later:** Needs every friend on cloud with real-time sync or push. Today, friends are **linked** when they join via invite; you **log** their recs manually (or they share their card).  
-**v2:** Activity feed from friends’ `public_vouches` updates.
+### 2. Push notifications ("Friend X just vouched Y")
+Feed refreshes when you open the app or return to the home tab — no background push yet.
 
-### 3. Automatic friend graph
-**Why later:** We record `invite_links` but don’t yet show “Friend X just vouched Y” without them sharing. Manual “log a rec” is the honest MVP for taste transfer.  
-**v2:** Subscribe to friends’ public card changes.
+### 3. Photos you took
+Google/catalog images only. Upload per vouch is a v2 storage/moderation project.
 
-### 4. Google Places search
-**Why later:** Catalog is curated for quality in beta cities. Custom add covers long tail.  
-**v2:** Places API autocomplete + photos.
+### 4. Ratings, reviews, follower counts
+Not Yelp. Core mechanic is trusted names, not crowdsourced stars.
 
-### 5. Photos you took
-**Why later:** Storage, moderation, and rights. Catalog uses licensed stock images.  
-**v2:** Upload per vouch (Supabase Storage).
+### 5. In-app messaging
+WhatsApp is the real channel; we use share sheets instead of rebuilding chat.
 
-### 6. Ratings, reviews, follower counts
-**Why later:** That’s Yelp, not Vouch. Product promise is **trusted names**, not crowdsourced stars.  
-**Not planned** as core mechanic.
+### 6. Multi-city catalogs per user
+One home city at onboarding (Google search still works in that city).
 
-### 7. In-app messaging / asking friends
-**Why later:** WhatsApp is the actual channel in India; we lean into share sheets instead of rebuilding chat.  
-**v2 maybe:** “Ask [friend] for a date spot” deep link only.
+### 7. Moderation / reporting
+Closed beta with people you know. Needed before public launch.
 
-### 8. Multi-city catalogs per user
-**Why later:** Onboarding picks one home city; catalog filters to it.  
-**v2:** Multiple cities on one profile.
-
-### 9. Moderation / reporting
-**Why later:** Closed beta with people you know.  
-**Before public launch:** Report profile, block handle.
-
-### 10. Native iOS / Android apps
-**Why later:** PWA is enough to validate daily use with 10–50 people.  
-**v2:** Wrapper or React Native if retention proves out.
+### 8. Native iOS / Android apps
+PWA is enough to validate with 10–50 friends.
 
 ---
 
 ## Known rough edges (honest)
 
-- **Same person, two browsers** = two accounts (until email auth).
-- **Manual friends** (name only) don’t have a live card until they join with your invite link.
-- **Public save** on someone’s card is session-only until you make your own Vouch (saved IDs aren’t migrated yet).
-- **Hash links** (`#v=...`) still work offline but don’t update when you edit your Top 4 — use `?u=handle` links when cloud is on.
+- **Manual friends** (name only, no invite link) don't have a live card.
+- **Public save** on someone else's card is session-only until you make your own Vouch.
+- **Circle refresh** is pull/focus-based, not real-time WebSockets.
+- **Google Places** billing applies on your Google Cloud project — set quotas.
 
 ---
 
 ## Recommended beta scope
 
-**Good for:** 10 friends in one city, WhatsApp invite loop, building your Top 4, logging recs to each other, planning nights out from your own vouches.
+**Good for:** 10 friends in one city, WhatsApp invite loop, email backup, adding any restaurant via Google, seeing each other's vouches on home.
 
-**Not yet for:** Public launch, strangers discovering you, replacing Google Maps, or daily use without ever sharing your link once.
+**Not yet for:** Public launch, strangers discovering you, or passive notifications without opening the app.

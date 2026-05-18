@@ -1,13 +1,26 @@
-import { Check, Copy, ExternalLink, MessageCircle, Search, Share2, Stamp, UserPlus } from "lucide-react";
+import { Check, Copy, Loader2, MapPin, MessageCircle, Search, Share2, UserPlus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { QUICK_VOUCH_TAGS } from "../../data/taste";
-import { openWhatsApp, nativeShare } from "../../lib/share";
+import { tasteBio } from "../../lib/format";
+import { useGooglePlacesSearch } from "../../hooks/useGooglePlacesSearch";
+import { googleSuggestionToPlace, type GooglePlaceSuggestion } from "../../lib/googlePlaces";
+import { buildShareMessage, nativeShare, openWhatsApp } from "../../lib/share";
+import { MIN_VOUCHED_PLACES_PER_LIST } from "../../lib/collectionRules";
 import type { Collection, Friend, Place, UserPlace, UserProfile } from "../../types";
 import { EmptyState } from "../ui/EmptyState";
 import { Sheet } from "../ui/Sheet";
 
 function uid(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function shareLinkSummary(url: string): string {
+  try {
+    const u = new URL(url);
+    const path = u.pathname === "/" || u.pathname === "" ? "" : u.pathname;
+    return `${u.host}${path}`;
+  } catch {
+    return "Ready to send";
+  }
 }
 
 export function AddPlaceSheet({
@@ -18,9 +31,8 @@ export function AddPlaceSheet({
   profile,
   onClose,
   onOpenPlace,
-  onWant,
-  onVouch,
-  onAddCustomPlace
+  onAddCustomPlace,
+  onAddGooglePlace
 }: {
   query: string;
   onQuery: (query: string) => void;
@@ -29,18 +41,29 @@ export function AddPlaceSheet({
   profile: UserProfile;
   onClose: () => void;
   onOpenPlace: (placeId: string) => void;
-  onWant: (placeId: string) => void;
-  onVouch: (placeId: string, why: string, tags: string[]) => void;
   onAddCustomPlace: (name: string, area: string) => string;
+  onAddGooglePlace: (place: Place) => string;
 }) {
-  const selected = searchedPlaces[0] ?? null;
-  const [why, setWhy] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const catalogMatches = useMemo(() => {
+    if (!query.trim()) return searchedPlaces.slice(0, 6);
+    return searchedPlaces.filter((p) => !p.googlePlaceId).slice(0, 6);
+  }, [searchedPlaces, query]);
+
   const [customName, setCustomName] = useState("");
   const [customArea, setCustomArea] = useState(profile.city);
+  const [googleAdding, setGoogleAdding] = useState<string | null>(null);
 
-  function toggleTag(tag: string) {
-    setTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]));
+  const { results: googleResults, loading: googleLoading } = useGooglePlacesSearch(query, profile.city, true);
+
+  async function pickGoogle(suggestion: GooglePlaceSuggestion) {
+    setGoogleAdding(suggestion.placeId);
+    try {
+      const place = await googleSuggestionToPlace(suggestion, profile.city);
+      const id = onAddGooglePlace(place);
+      onOpenPlace(id);
+    } finally {
+      setGoogleAdding(null);
+    }
   }
 
   return (
@@ -50,60 +73,58 @@ export function AddPlaceSheet({
         <input
           value={query}
           onChange={(event) => onQuery(event.target.value)}
-          placeholder="Search by place, area, or taste tag"
+          placeholder="Search restaurants, cafes, bars…"
         />
-      </div>
-      <div className="sheet-results">
-        {searchedPlaces.slice(0, 6).map((place) => {
-          const current = userPlaces.find((item) => item.placeId === place.id);
-          return (
-            <button type="button" className="sheet-place-row" key={place.id} onClick={() => onOpenPlace(place.id)}>
-              <img src={place.image} alt={place.name} />
-              <div>
-                <strong>{place.name}</strong>
-                <span>
-                  {place.area} · {place.tags[0] ?? "Add note"}
-                </span>
-              </div>
-              {current && <small>{current.state}</small>}
-            </button>
-          );
-        })}
+        {googleLoading && <Loader2 size={16} className="search-spinner" />}
       </div>
 
-      {selected && (
-        <div className="vouch-composer">
-          <p className="eyebrow">Stamp a real vouch</p>
-          <h3>{selected.name}</h3>
-          <textarea
-            value={why}
-            onChange={(event) => setWhy(event.target.value)}
-            placeholder="What would you actually tell a friend?"
-          />
-          <div className="tag-cloud compact">
-            {QUICK_VOUCH_TAGS.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                className={tags.includes(tag) ? "taste-tag active" : "taste-tag"}
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-          <div className="dual-actions">
-            <button type="button" className="secondary-button" onClick={() => onWant(selected.id)}>
-              Want to try
-            </button>
+      {query.trim().length >= 2 && googleResults.length > 0 && (
+        <div className="sheet-results sheet-results-google">
+          <p className="sheet-results-label">From Google Maps</p>
+          {googleResults.map((suggestion) => (
             <button
               type="button"
-              className="primary-button"
-              onClick={() => onVouch(selected.id, why || selected.tip, tags.length ? tags : selected.tags.slice(0, 3))}
+              className="sheet-place-row google-row"
+              key={suggestion.placeId}
+              disabled={googleAdding === suggestion.placeId}
+              onClick={() => void pickGoogle(suggestion)}
             >
-              <Stamp size={14} /> I vouch
+              <div className="google-row-icon">
+                <MapPin size={16} />
+              </div>
+              <div>
+                <strong>{suggestion.name}</strong>
+                <span>{suggestion.address}</span>
+              </div>
+              {googleAdding === suggestion.placeId ? (
+                <Loader2 size={14} className="search-spinner" />
+              ) : (
+                <small>Add</small>
+              )}
             </button>
-          </div>
+          ))}
+        </div>
+      )}
+
+      {catalogMatches.length > 0 && (
+        <div className="sheet-results">
+          <p className="sheet-results-label">From Vouch picks</p>
+          <p className="sheet-results-hint">Tap a place to open it — stamp or save from there.</p>
+          {catalogMatches.map((place) => {
+            const current = userPlaces.find((item) => item.placeId === place.id);
+            return (
+              <button type="button" className="sheet-place-row" key={place.id} onClick={() => onOpenPlace(place.id)}>
+                <img src={place.image} alt={place.name} />
+                <div>
+                  <strong>{place.name}</strong>
+                  <span>
+                    {place.area} · {place.tags[0] ?? "Editorial pick"}
+                  </span>
+                </div>
+                {current && <small>{current.state}</small>}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -135,71 +156,127 @@ export function AddPlaceSheet({
 }
 
 export function ShareSheet({
-  title,
-  body,
+  profile,
+  blurb,
   url,
   places,
+  cloudEnabled,
+  cloudSyncing,
   onClose,
-  onCopy
+  onCopy,
+  onSyncLink
 }: {
-  title: string;
-  body: string;
+  profile: UserProfile;
+  blurb: string;
   url: string;
   places: Place[];
+  cloudEnabled: boolean;
+  cloudSyncing: boolean;
   onClose: () => void;
   onCopy: (text: string) => void;
+  onSyncLink: () => void;
 }) {
-  const shareText = `${body}\n\n${url}`;
+  const name = profile.name.trim().split(/\s+/)[0] || "You";
+  const trimmedBlurb = blurb.trim();
+  const shareMessage = buildShareMessage(trimmedBlurb, url);
+  const hasLink = Boolean(url);
+  const canShare = hasLink || trimmedBlurb.length > 0;
+  const navigatorHasShare = typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
 
   async function handleNativeShare() {
-    const result = await nativeShare({ title, text: body, url });
+    const result = await nativeShare({
+      title: `${name}'s Vouch`,
+      text: trimmedBlurb || "My picks on Vouch",
+      url: hasLink ? url : undefined
+    });
     if (result === "shared") {
       onClose();
-    } else if (result === "copied") {
-      onCopy(shareText);
+      return;
+    }
+    if (result === "copied") {
+      onCopy(shareMessage.trim() || trimmedBlurb);
     }
   }
 
+  async function handleCopySharePayload() {
+    const text = (shareMessage || trimmedBlurb).trim();
+    await onCopy(text || trimmedBlurb);
+  }
+
   return (
-    <Sheet title={title} onClose={onClose}>
-      <div className="share-card share-card-polished">
-        {places.length > 0 && (
-          <div className="share-photo-mosaic">
-            {places.slice(0, 4).map((place, index) => (
-              <img className={index === 0 ? "large" : ""} src={place.image} alt="" key={place.id} />
-            ))}
+    <Sheet title="Share" onClose={onClose}>
+      <div className="share-sheet-v3">
+        <header className="share-v3-brand">
+          <div className="share-v3-avatar" aria-hidden>
+            {name.charAt(0).toUpperCase()}
           </div>
+          <div className="share-v3-meta">
+            <strong>{profile.name.trim()}</strong>
+            <span>
+              {profile.city}
+              {profile.tasteTags.length > 0 ? ` · ${tasteBio(profile.tasteTags)}` : ""}
+            </span>
+          </div>
+        </header>
+
+        {places.length > 0 && (
+          <section className="share-v3-picks">
+            <div className="share-v3-rail-head">
+              <span>In this share</span>
+              <span className="share-v3-rail-note">
+                {places.length === 1 ? "1 place" : `${places.length} places`}
+              </span>
+            </div>
+            <div className="share-v3-rail">
+              {places.slice(0, 6).map((place) => (
+                <figure key={place.id} className="share-v3-chip">
+                  <img src={place.image} alt="" loading="lazy" />
+                  <figcaption>
+                    <span>{place.area}</span>
+                    <strong>{place.name}</strong>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
         )}
-        <div className="share-card-copy">
-          <p className="eyebrow">Ready to send</p>
-          <h2>{title}</h2>
-          <pre className="share-preview-text">{body}</pre>
-          <p className="share-footer">Includes a public Vouch card link.</p>
+
+        <section className="share-v3-msg">
+          <blockquote>{trimmedBlurb || "Building your taste card on Vouch."}</blockquote>
+
+          {hasLink ? (
+            <p className="share-v3-link-summary">{shareLinkSummary(url)}</p>
+          ) : (
+            <>
+              {cloudSyncing ? (
+                <p className="share-v3-quiet">Finishing your public link…</p>
+              ) : null}
+              {cloudEnabled && !cloudSyncing ? (
+                <button type="button" className="share-v3-short-link-btn" onClick={onSyncLink}>
+                  Refresh link
+                </button>
+              ) : null}
+            </>
+          )}
+        </section>
+
+        <div className={navigatorHasShare ? "share-v3-actions-dual" : "share-v3-actions-single"}>
+          {navigatorHasShare ? (
+            <button type="button" className="share-v3-send" disabled={!canShare} onClick={() => void handleNativeShare()}>
+              <Share2 size={17} strokeWidth={1.85} />
+              Send
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={navigatorHasShare ? "share-v3-copy-chip" : "share-v3-send share-v3-send-solo"}
+            disabled={!canShare}
+            onClick={() => void handleCopySharePayload()}
+          >
+            <Copy size={17} strokeWidth={1.85} />
+            Copy
+          </button>
         </div>
-      </div>
-      <div className="share-actions">
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() => {
-            openWhatsApp(shareText);
-            onClose();
-          }}
-        >
-          <MessageCircle size={14} /> WhatsApp
-        </button>
-        <button type="button" className="secondary-button" onClick={() => onCopy(url)}>
-          <Copy size={14} /> Copy link
-        </button>
-        {"share" in navigator ? (
-          <button type="button" className="primary-button" onClick={handleNativeShare}>
-            <Share2 size={14} /> Share
-          </button>
-        ) : (
-          <button type="button" className="primary-button" onClick={() => onCopy(shareText)}>
-            <ExternalLink size={14} /> Send
-          </button>
-        )}
       </div>
     </Sheet>
   );
@@ -216,18 +293,31 @@ export function CollectionSheet({
   onClose: () => void;
   onCreate: (collection: Collection) => void;
 }) {
+  const stamps = useMemo(
+    () =>
+      [...vouched]
+        .filter((item) => item.state === "vouched")
+        .filter((item) => placeById[item.placeId]),
+    [vouched, placeById]
+  );
+
   const [title, setTitle] = useState("Places I'd send first");
   const [note, setNote] = useState("Tight shortlist for a friend asking right now.");
-  const [selected, setSelected] = useState<string[]>(() => vouched.slice(0, 3).map((item) => item.placeId));
+  const [selected, setSelected] = useState<string[]>(() =>
+    stamps.slice(0, Math.min(MIN_VOUCHED_PLACES_PER_LIST, stamps.length)).map((item) => item.placeId)
+  );
 
   function toggle(placeId: string) {
     setSelected((current) =>
-      current.includes(placeId) ? current.filter((item) => item !== placeId) : [...current.slice(-7), placeId]
+      current.includes(placeId) ? current.filter((item) => item !== placeId) : [...current, placeId]
     );
   }
 
+  const ready = stamps.length >= MIN_VOUCHED_PLACES_PER_LIST;
+  const selectionComplete = selected.length >= MIN_VOUCHED_PLACES_PER_LIST;
+
   return (
-    <Sheet title="New collection" onClose={onClose}>
+    <Sheet title="New list" onClose={onClose}>
       <div className="ask-form">
         <label>
           Title
@@ -238,27 +328,45 @@ export function CollectionSheet({
           <input value={note} onChange={(event) => setNote(event.target.value)} />
         </label>
       </div>
-      <div className="sheet-results">
-        {vouched.map((item) => {
-          const place = placeById[item.placeId];
-          if (!place) return null;
-          const active = selected.includes(item.placeId);
-          return (
-            <button type="button" className="sheet-place-row" key={item.placeId} onClick={() => toggle(item.placeId)}>
-              <img src={place.image} alt={place.name} />
-              <div>
-                <strong>{place.name}</strong>
-                <span>{item.why}</span>
-              </div>
-              {active && <Check size={16} />}
-            </button>
-          );
-        })}
-      </div>
+
+      {!ready ? (
+        <p className="collection-sheet-empty">
+          Vouch first — you need at least {MIN_VOUCHED_PLACES_PER_LIST} stamped spots before grouping them
+          into a list. Saves and &ldquo;want to try&rdquo; don&apos;t count.
+        </p>
+      ) : (
+        <>
+          <p className="collection-sheet-hint">
+            Select {MIN_VOUCHED_PLACES_PER_LIST}+ places you&apos;ve stamped ({selected.length} selected).
+          </p>
+          <div className="sheet-results">
+            {stamps.map((item) => {
+              const place = placeById[item.placeId];
+              if (!place) return null;
+              const active = selected.includes(item.placeId);
+              return (
+                <button
+                  type="button"
+                  className="sheet-place-row"
+                  key={item.placeId}
+                  onClick={() => toggle(item.placeId)}
+                >
+                  <img src={place.image} alt={place.name} />
+                  <div>
+                    <strong>{place.name}</strong>
+                    <span>{item.why}</span>
+                  </div>
+                  {active ? <Check size={16} /> : null}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
       <button
         type="button"
         className="primary-button"
-        disabled={selected.length === 0 || title.trim().length < 2}
+        disabled={!ready || !selectionComplete || title.trim().length < 2}
         onClick={() =>
           onCreate({
             id: uid(),
@@ -270,7 +378,7 @@ export function CollectionSheet({
           })
         }
       >
-        Create collection
+        Create list
       </button>
     </Sheet>
   );

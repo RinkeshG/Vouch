@@ -1,8 +1,13 @@
 import { PLACE_CATALOG } from "../data/places";
+import type { FriendVouchCard } from "../types";
+import { cardFromPublicPayload, type CircleMember } from "./circle";
 import type { PublicSharePayload } from "./share";
 import type { Friend, Place, UserProfile, VouchPersistedState } from "../types";
 import { slugifyHandle, withHandleSuffix } from "./handle";
+import { migrateCollectionSlugs } from "./listSlug";
 import { getSupabase, isCloudEnabled } from "./supabase";
+
+export type { CircleMember };
 
 export type CloudProfileRow = {
   id: string;
@@ -52,7 +57,7 @@ function persistedFromRow(row: CloudProfileRow): VouchPersistedState {
     },
     userPlaces: blob.userPlaces ?? [],
     customPlaces: blob.customPlaces ?? [],
-    collections: blob.collections ?? [],
+    collections: migrateCollectionSlugs(blob.collections ?? []),
     friends: blob.friends ?? [],
     events: blob.events ?? [],
     planContext: blob.planContext ?? null
@@ -63,12 +68,17 @@ export function buildPublicSnapshot(state: VouchPersistedState): PublicVouchSnap
   const topIds = new Set(
     state.userPlaces.filter((p) => p.top && p.state === "vouched").map((p) => p.placeId)
   );
-  const topPlaces = state.userPlaces.filter((p) => topIds.has(p.placeId)).slice(0, 4);
-  const fallback = state.userPlaces.filter((p) => p.state === "vouched").slice(0, 4);
+  const allVouched = state.userPlaces.filter((p) => p.state === "vouched");
+  const sorted = [...allVouched].sort((a, b) => {
+    const aTop = topIds.has(a.placeId) ? 1 : 0;
+    const bTop = topIds.has(b.placeId) ? 1 : 0;
+    if (aTop !== bTop) return bTop - aTop;
+    return (b.vouchedAt ?? b.updatedAt) - (a.vouchedAt ?? a.updatedAt);
+  });
   const catalogById = Object.fromEntries(PLACE_CATALOG.map((p) => [p.id, p]));
-  const userPlaces = (topPlaces.length ? topPlaces : fallback).map((p) => ({
+  const userPlaces = sorted.slice(0, 24).map((p) => ({
     ...p,
-    top: true,
+    top: topIds.has(p.placeId),
     why: p.why?.trim() || catalogById[p.placeId]?.tip || ""
   }));
 
@@ -93,20 +103,7 @@ export function snapshotToPublicPayload(snapshot: PublicVouchSnapshot): PublicSh
   };
 }
 
-export async function ensureAuthSession(): Promise<string | null> {
-  const supabase = getSupabase();
-  if (!supabase) return null;
-
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (sessionData.session?.user.id) return sessionData.session.user.id;
-
-  const { data, error } = await supabase.auth.signInAnonymously();
-  if (error || !data.user) {
-    console.warn("[vouch] anonymous auth failed", error?.message);
-    return null;
-  }
-  return data.user.id;
-}
+export { ensureAnonymousSession as ensureAuthSession } from "./auth";
 
 export async function loadCloudProfile(userId: string): Promise<VouchPersistedState | null> {
   const supabase = getSupabase();
@@ -216,18 +213,118 @@ export async function publishPublicVouch(
 }
 
 export async function fetchPublicVouchByHandle(handle: string): Promise<PublicSharePayload | null> {
+  const card = await fetchFriendVouchCard(handle);
+  if (!card) return null;
+  return {
+    profile: { name: card.name, city: card.city, tasteTags: card.tasteTags },
+    userPlaces: card.userPlaces,
+    collections: [],
+    sharedAt: card.updatedAt
+  };
+}
+
+export async function fetchFriendVouchCard(handle: string): Promise<FriendVouchCard | null> {
   const supabase = getSupabase();
   if (!supabase) return null;
 
+  const normalized = handle.toLowerCase();
   const { data, error } = await supabase
     .from("public_vouches")
-    .select("snapshot")
-    .eq("handle", handle.toLowerCase())
+    .select("snapshot, updated_at")
+    .eq("handle", normalized)
     .maybeSingle();
 
   if (error || !data?.snapshot) return null;
   const snapshot = data.snapshot as PublicVouchSnapshot;
-  return snapshotToPublicPayload(snapshot);
+  const payload = snapshotToPublicPayload(snapshot);
+  const updatedAt = data.updated_at ? new Date(data.updated_at).getTime() : Date.now();
+  return cardFromPublicPayload(normalized, payload, updatedAt);
+}
+
+export async function fetchFriendVouchCards(handles: string[]): Promise<Record<string, FriendVouchCard>> {
+  const supabase = getSupabase();
+  const out: Record<string, FriendVouchCard> = {};
+  if (!supabase || handles.length === 0) return out;
+
+  const normalized = [...new Set(handles.map((h) => h.toLowerCase()))];
+  const { data, error } = await supabase
+    .from("public_vouches")
+    .select("handle, snapshot, updated_at")
+    .in("handle", normalized);
+
+  if (error || !data) return out;
+
+  for (const row of data) {
+    if (!row.snapshot) continue;
+    const snapshot = row.snapshot as PublicVouchSnapshot;
+    const payload = snapshotToPublicPayload(snapshot);
+    const updatedAt = row.updated_at ? new Date(row.updated_at).getTime() : Date.now();
+    out[row.handle] = cardFromPublicPayload(row.handle, payload, updatedAt);
+  }
+  return out;
+}
+
+/** Everyone in your circle: people you invited + person who invited you */
+export async function fetchCircleMembers(
+  myHandle: string,
+  myUserId: string
+): Promise<CircleMember[]> {
+  const supabase = getSupabase();
+  if (!supabase || !myHandle) return [];
+
+  const members = new Map<string, CircleMember>();
+  const handle = myHandle.toLowerCase();
+
+  const { data: asInviter } = await supabase
+    .from("invite_links")
+    .select("invitee_user_id")
+    .eq("inviter_handle", handle);
+
+  if (asInviter) {
+    for (const row of asInviter) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("handle, display_name, city, taste_tags, user_id")
+        .eq("user_id", row.invitee_user_id)
+        .eq("onboarded", true)
+        .maybeSingle();
+      if (profile?.handle) {
+        members.set(profile.handle, {
+          handle: profile.handle,
+          name: profile.display_name,
+          city: profile.city,
+          tasteTags: profile.taste_tags ?? [],
+          userId: profile.user_id
+        });
+      }
+    }
+  }
+
+  const { data: asInvitee } = await supabase
+    .from("invite_links")
+    .select("inviter_handle")
+    .eq("invitee_user_id", myUserId)
+    .maybeSingle();
+
+  if (asInvitee?.inviter_handle) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("handle, display_name, city, taste_tags, user_id")
+      .eq("handle", asInvitee.inviter_handle)
+      .eq("onboarded", true)
+      .maybeSingle();
+    if (profile?.handle) {
+      members.set(profile.handle, {
+        handle: profile.handle,
+        name: profile.display_name,
+        city: profile.city,
+        tasteTags: profile.taste_tags ?? [],
+        userId: profile.user_id
+      });
+    }
+  }
+
+  return [...members.values()];
 }
 
 export async function fetchInviterProfile(handle: string): Promise<{
@@ -255,7 +352,8 @@ export async function fetchInviterProfile(handle: string): Promise<{
 
 export async function redeemInvite(
   inviterHandle: string,
-  inviteeUserId: string
+  inviteeUserId: string,
+  inviteeHandle?: string
 ): Promise<boolean> {
   const supabase = getSupabase();
   if (!supabase) return false;
@@ -263,13 +361,14 @@ export async function redeemInvite(
   const handle = inviterHandle.toLowerCase();
   const { error } = await supabase.from("invite_links").insert({
     inviter_handle: handle,
-    invitee_user_id: inviteeUserId
+    invitee_user_id: inviteeUserId,
+    invitee_handle: inviteeHandle?.toLowerCase() ?? null
   });
 
   return !error;
 }
 
-/** After onboarding: add inviter as a linked friend in local + cloud state */
+/** After onboarding: add inviter as a linked friend */
 export async function friendFromInviter(
   inviterHandle: string,
   existingFriends: Friend[]
@@ -277,18 +376,29 @@ export async function friendFromInviter(
   const inviter = await fetchInviterProfile(inviterHandle);
   if (!inviter) return null;
 
-  const already = existingFriends.some(
-    (f) => f.profileHandle?.toLowerCase() === inviterHandle.toLowerCase()
-  );
+  const key = inviterHandle.toLowerCase();
+  const already = existingFriends.some((f) => f.profileHandle?.toLowerCase() === key);
   if (already) return null;
 
   return {
-    id: `linked-${inviterHandle}`,
+    id: `linked-${key}`,
     name: inviter.name.split(/\s+/)[0] || inviter.name,
     city: inviter.city,
     trustedFor: inviter.tasteTags.slice(0, 3),
     createdAt: Date.now(),
-    profileHandle: inviterHandle.toLowerCase()
+    profileHandle: key
+  };
+}
+
+/** Build Friend entry for someone who joined via your invite */
+export function friendFromMember(member: CircleMember): Friend {
+  return {
+    id: `linked-${member.handle}`,
+    name: member.name.split(/\s+/)[0] || member.name,
+    city: member.city,
+    trustedFor: member.tasteTags.slice(0, 3),
+    createdAt: Date.now(),
+    profileHandle: member.handle.toLowerCase()
   };
 }
 

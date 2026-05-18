@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PLACE_CATALOG } from "../data/places";
 import {
+  ensureAnonymousSession,
+  getAuthUser,
+  linkEmailToAccount,
+  signInWithEmail
+} from "../lib/auth";
+import {
   ensureAuthSession,
   friendFromInviter,
   isCloudEnabled,
@@ -11,7 +17,10 @@ import {
   saveCloudProfile
 } from "../lib/cloud";
 import { clearPendingInvite, readPendingInvite } from "../lib/invite";
+import { allocateListSlug } from "../lib/listSlug";
+import { MIN_VOUCHED_PLACES_PER_LIST } from "../lib/collectionRules";
 import { defaultPersistedState, loadState, saveState } from "../lib/storage";
+import { useCircle } from "./useCircle";
 import {
   filterVouchedForContext,
   mergePlaces,
@@ -53,6 +62,9 @@ export function useVouchStore() {
   const [toast, setToast] = useState<ToastState>(null);
   const [stampPlaceId, setStampPlaceId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [authEmail, setAuthEmail] = useState<string | null>(null);
+  const [authAnonymous, setAuthAnonymous] = useState(true);
+  const [authBusy, setAuthBusy] = useState(false);
 
   const syncToCloud = useCallback(async (next: VouchPersistedState, handle?: string) => {
     const userId = userIdRef.current;
@@ -105,7 +117,10 @@ export function useVouchStore() {
         return;
       }
 
-      const userId = await ensureAuthSession();
+      let userId = (await getAuthUser())?.id ?? null;
+      if (!userId) {
+        userId = await ensureAnonymousSession();
+      }
       if (cancelled) return;
 
       if (!userId) {
@@ -116,6 +131,12 @@ export function useVouchStore() {
       }
 
       userIdRef.current = userId;
+      const authUser = await getAuthUser();
+      if (authUser) {
+        setAuthEmail(authUser.email);
+        setAuthAnonymous(authUser.isAnonymous);
+      }
+
       const cloud = await loadCloudProfile(userId);
 
       if (cancelled) return;
@@ -195,10 +216,47 @@ export function useVouchStore() {
     setState((current) => updater(current));
   }, []);
 
+  const onboarded = state.profile.onboarded;
+  const {
+    circleFeed,
+    circleLoading,
+    friendVouchCards,
+    influenceEvents,
+    refreshCircle,
+    getFriendCard
+  } = useCircle(state, patch, userIdRef, hydrated && cloudReady, onboarded);
+
   const showToast = useCallback((message: string, kind: "default" | "stamp" = "default") => {
     setToast({ message, kind });
     window.setTimeout(() => setToast(null), kind === "stamp" ? 3200 : 2600);
   }, []);
+
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase || !isCloudEnabled) return;
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!session?.user) return;
+      userIdRef.current = session.user.id;
+      setAuthEmail(session.user.email ?? null);
+      setAuthAnonymous(session.user.is_anonymous === true);
+
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        const cloud = await loadCloudProfile(session.user.id);
+        if (cloud) {
+          skipNextSyncRef.current = true;
+          setState(cloud);
+          if (event === "SIGNED_IN" && session.user.email) {
+            showToast("You're signed in — Vouch synced");
+          }
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [showToast]);
 
   const pushEvent = useCallback(
     (event: Omit<ActivityEvent, "id" | "at">) => {
@@ -351,6 +409,40 @@ export function useVouchStore() {
     [patch, state.profile.city]
   );
 
+  const addDiscoveredPlace = useCallback(
+    (place: Place) => {
+      const existing = state.customPlaces.find(
+        (p) => p.id === place.id || (place.googlePlaceId && p.googlePlaceId === place.googlePlaceId)
+      );
+      if (existing) return existing.id;
+
+      patch((current) => ({
+        ...current,
+        customPlaces: [place, ...current.customPlaces.filter((p) => p.id !== place.id)]
+      }));
+      return place.id;
+    },
+    [patch, state.customPlaces]
+  );
+
+  const linkEmail = useCallback(async (email: string) => {
+    setAuthBusy(true);
+    try {
+      return await linkEmailToAccount(email);
+    } finally {
+      setAuthBusy(false);
+    }
+  }, []);
+
+  const signInEmail = useCallback(async (email: string) => {
+    setAuthBusy(true);
+    try {
+      return await signInWithEmail(email);
+    } finally {
+      setAuthBusy(false);
+    }
+  }, []);
+
   const addFriend = useCallback(
     (name: string, trustedFor: string[]) => {
       const friend: Friend = {
@@ -368,16 +460,54 @@ export function useVouchStore() {
     [patch, showToast, state.profile.city]
   );
 
-  const addCollection = useCallback((collection: Collection) => {
-    patch((current) => ({
-      ...current,
-      collections: [collection, ...current.collections]
-    }));
-    pushEvent({ type: "collection", collectionId: collection.id });
-    showToast("List created");
-    setActiveCollectionId(collection.id);
-    setSheet(null);
-  }, [patch, pushEvent, showToast]);
+  const addLinkedFriend = useCallback(
+    (card: { handle: string; name: string; city: string; tasteTags: string[] }) => {
+      const handle = card.handle.toLowerCase();
+      const existing = state.friends.find((f) => f.profileHandle === handle);
+      if (existing) {
+        showToast(`${existing.name} is already on your list`);
+        return existing.id;
+      }
+      const friend: Friend = {
+        id: `linked-${handle}`,
+        name: card.name.split(/\s+/)[0] || card.name,
+        city: card.city,
+        trustedFor: card.tasteTags.slice(0, 3),
+        createdAt: Date.now(),
+        profileHandle: handle
+      };
+      patch((current) => ({ ...current, friends: [friend, ...current.friends] }));
+      showToast(`${friend.name} added to your circle`);
+      void refreshCircle();
+      return friend.id;
+    },
+    [patch, showToast, state.friends, refreshCircle]
+  );
+
+  const addCollection = useCallback(
+    (collection: Collection) => {
+      const vouchedIds = new Set(
+        state.userPlaces.filter((p) => p.state === "vouched").map((p) => p.placeId)
+      );
+      const placeIds = [...new Set(collection.placeIds)].filter((id) => vouchedIds.has(id));
+      if (placeIds.length < MIN_VOUCHED_PLACES_PER_LIST) {
+        showToast(`Pick at least ${MIN_VOUCHED_PLACES_PER_LIST} stamped places`);
+        return;
+      }
+      const trimmed: Collection = { ...collection, placeIds };
+      const slug = trimmed.slug ?? allocateListSlug(trimmed.title, state.collections);
+      const withSlug = { ...trimmed, slug };
+      patch((current) => ({
+        ...current,
+        collections: [withSlug, ...current.collections]
+      }));
+      pushEvent({ type: "collection", collectionId: withSlug.id });
+      showToast("List created");
+      setActiveCollectionId(withSlug.id);
+      setSheet(null);
+    },
+    [patch, pushEvent, showToast, state.collections, state.userPlaces]
+  );
 
   const updatePlaceNote = useCallback(
     (placeId: string, why: string, tags: string[]) => {
@@ -425,18 +555,22 @@ export function useVouchStore() {
       if (swapIndex < 0 || swapIndex >= slots.length) return;
 
       const order = slots.map((p) => p.placeId);
-      [order[index], order[swapIndex]] = [order[swapIndex], order[index]];
+      const nextOrder = [...order];
+      [nextOrder[index], nextOrder[swapIndex]] = [nextOrder[swapIndex], nextOrder[index]];
+      const baseTs = Date.now();
 
       patch((current) => ({
         ...current,
         userPlaces: current.userPlaces.map((p) => {
-          const rank = order.indexOf(p.placeId);
+          const rank = nextOrder.indexOf(p.placeId);
           if (rank === -1) return { ...p, top: false };
-          return { ...p, top: true, vouchedAt: (4 - rank) * 1000 + (p.vouchedAt ?? p.updatedAt) };
+          // descending sort in topFour(): #1 must get the largest vouchedAt
+          return { ...p, top: true, vouchedAt: baseTs + (4 - rank) };
         })
       }));
+      showToast("Order updated");
     },
-    [patch, state.userPlaces]
+    [patch, showToast, state.userPlaces]
   );
 
   const setPlanContext = useCallback(
@@ -449,6 +583,7 @@ export function useVouchStore() {
   const openPlace = useCallback((placeId: string) => {
     setActivePlaceId(placeId);
     setActiveCollectionId(null);
+    setSheet(null);
   }, []);
 
   const closeDetail = useCallback(() => {
@@ -488,7 +623,7 @@ export function useVouchStore() {
           profile: { ...nextState.profile, handle },
           friends: [inviterFriend, ...nextState.friends]
         };
-        await redeemInvite(pendingInvite, userId);
+        await redeemInvite(pendingInvite, userId, handle);
         clearPendingInvite();
         showToast(`Connected with ${inviterFriend.name}`);
       }
@@ -507,9 +642,11 @@ export function useVouchStore() {
       setState(nextState);
     }
 
+    await refreshCircle();
+
     setTab("home");
     showToast(handle ? "Your Vouch is live — share it with friends" : "Your Vouch is ready to share");
-  }, [patch, showToast]);
+  }, [showToast, refreshCircle]);
 
   const resetApp = useCallback(async () => {
     const supabase = getSupabase();
@@ -580,6 +717,7 @@ export function useVouchStore() {
     toggleTopSlot,
     addCustomPlace,
     addFriend,
+    addLinkedFriend,
     addCollection,
     reorderTop,
     setPlanContext,
@@ -588,6 +726,18 @@ export function useVouchStore() {
     setActiveCollectionId,
     finishOnboarding,
     resetApp,
-    flushCloudSync
+    flushCloudSync,
+    circleFeed,
+    circleLoading,
+    friendVouchCards,
+    influenceEvents,
+    refreshCircle,
+    getFriendCard,
+    authEmail,
+    authAnonymous,
+    authBusy,
+    linkEmail,
+    signInEmail,
+    addDiscoveredPlace
   };
 }

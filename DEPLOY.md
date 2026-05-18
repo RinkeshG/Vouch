@@ -3,7 +3,10 @@
 ## What you get when deployed
 
 - **Cloud backup** of your Vouch (Supabase) — survives clearing site data on the same browser session via anonymous auth
-- **Public card links**: `https://your-domain.com/?u=your-handle`
+- **Public URLs** (sharing & link previews): `https://your-domain.com/handle-name` — and for a curated list `https://your-domain.com/handle/list-slug`.
+- **Bots & messengers**: those routes hit **`/api/profile-preview`** — they get canonical Open Graph/Twitter meta + a **preview image from the featured place** — then browsers redirect people into the app with `/?u=` + optional `list=`.
+- **Legacy** `/p/:handle` still works end-to-end; new links use **`/{handle}[/{list}]`**.
+- **Canonical domain**: Set `VITE_PUBLIC_SITE_URL=https://vouch.app` (or your custom domain) in production so shared links aren’t localhost.
 - **Invite links**: `https://your-domain.com/?invite=your-handle` — friend completes onboarding and is auto-added to your circle
 - **Offline PWA** shell still works; syncs when online
 
@@ -15,8 +18,10 @@ Without Supabase env vars, the app still runs as a **local-only** demo (localSto
 
 1. Go to [supabase.com](https://supabase.com) → New project
 2. **SQL Editor** → paste and run everything in `supabase/schema.sql`
-3. **Authentication** → **Providers** → turn **Anonymous sign-ins** ON
-4. **Project Settings** → **API** → copy:
+   - If you migrated from an earlier beta, re-run the file — `create table if not exists` makes it safe, and the new `place_saves` table powers the Home influence row ("3 saves from your list").
+3. **Authentication** → **Providers** → turn **Anonymous sign-ins** and **Email** ON
+4. **Authentication** → **URL configuration** → Site URL = your deploy URL; add same URL to Redirect URLs
+5. **Project Settings** → **API** → copy:
    - Project URL → `VITE_SUPABASE_URL`
    - `anon` `public` key → `VITE_SUPABASE_ANON_KEY`
 
@@ -30,7 +35,7 @@ npm install
 npm run dev
 ```
 
-Complete onboarding once. Open **You** tab — you should see `vouch.app/u/your-handle`. Share that link in an incognito window to verify the public card loads.
+Complete onboarding once. Open **You** tab — you should see clean profile links `vouch.app/your-handle`. Share `https://vouch.app/your-handle` in an incognito window to verify previews and the public card.
 
 ## 3. Deploy to Vercel (recommended)
 
@@ -45,8 +50,24 @@ In the Vercel project **Settings → Environment Variables**, add:
 |------|--------|
 | `VITE_SUPABASE_URL` | Your Supabase URL |
 | `VITE_SUPABASE_ANON_KEY` | Your anon key |
+| `GOOGLE_PLACES_API_KEY` | Google Cloud API key (Places API New enabled) |
 
-Redeploy after adding env vars. `vercel.json` already configures SPA rewrites for `?u=` and `?invite=` routes.
+Redeploy after adding env vars. `vercel.json` configures link previews (`/:handle[/:list]`, legacy `/p/…`), and `/api/places-*` for Google search.
+
+### Google Places setup (5 min)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → create/select project
+2. Enable **Places API (New)**
+3. **Credentials** → Create API key → restrict to Places API
+4. Add key as `GOOGLE_PLACES_API_KEY` on Vercel (kept server-side via `/api/places-autocomplete`)
+5. Optional local dev: also set `VITE_GOOGLE_PLACES_API_KEY` in `.env`
+
+### Email account setup
+
+1. Supabase → **Authentication** → **Email** → enable
+2. **You** tab in app → **Your account** → enter email → **Send save link**
+3. Tap link in inbox — same Vouch, now follows you across devices
+4. New phone → **Sign in elsewhere** with the same email
 
 ### Other hosts
 

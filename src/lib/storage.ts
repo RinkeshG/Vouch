@@ -1,4 +1,5 @@
 import type { VouchPersistedState } from "../types";
+import { migrateCollectionSlugs } from "./listSlug";
 
 const STORAGE_KEY = "vouch-app-v1";
 
@@ -28,7 +29,8 @@ export function loadState(): VouchPersistedState {
     return {
       ...defaultPersistedState(),
       ...parsed,
-      profile: { ...defaultPersistedState().profile, ...parsed.profile }
+      profile: { ...defaultPersistedState().profile, ...parsed.profile },
+      collections: migrateCollectionSlugs(parsed.collections ?? [])
     };
   } catch {
     return defaultPersistedState();

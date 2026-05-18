@@ -1,7 +1,23 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/p/:handle/:list",
+      "destination": "/api/profile-preview?handle=:handle&list=:list"
+    },
+    {
+      "source": "/p/:handle",
+      "destination": "/api/profile-preview?handle=:handle"
+    },
+    {
+      "source": "/:handle/:list",
+      "destination": "/api/profile-preview?handle=:handle&list=:list"
+    },
+    {
+      "source": "/:handle",
+      "destination": "/api/profile-preview?handle=:handle"
+    },
+    {
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ],
