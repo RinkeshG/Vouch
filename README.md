@@ -2,6 +2,8 @@
 
 Mobile-first PWA for trusted restaurant recommendations. Build your Top 4, share a public card, invite friends, and log recs from people whose taste you trust.
 
+> **GitHub:** After you push, your repo should be named **Vouch** — see [GITHUB.md](./GITHUB.md).
+
 ## Quick start (local)
 
 ```bash
