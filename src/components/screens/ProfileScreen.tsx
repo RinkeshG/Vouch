@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, Plus, Settings, Share2 } from "lucide-react";
+import { EmailAuthCard } from "../ui/EmailAuthCard";
 import { CITY_OPTIONS, TASTE_TAGS } from "../../data/taste";
 import { tasteBio } from "../../lib/format";
 import { MIN_VOUCHED_PLACES_PER_LIST } from "../../lib/collectionRules";
@@ -50,9 +51,6 @@ export function ProfileScreen({
   const [draftName, setDraftName] = useState(profile.name);
   const [draftCity, setDraftCity] = useState(profile.city);
   const [draftTags, setDraftTags] = useState<string[]>([...profile.tasteTags]);
-  const [emailInput, setEmailInput] = useState(authEmail ?? "");
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailError, setEmailError] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
   const pinned = topPlaces.slice(0, 4).map((item) => placeById[item.placeId]).filter(Boolean);
@@ -67,14 +65,6 @@ export function ProfileScreen({
   function saveSettings() {
     onUpdateProfile({ name: draftName, city: draftCity, tasteTags: draftTags });
     setShowSettings(false);
-  }
-
-  async function handleEmail() {
-    setEmailError(null);
-    const fn = authAnonymous ? onLinkEmail : onSignInEmail;
-    const result = await fn(emailInput);
-    if (result.ok) setEmailSent(true);
-    else setEmailError(result.error ?? "Something went wrong");
   }
 
   if (showSettings) {
@@ -95,11 +85,8 @@ export function ProfileScreen({
         cloudEnabled={cloudEnabled}
         authEmail={authEmail}
         authBusy={authBusy}
-        emailInput={emailInput}
-        setEmailInput={setEmailInput}
-        emailSent={emailSent}
-        emailError={emailError}
-        handleEmail={handleEmail}
+        onLinkEmail={onLinkEmail}
+        onSignInEmail={onSignInEmail}
       />
     );
   }
@@ -123,6 +110,19 @@ export function ProfileScreen({
       </header>
 
       <p className="you-taste">{tasteBio(profile.tasteTags)}</p>
+
+      {cloudEnabled && !authEmail && (
+        <EmailAuthCard
+          variant="compact"
+          cloudEnabled={cloudEnabled}
+          authEmail={authEmail}
+          authBusy={authBusy}
+          onSaveEmail={onLinkEmail}
+          onSignInEmail={onSignInEmail}
+        />
+      )}
+
+      {authEmail && <p className="you-email-linked">Saved as {authEmail}</p>}
 
       {profile.tasteTags.length > 0 && (
         <div className="you-tags">
@@ -264,11 +264,8 @@ function SettingsView({
   cloudEnabled,
   authEmail,
   authBusy,
-  emailInput,
-  setEmailInput,
-  emailSent,
-  emailError,
-  handleEmail
+  onLinkEmail,
+  onSignInEmail
 }: {
   profile: UserProfile;
   draftName: string;
@@ -285,11 +282,8 @@ function SettingsView({
   cloudEnabled: boolean;
   authEmail: string | null;
   authBusy: boolean;
-  emailInput: string;
-  setEmailInput: (v: string) => void;
-  emailSent: boolean;
-  emailError: string | null;
-  handleEmail: () => void;
+  onLinkEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
+  onSignInEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
 }) {
   return (
     <div className="you-settings">
@@ -345,35 +339,14 @@ function SettingsView({
         </div>
       </label>
 
-      {cloudEnabled && !authEmail && (
-        <section className="you-settings-email">
-          <p>Save to your email so you never lose your Vouch.</p>
-          {emailSent ? (
-            <p className="you-settings-ok">Check your inbox for a confirmation link.</p>
-          ) : (
-            <div className="you-settings-email-row">
-              <input
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="you@example.com"
-              />
-              <button
-                type="button"
-                onClick={handleEmail}
-                disabled={authBusy || emailInput.trim().length < 5}
-              >
-                {authBusy ? "…" : "Save"}
-              </button>
-            </div>
-          )}
-          {emailError && <p className="you-settings-err">{emailError}</p>}
-        </section>
-      )}
-
-      {authEmail && <p className="you-settings-linked">Signed in as {authEmail}</p>}
+      <EmailAuthCard
+        variant="compact"
+        cloudEnabled={cloudEnabled}
+        authEmail={authEmail}
+        authBusy={authBusy}
+        onSaveEmail={onLinkEmail}
+        onSignInEmail={onSignInEmail}
+      />
 
       <button
         type="button"

@@ -137,30 +137,62 @@ export function buildCollectionShareText(
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
+  const value = text.trim();
+  if (!value) return false;
+
   try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    try {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.setAttribute("readonly", "true");
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      const copied = document.execCommand("copy");
-      textarea.remove();
-      return copied;
-    } catch {
-      return false;
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
     }
+  } catch {
+    /* fall through */
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "0";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, value.length);
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
+  } catch {
+    return false;
   }
 }
 
+/** Short invite line without URL — prefer buildInviteShareMessage for sending. */
 export function inviteMessage(profile: UserProfile): string {
   const name = firstName(profile.name);
   return `${name} invited you to Vouch — see their picks in ${profile.city} and make yours.`;
+}
+
+/** Full WhatsApp / share payload: hook + optional spot names + link on its own line. */
+export function buildInviteShareMessage(
+  profile: UserProfile,
+  inviteUrl: string,
+  previewPlaces: Place[] = []
+): string {
+  const name = firstName(profile.name);
+  let hook: string;
+  if (previewPlaces.length > 0) {
+    const names = previewPlaces.slice(0, 2).map((p) => p.name);
+    const spots =
+      names.length >= 2 ? `${names[0]} & ${names[1]}` : names[0] ?? `${previewPlaces.length} spots`;
+    hook = `${name} invited you to Vouch — ${spots} in ${profile.city}.`;
+  } else {
+    hook = inviteMessage(profile);
+  }
+  if (!inviteUrl.trim()) return hook;
+  return buildShareMessage(hook, inviteUrl);
 }
 
 export type PublicShareRoute = { handle: string; listSlug?: string };
@@ -259,20 +291,18 @@ export function openWhatsApp(text: string): void {
 export async function nativeShare(data: {
   title: string;
   text: string;
-  /** Optional — included in body text and passed to Navigator.share where supported */
+  /** Merged into text — not passed as a separate field (many apps drop url when text is set). */
   url?: string;
 }): Promise<"shared" | "copied" | "failed"> {
   const message = data.url ? buildShareMessage(data.text, data.url) : `${data.text}`.trim();
+  if (!message) return "failed";
 
   if (navigator.share) {
     try {
-      const payload: ShareData = { title: data.title };
-      if (message) payload.text = message;
-      if (data.url && data.url.length > 0) payload.url = data.url;
-      await navigator.share(payload);
+      await navigator.share({ title: data.title, text: message });
       return "shared";
-    } catch {
-      // cancelled
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return "failed";
     }
   }
 

@@ -428,6 +428,10 @@ export function useVouchStore() {
   const linkEmail = useCallback(async (email: string) => {
     setAuthBusy(true);
     try {
+      if (isCloudEnabled && !userIdRef.current) {
+        const userId = await ensureAuthSession();
+        if (userId) userIdRef.current = userId;
+      }
       return await linkEmailToAccount(email);
     } finally {
       setAuthBusy(false);

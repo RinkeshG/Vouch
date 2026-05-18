@@ -94,3 +94,5 @@ Any static host works (Netlify, Cloudflare Pages, GitHub Pages with redirects). 
 | Invite didn’t connect friend | Friend must open `?invite=handle` before or during onboarding, not only `?u=` |
 | Data lost on new phone | Anonymous auth is per-browser; add email auth in v2 (see LIMITATIONS.md) |
 | Build works locally, not on Vercel | Env vars must be set on Vercel and redeployed |
+| Google search never returns results | Set `GOOGLE_PLACES_API_KEY` on Vercel; enable **Places API (New)** + billing in Google Cloud; redeploy. Local: `npm run dev:vercel` or set `VITE_GOOGLE_PLACES_API_KEY` in `.env` |
+| Places API works on wrong domain only | Fixed in app: search calls `/api/...` on the **same host** you’re visiting — don’t rely on `vouch.vercel.app` unless that domain points at this project |

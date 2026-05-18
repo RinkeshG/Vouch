@@ -11,11 +11,12 @@ export default async function handler(
     return;
   }
 
-  const placeId = String(req.query.placeId || "").trim();
-  if (!placeId) {
+  const rawId = String(req.query.placeId || "").trim();
+  if (!rawId) {
     res.status(400).json({ error: "placeId required" });
     return;
   }
+  const placeId = rawId.replace(/^places\//, "");
 
   const response = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
     headers: {
@@ -25,7 +26,12 @@ export default async function handler(
   });
 
   if (!response.ok) {
-    res.status(404).json({ error: "Place not found" });
+    const detail = await response.text().catch(() => "");
+    console.error("[places-details] Google error", response.status, detail);
+    res.status(response.status === 404 ? 404 : 502).json({
+      error: "Google Places details failed",
+      detail: detail.slice(0, 400)
+    });
     return;
   }
 

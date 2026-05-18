@@ -44,6 +44,50 @@ export async function ensureAnonymousSession(): Promise<string | null> {
   return data.user.id;
 }
 
+type SessionReady =
+  | { ok: true; userId: string; isAnonymous: boolean }
+  | { ok: false; error: string };
+
+/** Ensures a Supabase session exists before updateUser / cloud writes. */
+export async function requireAuthSession(): Promise<SessionReady> {
+  if (!isCloudEnabled) {
+    return { ok: false, error: "Cloud sync isn't configured on this build." };
+  }
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { ok: false, error: "Cloud sync isn't configured on this build." };
+  }
+
+  let {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session?.user?.id) {
+    const userId = await ensureAnonymousSession();
+    if (!userId) {
+      return {
+        ok: false,
+        error:
+          "Couldn't start a secure session. In Supabase → Authentication, turn on Anonymous sign-ins, then reload."
+      };
+    }
+    ({
+      data: { session }
+    } = await supabase.auth.getSession());
+  }
+
+  if (!session?.user?.id) {
+    return { ok: false, error: "Auth session missing — reload the page and try again." };
+  }
+
+  return {
+    ok: true,
+    userId: session.user.id,
+    isAnonymous: session.user.is_anonymous === true
+  };
+}
+
 /**
  * Upgrade current anonymous user → email (same user_id, data kept).
  * Supabase sends a confirmation / magic link to the inbox.
@@ -57,8 +101,28 @@ export async function linkEmailToAccount(email: string): Promise<{ ok: boolean; 
     return { ok: false, error: "Enter a valid email" };
   }
 
+  const session = await requireAuthSession();
+  if (!session.ok) return { ok: false, error: session.error };
+
+  if (!session.isAnonymous && session.userId) {
+    const user = await getAuthUser();
+    if (user?.email) {
+      return { ok: false, error: "You're already signed in with email on this device." };
+    }
+  }
+
   const { error } = await supabase.auth.updateUser({ email: normalized });
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    const msg = error.message.toLowerCase();
+    if (msg.includes("session") || msg.includes("jwt")) {
+      return {
+        ok: false,
+        error:
+          "Session expired — reload the page, then try again. If it persists, enable Anonymous sign-ins in Supabase."
+      };
+    }
+    return { ok: false, error: error.message };
+  }
   return { ok: true };
 }
 

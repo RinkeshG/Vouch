@@ -189,8 +189,9 @@ a {
 }
 
 .screen:has(.detail-page--editorial),
-.screen:has(.collection-detail) {
-  padding-bottom: calc(var(--space-10) + env(safe-area-inset-bottom, 0px));
+.screen:has(.collection-detail),
+.screen:has(.friend-detail-page) {
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
 }
 
 .screen::-webkit-scrollbar,
@@ -1708,10 +1709,10 @@ select {
    ================================================================ */
 
 .detail-page--editorial {
-  min-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  margin: -2px calc(-1 * var(--space-4)) 0;
+  margin: 0;
   gap: 0;
 }
 
@@ -1935,8 +1936,8 @@ select {
 }
 
 .detail-rail-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-5);
   padding: var(--space-5) var(--space-4);
   border-radius: var(--radius-xl);
@@ -1949,10 +1950,6 @@ select {
     var(--surface-raised);
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   box-shadow: var(--shadow-sm);
-}
-
-.detail-rail-card:has(.detail-rail:only-child) {
-  grid-template-columns: 1fr;
 }
 
 .detail-rail-label {
@@ -1968,14 +1965,25 @@ select {
 .detail-rail-body {
   margin: 0;
   font-size: 14px;
-  line-height: 1.52;
+  line-height: 1.55;
   color: var(--ink-secondary);
   font-weight: 500;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
 .detail-rail--caveat {
-  padding-left: var(--space-4);
-  border-left: 2px solid color-mix(in srgb, var(--tomato) 42%, transparent);
+  padding-top: var(--space-4);
+  border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  padding-left: 0;
+  border-left: none;
+}
+
+.detail-rail-card:has(.detail-rail--best:only-child) .detail-rail--caveat,
+.detail-rail-card .detail-rail--best + .detail-rail--caveat {
+  padding-top: var(--space-4);
+  margin-top: 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
 }
 
 .detail-rail--caveat .detail-rail-body {
@@ -2186,8 +2194,18 @@ select {
 
 .detail-cta-owned {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+@media (max-width: 360px) {
+  .detail-cta-owned {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detail-cta-owned .detail-cta-tool--risk {
+    grid-column: 1 / -1;
+  }
 }
 
 .detail-cta-tool {
@@ -2678,13 +2696,27 @@ select {
 }
 
 .bottom-sheet {
-  max-height: 88%;
-  overflow-y: auto;
+  width: 100%;
+  max-height: min(92dvh, 92%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   background: var(--surface);
-  padding: var(--space-3) var(--space-4) var(--space-6);
+  padding: var(--space-3) 0 0;
   border-top: 1px solid var(--border);
   animation: sheet-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 -12px 48px rgba(28, 25, 23, 0.14);
+}
+
+.sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px) + var(--sheet-keyboard-inset, 0px));
 }
 
 @keyframes sheet-in {
@@ -2698,18 +2730,19 @@ select {
   border-radius: var(--radius-full);
   margin: 0 auto var(--space-3);
   background: rgba(28, 25, 23, 0.18);
+  flex-shrink: 0;
 }
 
 .sheet-header {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 1;
   background: var(--surface);
-  padding-bottom: var(--space-3);
+  padding: 0 var(--space-4) var(--space-3);
   margin-bottom: var(--space-3);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-3);
 }
 
 .sheet-header strong {
@@ -2745,7 +2778,7 @@ select {
 }
 
 .collection-sheet-empty {
-  margin: var(--space-3) var(--space-4);
+  margin: var(--space-3) 0;
   padding: var(--space-4);
   font-size: 14px;
   line-height: 1.52;
@@ -2756,17 +2789,33 @@ select {
 }
 
 .collection-sheet-hint {
-  margin: var(--space-2) var(--space-4) var(--space-1);
+  margin: var(--space-2) 0 var(--space-1);
   font-size: 13px;
   line-height: 1.42;
   color: var(--ink-secondary);
 }
 
+.sheet-results-label {
+  margin: 0 0 var(--space-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-tertiary);
+}
+
 .sheet-results-hint {
-  margin: calc(var(--space-2) * -1) 0 var(--space-1);
+  margin: 0 0 var(--space-3);
   font-size: 13px;
-  line-height: 1.35;
+  line-height: 1.45;
   color: var(--ink-secondary);
+}
+
+.sheet-results-hint--warn {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(181, 65, 46, 0.08);
+  color: var(--ink);
 }
 
 .sheet-place-row {
@@ -2884,10 +2933,10 @@ select {
 
 /* Share sheet — V3 editorial card */
 .share-sheet-v3 {
-  padding: 0 var(--space-4) var(--space-5);
+  padding: 0 0 var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .share-v3-brand {
@@ -2959,8 +3008,9 @@ select {
   overflow-x: auto;
   scrollbar-width: none;
   padding-bottom: 4px;
-  margin-right: calc(var(--space-4) * -1);
-  padding-right: var(--space-4);
+  margin: 0;
+  scroll-padding-inline: var(--space-4);
+  -webkit-overflow-scrolling: touch;
 }
 
 .share-v3-rail::-webkit-scrollbar {
@@ -3012,9 +3062,21 @@ select {
   gap: var(--space-2);
 }
 
+.share-v3-msg-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-tertiary);
+}
+
+.share-v3-outgoing,
 .share-v3-msg blockquote {
   margin: 0;
   padding: var(--space-3) var(--space-4);
+  overflow-wrap: anywhere;
+  word-break: break-word;
   font-family: var(--font-display);
   font-size: 17px;
   font-weight: 500;
@@ -6066,4 +6128,119 @@ select {
   align-items: center;
   gap: 6px;
   border: 0;
+}
+
+/* ================================================================
+   EMAIL AUTH (onboarding + profile)
+   ================================================================ */
+.email-auth-card {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.email-auth-card--compact {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+}
+
+.email-auth-card--muted {
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+}
+
+.email-auth-card--linked {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-3);
+  background: color-mix(in srgb, var(--olive) 10%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--olive) 25%, transparent);
+}
+
+.email-auth-card--linked strong {
+  display: block;
+  font-size: 14px;
+}
+
+.email-auth-card--linked span {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  line-height: 1.4;
+}
+
+.email-auth-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.email-auth-card-lede {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+.email-auth-card-lede--compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.email-auth-card-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.email-auth-card-row input {
+  width: 100%;
+  min-height: 48px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  padding: 0 var(--space-4);
+  background: var(--surface);
+}
+
+.email-auth-card-row .primary-button {
+  width: 100%;
+  min-height: 48px;
+}
+
+.email-auth-card-ok {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--olive);
+  font-weight: 600;
+}
+
+.email-auth-card-err {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--tomato);
+}
+
+.email-auth-card-switch,
+.onboarding-return-link {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+}
+
+.you-email-linked {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--olive);
 }

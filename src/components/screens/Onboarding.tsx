@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Check, Plus, Share2, Stamp } from "lucide-react";
+import { EmailAuthCard } from "../ui/EmailAuthCard";
 import { CITY_OPTIONS, ONBOARDING_EXAMPLE_IDS, TASTE_TAGS } from "../../data/taste";
 import type { Place, UserPlace, UserProfile } from "../../types";
 
@@ -16,7 +17,12 @@ export function Onboarding({
   onBack,
   onVouch,
   onFinish,
-  onShare
+  onShare,
+  cloudEnabled,
+  authEmail,
+  authBusy,
+  onLinkEmail,
+  onSignInEmail
 }: {
   step: UserProfile["onboardingStep"];
   profile: UserProfile;
@@ -29,8 +35,14 @@ export function Onboarding({
   onVouch: (placeId: string) => void;
   onFinish: () => void;
   onShare: () => void;
+  cloudEnabled: boolean;
+  authEmail: string | null;
+  authBusy: boolean;
+  onLinkEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
+  onSignInEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
 }) {
   const [celebrating, setCelebrating] = useState(false);
+  const [showReturnSignIn, setShowReturnSignIn] = useState(false);
   const vouchCount = userPlaces.filter((p) => p.state === "vouched").length;
   const examplePlaces = ONBOARDING_EXAMPLE_IDS.map((id) => placeById[id]).filter(Boolean);
   const liveTop = userPlaces.filter((p) => p.state === "vouched").slice(0, 4);
@@ -56,6 +68,18 @@ export function Onboarding({
             <h1>Your Vouch is ready.</h1>
             <p>Share it with the people who always ask you where to go.</p>
           </div>
+
+          {!authEmail && (
+            <EmailAuthCard
+              variant="compact"
+              cloudEnabled={cloudEnabled}
+              authEmail={authEmail}
+              authBusy={authBusy}
+              onSaveEmail={onLinkEmail}
+              onSignInEmail={onSignInEmail}
+            />
+          )}
+
           <button
             type="button"
             className="primary-button celebration-share"
@@ -97,6 +121,24 @@ export function Onboarding({
             Four places you'd actually send someone. With a why, not just a name.
           </p>
           <ExampleCard examplePlaces={examplePlaces} />
+          {cloudEnabled && (
+            <>
+              {!showReturnSignIn ? (
+                <button type="button" className="text-link onboarding-return-link" onClick={() => setShowReturnSignIn(true)}>
+                  Already have a Vouch? Sign in with email
+                </button>
+              ) : (
+                <EmailAuthCard
+                  variant="signin"
+                  cloudEnabled={cloudEnabled}
+                  authEmail={authEmail}
+                  authBusy={authBusy}
+                  onSaveEmail={onLinkEmail}
+                  onSignInEmail={onSignInEmail}
+                />
+              )}
+            </>
+          )}
           <button type="button" className="primary-button" onClick={onNext}>
             Start my Vouch
           </button>
@@ -133,6 +175,15 @@ export function Onboarding({
               ))}
             </div>
           </div>
+
+          <EmailAuthCard
+            cloudEnabled={cloudEnabled}
+            authEmail={authEmail}
+            authBusy={authBusy}
+            onSaveEmail={onLinkEmail}
+            onSignInEmail={onSignInEmail}
+          />
+
           <button
             type="button"
             className="primary-button"

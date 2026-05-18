@@ -37,9 +37,6 @@ import {
   buildTopFourShareBlurb,
   canonicalSiteOrigin,
   copyToClipboard,
-  inviteMessage,
-  nativeShare,
-  openWhatsApp,
   readPublicProfileFromUrl,
   readPublicShareRoute,
   type PublicSharePayload
@@ -392,6 +389,11 @@ function App() {
               flushCloudSync();
               setSheet("share");
             }}
+            cloudEnabled={cloudEnabled}
+            authEmail={authEmail}
+            authBusy={authBusy}
+            onLinkEmail={linkEmail}
+            onSignInEmail={signInEmail}
           />
         ) : (
           <>
@@ -580,24 +582,13 @@ function App() {
         )}
         {sheet === "friend" && (
           <AddFriendSheet
+            profile={profile}
             inviteUrl={inviteUrl}
+            previewPlaces={topPlaces.map((item) => placeById[item.placeId]).filter(Boolean)}
             hasHandle={Boolean(profile.handle)}
+            cloudSyncing={cloudSyncing}
             onClose={() => setSheet(null)}
-            onWhatsApp={() => {
-              openWhatsApp(`${inviteMessage(profile)}\n\n${inviteUrl}`);
-            }}
-            onCopyLink={async () => {
-              const copied = await copyToClipboard(inviteUrl);
-              showToast(copied ? "Invite link copied" : "Copy failed");
-            }}
-            onNativeShare={async () => {
-              const result = await nativeShare({
-                title: "Join me on Vouch",
-                text: inviteMessage(profile),
-                url: inviteUrl
-              });
-              showToast(result === "shared" ? "Sent!" : result === "copied" ? "Copied to clipboard" : "Share failed");
-            }}
+            onToast={showToast}
             onAdd={(name) => {
               addFriend(name, profile.tasteTags.slice(0, 3));
             }}

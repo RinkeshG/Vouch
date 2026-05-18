@@ -45,7 +45,12 @@ export default async function handler(
   });
 
   if (!response.ok) {
-    res.json([]);
+    const detail = await response.text().catch(() => "");
+    console.error("[places-autocomplete] Google error", response.status, detail);
+    res.status(502).json({
+      error: "Google Places autocomplete failed",
+      detail: detail.slice(0, 400)
+    });
     return;
   }
 

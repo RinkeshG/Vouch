@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useKeyboardInset } from "../../hooks/useKeyboardInset";
 
 export function Sheet({
   title,
@@ -10,6 +11,13 @@ export function Sheet({
   children: ReactNode;
   onClose: () => void;
 }) {
+  const keyboardInset = useKeyboardInset();
+
+  const sheetStyle = {
+    "--sheet-keyboard-inset": `${keyboardInset}px`,
+    maxHeight: `min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - ${keyboardInset}px - 12px))`
+  } as CSSProperties;
+
   return (
     <div
       className="sheet-backdrop"
@@ -18,7 +26,14 @@ export function Sheet({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="bottom-sheet"
+        style={sheetStyle}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+      >
         <div className="sheet-handle" aria-hidden />
         <div className="sheet-header">
           <strong>{title}</strong>
@@ -26,7 +41,7 @@ export function Sheet({
             <X size={18} />
           </button>
         </div>
-        {children}
+        <div className="sheet-body">{children}</div>
       </div>
     </div>
   );

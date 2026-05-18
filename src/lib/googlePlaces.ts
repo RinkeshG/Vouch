@@ -1,5 +1,11 @@
 import type { Place, PriceTier } from "../types";
-import { appBaseUrl } from "./share";
+
+export type PlacesSearchStatus = "idle" | "loading" | "ok" | "empty" | "unconfigured" | "error";
+
+/** Google resource id — strip optional `places/` prefix for GET requests. */
+export function normalizeGooglePlaceId(placeId: string): string {
+  return placeId.trim().replace(/^places\//, "");
+}
 
 export type GooglePlaceSuggestion = {
   placeId: string;
@@ -91,40 +97,94 @@ async function autocompleteDirect(input: string, city: string): Promise<GooglePl
     .slice(0, 8);
 }
 
-async function autocompleteViaApi(input: string, city: string): Promise<GooglePlaceSuggestion[]> {
-  const base = appBaseUrl();
-  if (!base) return [];
+type AutocompleteApiResult =
+  | { ok: true; items: GooglePlaceSuggestion[] }
+  | { ok: false; status: PlacesSearchStatus; message?: string };
+
+async function autocompleteViaApi(input: string, city: string): Promise<AutocompleteApiResult> {
+  if (typeof window === "undefined") return { ok: false, status: "error" };
 
   try {
-    const url = new URL(`${base}/api/places-autocomplete`);
-    url.searchParams.set("input", input.trim());
-    url.searchParams.set("city", city);
-    const res = await fetch(url.toString());
-    if (!res.ok) return [];
-    return (await res.json()) as GooglePlaceSuggestion[];
+    const params = new URLSearchParams({ input: input.trim(), city });
+    const res = await fetch(`/api/places-autocomplete?${params.toString()}`);
+    const body = (await res.json().catch(() => null)) as
+      | GooglePlaceSuggestion[]
+      | { error?: string; detail?: string }
+      | null;
+
+    if (res.status === 503) {
+      return {
+        ok: false,
+        status: "unconfigured",
+        message: (body && !Array.isArray(body) && body.error) || "Google Places API key not set on server"
+      };
+    }
+
+    if (!res.ok) {
+      const message =
+        body && !Array.isArray(body)
+          ? body.detail || body.error
+          : `Places search failed (${res.status})`;
+      return { ok: false, status: "error", message };
+    }
+
+    const items = Array.isArray(body) ? body : [];
+    return { ok: true, items };
   } catch {
-    return [];
+    return { ok: false, status: "error", message: "Could not reach Places API" };
   }
 }
 
-export async function autocompletePlaces(input: string, city: string): Promise<GooglePlaceSuggestion[]> {
-  if (input.trim().length < 2) return [];
-
-  const viaApi = await autocompleteViaApi(input, city);
-  if (viaApi.length > 0) return viaApi;
-
-  if (isGooglePlacesEnabled()) {
-    return autocompleteDirect(input, city);
+export async function autocompletePlaces(
+  input: string,
+  city: string
+): Promise<{ items: GooglePlaceSuggestion[]; status: PlacesSearchStatus; message?: string }> {
+  if (input.trim().length < 2) {
+    return { items: [], status: "idle" };
   }
 
-  return [];
+  const viaApi = await autocompleteViaApi(input, city);
+  if (viaApi.ok) {
+    if (viaApi.items.length > 0) return { items: viaApi.items, status: "ok" };
+    if (isGooglePlacesEnabled()) {
+      const direct = await autocompleteDirect(input, city);
+      if (direct.length > 0) return { items: direct, status: "ok" };
+    }
+    return { items: [], status: "empty", message: "No restaurants matched — try another name or add manually." };
+  }
+
+  if (viaApi.status === "unconfigured" && isGooglePlacesEnabled()) {
+    const direct = await autocompleteDirect(input, city);
+    if (direct.length > 0) return { items: direct, status: "ok" };
+    return {
+      items: [],
+      status: "empty",
+      message: "No matches — check your Google API key has Places API (New) enabled."
+    };
+  }
+
+  if (isGooglePlacesEnabled()) {
+    const direct = await autocompleteDirect(input, city);
+    if (direct.length > 0) return { items: direct, status: "ok" };
+  }
+
+  return {
+    items: [],
+    status: viaApi.status,
+    message:
+      viaApi.message ??
+      (isGooglePlacesEnabled()
+        ? "No matches found."
+        : "Google search needs GOOGLE_PLACES_API_KEY on Vercel (or VITE_GOOGLE_PLACES_API_KEY locally).")
+  };
 }
 
 async function fetchPlaceDetailsDirect(placeId: string): Promise<Partial<Place> | null> {
   const key = apiKey();
   if (!key) return null;
 
-  const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+  const id = normalizeGooglePlaceId(placeId);
+  const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(id)}`, {
     headers: {
       "X-Goog-Api-Key": key,
       "X-Goog-FieldMask": "id,displayName,formattedAddress,photos,addressComponents,priceLevel"
@@ -172,12 +232,10 @@ async function fetchPlaceDetailsDirect(placeId: string): Promise<Partial<Place> 
 }
 
 async function fetchPlaceDetailsViaApi(placeId: string): Promise<Partial<Place> | null> {
-  const base = appBaseUrl();
-  if (!base) return null;
+  if (typeof window === "undefined") return null;
   try {
-    const url = new URL(`${base}/api/places-details`);
-    url.searchParams.set("placeId", placeId);
-    const res = await fetch(url.toString());
+    const params = new URLSearchParams({ placeId });
+    const res = await fetch(`/api/places-details?${params.toString()}`);
     if (!res.ok) return null;
     return (await res.json()) as Partial<Place>;
   } catch {

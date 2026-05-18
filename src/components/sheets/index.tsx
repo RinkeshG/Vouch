@@ -1,9 +1,15 @@
 import { Check, Copy, Loader2, MapPin, MessageCircle, Search, Share2, UserPlus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { tasteBio } from "../../lib/format";
 import { useGooglePlacesSearch } from "../../hooks/useGooglePlacesSearch";
 import { googleSuggestionToPlace, type GooglePlaceSuggestion } from "../../lib/googlePlaces";
-import { buildShareMessage, nativeShare, openWhatsApp } from "../../lib/share";
+import {
+  buildInviteShareMessage,
+  buildShareMessage,
+  copyToClipboard,
+  nativeShare,
+  openWhatsApp
+} from "../../lib/share";
 import { MIN_VOUCHED_PLACES_PER_LIST } from "../../lib/collectionRules";
 import type { Collection, Friend, Place, UserPlace, UserProfile } from "../../types";
 import { EmptyState } from "../ui/EmptyState";
@@ -53,7 +59,12 @@ export function AddPlaceSheet({
   const [customArea, setCustomArea] = useState(profile.city);
   const [googleAdding, setGoogleAdding] = useState<string | null>(null);
 
-  const { results: googleResults, loading: googleLoading } = useGooglePlacesSearch(query, profile.city, true);
+  const {
+    results: googleResults,
+    loading: googleLoading,
+    status: googleStatus,
+    message: googleMessage
+  } = useGooglePlacesSearch(query, profile.city, true);
 
   async function pickGoogle(suggestion: GooglePlaceSuggestion) {
     setGoogleAdding(suggestion.placeId);
@@ -77,6 +88,14 @@ export function AddPlaceSheet({
         />
         {googleLoading && <Loader2 size={16} className="search-spinner" />}
       </div>
+
+      {query.trim().length >= 2 && !googleLoading && googleResults.length === 0 && (
+        <p className="sheet-results-hint sheet-results-hint--warn">
+          {googleStatus === "unconfigured"
+            ? "Google Maps search is not configured on this deploy — add GOOGLE_PLACES_API_KEY in Vercel and redeploy."
+            : googleMessage ?? "No Google results for that search. Try a shorter name or add manually below."}
+        </p>
+      )}
 
       {query.trim().length >= 2 && googleResults.length > 0 && (
         <div className="sheet-results sheet-results-google">
@@ -183,6 +202,13 @@ export function ShareSheet({
   const canShare = hasLink || trimmedBlurb.length > 0;
   const navigatorHasShare = typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
 
+  const syncAttempted = useRef(false);
+  useEffect(() => {
+    if (syncAttempted.current || !cloudEnabled || hasLink) return;
+    syncAttempted.current = true;
+    if (!cloudSyncing) onSyncLink();
+  }, [cloudEnabled, hasLink, cloudSyncing, onSyncLink]);
+
   async function handleNativeShare() {
     const result = await nativeShare({
       title: `${name}'s Vouch`,
@@ -242,21 +268,22 @@ export function ShareSheet({
         )}
 
         <section className="share-v3-msg">
-          <blockquote>{trimmedBlurb || "Building your taste card on Vouch."}</blockquote>
-
-          {hasLink ? (
-            <p className="share-v3-link-summary">{shareLinkSummary(url)}</p>
+          <p className="share-v3-msg-label">Message people will get</p>
+          {cloudSyncing && !hasLink ? (
+            <p className="share-v3-quiet">Preparing your share link…</p>
           ) : (
-            <>
-              {cloudSyncing ? (
-                <p className="share-v3-quiet">Finishing your public link…</p>
-              ) : null}
-              {cloudEnabled && !cloudSyncing ? (
-                <button type="button" className="share-v3-short-link-btn" onClick={onSyncLink}>
-                  Refresh link
-                </button>
-              ) : null}
-            </>
+            <blockquote className="share-v3-outgoing">
+              {shareMessage.trim() || trimmedBlurb || "Building your taste card on Vouch."}
+            </blockquote>
+          )}
+          {hasLink ? (
+            <p className="share-v3-link-summary">Includes link · {shareLinkSummary(url)}</p>
+          ) : cloudEnabled ? (
+            <button type="button" className="share-v3-short-link-btn" onClick={onSyncLink} disabled={cloudSyncing}>
+              {cloudSyncing ? "Syncing…" : "Try again"}
+            </button>
+          ) : (
+            <p className="share-v3-quiet">Add Supabase keys to enable shareable links.</p>
           )}
         </section>
 
@@ -385,24 +412,57 @@ export function CollectionSheet({
 }
 
 export function AddFriendSheet({
+  profile,
   inviteUrl,
+  previewPlaces,
   hasHandle,
+  cloudSyncing,
   onClose,
-  onWhatsApp,
-  onCopyLink,
-  onNativeShare,
+  onToast,
   onAdd
 }: {
+  profile: UserProfile;
   inviteUrl: string;
+  previewPlaces: Place[];
   hasHandle: boolean;
+  cloudSyncing?: boolean;
   onClose: () => void;
-  onWhatsApp: () => void;
-  onCopyLink: () => void;
-  onNativeShare: () => void;
+  onToast: (message: string) => void;
   onAdd: (name: string) => void;
 }) {
   const [showManual, setShowManual] = useState(false);
   const [name, setName] = useState("");
+
+  const sharePayload = buildInviteShareMessage(profile, inviteUrl, previewPlaces);
+  const canSend = hasHandle && inviteUrl.length > 0;
+  const navigatorHasShare =
+    typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
+
+  async function sendWhatsApp() {
+    if (!canSend) {
+      onToast("Your invite link is still syncing — try again in a moment.");
+      return;
+    }
+    openWhatsApp(sharePayload);
+    onClose();
+  }
+
+  async function sendShare() {
+    if (!canSend) {
+      onToast("Your invite link is still syncing — try again in a moment.");
+      return;
+    }
+    const hook = sharePayload.split("\n\n")[0] ?? sharePayload;
+    const result = await nativeShare({
+      title: `${profile.name.trim().split(/\s+/)[0] || "Friend"}'s Vouch invite`,
+      text: hook,
+      url: inviteUrl
+    });
+    if (result === "shared") onToast("Sent!");
+    else if (result === "copied") onToast("Message copied — paste anywhere");
+    else onToast("Could not share — try WhatsApp");
+    if (result !== "failed") onClose();
+  }
 
   return (
     <Sheet title="Invite a friend" onClose={onClose}>
@@ -410,46 +470,61 @@ export function AddFriendSheet({
         <h3>Share your Vouch</h3>
         <p>
           {hasHandle
-            ? "Your invite link adds them to your circle when they finish onboarding."
+            ? "They join your circle when they finish onboarding from your link."
             : "Finish onboarding first — your personal invite link will appear here."}
         </p>
-        {hasHandle && (
-          <p className="invite-url-preview">{inviteUrl}</p>
-        )}
-        <div className="invite-actions">
+
+        <section className="share-v3-msg invite-msg-preview">
+          <blockquote>
+            {canSend
+              ? sharePayload.split("\n\n")[0]
+              : "Your invite message will show here once your link is ready."}
+          </blockquote>
+          {canSend ? (
+            <p className="share-v3-link-summary">{shareLinkSummary(inviteUrl)}</p>
+          ) : cloudSyncing ? (
+            <p className="share-v3-quiet">Finishing your invite link…</p>
+          ) : null}
+        </section>
+
+        <div
+          className={
+            navigatorHasShare ? "share-v3-actions-dual invite-actions" : "share-v3-actions-single invite-actions"
+          }
+        >
           <button
             type="button"
             className="invite-btn whatsapp"
-            onClick={() => {
-              onWhatsApp();
-              onClose();
-            }}
+            disabled={!canSend}
+            onClick={() => void sendWhatsApp()}
           >
             <MessageCircle size={18} />
             WhatsApp
           </button>
-          <button
-            type="button"
-            className="invite-btn copy"
-            onClick={() => {
-              onCopyLink();
-              onClose();
-            }}
-          >
-            <Copy size={18} />
-            Copy link
-          </button>
-          {"share" in navigator && (
+          {navigatorHasShare ? (
             <button
               type="button"
               className="invite-btn native"
-              onClick={() => {
-                onNativeShare();
-                onClose();
-              }}
+              disabled={!canSend}
+              onClick={() => void sendShare()}
             >
               <Share2 size={18} />
               Share
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="invite-btn native"
+              disabled={!canSend}
+              onClick={async () => {
+                if (!canSend) return;
+                const copied = await copyToClipboard(sharePayload);
+                onToast(copied ? "Message copied — paste anywhere" : "Copy failed");
+                if (copied) onClose();
+              }}
+            >
+              <Copy size={18} />
+              Copy message
             </button>
           )}
         </div>
