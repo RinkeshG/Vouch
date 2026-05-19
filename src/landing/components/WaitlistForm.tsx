@@ -100,17 +100,17 @@ export function WaitlistForm({ id = "waitlist-form", onSuccess }: Props) {
         className="signed-btn signed-btn--primary signed-waitlist-form__submit"
         disabled={status === "submitting" || status === "done"}
       >
-        {status === "submitting" ? "Saving..." : status === "done" ? "You're in" : "Join and make my card"}
+        {status === "submitting" ? "Saving..." : status === "done" ? "You're in" : "Request access"}
       </button>
 
       {status === "done" && (
         <p className="signed-waitlist-form__note signed-waitlist-form__note--success" role="status">
-          You are on the list. We will reach out when your city circle opens.
+          You are on the list. Make a tiny Vouch while you wait.
         </p>
       )}
       {status === "duplicate" && (
         <p className="signed-waitlist-form__note" role="status">
-          You are already on the list. Your spot is safe.
+          You are already in. Your spot is safe.
         </p>
       )}
     </form>
