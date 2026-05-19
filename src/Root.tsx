@@ -4,7 +4,7 @@ import { LandingPage } from "./landing/LandingPage";
 const LANDING_PATHS = new Set(["/", "/waitlist", "/join"]);
 
 export function isLandingRoute(pathname: string): boolean {
-  return LANDING_PATHS.has(pathname);
+  return LANDING_PATHS.has(pathname) || pathname.startsWith("/waitlist/");
 }
 
 export function isAppRoute(pathname: string): boolean {
