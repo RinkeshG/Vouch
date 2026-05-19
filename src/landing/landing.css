@@ -690,6 +690,122 @@
   font-weight: 800;
 }
 
+.signed-taste-maker {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(220px, 0.85fr);
+  gap: 14px;
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid rgba(230, 59, 46, 0.28);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 0 0, rgba(230, 59, 46, 0.14), transparent 12rem),
+    rgba(244, 238, 229, 0.045);
+}
+
+.signed-taste-maker__form {
+  display: grid;
+  gap: 10px;
+}
+
+.signed-taste-maker__form strong {
+  display: block;
+  margin: -2px 0 2px;
+  color: var(--waitlist-paper);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 620;
+  line-height: 1;
+}
+
+.signed-taste-maker label {
+  display: grid;
+  gap: 5px;
+}
+
+.signed-taste-maker label span {
+  color: var(--waitlist-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signed-taste-maker input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--waitlist-line);
+  border-radius: 13px;
+  background: rgba(244, 238, 229, 0.07);
+  color: var(--waitlist-paper);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.signed-taste-maker input:focus {
+  outline: 3px solid rgba(230, 59, 46, 0.16);
+  border-color: var(--waitlist-red);
+}
+
+.signed-tiny-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 100%;
+  padding: 18px;
+  border-radius: 22px;
+  background: #f5eee4;
+  color: #141210;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+  transform: rotate(1.5deg);
+}
+
+.signed-tiny-card > span {
+  color: var(--waitlist-red-deep);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signed-tiny-card strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 620;
+  line-height: 0.96;
+}
+
+.signed-tiny-card div {
+  display: grid;
+  gap: 8px;
+}
+
+.signed-tiny-card p {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  margin: 0;
+  color: #332a24;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.signed-tiny-card p b {
+  color: #a79b8c;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.signed-tiny-card .signed-btn {
+  margin-top: auto;
+  min-height: 42px;
+  color: #fff8f2;
+}
+
 .signed-close {
   display: grid;
   gap: 22px;
@@ -831,6 +947,14 @@
 
   .signed-waitlist-form__row {
     grid-template-columns: 1fr;
+  }
+
+  .signed-taste-maker {
+    grid-template-columns: 1fr;
+  }
+
+  .signed-tiny-card {
+    transform: none;
   }
 
   .signed-footer {
