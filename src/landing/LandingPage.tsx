@@ -42,13 +42,13 @@ export function LandingPage() {
       <main>
         <section className="signed-hero" aria-labelledby="landing-headline">
           <div className="signed-hero__copy">
-            <h1 id="landing-headline">Your best food recs deserve a home outside the group chat.</h1>
+            <h1 id="landing-headline">Your food taste, made social.</h1>
             <p>
-              Save the places you would actually send a friend. Add the why. Share your taste in one clean link.
-              No ratings. No noise. Just vouches.
+              Vouch for the places you would actually send people to. Share your taste when someone asks where
+              to go.
             </p>
             <button type="button" className="signed-btn signed-btn--primary" onClick={goWaitlist}>
-              Create your Vouch
+              Build my Vouch
             </button>
           </div>
 
@@ -56,7 +56,7 @@ export function LandingPage() {
         </section>
 
         <section className="signed-break" aria-labelledby="broken-title">
-          <CirclePreview />
+          <WebActivityPreview />
 
           <div className="signed-section-copy">
             <span className="signed-kicker">Why Vouch</span>
@@ -78,23 +78,7 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div className="signed-shelf-grid">
-            {shelfCards.map((card, index) => (
-              <article className={`signed-list-card signed-list-card--${index + 1}`} key={card.title}>
-                <div className="signed-list-card__top">
-                  <span>{card.city}</span>
-                  <b>{String(index + 1).padStart(2, "0")}</b>
-                </div>
-                <h3>{card.title}</h3>
-                <ol>
-                  {card.places.map((place) => (
-                    <li key={place}>{place}</li>
-                  ))}
-                </ol>
-                <p>vouch.app/{["rohan", "aditi", "ishani"][index]}</p>
-              </article>
-            ))}
-          </div>
+          <ShelfProductBoard />
         </section>
 
         <section className="signed-proof" aria-labelledby="proof-title">
@@ -144,75 +128,112 @@ export function LandingPage() {
 
 function HeroProduct() {
   return (
-    <div className="signed-hero-product" aria-label="Vouch public profile preview">
-      <div className="signed-product-bar">
-        <span>vouch.app/aditi</span>
-        <b>Public taste card</b>
+    <div className="signed-taste-object" aria-label="Vouch public taste profile preview">
+      <div className="signed-taste-object__url">vouch.app/aditi</div>
+      <div className="signed-taste-object__identity">
+        <div className="signed-avatar">AR</div>
+        <div>
+          <strong>Aditi Rao</strong>
+          <span>Bangalore · date spots, veg-safe dinners, places that feel considered</span>
+        </div>
       </div>
 
-      <div className="signed-profile-card">
-        <div className="signed-profile-card__header">
-          <div className="signed-avatar">AR</div>
-          <div>
-            <strong>Aditi Rao</strong>
-            <span>Bangalore · 12 vouches</span>
+      <div className="signed-vouch-collage">
+        <article className="signed-vouch-card signed-vouch-card--hero">
+          <div className="signed-vouch-visual">
+            <span className="signed-stamp">V</span>
+            <b>TC</b>
           </div>
-        </div>
-        <p>Places I send when someone asks where to go.</p>
-        <div className="signed-vouch-stack">
-          <article>
-            <span>Date night</span>
-            <strong>The Conservatory</strong>
-            <p>Book the terrace. Looks planned even when it was not.</p>
-          </article>
-          <article>
-            <span>Parents visiting</span>
-            <strong>Burma Burma</strong>
-            <p>Safe pick when veg and non-fussy both matter.</p>
-          </article>
-          <article>
-            <span>Cocktails</span>
-            <strong>Muro</strong>
-            <p>Second-date drinks without shouting over the bar.</p>
-          </article>
-        </div>
+          <span>Date night</span>
+          <strong>The Conservatory</strong>
+          <p>Book the terrace. Looks planned even when it was not.</p>
+          <small>8 friends saved this</small>
+        </article>
+        <article className="signed-vouch-card signed-vouch-card--left">
+          <div className="signed-vouch-visual signed-vouch-visual--small">
+            <b>BB</b>
+          </div>
+          <span>Parents visiting</span>
+          <strong>Burma Burma</strong>
+          <p>Safe pick when veg and non-fussy both matter.</p>
+        </article>
+        <article className="signed-vouch-card signed-vouch-card--right">
+          <div className="signed-vouch-visual signed-vouch-visual--small">
+            <b>MU</b>
+          </div>
+          <span>Cocktails</span>
+          <strong>Muro</strong>
+          <p>Second-date drinks without shouting over the bar.</p>
+        </article>
       </div>
 
-      <div className="signed-floating-card signed-floating-card--save">
-        <span>Rohan saved this</span>
-        <strong>“Stealing this for Saturday.”</strong>
-      </div>
-      <div className="signed-floating-card signed-floating-card--link">
-        <span>Share link</span>
-        <strong>vouch.app/aditi</strong>
+      <div className="signed-taste-object__proof">
+        <span>Rohan saved Aditi's Vouch</span>
+        <span>Ishani copied 2 places</span>
+        <span>Shared in Dinner plan · 8:14 PM</span>
       </div>
     </div>
   );
 }
 
-function CirclePreview() {
+function WebActivityPreview() {
   return (
-    <div className="signed-circle-preview" aria-label="Vouch circle activity preview">
-      <div className="signed-phone-shell">
-        <div className="signed-phone-top">
-          <span>New from your circle</span>
-          <b>Vouch</b>
+    <div className="signed-social-loop" aria-label="Vouch social loop preview">
+      <div className="signed-chat-line signed-chat-line--question">Where should we go tonight?</div>
+      <div className="signed-shared-vouch">
+        <div className="signed-shared-vouch__top">
+          <span>Aditi's Vouch</span>
+          <b>vouch.app/aditi</b>
         </div>
-        <div className="signed-activity-card signed-activity-card--hot">
-          <span>Aditi vouched</span>
-          <strong>The Conservatory</strong>
-          <p>Terrace table, low-effort impressive, book ahead.</p>
+        <div className="signed-vouch-visual signed-vouch-visual--wide">
+          <span className="signed-stamp">V</span>
+          <b>TC</b>
+        </div>
+        <strong>The Conservatory</strong>
+        <p>Terrace table, low-effort impressive, book ahead.</p>
+        <div>
           <button type="button">Save</button>
+          <span>Rohan + Ishani saved this</span>
         </div>
-        <div className="signed-activity-row">
-          <div className="signed-avatar signed-avatar--small">RM</div>
-          <p>Rohan also has this on “client dinners that do not miss”.</p>
-        </div>
-        <div className="signed-activity-card">
-          <span>Ishani made a list</span>
-          <strong>One-day Bangalore</strong>
-          <p>3 places · copied by 8 friends</p>
-        </div>
+      </div>
+      <div className="signed-chat-line signed-chat-line--reply">This is exactly the kind of place I meant.</div>
+    </div>
+  );
+}
+
+function ShelfProductBoard() {
+  return (
+    <div className="signed-public-shelf" aria-label="Vouch public shelf preview">
+      <div className="signed-public-shelf__mast">
+        <span>vouch.app/aditi</span>
+        <strong>Aditi's public shelf</strong>
+        <p>Lists friends can steal, save, and send.</p>
+      </div>
+
+      <div className="signed-shelf-strip">
+        {shelfCards.map((card, index) => (
+          <article className={`signed-shelf-card signed-shelf-card--${index + 1}`} key={card.title}>
+            <div className="signed-list-cover" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="signed-shelf-card__top">
+              <span>{card.city}</span>
+              <b>{["Rohan saved", "38 saves", "New"][index]}</b>
+            </div>
+            <h3>{card.title}</h3>
+            <ol>
+              {card.places.map((place) => (
+                <li key={place}>{place}</li>
+              ))}
+            </ol>
+            <footer>
+              <span>{index === 1 ? "Copy this list" : "Save to your Vouch"}</span>
+            </footer>
+          </article>
+        ))}
       </div>
     </div>
   );
@@ -228,6 +249,7 @@ function TastePreview() {
           <span>The taste friend</span>
         </div>
       </div>
+      <span className="signed-stamp signed-stamp--mini">V</span>
       <p>If I had one day...</p>
       <ol>
         {starterPlaces.map((place, index) => (

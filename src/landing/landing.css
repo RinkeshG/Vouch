@@ -1,19 +1,27 @@
 @import "./tokens-signed.css";
 
 .signed-waitlist {
-  --waitlist-bg: #f7f0ea;
-  --waitlist-bg-alt: #efe4dc;
-  --waitlist-ink: #191512;
-  --waitlist-muted: #6f6258;
-  --waitlist-faint: #9b8e83;
-  --waitlist-line: rgba(25, 21, 18, 0.1);
-  --waitlist-line-strong: rgba(25, 21, 18, 0.18);
-  --waitlist-card: rgba(255, 252, 247, 0.82);
-  --waitlist-red: var(--sign-red);
+  --bg: #0c0b0a;
+  --surface: #161412;
+  --surface-2: #221f1c;
+  --paper: #f2ede6;
+  --paper-soft: #d7cec3;
+  --muted: #a39e96;
+  --line: rgba(242, 237, 230, 0.1);
+  --line-strong: rgba(242, 237, 230, 0.18);
+  --red: #e63b2e;
+  --red-dim: rgba(230, 59, 46, 0.14);
+  --green: #4a6b5c;
+  --gold: #c9a227;
+  --light-bg: #f7f3ed;
+  --light-card: #fffaf2;
+  --light-ink: #141210;
   min-height: 100dvh;
   overflow-x: hidden;
-  background: var(--waitlist-bg);
-  color: var(--waitlist-ink);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(230, 59, 46, 0.1), transparent 26rem),
+    linear-gradient(180deg, #0c0b0a 0%, #11100f 58%, #0c0b0a 100%);
+  color: var(--paper);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
 }
@@ -28,6 +36,17 @@
   color: inherit;
 }
 
+.signed-nav,
+.signed-hero,
+.signed-break,
+.signed-shelf,
+.signed-proof,
+.signed-access,
+.signed-footer {
+  width: min(1120px, calc(100% - 48px));
+  margin-inline: auto;
+}
+
 .signed-nav {
   position: sticky;
   top: 0;
@@ -35,49 +54,38 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(1110px, calc(100% - 48px));
-  margin: 0 auto;
-  padding: 14px 0 12px;
-  border-bottom: 1px solid rgba(25, 21, 18, 0.06);
-  background: rgba(247, 240, 234, 0.86);
+  padding: 16px 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(12, 11, 10, 0.82);
   backdrop-filter: blur(18px);
 }
 
 .signed-wordmark {
-  color: var(--waitlist-ink);
   font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 560;
-  line-height: 1;
+  font-size: 25px;
+  font-weight: 620;
+  letter-spacing: -0.02em;
   text-decoration: none;
 }
 
-.signed-nav__button,
-.signed-btn {
+.signed-btn,
+.signed-nav__button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
+  min-height: 40px;
+  padding: 0 18px;
   border: 1px solid transparent;
   border-radius: 999px;
+  background: var(--red);
+  color: #fff8f2;
   font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
-}
-
-.signed-nav__button {
-  padding: 0 15px;
-  background: #15110f;
-  color: #fff9f2;
-}
-
-.signed-btn {
-  min-height: 38px;
-  padding: 0 18px;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
 .signed-btn:hover,
@@ -85,40 +93,24 @@
   transform: translateY(-1px);
 }
 
-.signed-btn--primary {
-  background: #15110f;
-  color: #fff9f2;
-  box-shadow: 0 10px 24px rgba(39, 30, 24, 0.16);
-}
-
 .signed-kicker {
   display: block;
   margin: 0 0 12px;
-  color: var(--waitlist-red);
+  color: var(--red);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.signed-hero,
-.signed-break,
-.signed-shelf,
-.signed-proof,
-.signed-access,
-.signed-footer {
-  width: min(1110px, calc(100% - 48px));
-  margin-inline: auto;
-}
-
 .signed-hero {
-  padding: 58px 0 96px;
+  padding: 64px 0 92px;
 }
 
 .signed-hero__copy {
   display: grid;
   justify-items: center;
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
   text-align: center;
 }
@@ -127,74 +119,56 @@
 .signed-section-copy h2,
 .signed-access h2 {
   margin: 0;
-  color: var(--waitlist-ink);
+  color: var(--paper);
   font-family: var(--font-display);
-  font-weight: 560;
-  letter-spacing: 0;
+  font-weight: 620;
+  letter-spacing: -0.01em;
 }
 
 .signed-hero h1 {
   max-width: 760px;
-  font-size: clamp(38px, 4.4vw, 50px);
-  line-height: 1;
+  font-size: clamp(40px, 5.4vw, 72px);
+  line-height: 0.94;
 }
 
 .signed-hero__copy p {
   max-width: 560px;
-  margin: 17px 0 25px;
-  color: var(--waitlist-muted);
-  font-size: 14px;
-  line-height: 1.62;
+  margin: 18px 0 26px;
+  color: var(--paper-soft);
+  font-size: 15px;
+  line-height: 1.58;
 }
 
-.signed-hero-product {
+.signed-taste-object {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
   width: min(100%, 980px);
-  margin: 38px auto 0;
-  padding: clamp(14px, 2.4vw, 24px);
-  border: 1px solid rgba(25, 21, 18, 0.08);
-  border-radius: 8px;
+  margin: 44px auto 0;
+  padding: clamp(18px, 3vw, 34px);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
   background:
-    linear-gradient(120deg, rgba(255, 252, 247, 0.92), rgba(239, 228, 220, 0.72)),
-    var(--waitlist-bg-alt);
-  box-shadow: 0 30px 80px rgba(58, 42, 31, 0.14);
+    linear-gradient(180deg, rgba(242, 237, 230, 0.06), transparent 32%),
+    var(--surface);
+  box-shadow: 0 34px 110px rgba(0, 0, 0, 0.42);
 }
 
-.signed-product-bar {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 12px 14px 18px;
-  color: var(--waitlist-faint);
-  font-size: 11px;
-  font-weight: 750;
+.signed-taste-object__url {
+  display: inline-flex;
+  align-items: center;
+  min-height: 31px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.signed-product-bar b {
-  color: var(--waitlist-ink);
-  font-weight: 750;
-}
-
-.signed-profile-card {
-  display: grid;
-  gap: 20px;
-  max-width: 690px;
-  margin: 0 auto;
-  padding: clamp(20px, 3vw, 32px);
-  border: 1px solid rgba(25, 21, 18, 0.08);
-  border-radius: 6px;
-  background: rgba(255, 252, 247, 0.9);
-  box-shadow: 0 18px 50px rgba(58, 42, 31, 0.1);
-}
-
-.signed-profile-card__header,
-.signed-taste-preview__person,
-.signed-activity-row {
+.signed-taste-object__identity {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
+  margin-top: 26px;
 }
 
 .signed-avatar {
@@ -204,11 +178,12 @@
   width: 42px;
   height: 42px;
   flex: 0 0 auto;
+  border: 2px solid rgba(242, 237, 230, 0.22);
   border-radius: 50%;
-  background: #15110f;
-  color: #fff9f2;
+  background: var(--red);
+  color: #fff8f2;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.06em;
 }
 
@@ -218,298 +193,446 @@
   font-size: 10px;
 }
 
-.signed-profile-card__header strong {
+.signed-taste-object__identity strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 560;
-  line-height: 1;
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 620;
+  line-height: 0.95;
 }
 
-.signed-profile-card__header span {
+.signed-taste-object__identity span {
   display: block;
-  margin-top: 4px;
-  color: var(--waitlist-faint);
-  font-size: 11px;
-  font-weight: 700;
+  max-width: 540px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.signed-profile-card > p {
-  max-width: 400px;
-  margin: 0;
-  color: var(--waitlist-muted);
-  font-family: var(--font-display);
-  font-size: 22px;
-  line-height: 1.18;
-}
-
-.signed-vouch-stack {
+.signed-vouch-collage {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: minmax(190px, 0.72fr) minmax(320px, 1fr) minmax(190px, 0.72fr);
+  gap: 14px;
+  align-items: end;
+  margin-top: 34px;
 }
 
-.signed-vouch-stack article,
-.signed-activity-card,
-.signed-list-card {
-  border: 1px solid rgba(25, 21, 18, 0.08);
-  border-radius: 5px;
-  background: rgba(247, 240, 234, 0.72);
+.signed-vouch-card,
+.signed-shared-vouch,
+.signed-shelf-card,
+.signed-taste-preview {
+  border: 1px solid rgba(20, 18, 16, 0.1);
+  border-radius: 14px;
+  background: var(--light-card);
+  color: var(--light-ink);
 }
 
-.signed-vouch-stack article {
-  min-height: 168px;
-  padding: 16px;
+.signed-vouch-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 254px;
+  padding: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
 }
 
-.signed-vouch-stack span,
-.signed-activity-card span,
-.signed-list-card__top span,
-.signed-phone-card span,
+.signed-vouch-card--hero {
+  min-height: 380px;
+}
+
+.signed-vouch-card--left {
+  transform: translateY(30px) rotate(-1.5deg);
+}
+
+.signed-vouch-card--right {
+  transform: translateY(18px) rotate(1.5deg);
+}
+
+.signed-vouch-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 156px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 11px;
+  background:
+    linear-gradient(135deg, rgba(201, 162, 39, 0.28), transparent 42%),
+    linear-gradient(160deg, #2b241f, #11100f);
+  color: rgba(242, 237, 230, 0.8);
+}
+
+.signed-vouch-visual--small {
+  min-height: 108px;
+}
+
+.signed-vouch-visual--wide {
+  min-height: 150px;
+  margin: 18px 0 0;
+}
+
+.signed-vouch-visual b {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 6vw, 82px);
+  font-weight: 620;
+  letter-spacing: -0.04em;
+}
+
+.signed-stamp {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 2.5px solid var(--red);
+  border-radius: 50%;
+  color: var(--red);
+  font-family: var(--font-display);
+  font-size: 29px;
+  font-weight: 620;
+  transform: rotate(-3deg);
+}
+
+.signed-stamp--mini {
+  right: 20px;
+  top: 20px;
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+}
+
+.signed-vouch-card span,
+.signed-shared-vouch span,
+.signed-public-shelf__mast > span,
+.signed-shelf-card__top span,
 .signed-taste-preview span,
 .signed-tiny-card > span {
   display: block;
-  color: var(--waitlist-faint);
+  color: #8f8378;
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 900;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.signed-vouch-stack strong {
+.signed-vouch-card strong {
   display: block;
-  margin-top: 30px;
+  margin-top: 12px;
   font-family: var(--font-display);
-  font-size: 25px;
-  font-weight: 560;
-  line-height: 1;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 620;
+  line-height: 0.96;
 }
 
-.signed-vouch-stack p {
+.signed-vouch-card--hero strong {
+  font-size: clamp(42px, 5vw, 66px);
+}
+
+.signed-vouch-card p,
+.signed-shared-vouch p,
+.signed-shelf-card li,
+.signed-taste-preview small,
+.signed-taste-preview > p {
+  color: #5f554c;
+}
+
+.signed-vouch-card p {
   margin: 10px 0 0;
-  color: var(--waitlist-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.signed-vouch-card small {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 28px;
+  align-items: center;
+  margin-top: auto;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--red-dim);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.signed-taste-object__proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 46px;
+}
+
+.signed-taste-object__proof span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
   font-size: 12px;
-  line-height: 1.42;
-}
-
-.signed-floating-card {
-  position: absolute;
-  width: min(220px, 24vw);
-  padding: 15px;
-  border: 1px solid rgba(25, 21, 18, 0.08);
-  border-radius: 5px;
-  background: #15110f;
-  color: #fff9f2;
-  box-shadow: 0 20px 50px rgba(43, 31, 23, 0.16);
-}
-
-.signed-floating-card strong {
-  display: block;
-  margin-top: 8px;
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 560;
-  line-height: 1.1;
-}
-
-.signed-floating-card--save {
-  left: 34px;
-  bottom: 34px;
-  transform: rotate(-2deg);
-}
-
-.signed-floating-card--link {
-  right: 34px;
-  top: 84px;
-  background: #fff9f2;
-  color: var(--waitlist-ink);
-  transform: rotate(2deg);
+  font-weight: 800;
 }
 
 .signed-break {
   display: grid;
-  grid-template-columns: minmax(280px, 0.92fr) minmax(320px, 0.86fr);
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 0.86fr);
   gap: clamp(48px, 9vw, 118px);
   align-items: center;
   padding: 104px 0;
-  border-top: 1px solid rgba(25, 21, 18, 0.05);
+  border-top: 1px solid var(--line);
 }
 
-.signed-circle-preview {
-  width: min(390px, 100%);
+.signed-social-loop {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 520px);
   margin-left: auto;
 }
 
-.signed-phone-shell {
-  display: grid;
-  gap: 12px;
-  min-height: 560px;
-  padding: 18px;
-  border: 1px solid rgba(25, 21, 18, 0.12);
-  border-radius: 32px;
-  background: #15110f;
-  box-shadow: 0 28px 64px rgba(45, 34, 27, 0.18);
+.signed-chat-line {
+  width: fit-content;
+  max-width: 86%;
+  padding: 13px 15px;
+  border-radius: 19px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
 }
 
-.signed-phone-top {
+.signed-chat-line--question {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff8f2;
+}
+
+.signed-chat-line--reply {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--paper-soft);
+}
+
+.signed-shared-vouch {
+  padding: 18px;
+  box-shadow: 0 24px 68px rgba(0, 0, 0, 0.18);
+}
+
+.signed-shared-vouch__top {
   display: flex;
   justify-content: space-between;
-  padding: 4px 2px 8px;
-  color: rgba(255, 249, 242, 0.52);
-  font-size: 11px;
-  font-weight: 750;
+  gap: 14px;
 }
 
-.signed-phone-top b {
-  color: #fff9f2;
-}
-
-.signed-activity-card {
-  padding: 18px;
-  background: #fff9f2;
-  color: var(--waitlist-ink);
-}
-
-.signed-activity-card--hot {
-  min-height: 220px;
-  background: #f7f0ea;
-}
-
-.signed-activity-card strong {
-  display: block;
-  margin-top: 42px;
-  font-family: var(--font-display);
-  font-size: 31px;
-  font-weight: 560;
-  line-height: 1;
-}
-
-.signed-activity-card p {
-  margin: 12px 0 0;
-  color: var(--waitlist-muted);
+.signed-shared-vouch__top b {
+  color: var(--red);
   font-size: 12px;
-  line-height: 1.42;
 }
 
-.signed-activity-card button {
-  min-height: 31px;
-  margin-top: 18px;
-  padding: 0 13px;
+.signed-shared-vouch strong {
+  display: block;
+  margin-top: 22px;
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4.7vw, 60px);
+  font-weight: 620;
+  line-height: 0.94;
+}
+
+.signed-shared-vouch p {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.48;
+}
+
+.signed-shared-vouch > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.signed-shared-vouch button {
+  min-height: 34px;
+  padding: 0 14px;
   border: 0;
   border-radius: 999px;
-  background: #15110f;
-  color: #fff9f2;
+  background: var(--red);
+  color: #fff8f2;
   font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 750;
-}
-
-.signed-activity-row {
-  padding: 14px;
-  border: 1px solid rgba(255, 249, 242, 0.12);
-  border-radius: 5px;
-  color: #fff9f2;
-}
-
-.signed-activity-row p {
-  margin: 0;
-  color: rgba(255, 249, 242, 0.72);
   font-size: 12px;
-  line-height: 1.35;
+  font-weight: 900;
+}
+
+.signed-shared-vouch > div:last-child span {
+  color: #6c6259;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .signed-section-copy {
-  max-width: 410px;
+  max-width: 420px;
 }
 
 .signed-section-copy--wide {
-  max-width: 620px;
+  max-width: 650px;
 }
 
 .signed-section-copy h2,
 .signed-access h2 {
-  font-size: clamp(31px, 4.1vw, 48px);
-  line-height: 1.02;
+  font-size: clamp(34px, 4.4vw, 62px);
+  line-height: 0.96;
 }
 
 .signed-section-copy p,
 .signed-access__inner > p:not(.signed-kicker),
 .signed-access__count {
   margin: 16px 0 0;
-  color: var(--waitlist-muted);
-  font-size: 13px;
-  line-height: 1.62;
+  color: var(--paper-soft);
+  font-size: 14px;
+  line-height: 1.58;
 }
 
 .signed-shelf {
   padding: 94px 0 116px;
-  border-top: 1px solid rgba(25, 21, 18, 0.05);
+  border-top: 1px solid var(--line);
 }
 
-.signed-shelf-grid {
-  display: grid;
-  grid-template-columns: 0.78fr 0.86fr 0.78fr;
-  gap: clamp(22px, 5vw, 58px);
-  align-items: end;
+.signed-public-shelf {
   margin-top: 54px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.34);
 }
 
-.signed-list-card {
+.signed-public-shelf__mast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 18px;
+  align-items: end;
+}
+
+.signed-public-shelf__mast > span {
+  grid-column: 1 / -1;
+  color: var(--red);
+}
+
+.signed-public-shelf__mast strong {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.8vw, 64px);
+  font-weight: 620;
+  line-height: 0.94;
+}
+
+.signed-public-shelf__mast p {
+  max-width: 280px;
+  margin: 0;
+  color: var(--paper-soft);
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+.signed-shelf-strip {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr 0.9fr;
+  gap: 14px;
+  align-items: end;
+  margin-top: 32px;
+}
+
+.signed-shelf-card {
   display: flex;
   flex-direction: column;
   min-height: 390px;
-  padding: 22px;
-  background: rgba(255, 252, 247, 0.76);
-  box-shadow: 0 22px 56px rgba(58, 42, 31, 0.09);
+  padding: 14px 18px 18px;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.2);
 }
 
-.signed-list-card--2 {
-  transform: translateY(52px);
+.signed-shelf-card--2 {
+  min-height: 430px;
+  border-color: rgba(201, 162, 39, 0.62);
 }
 
-.signed-list-card__top {
+.signed-list-cover {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  height: 132px;
+  margin: 0 -4px 18px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.signed-list-cover span {
+  background:
+    linear-gradient(135deg, rgba(230, 59, 46, 0.34), transparent 45%),
+    linear-gradient(160deg, #3b332c, #141210);
+}
+
+.signed-list-cover span:nth-child(2) {
+  background:
+    linear-gradient(135deg, rgba(74, 107, 92, 0.44), transparent 45%),
+    linear-gradient(160deg, #40362e, #171310);
+}
+
+.signed-list-cover span:nth-child(3) {
+  background:
+    linear-gradient(135deg, rgba(201, 162, 39, 0.38), transparent 45%),
+    linear-gradient(160deg, #302923, #11100f);
+}
+
+.signed-list-cover span:nth-child(4) {
+  background:
+    linear-gradient(135deg, rgba(242, 237, 230, 0.18), transparent 45%),
+    linear-gradient(160deg, #463a32, #171310);
+}
+
+.signed-shelf-card__top {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
-.signed-list-card__top b {
-  color: rgba(25, 21, 18, 0.2);
+.signed-shelf-card__top b {
+  color: var(--red);
   font-size: 11px;
-  letter-spacing: 0.1em;
 }
 
-.signed-list-card h3 {
-  margin: 78px 0 0;
-  color: var(--waitlist-ink);
+.signed-shelf-card h3 {
+  margin: 30px 0 0;
   font-family: var(--font-display);
-  font-size: clamp(26px, 3.1vw, 39px);
-  font-weight: 560;
-  line-height: 0.98;
+  font-size: clamp(29px, 3.4vw, 46px);
+  font-weight: 620;
+  line-height: 0.95;
 }
 
-.signed-list-card ol {
+.signed-shelf-card ol {
   display: grid;
   gap: 0;
-  margin: 30px 0 0;
+  margin: 26px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.signed-list-card li {
+.signed-shelf-card li {
   padding: 11px 0;
-  border-top: 1px solid rgba(25, 21, 18, 0.08);
-  color: var(--waitlist-muted);
+  border-top: 1px solid rgba(20, 18, 16, 0.09);
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 750;
 }
 
-.signed-list-card p {
-  margin: auto 0 0;
-  color: var(--waitlist-red);
+.signed-shelf-card footer {
+  margin-top: auto;
+  padding-top: 20px;
+  color: var(--red);
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 900;
 }
 
 .signed-proof {
@@ -518,23 +641,24 @@
   gap: clamp(42px, 10vw, 130px);
   align-items: center;
   padding: 104px 0 116px;
-  border-top: 1px solid rgba(25, 21, 18, 0.05);
+  border-top: 1px solid var(--line);
 }
 
 .signed-taste-preview {
+  position: relative;
   justify-self: center;
   width: min(100%, 360px);
   margin: 0;
   padding: 24px;
-  border: 1px solid rgba(25, 21, 18, 0.06);
-  border-radius: 4px;
-  background: rgba(255, 252, 247, 0.88);
-  box-shadow: 0 28px 74px rgba(58, 42, 31, 0.13);
+  box-shadow: 0 28px 74px rgba(0, 0, 0, 0.22);
 }
 
 .signed-taste-preview__person {
+  display: flex;
+  gap: 10px;
+  align-items: center;
   padding-bottom: 18px;
-  border-bottom: 1px solid rgba(25, 21, 18, 0.08);
+  border-bottom: 1px solid rgba(20, 18, 16, 0.08);
 }
 
 .signed-taste-preview__person strong {
@@ -543,10 +667,9 @@
 }
 
 .signed-taste-preview > p {
-  margin: 20px 0 8px;
-  color: var(--waitlist-muted);
+  margin: 26px 0 8px;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-style: italic;
 }
 
@@ -563,31 +686,24 @@
   justify-content: space-between;
   gap: 18px;
   padding: 17px 0;
-  border-bottom: 1px solid rgba(25, 21, 18, 0.08);
-  color: var(--waitlist-ink);
+  border-bottom: 1px solid rgba(20, 18, 16, 0.08);
+  color: var(--light-ink);
   font-size: 13px;
-  font-weight: 650;
-}
-
-.signed-taste-preview small {
-  flex: 0 0 auto;
-  color: var(--waitlist-faint);
-  font-size: 11px;
-  font-weight: 600;
+  font-weight: 750;
 }
 
 .signed-taste-preview a {
   display: inline-flex;
   margin-top: 18px;
-  color: var(--waitlist-red);
+  color: var(--red);
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 900;
   text-decoration: none;
 }
 
 .signed-access {
   padding: 94px 0 104px;
-  border-top: 1px solid rgba(25, 21, 18, 0.05);
+  border-top: 1px solid var(--line);
   text-align: center;
 }
 
@@ -603,7 +719,7 @@
 
 .signed-access__count {
   margin-top: 15px;
-  color: var(--waitlist-faint);
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -627,10 +743,11 @@
   text-align: left;
 }
 
-.signed-waitlist-form__label {
-  color: var(--waitlist-faint);
-  font-size: 9px;
-  font-weight: 850;
+.signed-waitlist-form__label,
+.signed-taste-maker label span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -641,13 +758,13 @@
   width: 100%;
   min-height: 42px;
   border: 0;
-  border-bottom: 1px solid rgba(25, 21, 18, 0.18);
+  border-bottom: 1px solid var(--line-strong);
   border-radius: 0;
   background: transparent;
-  color: var(--waitlist-ink);
+  color: var(--paper);
   font-family: var(--font-ui);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .signed-waitlist-form input {
@@ -659,33 +776,36 @@
   padding: 0 4px;
 }
 
+.signed-waitlist-form select option {
+  color: var(--light-ink);
+}
+
 .signed-waitlist-form input::placeholder {
-  color: #a99b90;
+  color: rgba(242, 237, 230, 0.44);
 }
 
 .signed-waitlist-form input:focus,
 .signed-waitlist-form select:focus,
 .signed-taste-maker input:focus {
-  border-color: var(--waitlist-red);
+  border-color: var(--red);
   outline: none;
 }
 
 .signed-waitlist-form__submit {
   min-width: 142px;
-  margin-bottom: 0;
 }
 
 .signed-waitlist-form__note {
   grid-column: 1 / -1;
   margin: 2px 0 0;
-  color: var(--waitlist-muted);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
   text-align: center;
 }
 
 .signed-waitlist-form__note--success {
-  color: var(--trust-green);
+  color: #9db8a8;
 }
 
 .signed-taste-maker {
@@ -694,9 +814,9 @@
   gap: 18px;
   margin-top: 34px;
   padding: 18px;
-  border: 1px solid rgba(25, 21, 18, 0.08);
-  border-radius: 5px;
-  background: rgba(255, 252, 247, 0.58);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
   text-align: left;
 }
 
@@ -707,24 +827,16 @@
 
 .signed-taste-maker__form strong {
   display: block;
-  color: var(--waitlist-ink);
+  color: var(--paper);
   font-family: var(--font-display);
-  font-size: 27px;
-  font-weight: 560;
+  font-size: 28px;
+  font-weight: 620;
   line-height: 1;
 }
 
 .signed-taste-maker label {
   display: grid;
   gap: 3px;
-}
-
-.signed-taste-maker label span {
-  color: var(--waitlist-faint);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .signed-taste-maker input {
@@ -737,17 +849,17 @@
   gap: 14px;
   min-height: 100%;
   padding: 20px;
-  border-radius: 4px;
-  background: #15110f;
-  color: #fff9f2;
-  box-shadow: 0 22px 56px rgba(43, 31, 23, 0.22);
+  border-radius: 14px;
+  background: var(--light-card);
+  color: var(--light-ink);
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.24);
 }
 
 .signed-tiny-card strong {
   display: block;
   font-family: var(--font-display);
   font-size: 29px;
-  font-weight: 560;
+  font-weight: 620;
   line-height: 1;
 }
 
@@ -763,23 +875,20 @@
   align-items: baseline;
   margin: 0;
   padding: 12px 0;
-  border-top: 1px solid rgba(255, 249, 242, 0.12);
-  color: #fff9f2;
+  border-top: 1px solid rgba(20, 18, 16, 0.1);
+  color: var(--light-ink);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .signed-tiny-card p b {
-  color: rgba(255, 249, 242, 0.46);
+  color: #9c9186;
   font-size: 10px;
   letter-spacing: 0.08em;
 }
 
 .signed-tiny-card .signed-btn {
   margin-top: auto;
-  background: #fff9f2;
-  color: #15110f;
-  box-shadow: none;
 }
 
 .signed-footer {
@@ -788,16 +897,16 @@
   gap: 20px;
   align-items: center;
   padding: 28px 0 38px;
-  border-top: 1px solid rgba(25, 21, 18, 0.08);
-  color: var(--waitlist-faint);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
   font-size: 11px;
 }
 
 .signed-footer span {
-  color: var(--waitlist-ink);
+  color: var(--paper);
   font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 560;
+  font-weight: 620;
 }
 
 .signed-footer nav {
@@ -820,16 +929,12 @@
     grid-template-columns: 1fr;
   }
 
-  .signed-circle-preview {
+  .signed-social-loop {
     margin: 0 auto;
   }
 
   .signed-section-copy {
-    max-width: 620px;
-  }
-
-  .signed-shelf-grid {
-    gap: 24px;
+    max-width: 650px;
   }
 
   .signed-footer {
@@ -849,21 +954,17 @@
   .signed-proof,
   .signed-access,
   .signed-footer {
-    width: min(100% - 28px, 1110px);
-  }
-
-  .signed-nav {
-    padding-top: 12px;
+    width: min(100% - 28px, 1120px);
   }
 
   .signed-hero {
-    padding: 42px 0 72px;
+    padding: 46px 0 74px;
   }
 
   .signed-hero h1 {
     max-width: 356px;
-    font-size: clamp(32px, 9vw, 38px);
-    line-height: 1.02;
+    font-size: clamp(34px, 9.4vw, 42px);
+    line-height: 0.98;
   }
 
   .signed-hero__copy p {
@@ -871,40 +972,38 @@
     line-height: 1.55;
   }
 
-  .signed-hero-product {
+  .signed-taste-object,
+  .signed-public-shelf {
     margin-top: 28px;
+    padding: 16px;
   }
 
-  .signed-product-bar {
-    padding-inline: 4px;
+  .signed-taste-object__identity {
+    align-items: flex-start;
   }
 
-  .signed-vouch-stack {
-    grid-template-columns: repeat(3, minmax(206px, 1fr));
-    margin-inline: -10px;
-    padding: 0 10px 4px;
+  .signed-vouch-collage {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    margin-inline: -16px;
+    margin-top: 24px;
+    padding: 0 16px 4px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
   }
 
-  .signed-vouch-stack article {
-    min-height: 146px;
+  .signed-vouch-card,
+  .signed-vouch-card--hero {
+    min-height: 280px;
     scroll-snap-align: start;
   }
 
-  .signed-vouch-stack strong {
-    margin-top: 22px;
-  }
-
-  .signed-floating-card {
-    position: static;
-    width: min(100%, 260px);
-    margin-top: 10px;
+  .signed-vouch-card--left,
+  .signed-vouch-card--right {
     transform: none;
   }
 
-  .signed-floating-card--link {
-    justify-self: end;
+  .signed-taste-object__proof {
+    margin-top: 18px;
   }
 
   .signed-break,
@@ -914,24 +1013,22 @@
     padding-block: 74px;
   }
 
-  .signed-phone-shell {
-    min-height: auto;
-    border-radius: 26px;
-  }
-
-  .signed-shelf-grid {
+  .signed-public-shelf__mast {
     grid-template-columns: 1fr;
-    margin-top: 36px;
   }
 
-  .signed-list-card,
-  .signed-list-card--2 {
-    min-height: auto;
-    transform: none;
+  .signed-shelf-strip {
+    grid-template-columns: repeat(3, minmax(236px, 1fr));
+    margin-inline: -16px;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
   }
 
-  .signed-list-card h3 {
-    margin-top: 46px;
+  .signed-shelf-card,
+  .signed-shelf-card--2 {
+    min-height: 360px;
+    scroll-snap-align: start;
   }
 
   .signed-waitlist-form {
