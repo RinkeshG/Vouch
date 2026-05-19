@@ -1,0 +1,43 @@
+/* Signed design system — from docs/Vouch_Design_Brand_Screen_Spec.md */
+
+.signed {
+  /* Light — public pages (landing) */
+  --paper-bg: #f7f3ed;
+  --paper-card: #ffffff;
+  --ink: #141210;
+  --ink-900: #161412;
+  --ink-800: #221f1c;
+  --paper: #f2ede6;
+  --paper-muted: #a39e96;
+  --sign-red: #d42f22;
+  --sign-red-dim: rgba(212, 47, 34, 0.12);
+  --trust-green: #4a6b5c;
+  --trust-green-dim: rgba(74, 107, 92, 0.1);
+  --worth-gold: #c9a227;
+  --line: rgba(20, 18, 16, 0.08);
+  --line-strong: rgba(20, 18, 16, 0.14);
+
+  /* Dark — share card variant accents */
+  --ink-950: #0c0b0a;
+
+  --font-display: "Newsreader", Georgia, serif;
+  --font-ui: "Outfit", system-ui, sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  --pad: 20px;
+  --max: 480px;
+  --max-wide: 1080px;
+}

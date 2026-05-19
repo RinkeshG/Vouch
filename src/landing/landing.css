@@ -1,0 +1,851 @@
+@import "./tokens-signed.css";
+
+.signed-waitlist {
+  --waitlist-bg: #090807;
+  --waitlist-bg-soft: #14110f;
+  --waitlist-card: #1d1814;
+  --waitlist-card-2: #29221d;
+  --waitlist-paper: #f4eee5;
+  --waitlist-paper-soft: #dfd2c2;
+  --waitlist-muted: #a89c8d;
+  --waitlist-line: rgba(244, 238, 229, 0.13);
+  --waitlist-line-strong: rgba(244, 238, 229, 0.24);
+  --waitlist-red: #e63b2e;
+  --waitlist-red-deep: #b92b22;
+  --waitlist-red-soft: rgba(230, 59, 46, 0.14);
+  --waitlist-gold: #c9a23f;
+  --waitlist-green: #5b7868;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 16% 4%, rgba(230, 59, 46, 0.16), transparent 27rem),
+    radial-gradient(circle at 86% 10%, rgba(201, 162, 63, 0.1), transparent 24rem),
+    linear-gradient(145deg, #070605 0%, var(--waitlist-bg) 46%, #120d0b 100%);
+  color: var(--waitlist-paper);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+.signed-waitlist *,
+.signed-waitlist *::before,
+.signed-waitlist *::after {
+  box-sizing: border-box;
+}
+
+.signed-waitlist a {
+  color: inherit;
+}
+
+.signed-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(1160px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 18px 0;
+  background: rgba(9, 8, 7, 0.78);
+  backdrop-filter: blur(18px);
+}
+
+.signed-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--waitlist-paper);
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 620;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.signed-wordmark__stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--waitlist-red);
+  border-radius: 50%;
+  color: var(--waitlist-red);
+  font-size: 18px;
+  transform: rotate(-6deg);
+}
+
+.signed-nav__meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--waitlist-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.signed-nav__meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--waitlist-line-strong);
+  border-radius: 999px;
+  color: var(--waitlist-paper);
+  text-decoration: none;
+}
+
+.signed-hero,
+.signed-proof,
+.signed-social-scene,
+.signed-access,
+.signed-close,
+.signed-footer {
+  width: min(1160px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.signed-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(340px, 0.84fr);
+  gap: clamp(36px, 7vw, 88px);
+  align-items: center;
+  min-height: calc(100dvh - 74px);
+  padding: 54px 0 78px;
+}
+
+.signed-kicker {
+  margin: 0;
+  color: var(--waitlist-red);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.signed-hero h1,
+.signed-social-scene h2,
+.signed-access h2 {
+  margin: 0;
+  color: var(--waitlist-paper);
+  font-family: var(--font-display);
+  font-weight: 620;
+  letter-spacing: 0;
+}
+
+.signed-hero h1 {
+  max-width: 780px;
+  margin-top: 18px;
+  font-size: clamp(54px, 8vw, 112px);
+  line-height: 0.9;
+}
+
+.signed-hero__sub {
+  max-width: 620px;
+  margin: 26px 0 0;
+  color: var(--waitlist-paper-soft);
+  font-size: clamp(18px, 2vw, 23px);
+  line-height: 1.35;
+}
+
+.signed-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.signed-hero__proof {
+  max-width: 280px;
+  color: var(--waitlist-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.signed-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.signed-btn:hover {
+  transform: translateY(-1px);
+}
+
+.signed-btn--primary {
+  background: var(--waitlist-red);
+  color: #fff8f2;
+  box-shadow: 0 18px 42px rgba(230, 59, 46, 0.27);
+}
+
+.signed-btn--ghost {
+  background: rgba(244, 238, 229, 0.04);
+  border-color: var(--waitlist-line-strong);
+  color: var(--waitlist-paper);
+}
+
+.signed-hero__stage {
+  position: relative;
+  display: grid;
+  justify-items: end;
+  min-height: 612px;
+}
+
+.signed-hero__stage::before {
+  position: absolute;
+  inset: 9% -8% auto auto;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgba(230, 59, 46, 0.24);
+  border-radius: 50%;
+  content: "";
+}
+
+.signed-phone-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 410px);
+  margin-left: auto;
+  padding: 16px;
+  border: 1px solid var(--waitlist-line-strong);
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(244, 238, 229, 0.06), transparent 22%),
+    var(--waitlist-bg-soft);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.46);
+}
+
+.signed-phone-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--waitlist-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signed-phone-card__top b {
+  color: var(--waitlist-paper);
+}
+
+.signed-taste-card {
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--waitlist-paper);
+  color: #12100e;
+}
+
+.signed-taste-card__image {
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+}
+
+.signed-taste-card__image img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.signed-taste-card__image::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 48%;
+  background: linear-gradient(to top, rgba(8, 7, 6, 0.72), transparent);
+  content: "";
+}
+
+.signed-stamp-mark {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border: 2.5px solid rgba(255, 248, 242, 0.86);
+  border-radius: 50%;
+  color: #fff8f2;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 620;
+  transform: rotate(-7deg);
+}
+
+.signed-taste-card__body {
+  padding: 18px;
+}
+
+.signed-taste-card__body span,
+.signed-profile-slip span,
+.signed-access-card span,
+.signed-chat span {
+  display: block;
+  color: var(--waitlist-red-deep);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signed-taste-card__body strong {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 620;
+  line-height: 0.95;
+}
+
+.signed-taste-card__body p {
+  margin: 12px 0 0;
+  color: #4b4138;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.32;
+}
+
+.signed-feed-signal {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--waitlist-line);
+  border-radius: 18px;
+  background: rgba(244, 238, 229, 0.055);
+}
+
+.signed-feed-signal span {
+  color: var(--waitlist-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.signed-feed-signal b {
+  color: var(--waitlist-paper);
+  font-size: 14px;
+}
+
+.signed-profile-slip {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: 14px;
+  width: min(86vw, 330px);
+  margin: -28px min(16vw, 150px) 0 0;
+  padding: 16px;
+  border: 1px solid rgba(20, 18, 16, 0.1);
+  border-radius: 24px;
+  background: #f5eee4;
+  color: #141210;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+  transform: rotate(-3deg);
+}
+
+.signed-profile-slip strong {
+  display: block;
+  margin-top: 7px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 620;
+  line-height: 1;
+}
+
+.signed-profile-slip p {
+  margin: 9px 0 0;
+  color: #61564c;
+  font-size: 13px;
+  line-height: 1.38;
+}
+
+.signed-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.signed-mini-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.signed-marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--waitlist-line);
+  background: rgba(244, 238, 229, 0.035);
+}
+
+.signed-marquee div {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  padding: 14px 0;
+  animation: signed-marquee 32s linear infinite;
+}
+
+.signed-marquee span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--waitlist-line);
+  border-radius: 999px;
+  color: var(--waitlist-paper-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@keyframes signed-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.signed-proof {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  padding: 74px 0;
+}
+
+.signed-proof article {
+  min-height: 250px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--waitlist-line);
+  background: rgba(244, 238, 229, 0.035);
+}
+
+.signed-proof span {
+  color: var(--waitlist-red);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.signed-proof strong {
+  display: block;
+  max-width: 12ch;
+  margin-top: 74px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.3vw, 44px);
+  font-weight: 620;
+  line-height: 0.98;
+}
+
+.signed-proof p {
+  max-width: 28ch;
+  margin: 16px 0 0;
+  color: var(--waitlist-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.signed-social-scene {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(320px, 0.74fr);
+  gap: clamp(28px, 6vw, 74px);
+  align-items: center;
+  padding: 68px 0 92px;
+  border-top: 1px solid var(--waitlist-line);
+}
+
+.signed-social-scene h2,
+.signed-access h2 {
+  max-width: 670px;
+  margin-top: 14px;
+  font-size: clamp(40px, 5vw, 76px);
+  line-height: 0.94;
+}
+
+.signed-social-scene__copy p:not(.signed-kicker),
+.signed-access__form > p:not(.signed-kicker) {
+  max-width: 530px;
+  margin: 20px 0 0;
+  color: var(--waitlist-muted);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.signed-chat-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.signed-chat {
+  width: min(100%, 430px);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
+}
+
+.signed-chat--question {
+  justify-self: end;
+  max-width: 280px;
+  background: var(--waitlist-red);
+  color: #fff8f2;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.signed-chat--answer {
+  background: #f5eee4;
+  color: #141210;
+}
+
+.signed-chat--offset {
+  justify-self: end;
+  transform: rotate(2deg);
+}
+
+.signed-chat strong {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 620;
+  line-height: 1;
+}
+
+.signed-chat p {
+  margin: 9px 0 0;
+  color: #5f5348;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.signed-access {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(320px, 0.88fr);
+  gap: clamp(28px, 6vw, 78px);
+  align-items: center;
+  padding: 78px clamp(18px, 4vw, 44px);
+  border: 1px solid var(--waitlist-line-strong);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(230, 59, 46, 0.18), transparent 17rem),
+    linear-gradient(135deg, rgba(244, 238, 229, 0.07), rgba(244, 238, 229, 0.02));
+}
+
+.signed-access__visual {
+  position: relative;
+  min-height: 310px;
+}
+
+.signed-access-card {
+  position: absolute;
+  width: min(86%, 330px);
+  padding: 22px;
+  border-radius: 24px;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+}
+
+.signed-access-card strong {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 38px);
+  font-weight: 620;
+  line-height: 0.96;
+  overflow-wrap: anywhere;
+}
+
+.signed-access-card p {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.signed-access-card--front {
+  z-index: 2;
+  left: 0;
+  top: 18px;
+  background: #f5eee4;
+  color: #141210;
+  transform: rotate(-4deg);
+}
+
+.signed-access-card--back {
+  right: 0;
+  bottom: 12px;
+  background: var(--waitlist-card);
+  border: 1px solid var(--waitlist-line);
+  color: var(--waitlist-paper);
+  transform: rotate(5deg);
+}
+
+.signed-access-card--back span {
+  color: var(--waitlist-gold);
+}
+
+.signed-waitlist-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.signed-waitlist-form__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(145px, 0.6fr);
+  gap: 10px;
+}
+
+.signed-waitlist-form__field {
+  display: grid;
+  gap: 7px;
+}
+
+.signed-waitlist-form__label {
+  color: var(--waitlist-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signed-waitlist-form input,
+.signed-waitlist-form select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--waitlist-line-strong);
+  border-radius: 16px;
+  background: rgba(244, 238, 229, 0.08);
+  color: var(--waitlist-paper);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.signed-waitlist-form input::placeholder {
+  color: rgba(244, 238, 229, 0.46);
+}
+
+.signed-waitlist-form input:focus,
+.signed-waitlist-form select:focus {
+  outline: 3px solid rgba(230, 59, 46, 0.18);
+  border-color: var(--waitlist-red);
+}
+
+.signed-waitlist-form select option {
+  color: #141210;
+}
+
+.signed-waitlist-form__submit {
+  width: 100%;
+}
+
+.signed-waitlist-form__note {
+  margin: 0;
+  color: var(--waitlist-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.signed-waitlist-form__note--success {
+  color: #9eb9a8;
+}
+
+.signed-city-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.signed-city-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--waitlist-line);
+  border-radius: 999px;
+  color: var(--waitlist-paper-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.signed-close {
+  display: grid;
+  gap: 22px;
+  justify-items: center;
+  padding: 92px 0 72px;
+  text-align: center;
+}
+
+.signed-close p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--waitlist-paper);
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5vw, 70px);
+  font-weight: 620;
+  line-height: 0.98;
+}
+
+.signed-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 28px 0 42px;
+  border-top: 1px solid var(--waitlist-line);
+  color: var(--waitlist-muted);
+  font-size: 13px;
+}
+
+.signed-footer span {
+  color: var(--waitlist-paper);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 620;
+}
+
+.signed-footer p {
+  margin: 0;
+}
+
+@media (max-width: 920px) {
+  .signed-hero,
+  .signed-social-scene,
+  .signed-access {
+    grid-template-columns: 1fr;
+  }
+
+  .signed-hero {
+    min-height: 0;
+    padding-top: 36px;
+  }
+
+  .signed-hero__stage {
+    min-height: 560px;
+  }
+
+  .signed-phone-card {
+    margin: 0 auto;
+  }
+
+  .signed-profile-slip {
+    margin: -28px auto 0 2%;
+  }
+
+  .signed-proof {
+    grid-template-columns: 1fr;
+  }
+
+  .signed-proof article {
+    min-height: 210px;
+  }
+
+  .signed-proof strong {
+    margin-top: 48px;
+  }
+}
+
+@media (max-width: 620px) {
+  .signed-nav__meta span {
+    display: none;
+  }
+
+  .signed-hero,
+  .signed-proof,
+  .signed-social-scene,
+  .signed-access,
+  .signed-close,
+  .signed-footer {
+    width: min(100% - 24px, 1160px);
+  }
+
+  .signed-hero h1 {
+    font-size: clamp(48px, 17vw, 72px);
+  }
+
+  .signed-hero__sub {
+    font-size: 17px;
+  }
+
+  .signed-hero__stage {
+    min-height: 540px;
+  }
+
+  .signed-phone-card {
+    border-radius: 28px;
+    padding: 12px;
+  }
+
+  .signed-taste-card__image,
+  .signed-taste-card__image img {
+    min-height: 238px;
+  }
+
+  .signed-profile-slip {
+    width: min(94%, 330px);
+  }
+
+  .signed-social-scene h2,
+  .signed-access h2 {
+    font-size: clamp(38px, 12vw, 58px);
+  }
+
+  .signed-access {
+    padding: 44px 14px;
+    border-radius: 26px;
+  }
+
+  .signed-access__visual {
+    min-height: 286px;
+  }
+
+  .signed-access-card {
+    width: min(92%, 320px);
+  }
+
+  .signed-access-card strong {
+    font-size: 26px;
+    line-height: 1.04;
+  }
+
+  .signed-waitlist-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .signed-footer {
+    display: grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signed-marquee div,
+  .signed-btn {
+    animation: none;
+    transition: none;
+  }
+
+  .signed-btn:hover {
+    transform: none;
+  }
+}
