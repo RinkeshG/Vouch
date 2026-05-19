@@ -26,6 +26,7 @@ import { friendsVouchingFor } from "./lib/circle";
 import { MIN_VOUCHED_PLACES_PER_LIST } from "./lib/collectionRules";
 import { fetchFriendVouchCard, fetchPublicVouchByHandle, isCloudEnabled, placesForPublicPayload } from "./lib/cloud";
 import { recordPlaceSave } from "./lib/influence";
+import { consumeAuthHashFromUrl } from "./lib/auth";
 import { buildInviteUrl, parseInviteFromUrl } from "./lib/invite";
 import { slugifyListTitle } from "./lib/listSlug";
 import { placesFromFriend } from "./lib/selectors";
@@ -56,6 +57,7 @@ function App() {
 
   useEffect(() => {
     parseInviteFromUrl();
+    void consumeAuthHashFromUrl();
   }, []);
 
   useEffect(() => {

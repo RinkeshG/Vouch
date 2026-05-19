@@ -20,9 +20,12 @@ Without Supabase env vars, the app still runs as a **local-only** demo (localSto
 2. **SQL Editor** → paste and run everything in `supabase/schema.sql`
    - If you migrated from an earlier beta, re-run the file — `create table if not exists` makes it safe, and the new `place_saves` table powers the Home influence row ("3 saves from your list").
 3. **Authentication** → **Providers** → turn **Anonymous sign-ins** and **Email** ON
-4. **Authentication** → **URL configuration** (must include **`https://`**):
-   - **Site URL**: `https://vouch-cyan.vercel.app` (your real deploy URL — not `vouch-cyan.vercel.app` alone)
-   - **Redirect URLs**: add `https://vouch-cyan.vercel.app/**` and `https://vouch-cyan.vercel.app`
+4. **Authentication** → **URL configuration** (must include **`https://`** — copy exactly):
+   - **Site URL**: `https://vouch-cyan.vercel.app` (not `vouch-cyan.vercel.app` — without `https://` emails break)
+   - **Redirect URLs** (add all three):
+     - `https://vouch-cyan.vercel.app/**`
+     - `https://vouch-cyan.vercel.app`
+     - `https://vouch-cyan.vercel.app/auth/callback`
 5. **Project Settings** → **API** → copy:
    - Project URL → `VITE_SUPABASE_URL`
    - `anon` `public` key → `VITE_SUPABASE_ANON_KEY`

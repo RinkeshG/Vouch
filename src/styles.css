@@ -6217,6 +6217,33 @@ select {
   min-height: 48px;
 }
 
+.email-auth-card-hint {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.email-auth-card-hint code {
+  font-size: 12px;
+}
+
+.email-auth-card-repair {
+  margin-top: var(--space-3);
+  font-size: 13px;
+}
+
+.email-auth-card-repair textarea {
+  width: 100%;
+  margin: var(--space-2) 0;
+  min-height: 72px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+}
+
 .email-auth-card-ok {
   margin: 0;
   font-size: 14px;

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/auth/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/p/:handle/:list",
       "destination": "/api/profile-preview?handle=:handle&list=:list"
     },

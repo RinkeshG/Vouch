@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Mail } from "lucide-react";
+import { authRedirectUrl, repairBrokenSupabaseAuthUrl } from "../../lib/auth";
+import { copyToClipboard } from "../../lib/share";
 
 export function EmailAuthCard({
   variant = "save",
@@ -20,6 +22,10 @@ export function EmailAuthCard({
   const [mode, setMode] = useState<"save" | "signin">(variant === "signin" ? "signin" : "save");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [brokenLink, setBrokenLink] = useState("");
+  const [repairCopied, setRepairCopied] = useState(false);
+
+  const redirectTarget = authRedirectUrl();
 
   if (!cloudEnabled) {
     return (
@@ -49,6 +55,16 @@ export function EmailAuthCard({
     else setError(result.error ?? "Something went wrong");
   }
 
+  async function copyRepairedLink() {
+    const fixed = repairBrokenSupabaseAuthUrl(brokenLink);
+    if (!fixed) return;
+    const copied = await copyToClipboard(fixed);
+    if (copied) {
+      setRepairCopied(true);
+      window.setTimeout(() => setRepairCopied(false), 2500);
+    }
+  }
+
   const isCompact = variant === "compact";
 
   return (
@@ -72,7 +88,34 @@ export function EmailAuthCard({
       )}
 
       {sent ? (
-        <p className="email-auth-card-ok">Check your inbox — tap the link from Vouch to continue.</p>
+        <div className="email-auth-card-sent">
+          <p className="email-auth-card-ok">Check your inbox — tap the link from Vouch to continue.</p>
+          {redirectTarget ? (
+            <p className="email-auth-card-hint">
+              The link should open <strong>{redirectTarget}</strong>. If it opens{" "}
+              <code>…supabase.co/vouch-cyan.vercel.app</code> instead, fix Supabase → Authentication → URL
+              configuration (Site URL must start with <code>https://</code>), then request a new email.
+            </p>
+          ) : null}
+          <details className="email-auth-card-repair">
+            <summary>Link opened the wrong page?</summary>
+            <p>Paste the broken link from your email — we&apos;ll give you a working one:</p>
+            <textarea
+              value={brokenLink}
+              onChange={(e) => setBrokenLink(e.target.value)}
+              placeholder="https://….supabase.co/vouch-cyan.vercel.app#access_token=…"
+              rows={3}
+            />
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={!repairBrokenSupabaseAuthUrl(brokenLink)}
+              onClick={() => void copyRepairedLink()}
+            >
+              {repairCopied ? "Copied — paste in Safari/Chrome" : "Copy fixed link"}
+            </button>
+          </details>
+        </div>
       ) : (
         <div className="email-auth-card-row">
           <input

@@ -6,7 +6,17 @@ export type AuthUserInfo = {
   isAnonymous: boolean;
 };
 
-/** Absolute app origin for magic-link redirects — must include `https://`. */
+export const AUTH_CALLBACK_PATH = "/auth/callback";
+
+function normalizeOrigin(raw: string): string {
+  const trimmed = raw.trim().replace(/\/$/, "");
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  // Supabase treats host-only values as paths on *.supabase.co (invalid path error).
+  return `https://${trimmed.replace(/^\/+/, "")}`;
+}
+
+/** Absolute redirect URL for magic links — must match Supabase Redirect URLs allowlist. */
 export function authRedirectUrl(): string {
   const fromWindow =
     typeof window !== "undefined" && window.location?.origin
@@ -18,13 +28,44 @@ export function authRedirectUrl(): string {
       ? String(import.meta.env.VITE_PUBLIC_SITE_URL).trim().replace(/\/$/, "")
       : "";
 
-  const raw = fromWindow || fromEnv;
-  if (!raw) return "";
+  const origin = normalizeOrigin(fromWindow || fromEnv);
+  if (!origin) return "";
+  return `${origin}${AUTH_CALLBACK_PATH}`;
+}
 
-  if (/^https?:\/\//i.test(raw)) return raw;
+/**
+ * Fixes emails where Supabase Site URL was set without `https://`
+ * (link lands on `*.supabase.co/your-domain.vercel.app#access_token=...`).
+ */
+export function repairBrokenSupabaseAuthUrl(broken: string): string | null {
+  try {
+    const parsed = new URL(broken.trim());
+    if (!parsed.hostname.endsWith("supabase.co")) return null;
+    const siteHost = parsed.pathname.replace(/^\//, "");
+    if (!siteHost || !siteHost.includes(".")) return null;
+    const origin = normalizeOrigin(siteHost);
+    return `${origin}${AUTH_CALLBACK_PATH}${parsed.hash}`;
+  } catch {
+    return null;
+  }
+}
 
-  // Supabase treats host-only values as paths on *.supabase.co (invalid path error).
-  return `https://${raw.replace(/^\/+/, "")}`;
+/** After magic link, strip tokens from the address bar. */
+export async function consumeAuthHashFromUrl(): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase || typeof window === "undefined") return false;
+
+  const hash = window.location.hash;
+  if (!hash.includes("access_token") && !hash.includes("refresh_token")) return false;
+
+  const { data } = await supabase.auth.getSession();
+  if (data.session) {
+    const path = window.location.pathname === AUTH_CALLBACK_PATH ? "/" : window.location.pathname;
+    const search = window.location.search;
+    window.history.replaceState(window.history.state, "", `${path}${search}`);
+    return true;
+  }
+  return false;
 }
 
 export async function getAuthUser(): Promise<AuthUserInfo | null> {
