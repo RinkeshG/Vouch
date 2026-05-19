@@ -1,28 +1,22 @@
 import { useState } from "react";
 import { getWaitlistCount, WaitlistForm } from "./components/WaitlistForm";
-import { DEMO_PROFILES } from "./demoProfiles";
 import "./landing.css";
 
-const heroImage =
-  "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1800&q=84";
-const phoneImage =
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=84";
-
-const shelfPlaces = [
+const shelfCards = [
   {
     city: "Mumbai",
-    name: "Date night at Americano",
-    image: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?auto=format&fit=crop&w=720&q=84"
+    title: "Where I take people I like",
+    places: ["Americano", "The Bombay Canteen", "Seefah"]
   },
   {
     city: "Bangalore",
-    name: "Sunday comfort food",
-    image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=720&q=84"
+    title: "Parents visiting, no panic",
+    places: ["Burma Burma", "The Conservatory", "Naru Noodle Bar"]
   },
   {
     city: "Goa",
-    name: "The hidden gem",
-    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=720&q=84"
+    title: "Not the obvious Goa list",
+    places: ["Gunpowder", "Miguels", "For The Record"]
   }
 ];
 
@@ -58,20 +52,11 @@ export function LandingPage() {
             </button>
           </div>
 
-          <figure className="signed-hero__image">
-            <img src={heroImage} alt="A shared dinner table after a meal" />
-          </figure>
+          <HeroProduct />
         </section>
 
         <section className="signed-break" aria-labelledby="broken-title">
-          <div className="signed-phone-scene" aria-hidden="true">
-            <img src={phoneImage} alt="" />
-            <div className="signed-phone-card">
-              <span>Saved from Aditi</span>
-              <strong>The Conservatory</strong>
-              <p>Book the terrace. Looks planned even when it was not.</p>
-            </div>
-          </div>
+          <CirclePreview />
 
           <div className="signed-section-copy">
             <span className="signed-kicker">Why Vouch</span>
@@ -93,15 +78,21 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div className="signed-place-grid">
-            {shelfPlaces.map((place, index) => (
-              <figure className={`signed-place signed-place--${index + 1}`} key={place.name}>
-                <img src={place.image} alt="" />
-                <figcaption>
-                  <span>{place.city}</span>
-                  {place.name}
-                </figcaption>
-              </figure>
+          <div className="signed-shelf-grid">
+            {shelfCards.map((card, index) => (
+              <article className={`signed-list-card signed-list-card--${index + 1}`} key={card.title}>
+                <div className="signed-list-card__top">
+                  <span>{card.city}</span>
+                  <b>{String(index + 1).padStart(2, "0")}</b>
+                </div>
+                <h3>{card.title}</h3>
+                <ol>
+                  {card.places.map((place) => (
+                    <li key={place}>{place}</li>
+                  ))}
+                </ol>
+                <p>vouch.app/{["rohan", "aditi", "ishani"][index]}</p>
+              </article>
             ))}
           </div>
         </section>
@@ -151,11 +142,87 @@ export function LandingPage() {
   );
 }
 
+function HeroProduct() {
+  return (
+    <div className="signed-hero-product" aria-label="Vouch public profile preview">
+      <div className="signed-product-bar">
+        <span>vouch.app/aditi</span>
+        <b>Public taste card</b>
+      </div>
+
+      <div className="signed-profile-card">
+        <div className="signed-profile-card__header">
+          <div className="signed-avatar">AR</div>
+          <div>
+            <strong>Aditi Rao</strong>
+            <span>Bangalore · 12 vouches</span>
+          </div>
+        </div>
+        <p>Places I send when someone asks where to go.</p>
+        <div className="signed-vouch-stack">
+          <article>
+            <span>Date night</span>
+            <strong>The Conservatory</strong>
+            <p>Book the terrace. Looks planned even when it was not.</p>
+          </article>
+          <article>
+            <span>Parents visiting</span>
+            <strong>Burma Burma</strong>
+            <p>Safe pick when veg and non-fussy both matter.</p>
+          </article>
+          <article>
+            <span>Cocktails</span>
+            <strong>Muro</strong>
+            <p>Second-date drinks without shouting over the bar.</p>
+          </article>
+        </div>
+      </div>
+
+      <div className="signed-floating-card signed-floating-card--save">
+        <span>Rohan saved this</span>
+        <strong>“Stealing this for Saturday.”</strong>
+      </div>
+      <div className="signed-floating-card signed-floating-card--link">
+        <span>Share link</span>
+        <strong>vouch.app/aditi</strong>
+      </div>
+    </div>
+  );
+}
+
+function CirclePreview() {
+  return (
+    <div className="signed-circle-preview" aria-label="Vouch circle activity preview">
+      <div className="signed-phone-shell">
+        <div className="signed-phone-top">
+          <span>New from your circle</span>
+          <b>Vouch</b>
+        </div>
+        <div className="signed-activity-card signed-activity-card--hot">
+          <span>Aditi vouched</span>
+          <strong>The Conservatory</strong>
+          <p>Terrace table, low-effort impressive, book ahead.</p>
+          <button type="button">Save</button>
+        </div>
+        <div className="signed-activity-row">
+          <div className="signed-avatar signed-avatar--small">RM</div>
+          <p>Rohan also has this on “client dinners that do not miss”.</p>
+        </div>
+        <div className="signed-activity-card">
+          <span>Ishani made a list</span>
+          <strong>One-day Bangalore</strong>
+          <p>3 places · copied by 8 friends</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TastePreview() {
   return (
     <article className="signed-taste-preview" aria-label="Example Vouch taste card">
       <div className="signed-taste-preview__person">
-        <img src={DEMO_PROFILES[0].vouches[0].image} alt="" />
+        <div className="signed-avatar signed-avatar--small">IS</div>
         <div>
           <strong>Ishani</strong>
           <span>The taste friend</span>
