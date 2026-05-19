@@ -100,7 +100,7 @@ export function WaitlistForm({ id = "waitlist-form", onSuccess }: Props) {
         className="signed-btn signed-btn--primary signed-waitlist-form__submit"
         disabled={status === "submitting" || status === "done"}
       >
-        {status === "submitting" ? "Saving..." : status === "done" ? "You're in" : "Claim early access"}
+        {status === "submitting" ? "Saving..." : status === "done" ? "You're in" : "Join and make my card"}
       </button>
 
       {status === "done" && (

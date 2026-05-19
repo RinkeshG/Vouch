@@ -30,17 +30,17 @@ export function LandingPage() {
       <main>
         <section className="signed-hero" aria-labelledby="landing-headline">
           <div className="signed-hero__copy">
-            <p className="signed-kicker">A private beta for taste people trust</p>
-            <h1 id="landing-headline">Your best meals deserve a better home.</h1>
+            <p className="signed-kicker">Private beta</p>
+            <h1 id="landing-headline">The places you swear by, in one link.</h1>
             <p className="signed-hero__sub">
-              Better than Instagram stories. Better than forgotten Google Maps pins. Vouch turns
-              the places you actually stand behind into a tiny public taste card friends can use.
+              Your best restaurant recs are buried in chats, stories, and map pins.
+              Vouch turns three places you actually stand behind into a taste card friends can save.
             </p>
             <div className="signed-hero__actions">
               <button type="button" className="signed-btn signed-btn--primary" onClick={goWaitlist}>
-                Make my taste card
+                Make my 3-place card
               </button>
-              <span className="signed-hero__proof">No ratings. No influencer noise. Just people you trust.</span>
+              <span className="signed-hero__proof">No ratings. No influencer lists. Just taste with a name on it.</span>
             </div>
           </div>
 
@@ -93,28 +93,28 @@ export function LandingPage() {
         <section className="signed-proof" aria-label="Why Vouch">
           <article>
             <span>Taste card</span>
-            <strong>Three places say more than a bio.</strong>
-            <p>Start with the restaurants you would put your name behind. That becomes the share object.</p>
+            <strong>Three places. Your name on them.</strong>
+            <p>Start with the spots you keep sending anyway.</p>
           </article>
           <article>
             <span>Lists</span>
-            <strong>Plans people can steal.</strong>
-            <p>First dates, parents visiting, veg-safe dinners. Not folders. Actual answers.</p>
+            <strong>Plans, not folders.</strong>
+            <p>First dates. Parents visiting. Veg-safe dinners.</p>
           </article>
           <article>
             <span>Circle</span>
             <strong>Your friends become the filter.</strong>
-            <p>See what they stand behind, what they save, and which places are gaining heat.</p>
+            <p>Borrow taste from people you would actually text.</p>
           </article>
         </section>
 
         <section className="signed-social-scene" aria-labelledby="scene-title">
           <div className="signed-social-scene__copy">
-            <p className="signed-kicker">The group chat problem</p>
-            <h2 id="scene-title">Everyone asks where to go. Nobody wants another search result.</h2>
+            <p className="signed-kicker">The real use case</p>
+            <h2 id="scene-title">“Where should we go?” should not start from zero.</h2>
             <p>
-              Vouch is for the person whose restaurant text gets forwarded. It gives that instinct
-              a home, a handle, and a way to spread.
+              If your restaurant texts get forwarded, Vouch gives that instinct a home.
+              Friends can open your card, save your places, and make their own.
             </p>
           </div>
 
@@ -149,10 +149,10 @@ export function LandingPage() {
 
           <div className="signed-access__form">
             <p className="signed-kicker">Join the waitlist</p>
-            <h2 id="waitlist-title">Claim your handle. Then make your first taste card.</h2>
+            <h2 id="waitlist-title">Claim your handle. Make your first card.</h2>
             <p>
-              Early access opens city by city. After joining, make a three-place card you can send
-              to the people who always ask you where to go.
+              Early access opens by city. Join now, then make the three-place card your friends
+              can actually use.
             </p>
             <WaitlistForm
               onSuccess={() => {
@@ -170,16 +170,16 @@ export function LandingPage() {
         </section>
 
         <section className="signed-close" aria-label="Vouch promise">
-          <p>Vouch is not for every restaurant. It is for the ones you would put your name behind.</p>
+          <p>Stop sending the same restaurant text twice.</p>
           <button type="button" className="signed-btn signed-btn--ghost" onClick={goWaitlist}>
-            Claim your spot
+            Make your card
           </button>
         </section>
       </main>
 
       <footer className="signed-footer">
         <span>vouch.app</span>
-        <p>Where restaurant taste becomes social proof.</p>
+        <p>A home for the places people ask you for.</p>
       </footer>
     </div>
   );
@@ -217,7 +217,7 @@ function TasteCardMaker() {
     <div className="signed-taste-maker" aria-label="Create your taste card">
       <div className="signed-taste-maker__form">
         <p className="signed-kicker">Your first share object</p>
-        <strong>Make a tiny taste card.</strong>
+        <strong>Make your first card.</strong>
         <label>
           <span>Name</span>
           <input value={name} onChange={(event) => setName(event.target.value)} />
