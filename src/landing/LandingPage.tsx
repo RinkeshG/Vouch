@@ -31,16 +31,16 @@ export function LandingPage() {
         <section className="signed-hero" aria-labelledby="landing-headline">
           <div className="signed-hero__copy">
             <p className="signed-kicker">Private beta</p>
-            <h1 id="landing-headline">The places you swear by, in one link.</h1>
+            <h1 id="landing-headline">Your taste, in one link.</h1>
             <p className="signed-hero__sub">
-              Your best restaurant recs are buried in chats, stories, and map pins.
-              Vouch turns three places you actually stand behind into a taste card friends can save.
+              Pick 3 restaurants you swear by. Vouch turns them into a public taste card
+              friends can open, save, and steal from.
             </p>
             <div className="signed-hero__actions">
               <button type="button" className="signed-btn signed-btn--primary" onClick={goWaitlist}>
                 Make my 3-place card
               </button>
-              <span className="signed-hero__proof">No ratings. No influencer lists. Just taste with a name on it.</span>
+              <span className="signed-hero__proof">For the places people already ask you for.</span>
             </div>
           </div>
 

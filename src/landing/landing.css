@@ -135,17 +135,17 @@
 }
 
 .signed-hero h1 {
-  max-width: 660px;
-  margin-top: 18px;
-  font-size: clamp(44px, 6.2vw, 82px);
-  line-height: 0.95;
+  max-width: 520px;
+  margin-top: 16px;
+  font-size: clamp(38px, 4.8vw, 64px);
+  line-height: 1.02;
 }
 
 .signed-hero__sub {
-  max-width: 560px;
-  margin: 22px 0 0;
+  max-width: 500px;
+  margin: 18px 0 0;
   color: var(--waitlist-paper-soft);
-  font-size: clamp(16px, 1.55vw, 19px);
+  font-size: clamp(15px, 1.35vw, 17px);
   line-height: 1.48;
 }
 
@@ -154,13 +154,13 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .signed-hero__proof {
-  max-width: 280px;
+  max-width: 220px;
   color: var(--waitlist-muted);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -897,7 +897,8 @@
   }
 
   .signed-hero h1 {
-    font-size: clamp(42px, 13vw, 58px);
+    max-width: 330px;
+    font-size: clamp(38px, 10.5vw, 48px);
   }
 
   .signed-hero__sub {
