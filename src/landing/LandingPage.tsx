@@ -128,49 +128,62 @@ export function LandingPage() {
 
 function HeroProduct() {
   return (
-    <div className="signed-taste-object" aria-label="Vouch public taste profile preview">
-      <div className="signed-taste-object__url">vouch.app/aditi</div>
-      <div className="signed-taste-object__identity">
-        <div className="signed-avatar">AR</div>
-        <div>
-          <strong>Aditi Rao</strong>
-          <span>Bangalore · date spots, veg-safe dinners, places that feel considered</span>
+    <div className="signed-hero-world" aria-label="Vouch signed recommendation flow">
+      <div className="signed-thread-card">
+        <span>Dinner plan · 8:14 PM</span>
+        <p>Where should we go tonight?</p>
+        <p>Something date-ish, but not try-hard.</p>
+      </div>
+
+      <article className="signed-vouch-note">
+        <div className="signed-note-top">
+          <span>vouch.app/aditi</span>
+          <b className="signed-stamp">V</b>
         </div>
-      </div>
+        <div className="signed-note-person">
+          <div className="signed-avatar">AR</div>
+          <div>
+            <strong>Aditi Rao</strong>
+            <span>Bangalore · date spots · veg-safe groups</span>
+          </div>
+        </div>
+        <h2>Three places I’d actually send you to.</h2>
+        <ol className="signed-note-list">
+          <li>
+            <b>01</b>
+            <div>
+              <strong>The Conservatory</strong>
+              <p>Book the terrace. Looks planned even when it was not.</p>
+            </div>
+            <span>Date night</span>
+          </li>
+          <li>
+            <b>02</b>
+            <div>
+              <strong>Burma Burma</strong>
+              <p>Safe when veg and non-fussy both matter.</p>
+            </div>
+            <span>Parents</span>
+          </li>
+          <li>
+            <b>03</b>
+            <div>
+              <strong>Muro</strong>
+              <p>Second-date drinks without shouting over the bar.</p>
+            </div>
+            <span>Cocktails</span>
+          </li>
+        </ol>
+        <footer>
+          <span>Signed by @aditi</span>
+          <span>Saved by Rohan + Ishani</span>
+        </footer>
+      </article>
 
-      <div className="signed-vouch-collage">
-        <article className="signed-vouch-card signed-vouch-card--hero">
-          <div className="signed-vouch-visual">
-            <span className="signed-stamp">V</span>
-            <b>TC</b>
-          </div>
-          <span>Date night</span>
-          <strong>The Conservatory</strong>
-          <p>Book the terrace. Looks planned even when it was not.</p>
-          <small>8 friends saved this</small>
-        </article>
-        <article className="signed-vouch-card signed-vouch-card--left">
-          <div className="signed-vouch-visual signed-vouch-visual--small">
-            <b>BB</b>
-          </div>
-          <span>Parents visiting</span>
-          <strong>Burma Burma</strong>
-          <p>Safe pick when veg and non-fussy both matter.</p>
-        </article>
-        <article className="signed-vouch-card signed-vouch-card--right">
-          <div className="signed-vouch-visual signed-vouch-visual--small">
-            <b>MU</b>
-          </div>
-          <span>Cocktails</span>
-          <strong>Muro</strong>
-          <p>Second-date drinks without shouting over the bar.</p>
-        </article>
-      </div>
-
-      <div className="signed-taste-object__proof">
-        <span>Rohan saved Aditi's Vouch</span>
-        <span>Ishani copied 2 places</span>
-        <span>Shared in Dinner plan · 8:14 PM</span>
+      <div className="signed-send-card">
+        <span>Sent to group chat</span>
+        <strong>Aditi’s Vouch</strong>
+        <p>One link. Three places. Her name on it.</p>
       </div>
     </div>
   );
@@ -178,51 +191,46 @@ function HeroProduct() {
 
 function WebActivityPreview() {
   return (
-    <div className="signed-social-loop" aria-label="Vouch social loop preview">
-      <div className="signed-chat-line signed-chat-line--question">Where should we go tonight?</div>
-      <div className="signed-shared-vouch">
-        <div className="signed-shared-vouch__top">
-          <span>Aditi's Vouch</span>
-          <b>vouch.app/aditi</b>
-        </div>
-        <div className="signed-vouch-visual signed-vouch-visual--wide">
-          <span className="signed-stamp">V</span>
-          <b>TC</b>
-        </div>
-        <strong>The Conservatory</strong>
-        <p>Terrace table, low-effort impressive, book ahead.</p>
-        <div>
-          <button type="button">Save</button>
-          <span>Rohan + Ishani saved this</span>
-        </div>
+    <div className="signed-trust-theater" aria-label="Vouch trust signal preview">
+      <div className="signed-noise-stack" aria-label="Broken discovery examples">
+        <article>
+          <span>Google</span>
+          <strong>4.6 stars</strong>
+          <p>Anonymous. Context missing.</p>
+        </article>
+        <article>
+          <span>Instagram</span>
+          <strong>Saved reel</strong>
+          <p>Gone when you need it.</p>
+        </article>
+        <article>
+          <span>SEO list</span>
+          <strong>Top 10</strong>
+          <p>Everyone, therefore no one.</p>
+        </article>
       </div>
-      <div className="signed-chat-line signed-chat-line--reply">This is exactly the kind of place I meant.</div>
+      <article className="signed-friend-take">
+        <span>Because Aditi vouched</span>
+        <strong>“Book the terrace. Looks planned even when it was not.”</strong>
+        <p>The Conservatory · Date night · Saved by 8 friends</p>
+        <button type="button">Save from Aditi</button>
+      </article>
     </div>
   );
 }
 
 function ShelfProductBoard() {
   return (
-    <div className="signed-public-shelf" aria-label="Vouch public shelf preview">
-      <div className="signed-public-shelf__mast">
+    <div className="signed-shelf-book" aria-label="Vouch public shelf preview">
+      <aside>
         <span>vouch.app/aditi</span>
-        <strong>Aditi's public shelf</strong>
-        <p>Lists friends can steal, save, and send.</p>
-      </div>
-
-      <div className="signed-shelf-strip">
+        <strong>Aditi’s shelf</strong>
+        <p>Not every saved place. Just the ones she would put her name behind.</p>
+      </aside>
+      <div className="signed-shelf-pages">
         {shelfCards.map((card, index) => (
-          <article className={`signed-shelf-card signed-shelf-card--${index + 1}`} key={card.title}>
-            <div className="signed-list-cover" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className="signed-shelf-card__top">
-              <span>{card.city}</span>
-              <b>{["Rohan saved", "38 saves", "New"][index]}</b>
-            </div>
+          <article className={`signed-shelf-page signed-shelf-page--${index + 1}`} key={card.title}>
+            <span>{card.city}</span>
             <h3>{card.title}</h3>
             <ol>
               {card.places.map((place) => (
@@ -230,7 +238,8 @@ function ShelfProductBoard() {
               ))}
             </ol>
             <footer>
-              <span>{index === 1 ? "Copy this list" : "Save to your Vouch"}</span>
+              <span>{["Rohan saved", "38 saves", "New"][index]}</span>
+              <b>{index === 1 ? "Copy list" : "Save"}</b>
             </footer>
           </article>
         ))}

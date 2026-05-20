@@ -1,26 +1,23 @@
 @import "./tokens-signed.css";
 
 .signed-waitlist {
-  --bg: #0c0b0a;
-  --surface: #161412;
-  --surface-2: #221f1c;
+  --ink: #0c0b0a;
+  --ink-2: #161412;
+  --ink-3: #221f1c;
   --paper: #f2ede6;
-  --paper-soft: #d7cec3;
+  --paper-2: #fffaf2;
   --muted: #a39e96;
-  --line: rgba(242, 237, 230, 0.1);
-  --line-strong: rgba(242, 237, 230, 0.18);
+  --line: rgba(242, 237, 230, 0.11);
+  --line-dark: rgba(20, 18, 16, 0.1);
   --red: #e63b2e;
-  --red-dim: rgba(230, 59, 46, 0.14);
+  --red-soft: rgba(230, 59, 46, 0.13);
   --green: #4a6b5c;
   --gold: #c9a227;
-  --light-bg: #f7f3ed;
-  --light-card: #fffaf2;
-  --light-ink: #141210;
   min-height: 100dvh;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 16% 0%, rgba(230, 59, 46, 0.1), transparent 26rem),
-    linear-gradient(180deg, #0c0b0a 0%, #11100f 58%, #0c0b0a 100%);
+    radial-gradient(circle at 22% 12%, rgba(230, 59, 46, 0.12), transparent 28rem),
+    linear-gradient(180deg, #0c0b0a 0%, #11100f 54%, #0c0b0a 100%);
   color: var(--paper);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
@@ -69,7 +66,8 @@
 }
 
 .signed-btn,
-.signed-nav__button {
+.signed-nav__button,
+.signed-friend-take button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -81,15 +79,16 @@
   color: #fff8f2;
   font-family: var(--font-ui);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 850;
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+  transition: transform 160ms ease, background 160ms ease;
 }
 
 .signed-btn:hover,
-.signed-nav__button:hover {
+.signed-nav__button:hover,
+.signed-friend-take button:hover {
   transform: translateY(-1px);
 }
 
@@ -104,7 +103,7 @@
 }
 
 .signed-hero {
-  padding: 64px 0 92px;
+  padding: 60px 0 96px;
 }
 
 .signed-hero__copy {
@@ -132,43 +131,121 @@
 }
 
 .signed-hero__copy p {
-  max-width: 560px;
+  max-width: 550px;
   margin: 18px 0 26px;
-  color: var(--paper-soft);
+  color: #d7cec3;
   font-size: 15px;
   line-height: 1.58;
 }
 
-.signed-taste-object {
+.signed-hero-world {
   position: relative;
-  width: min(100%, 980px);
-  margin: 44px auto 0;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.72fr) minmax(420px, 1fr) minmax(180px, 0.7fr);
+  gap: 18px;
+  align-items: center;
+  margin-top: 46px;
   padding: clamp(18px, 3vw, 34px);
-  border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(242, 237, 230, 0.06), transparent 32%),
-    var(--surface);
+    linear-gradient(135deg, rgba(242, 237, 230, 0.08), transparent 28%),
+    var(--ink-2);
   box-shadow: 0 34px 110px rgba(0, 0, 0, 0.42);
 }
 
-.signed-taste-object__url {
-  display: inline-flex;
-  align-items: center;
-  min-height: 31px;
-  padding: 0 12px;
+.signed-thread-card,
+.signed-send-card {
   border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
+  border-radius: 22px;
+  background: var(--ink-3);
+  color: var(--paper);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
 }
 
-.signed-taste-object__identity {
+.signed-thread-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  transform: rotate(-2deg);
+}
+
+.signed-thread-card span,
+.signed-send-card span,
+.signed-note-top span,
+.signed-vouch-note footer span,
+.signed-noise-stack span,
+.signed-friend-take > span,
+.signed-shelf-book aside > span,
+.signed-shelf-page > span,
+.signed-taste-preview span,
+.signed-tiny-card > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signed-thread-card p {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 13px;
+  border-radius: 17px;
+  background: rgba(242, 237, 230, 0.08);
+  color: var(--paper);
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.32;
+}
+
+.signed-thread-card p:nth-child(2) {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff8f2;
+}
+
+.signed-vouch-note {
+  position: relative;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(20, 18, 16, 0.1);
+  border-radius: 20px;
+  background: var(--paper-2);
+  color: #141210;
+  box-shadow: 0 30px 86px rgba(0, 0, 0, 0.36);
+}
+
+.signed-vouch-note::before,
+.signed-vouch-note::after {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(20, 18, 16, 0.16) 0 8px, transparent 8px 14px);
+  content: "";
+}
+
+.signed-vouch-note::before {
+  top: 12px;
+}
+
+.signed-vouch-note::after {
+  bottom: 12px;
+}
+
+.signed-note-top,
+.signed-vouch-note footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.signed-note-person {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 26px;
+  margin-top: 18px;
 }
 
 .signed-avatar {
@@ -178,7 +255,7 @@
   width: 42px;
   height: 42px;
   flex: 0 0 auto;
-  border: 2px solid rgba(242, 237, 230, 0.22);
+  border: 2px solid rgba(242, 237, 230, 0.24);
   border-radius: 50%;
   background: var(--red);
   color: #fff8f2;
@@ -193,96 +270,23 @@
   font-size: 10px;
 }
 
-.signed-taste-object__identity strong {
+.signed-note-person strong {
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(30px, 4vw, 48px);
+  font-size: 32px;
   font-weight: 620;
   line-height: 0.95;
 }
 
-.signed-taste-object__identity span {
+.signed-note-person span {
   display: block;
-  max-width: 540px;
-  margin-top: 7px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.signed-vouch-collage {
-  display: grid;
-  grid-template-columns: minmax(190px, 0.72fr) minmax(320px, 1fr) minmax(190px, 0.72fr);
-  gap: 14px;
-  align-items: end;
-  margin-top: 34px;
-}
-
-.signed-vouch-card,
-.signed-shared-vouch,
-.signed-shelf-card,
-.signed-taste-preview {
-  border: 1px solid rgba(20, 18, 16, 0.1);
-  border-radius: 14px;
-  background: var(--light-card);
-  color: var(--light-ink);
-}
-
-.signed-vouch-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 254px;
-  padding: 14px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
-}
-
-.signed-vouch-card--hero {
-  min-height: 380px;
-}
-
-.signed-vouch-card--left {
-  transform: translateY(30px) rotate(-1.5deg);
-}
-
-.signed-vouch-card--right {
-  transform: translateY(18px) rotate(1.5deg);
-}
-
-.signed-vouch-visual {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 156px;
-  margin-bottom: 16px;
-  overflow: hidden;
-  border-radius: 11px;
-  background:
-    linear-gradient(135deg, rgba(201, 162, 39, 0.28), transparent 42%),
-    linear-gradient(160deg, #2b241f, #11100f);
-  color: rgba(242, 237, 230, 0.8);
-}
-
-.signed-vouch-visual--small {
-  min-height: 108px;
-}
-
-.signed-vouch-visual--wide {
-  min-height: 150px;
-  margin: 18px 0 0;
-}
-
-.signed-vouch-visual b {
-  font-family: var(--font-display);
-  font-size: clamp(48px, 6vw, 82px);
-  font-weight: 620;
-  letter-spacing: -0.04em;
+  margin-top: 5px;
+  color: #776b60;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .signed-stamp {
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -294,10 +298,11 @@
   font-family: var(--font-display);
   font-size: 29px;
   font-weight: 620;
-  transform: rotate(-3deg);
+  transform: rotate(-5deg);
 }
 
 .signed-stamp--mini {
+  position: absolute;
   right: 20px;
   top: 20px;
   width: 44px;
@@ -305,81 +310,95 @@
   font-size: 22px;
 }
 
-.signed-vouch-card span,
-.signed-shared-vouch span,
-.signed-public-shelf__mast > span,
-.signed-shelf-card__top span,
-.signed-taste-preview span,
-.signed-tiny-card > span {
-  display: block;
-  color: #8f8378;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.signed-vouch-card strong {
-  display: block;
-  margin-top: 12px;
+.signed-vouch-note h2 {
+  max-width: 560px;
+  margin: 22px 0 0;
   font-family: var(--font-display);
-  font-size: clamp(28px, 3vw, 42px);
+  font-size: clamp(34px, 4.2vw, 54px);
   font-weight: 620;
-  line-height: 0.96;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
 }
 
-.signed-vouch-card--hero strong {
-  font-size: clamp(42px, 5vw, 66px);
+.signed-note-list {
+  display: grid;
+  gap: 0;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.signed-vouch-card p,
-.signed-shared-vouch p,
-.signed-shelf-card li,
-.signed-taste-preview small,
-.signed-taste-preview > p {
-  color: #5f554c;
+.signed-note-list li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+  padding: 12px 0;
+  border-top: 1px solid rgba(20, 18, 16, 0.1);
 }
 
-.signed-vouch-card p {
-  margin: 10px 0 0;
-  font-size: 13px;
-  line-height: 1.45;
+.signed-note-list li > b {
+  color: #b6aa9d;
+  font-size: 11px;
+  letter-spacing: 0.08em;
 }
 
-.signed-vouch-card small {
+.signed-note-list strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 620;
+  line-height: 1;
+}
+
+.signed-note-list p {
+  margin: 6px 0 0;
+  color: #63584f;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.signed-note-list li > span {
   display: inline-flex;
-  width: fit-content;
-  min-height: 28px;
   align-items: center;
-  margin-top: auto;
+  min-height: 28px;
   padding: 0 10px;
   border-radius: 999px;
-  background: var(--red-dim);
+  background: var(--red-soft);
   color: var(--red);
   font-size: 11px;
   font-weight: 900;
 }
 
-.signed-taste-object__proof {
-  display: flex;
-  flex-wrap: wrap;
+.signed-vouch-note footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(20, 18, 16, 0.1);
+}
+
+.signed-send-card {
+  display: grid;
   gap: 8px;
-  margin-top: 46px;
+  padding: 18px;
+  transform: rotate(2deg);
 }
 
-.signed-taste-object__proof span {
-  display: inline-flex;
-  min-height: 32px;
-  align-items: center;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
+.signed-send-card strong {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 620;
+  line-height: 1;
 }
 
-.signed-break {
+.signed-send-card p {
+  margin: 0;
+  color: #d7cec3;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.signed-break,
+.signed-proof {
   display: grid;
   grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 0.86fr);
   gap: clamp(48px, 9vw, 118px);
@@ -388,89 +407,73 @@
   border-top: 1px solid var(--line);
 }
 
-.signed-social-loop {
+.signed-trust-theater {
   display: grid;
-  gap: 12px;
-  width: min(100%, 520px);
-  margin-left: auto;
-}
-
-.signed-chat-line {
-  width: fit-content;
-  max-width: 86%;
-  padding: 13px 15px;
-  border-radius: 19px;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.3;
-}
-
-.signed-chat-line--question {
-  margin-left: auto;
-  background: var(--red);
-  color: #fff8f2;
-}
-
-.signed-chat-line--reply {
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--paper-soft);
-}
-
-.signed-shared-vouch {
-  padding: 18px;
-  box-shadow: 0 24px 68px rgba(0, 0, 0, 0.18);
-}
-
-.signed-shared-vouch__top {
-  display: flex;
-  justify-content: space-between;
+  grid-template-columns: 0.78fr 1fr;
   gap: 14px;
-}
-
-.signed-shared-vouch__top b {
-  color: var(--red);
-  font-size: 12px;
-}
-
-.signed-shared-vouch strong {
-  display: block;
-  margin-top: 22px;
-  font-family: var(--font-display);
-  font-size: clamp(40px, 4.7vw, 60px);
-  font-weight: 620;
-  line-height: 0.94;
-}
-
-.signed-shared-vouch p {
-  margin: 14px 0 0;
-  font-size: 14px;
-  line-height: 1.48;
-}
-
-.signed-shared-vouch > div:last-child {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 24px;
 }
 
-.signed-shared-vouch button {
-  min-height: 34px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--red);
-  color: #fff8f2;
-  font-family: var(--font-ui);
+.signed-noise-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.signed-noise-stack article {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(242, 237, 230, 0.045);
+  opacity: 0.62;
+}
+
+.signed-noise-stack strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 620;
+  text-decoration: line-through;
+  text-decoration-color: var(--red);
+}
+
+.signed-noise-stack p {
+  margin: 6px 0 0;
+  color: var(--muted);
   font-size: 12px;
-  font-weight: 900;
+  line-height: 1.35;
 }
 
-.signed-shared-vouch > div:last-child span {
-  color: #6c6259;
-  letter-spacing: 0;
-  text-transform: none;
+.signed-friend-take {
+  padding: 24px;
+  border: 1px solid rgba(74, 107, 92, 0.5);
+  border-left: 4px solid var(--green);
+  border-radius: 20px;
+  background: var(--paper-2);
+  color: #141210;
+  box-shadow: 0 26px 74px rgba(0, 0, 0, 0.22);
+}
+
+.signed-friend-take strong {
+  display: block;
+  margin-top: 56px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.2vw, 56px);
+  font-style: italic;
+  font-weight: 520;
+  line-height: 1;
+}
+
+.signed-friend-take p {
+  margin: 14px 0 0;
+  color: #5f554c;
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+.signed-friend-take button {
+  margin-top: 22px;
 }
 
 .signed-section-copy {
@@ -491,7 +494,7 @@
 .signed-access__inner > p:not(.signed-kicker),
 .signed-access__count {
   margin: 16px 0 0;
-  color: var(--paper-soft);
+  color: #d7cec3;
   font-size: 14px;
   line-height: 1.58;
 }
@@ -501,118 +504,76 @@
   border-top: 1px solid var(--line);
 }
 
-.signed-public-shelf {
+.signed-shelf-book {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
   margin-top: 54px;
-  padding: clamp(20px, 3vw, 30px);
-  border: 1px solid var(--line-strong);
-  border-radius: 18px;
-  background: var(--surface);
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--ink-2);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.34);
 }
 
-.signed-public-shelf__mast {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px 18px;
-  align-items: end;
+.signed-shelf-book aside {
+  display: flex;
+  flex-direction: column;
+  min-height: 410px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--ink);
 }
 
-.signed-public-shelf__mast > span {
-  grid-column: 1 / -1;
-  color: var(--red);
-}
-
-.signed-public-shelf__mast strong {
+.signed-shelf-book aside strong {
+  margin-top: 18px;
   font-family: var(--font-display);
-  font-size: clamp(34px, 4.8vw, 64px);
+  font-size: clamp(36px, 4.2vw, 58px);
   font-weight: 620;
-  line-height: 0.94;
+  line-height: 0.9;
 }
 
-.signed-public-shelf__mast p {
-  max-width: 280px;
-  margin: 0;
-  color: var(--paper-soft);
+.signed-shelf-book aside p {
+  margin: 16px 0 0;
+  color: #d7cec3;
   font-size: 13px;
   line-height: 1.48;
 }
 
-.signed-shelf-strip {
+.signed-shelf-pages {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr 0.9fr;
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   align-items: end;
-  margin-top: 32px;
 }
 
-.signed-shelf-card {
+.signed-shelf-page {
   display: flex;
   flex-direction: column;
   min-height: 390px;
-  padding: 14px 18px 18px;
+  padding: 20px;
+  border: 1px solid rgba(20, 18, 16, 0.1);
+  border-radius: 20px;
+  background: var(--paper-2);
+  color: #141210;
   box-shadow: 0 22px 58px rgba(0, 0, 0, 0.2);
 }
 
-.signed-shelf-card--2 {
-  min-height: 430px;
-  border-color: rgba(201, 162, 39, 0.62);
+.signed-shelf-page--2 {
+  min-height: 440px;
+  border-color: rgba(201, 162, 39, 0.7);
 }
 
-.signed-list-cover {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-  height: 132px;
-  margin: 0 -4px 18px;
-  overflow: hidden;
-  border-radius: 10px;
-  background: var(--surface-2);
-}
-
-.signed-list-cover span {
-  background:
-    linear-gradient(135deg, rgba(230, 59, 46, 0.34), transparent 45%),
-    linear-gradient(160deg, #3b332c, #141210);
-}
-
-.signed-list-cover span:nth-child(2) {
-  background:
-    linear-gradient(135deg, rgba(74, 107, 92, 0.44), transparent 45%),
-    linear-gradient(160deg, #40362e, #171310);
-}
-
-.signed-list-cover span:nth-child(3) {
-  background:
-    linear-gradient(135deg, rgba(201, 162, 39, 0.38), transparent 45%),
-    linear-gradient(160deg, #302923, #11100f);
-}
-
-.signed-list-cover span:nth-child(4) {
-  background:
-    linear-gradient(135deg, rgba(242, 237, 230, 0.18), transparent 45%),
-    linear-gradient(160deg, #463a32, #171310);
-}
-
-.signed-shelf-card__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.signed-shelf-card__top b {
-  color: var(--red);
-  font-size: 11px;
-}
-
-.signed-shelf-card h3 {
-  margin: 30px 0 0;
+.signed-shelf-page h3 {
+  margin: 62px 0 0;
   font-family: var(--font-display);
-  font-size: clamp(29px, 3.4vw, 46px);
+  font-size: clamp(28px, 3.3vw, 44px);
   font-weight: 620;
   line-height: 0.95;
 }
 
-.signed-shelf-card ol {
+.signed-shelf-page ol {
   display: grid;
   gap: 0;
   margin: 26px 0 0;
@@ -620,28 +581,27 @@
   list-style: none;
 }
 
-.signed-shelf-card li {
+.signed-shelf-page li {
   padding: 11px 0;
   border-top: 1px solid rgba(20, 18, 16, 0.09);
+  color: #5f554c;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 800;
 }
 
-.signed-shelf-card footer {
+.signed-shelf-page footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: auto;
   padding-top: 20px;
+}
+
+.signed-shelf-page footer span,
+.signed-shelf-page footer b {
   color: var(--red);
   font-size: 12px;
   font-weight: 900;
-}
-
-.signed-proof {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.84fr) minmax(280px, 0.72fr);
-  gap: clamp(42px, 10vw, 130px);
-  align-items: center;
-  padding: 104px 0 116px;
-  border-top: 1px solid var(--line);
 }
 
 .signed-taste-preview {
@@ -650,6 +610,10 @@
   width: min(100%, 360px);
   margin: 0;
   padding: 24px;
+  border: 1px solid rgba(20, 18, 16, 0.1);
+  border-radius: 18px;
+  background: var(--paper-2);
+  color: #141210;
   box-shadow: 0 28px 74px rgba(0, 0, 0, 0.22);
 }
 
@@ -668,6 +632,7 @@
 
 .signed-taste-preview > p {
   margin: 26px 0 8px;
+  color: #5f554c;
   font-family: var(--font-display);
   font-size: 17px;
   font-style: italic;
@@ -687,9 +652,13 @@
   gap: 18px;
   padding: 17px 0;
   border-bottom: 1px solid rgba(20, 18, 16, 0.08);
-  color: var(--light-ink);
+  color: #141210;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 800;
+}
+
+.signed-taste-preview small {
+  color: #7d7166;
 }
 
 .signed-taste-preview a {
@@ -758,13 +727,13 @@
   width: 100%;
   min-height: 42px;
   border: 0;
-  border-bottom: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line);
   border-radius: 0;
   background: transparent;
   color: var(--paper);
   font-family: var(--font-ui);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 750;
 }
 
 .signed-waitlist-form input {
@@ -777,7 +746,7 @@
 }
 
 .signed-waitlist-form select option {
-  color: var(--light-ink);
+  color: #141210;
 }
 
 .signed-waitlist-form input::placeholder {
@@ -815,8 +784,8 @@
   margin-top: 34px;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  border-radius: 18px;
+  background: var(--ink-2);
   text-align: left;
 }
 
@@ -849,9 +818,9 @@
   gap: 14px;
   min-height: 100%;
   padding: 20px;
-  border-radius: 14px;
-  background: var(--light-card);
-  color: var(--light-ink);
+  border-radius: 16px;
+  background: var(--paper-2);
+  color: #141210;
   box-shadow: 0 22px 56px rgba(0, 0, 0, 0.24);
 }
 
@@ -876,7 +845,7 @@
   margin: 0;
   padding: 12px 0;
   border-top: 1px solid rgba(20, 18, 16, 0.1);
-  color: var(--light-ink);
+  color: #141210;
   font-size: 13px;
   font-weight: 800;
 }
@@ -923,18 +892,31 @@
   margin: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 760px) {
+  .signed-hero-world,
   .signed-break,
-  .signed-proof {
+  .signed-proof,
+  .signed-shelf-book {
     grid-template-columns: 1fr;
   }
 
+  .signed-thread-card,
+  .signed-send-card,
   .signed-social-loop {
-    margin: 0 auto;
+    width: min(100%, 520px);
+    margin-inline: auto;
   }
 
-  .signed-section-copy {
-    max-width: 650px;
+  .signed-send-card {
+    transform: none;
+  }
+
+  .signed-trust-theater {
+    grid-template-columns: 1fr;
+  }
+
+  .signed-shelf-book aside {
+    min-height: 0;
   }
 
   .signed-footer {
@@ -972,38 +954,42 @@
     line-height: 1.55;
   }
 
-  .signed-taste-object,
-  .signed-public-shelf {
+  .signed-hero-world,
+  .signed-shelf-book {
     margin-top: 28px;
-    padding: 16px;
+    padding: 14px;
+    border-radius: 22px;
   }
 
-  .signed-taste-object__identity {
-    align-items: flex-start;
+  .signed-vouch-note {
+    padding: 20px;
   }
 
-  .signed-vouch-collage {
-    grid-template-columns: repeat(3, minmax(220px, 1fr));
-    margin-inline: -16px;
-    margin-top: 24px;
-    padding: 0 16px 4px;
+  .signed-vouch-note h2 {
+    font-size: clamp(34px, 11vw, 48px);
+  }
+
+  .signed-note-list li {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .signed-note-list li > span {
+    grid-column: 2;
+    width: fit-content;
+  }
+
+  .signed-shelf-pages {
+    grid-template-columns: repeat(3, minmax(236px, 1fr));
+    margin-inline: -14px;
+    padding: 0 14px 4px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
   }
 
-  .signed-vouch-card,
-  .signed-vouch-card--hero {
-    min-height: 280px;
+  .signed-shelf-page,
+  .signed-shelf-page--2 {
+    min-height: 360px;
     scroll-snap-align: start;
-  }
-
-  .signed-vouch-card--left,
-  .signed-vouch-card--right {
-    transform: none;
-  }
-
-  .signed-taste-object__proof {
-    margin-top: 18px;
   }
 
   .signed-break,
@@ -1011,24 +997,6 @@
   .signed-proof,
   .signed-access {
     padding-block: 74px;
-  }
-
-  .signed-public-shelf__mast {
-    grid-template-columns: 1fr;
-  }
-
-  .signed-shelf-strip {
-    grid-template-columns: repeat(3, minmax(236px, 1fr));
-    margin-inline: -16px;
-    padding: 0 16px 4px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-  }
-
-  .signed-shelf-card,
-  .signed-shelf-card--2 {
-    min-height: 360px;
-    scroll-snap-align: start;
   }
 
   .signed-waitlist-form {
@@ -1051,10 +1019,6 @@
 
   .signed-taste-maker {
     grid-template-columns: 1fr;
-  }
-
-  .signed-footer nav {
-    gap: 16px;
   }
 }
 
