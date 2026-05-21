@@ -1,0 +1,239 @@
+/* ============================================================
+   Vouch Design Tokens
+   Paper-and-ink aesthetic. One accent. 4px grid. No exceptions.
+   ============================================================ */
+
+:root {
+  /* — Colors — */
+  --v-paper: #F6F5F2;
+  --v-ink: #0F0F0E;
+  --v-seal: #BF3A2B;
+  --v-seal-hover: #A83225;
+  --v-seal-pressed: #952D20;
+  --v-line: rgba(15, 15, 14, 0.10);
+  --v-faint: rgba(15, 15, 14, 0.05);
+  --v-muted: rgba(15, 15, 14, 0.45);
+
+  /* — Dark surfaces (share cards, OG images, footer) — */
+  --v-dark-paper: #1A1A19;
+  --v-dark-ink: #F6F5F2;
+  --v-dark-line: rgba(246, 245, 242, 0.12);
+  --v-dark-muted: rgba(246, 245, 242, 0.50);
+
+  /* — Typography — */
+  --v-font-serif: 'Gambarino', serif;
+  --v-font-sans: 'General Sans', sans-serif;
+
+  /* — Spacing (4px grid) — */
+  --v-sp1: 4px;
+  --v-sp2: 8px;
+  --v-sp3: 12px;
+  --v-sp4: 16px;
+  --v-sp5: 20px;
+  --v-sp6: 24px;
+  --v-sp7: 28px;
+  --v-sp8: 32px;
+  --v-sp10: 40px;
+  --v-sp12: 48px;
+  --v-sp16: 64px;
+
+  /* — Radii — */
+  --v-radius-tag: 6px;
+  --v-radius-input: 10px;
+  --v-radius-card: 14px;
+  --v-radius-pill: 9999px;
+
+  /* — Shadows — */
+  --v-shadow-sm: 0 1px 2px rgba(15, 15, 14, 0.06);
+  --v-shadow-md: 0 2px 8px rgba(15, 15, 14, 0.08);
+  --v-shadow-lg: 0 4px 16px rgba(15, 15, 14, 0.10);
+
+  /* — Transitions — */
+  --v-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --v-duration-fast: 120ms;
+  --v-duration-normal: 200ms;
+  --v-duration-sheet: 320ms;
+  --v-duration-spring: 400ms;
+
+  /* — Avatar tints — */
+  --v-tint-0: #E8D5C4;
+  --v-tint-1: #C4D4C0;
+  --v-tint-2: #C9D1DC;
+  --v-tint-3: #D4C4B0;
+  --v-tint-4: #B8C8C0;
+  --v-tint-5: #D0C4D4;
+  --v-tint-6: #C8D0B8;
+  --v-tint-7: #DCC8B4;
+  --v-tint-8: #B4C4CC;
+}
+
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--v-font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--v-ink);
+  background-color: var(--v-paper);
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+::selection {
+  background-color: var(--v-seal);
+  color: var(--v-dark-ink);
+}
+
+
+/* ============================================================
+   Typography Scale
+   ============================================================ */
+
+.v-hero {
+  font-family: var(--v-font-serif);
+  font-size: clamp(36px, 8vw, 64px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.v-display {
+  font-family: var(--v-font-serif);
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.v-title {
+  font-family: var(--v-font-serif);
+  font-size: clamp(20px, 3vw, 24px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+.v-heading {
+  font-family: var(--v-font-sans);
+  font-size: 17px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.v-body {
+  font-family: var(--v-font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.v-take {
+  font-family: var(--v-font-serif);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.v-note {
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.v-label {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+.v-muted {
+  color: var(--v-muted);
+}
+
+.v-seal-text {
+  color: var(--v-seal);
+}
+
+.v-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

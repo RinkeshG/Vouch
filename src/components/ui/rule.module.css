@@ -1,0 +1,27 @@
+.rule {
+  border: none;
+  height: 1px;
+  background-color: var(--v-line);
+}
+
+.labeled {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp3);
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--v-line);
+}
+
+.label {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v-muted);
+  white-space: nowrap;
+}
