@@ -1,28 +1,14 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const publicPaths = new Set([
-  "/",
-  "/how-it-works",
-  "/manifesto",
-  "/faq",
-  "/about",
-  "/terms",
-  "/privacy",
-  "/cookies",
-  "/sign-in",
-  "/sign-up",
-]);
-
-function isPublicPath(pathname: string): boolean {
-  if (publicPaths.has(pathname)) return true;
-  if (pathname.startsWith("/auth/")) return true;
-  if (pathname.startsWith("/api/")) return true;
-  if (pathname.startsWith("/_next/")) return true;
-  return false;
-}
-
 export async function middleware(request: NextRequest) {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return NextResponse.next();
+  }
+
   return await updateSession(request);
 }
 

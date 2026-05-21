@@ -1,0 +1,64 @@
+import { NextResponse } from "next/server";
+
+const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+
+const CITY_BOUNDS: Record<string, { lat: number; lng: number; radius: number }> = {
+  bangalore: { lat: 12.9716, lng: 77.5946, radius: 30000 },
+  bombay: { lat: 19.076, lng: 72.8777, radius: 30000 },
+  delhi: { lat: 28.6139, lng: 77.209, radius: 30000 },
+  goa: { lat: 15.2993, lng: 74.124, radius: 30000 },
+};
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get("q");
+  const city = searchParams.get("city") || "bangalore";
+
+  if (!query || query.length < 2) {
+    return NextResponse.json({ results: [] });
+  }
+
+  if (!GOOGLE_API_KEY) {
+    return NextResponse.json(
+      { error: "Google Places API key not configured" },
+      { status: 500 }
+    );
+  }
+
+  const bounds = CITY_BOUNDS[city] || CITY_BOUNDS.bangalore;
+
+  try {
+    const url = new URL(
+      "https://maps.googleapis.com/maps/api/place/textsearch/json"
+    );
+    url.searchParams.set("query", `${query} restaurant cafe bar ${city}`);
+    url.searchParams.set("location", `${bounds.lat},${bounds.lng}`);
+    url.searchParams.set("radius", String(bounds.radius));
+    url.searchParams.set("type", "restaurant|cafe|bar|food");
+    url.searchParams.set("key", GOOGLE_API_KEY);
+
+    const res = await fetch(url.toString());
+    const data = await res.json();
+
+    const results = (data.results || []).slice(0, 8).map(
+      (place: {
+        place_id: string;
+        name: string;
+        formatted_address: string;
+        geometry?: { location: { lat: number; lng: number } };
+      }) => ({
+        place_id: place.place_id,
+        name: place.name,
+        formatted_address: place.formatted_address,
+        geometry: place.geometry,
+      })
+    );
+
+    return NextResponse.json({ results });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to search places" },
+      { status: 500 }
+    );
+  }
+}
