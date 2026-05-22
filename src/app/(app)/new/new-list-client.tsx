@@ -261,21 +261,10 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
         .maybeSingle();
 
       if (!profile) {
-        // Profile missing — attempt to create a minimal one
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .insert({
-            id: user.id,
-            handle: "user_" + user.id.substring(0, 8),
-            display_name: user.user_metadata?.display_name || user.email?.split("@")[0] || "User",
-          });
-
-        if (profileError) {
-          console.error("Profile creation failed:", profileError.message);
-          setPublishError("Couldn't set up your profile. Please try signing out and back in.");
-          setPublishing(false);
-          return;
-        }
+        console.error("Profile missing for user:", user.id);
+        setPublishError("Your profile isn't set up yet. Please sign out, sign back in, and try again.");
+        setPublishing(false);
+        return;
       }
 
       // 1. Insert list
@@ -305,36 +294,70 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
         return;
       }
 
-      // 2. Upsert places + insert list_places
+      // 2. Resolve places + insert list_places
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-
-        // Upsert place (local or Google)
         const isLocal = item.placeId.startsWith("local-");
-        const { data: place, error: placeError } = await supabase
-          .from("places")
-          .upsert(
-            {
-              google_place_id: isLocal ? null : item.placeId,
-              name: item.name,
-              area: item.area,
-              city,
-              latitude: item.lat,
-              longitude: item.lng,
-            },
-            { onConflict: isLocal ? "name,city" : "google_place_id" }
-          )
-          .select("id")
-          .single();
+        let placeUuid: string | null = null;
 
-        if (placeError) {
-          console.error(`Place upsert failed for ${item.name}:`, placeError.message);
+        if (!isLocal) {
+          // Google place — look up by google_place_id first
+          const { data: existing } = await supabase
+            .from("places")
+            .select("id")
+            .eq("google_place_id", item.placeId)
+            .maybeSingle();
+
+          if (existing) {
+            placeUuid = existing.id;
+          } else {
+            const { data: inserted, error: insErr } = await supabase
+              .from("places")
+              .insert({
+                google_place_id: item.placeId,
+                name: item.name,
+                area: item.area,
+                city,
+                latitude: item.lat,
+                longitude: item.lng,
+              })
+              .select("id")
+              .single();
+            if (insErr) console.error(`Place insert failed for ${item.name}:`, insErr.message);
+            placeUuid = inserted?.id ?? null;
+          }
+        } else {
+          // Local place — look up by name + city
+          const { data: existing } = await supabase
+            .from("places")
+            .select("id")
+            .eq("name", item.name)
+            .eq("city", city)
+            .maybeSingle();
+
+          if (existing) {
+            placeUuid = existing.id;
+          } else {
+            const { data: inserted, error: insErr } = await supabase
+              .from("places")
+              .insert({
+                name: item.name,
+                area: item.area,
+                city,
+                latitude: item.lat,
+                longitude: item.lng,
+              })
+              .select("id")
+              .single();
+            if (insErr) console.error(`Place insert failed for ${item.name}:`, insErr.message);
+            placeUuid = inserted?.id ?? null;
+          }
         }
 
-        if (place) {
+        if (placeUuid) {
           const { error: lpError } = await supabase.from("list_places").insert({
             list_id: list.id,
-            place_id: place.id,
+            place_id: placeUuid,
             position: i,
             note: item.note || null,
           });
@@ -435,7 +458,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
           placeholder="Name your list..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          maxLength={100}
+          maxLength={60}
           autoFocus
         />
         <input
