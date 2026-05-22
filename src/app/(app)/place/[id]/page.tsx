@@ -1,5 +1,11 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_SAVED_PLACE_IDS,
+  getDemoPlace,
+  getDemoPlaceVouches,
+} from "@/lib/demo";
 import { PlaceDetailClient } from "./place-client";
 
 interface PageProps {
@@ -8,6 +14,49 @@ interface PageProps {
 
 export default async function PlacePage({ params }: PageProps) {
   const { id } = await params;
+
+  // Demo mode
+  if (isDemoMode()) {
+    const place = getDemoPlace(id);
+    if (!place) notFound();
+
+    const vouches = getDemoPlaceVouches(id).map((v) => ({
+      id: v.id,
+      take: v.take,
+      contextTags: v.contextTags,
+      createdAt: v.createdAt,
+      userId: v.authorId,
+      authorHandle: v.authorHandle,
+      authorName: v.authorName,
+      authorAvatarUrl: v.authorAvatarUrl,
+    }));
+
+    return (
+      <PlaceDetailClient
+        place={{
+          id: place.id,
+          name: place.name,
+          area: place.area,
+          city: place.city,
+          cuisines: place.cuisines,
+          priceTier: place.priceTier,
+          vouchCount: place.vouchCount,
+          phone: place.phone,
+          website: place.website,
+          latitude: place.latitude,
+          longitude: place.longitude,
+          isClosed: place.isClosed,
+        }}
+        vouches={vouches}
+        isSaved={DEMO_SAVED_PLACE_IDS.includes(id)}
+        currentUserId={DEMO_USER.id}
+        isDemo
+      />
+    );
+  }
+
+  // Production
+  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
   const {
@@ -16,18 +65,14 @@ export default async function PlacePage({ params }: PageProps) {
 
   if (!user) return null;
 
-  // Get place
   const { data: place } = await supabase
     .from("places")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (!place) {
-    notFound();
-  }
+  if (!place) notFound();
 
-  // Get vouches for this place with profiles
   const { data: vouchesData } = await supabase
     .from("vouches")
     .select(
@@ -55,15 +100,12 @@ export default async function PlacePage({ params }: PageProps) {
     authorAvatarUrl: v.profiles?.avatar_url || null,
   }));
 
-  // Check if user saved this place
   const { data: savedData } = await supabase
     .from("saved_places")
     .select("id")
     .eq("user_id", user.id)
     .eq("place_id", id)
     .maybeSingle();
-
-  const isSaved = !!savedData;
 
   return (
     <PlaceDetailClient
@@ -82,7 +124,7 @@ export default async function PlacePage({ params }: PageProps) {
         isClosed: place.is_closed,
       }}
       vouches={vouches}
-      isSaved={isSaved}
+      isSaved={!!savedData}
       currentUserId={user.id}
     />
   );

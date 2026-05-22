@@ -6,7 +6,6 @@ import { TopBar } from "@/components/app/top-bar";
 import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { createClient } from "@/lib/supabase/client";
 import styles from "./saved.module.css";
 
 interface SavedPlace {
@@ -21,19 +20,25 @@ interface SavedPlace {
 interface SavedClientProps {
   savedPlaces: SavedPlace[];
   currentUserId: string;
+  isDemo?: boolean;
 }
 
 export function SavedClient({
   savedPlaces: initialPlaces,
   currentUserId,
+  isDemo = false,
 }: SavedClientProps) {
   const [places, setPlaces] = useState(initialPlaces);
 
   async function unsavePlace(placeId: string) {
-    const supabase = createClient();
-
     // Optimistic removal
     setPlaces((prev) => prev.filter((p) => p.placeId !== placeId));
+
+    // In demo mode, just remove locally
+    if (isDemo) return;
+
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
 
     try {
       await supabase

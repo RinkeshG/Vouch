@@ -11,7 +11,6 @@ import { Icon } from "@/components/ui/icon";
 import { Tag } from "@/components/ui/tag";
 import { Stamp } from "@/components/ui/stamp";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import styles from "./place.module.css";
 
 interface PlaceInfo {
@@ -45,6 +44,7 @@ interface PlaceDetailClientProps {
   vouches: PlaceVouch[];
   isSaved: boolean;
   currentUserId: string;
+  isDemo?: boolean;
 }
 
 export function PlaceDetailClient({
@@ -52,6 +52,7 @@ export function PlaceDetailClient({
   vouches,
   isSaved: initialSaved,
   currentUserId,
+  isDemo = false,
 }: PlaceDetailClientProps) {
   const router = useRouter();
   const [saved, setSaved] = useState(initialSaved);
@@ -60,9 +61,14 @@ export function PlaceDetailClient({
   const priceTierLabel = "$".repeat(place.priceTier);
 
   async function toggleSave() {
-    const supabase = createClient();
     const newSaved = !saved;
     setSaved(newSaved);
+
+    // In demo mode, just toggle locally
+    if (isDemo) return;
+
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
 
     try {
       if (newSaved) {

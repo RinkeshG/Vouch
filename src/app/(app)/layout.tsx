@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { isDemoMode, DEMO_USER } from "@/lib/demo";
 import { AppShellClient } from "./shell-client";
 import styles from "./app.module.css";
 
@@ -10,6 +10,23 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Demo mode: skip auth, use mock profile
+  if (isDemoMode()) {
+    return (
+      <div className={styles.shell}>
+        <AppShellClient
+          handle={DEMO_USER.handle}
+          displayName={DEMO_USER.displayName}
+          avatarUrl={DEMO_USER.avatarUrl}
+          isDemo
+        />
+        <main className={styles.main}>{children}</main>
+      </div>
+    );
+  }
+
+  // Production: real auth flow
+  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
   const {

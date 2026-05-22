@@ -8,9 +8,16 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Tag } from "@/components/ui/tag";
 import { Stamp } from "@/components/ui/stamp";
-import { createClient } from "@/lib/supabase/client";
 import { CONTEXT_TAGS } from "@/types";
+import { searchDemoPlaces, DEMO_PLACES } from "@/lib/demo";
 import styles from "./add.module.css";
+
+function isClientDemoMode() {
+  return (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+}
 
 interface PlaceResult {
   place_id: string;
@@ -19,15 +26,10 @@ interface PlaceResult {
   geometry?: { location: { lat: number; lng: number } };
 }
 
-interface ExistingPlace {
-  id: string;
-  name: string;
-}
-
 export default function AddVouchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
+  const isDemo = isClientDemoMode();
 
   // If coming from a place page, pre-select that place
   const preselectedPlaceId = searchParams.get("placeId");
@@ -77,19 +79,34 @@ export default function AddVouchPage() {
 
     setSearching(true);
     try {
-      const res = await fetch(
-        `/api/places/search?q=${encodeURIComponent(q)}&city=bangalore`
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setResults(data.results || []);
+      if (isDemo) {
+        // Demo mode: search local mock places
+        const demoResults = searchDemoPlaces(q);
+        setResults(
+          demoResults.map((p) => ({
+            place_id: p.googlePlaceId || p.id,
+            name: p.name,
+            formatted_address: `${p.area}, Bangalore`,
+            geometry: p.latitude && p.longitude
+              ? { location: { lat: p.latitude, lng: p.longitude } }
+              : undefined,
+          }))
+        );
+      } else {
+        const res = await fetch(
+          `/api/places/search?q=${encodeURIComponent(q)}&city=bangalore`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setResults(data.results || []);
+        }
       }
     } catch {
       // Fail silently
     } finally {
       setSearching(false);
     }
-  }, []);
+  }, [isDemo]);
 
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -104,14 +121,16 @@ export default function AddVouchPage() {
   }, [query, searchPlaces]);
 
   function selectPlace(place: PlaceResult) {
+    // Check if this is a demo place (id starts with "place-")
+    const isDemoPlace = place.place_id.startsWith("place-");
     setSelectedPlace({
-      googlePlaceId: place.place_id,
-      placeId: "",
+      googlePlaceId: isDemoPlace ? undefined : place.place_id,
+      placeId: isDemoPlace ? place.place_id : "",
       name: place.name,
       address: place.formatted_address,
       lat: place.geometry?.location.lat,
       lng: place.geometry?.location.lng,
-      isExisting: false,
+      isExisting: isDemoPlace,
     });
     setStep("take");
     setQuery("");
@@ -132,7 +151,17 @@ export default function AddVouchPage() {
     if (!selectedPlace || take.length < 20) return;
     setSaving(true);
 
+    // Demo mode: just show success
+    if (isDemo) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setStep("success");
+      setSaving(false);
+      return;
+    }
+
     try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();

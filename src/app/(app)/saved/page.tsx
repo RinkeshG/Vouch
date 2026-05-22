@@ -1,7 +1,37 @@
-import { createClient } from "@/lib/supabase/server";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_SAVED_PLACE_IDS,
+  DEMO_PLACES,
+} from "@/lib/demo";
 import { SavedClient } from "./saved-client";
 
 export default async function SavedPage() {
+  // Demo mode
+  if (isDemoMode()) {
+    const savedPlaces = DEMO_SAVED_PLACE_IDS.map((placeId) => {
+      const place = DEMO_PLACES.find((p) => p.id === placeId);
+      return {
+        savedId: `saved-${placeId}`,
+        placeId,
+        name: place?.name || "Unknown",
+        area: place?.area || "",
+        vouchCount: place?.vouchCount || 0,
+        savedAt: new Date().toISOString(),
+      };
+    });
+
+    return (
+      <SavedClient
+        savedPlaces={savedPlaces}
+        currentUserId={DEMO_USER.id}
+        isDemo
+      />
+    );
+  }
+
+  // Production
+  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
   const {
@@ -10,7 +40,6 @@ export default async function SavedPage() {
 
   if (!user) return null;
 
-  // Get saved places with place details
   const { data: savedData } = await supabase
     .from("saved_places")
     .select(

@@ -1,7 +1,36 @@
-import { createClient } from "@/lib/supabase/server";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_SAVED_PLACE_IDS,
+  getDemoCircleFeed,
+  getDemoDiscoverFeed,
+  getDemoTrendingPlaces,
+} from "@/lib/demo";
 import { HomeFeedClient } from "./feed-client";
 
 export default async function HomePage() {
+  // Demo mode
+  if (isDemoMode()) {
+    const trending = getDemoTrendingPlaces().map((p) => ({
+      id: p.id,
+      name: p.name,
+      area: p.area,
+      vouch_count: p.vouchCount,
+    }));
+
+    return (
+      <HomeFeedClient
+        circleFeed={getDemoCircleFeed()}
+        discoverFeed={getDemoDiscoverFeed()}
+        trending={trending}
+        savedPlaceIds={DEMO_SAVED_PLACE_IDS}
+        currentUserId={DEMO_USER.id}
+      />
+    );
+  }
+
+  // Production
+  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
   const {
@@ -43,7 +72,7 @@ export default async function HomePage() {
     circleFeed = (data || []).map(mapVouch);
   }
 
-  // Discover feed: recent vouches from public profiles (not in circle)
+  // Discover feed
   const excludeIds = [user.id, ...circleIds];
   const { data: discoverData } = await supabase
     .from("vouches")
@@ -65,7 +94,7 @@ export default async function HomePage() {
 
   const discoverFeed = (discoverData || []).map(mapVouch);
 
-  // Trending places: most vouched places
+  // Trending places
   const { data: trendingData } = await supabase
     .from("places")
     .select("id, name, area, vouch_count")
@@ -73,22 +102,20 @@ export default async function HomePage() {
     .gt("vouch_count", 0)
     .limit(8);
 
-  const trending = trendingData || [];
-
-  // Get user's saved places for bookmark state
+  // Saved places
   const { data: savedData } = await supabase
     .from("saved_places")
     .select("place_id")
     .eq("user_id", user.id);
 
-  const savedPlaceIds = new Set((savedData || []).map((s) => s.place_id));
+  const savedPlaceIds = (savedData || []).map((s) => s.place_id);
 
   return (
     <HomeFeedClient
       circleFeed={circleFeed}
       discoverFeed={discoverFeed}
-      trending={trending}
-      savedPlaceIds={Array.from(savedPlaceIds)}
+      trending={trendingData || []}
+      savedPlaceIds={savedPlaceIds}
       currentUserId={user.id}
     />
   );

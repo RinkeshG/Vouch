@@ -1,7 +1,26 @@
-import { createClient } from "@/lib/supabase/server";
+import {
+  isDemoMode,
+  DEMO_USER,
+  getDemoSuggestedPeople,
+  getDemoPopularPlaces,
+} from "@/lib/demo";
 import { SearchClient } from "./search-client";
 
 export default async function SearchPage() {
+  // Demo mode
+  if (isDemoMode()) {
+    return (
+      <SearchClient
+        suggestedPeople={getDemoSuggestedPeople()}
+        popularPlaces={getDemoPopularPlaces()}
+        currentUserId={DEMO_USER.id}
+        isDemo
+      />
+    );
+  }
+
+  // Production
+  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
   const {
@@ -10,7 +29,6 @@ export default async function SearchPage() {
 
   if (!user) return null;
 
-  // Suggested people: public profiles with most vouches
   const { data: suggestedPeople } = await supabase
     .from("profiles")
     .select("id, handle, display_name, avatar_url, vouch_count")
@@ -19,7 +37,6 @@ export default async function SearchPage() {
     .order("vouch_count", { ascending: false })
     .limit(10);
 
-  // Popular places
   const { data: popularPlaces } = await supabase
     .from("places")
     .select("id, name, area, vouch_count")

@@ -1,5 +1,11 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_SAVED_PLACE_IDS,
+  getDemoProfile,
+  getDemoProfileVouches,
+} from "@/lib/demo";
 import { ProfileClient } from "./profile-client";
 
 interface PageProps {
@@ -8,6 +14,51 @@ interface PageProps {
 
 export default async function ProfilePage({ params }: PageProps) {
   const { handle } = await params;
+
+  // Demo mode
+  if (isDemoMode()) {
+    const profile = getDemoProfile(handle);
+    if (!profile) notFound();
+
+    const isOwnProfile = profile.id === DEMO_USER.id;
+    const vouches = getDemoProfileVouches(profile.id).map((v) => ({
+      id: v.id,
+      take: v.take,
+      contextTags: v.contextTags,
+      createdAt: v.createdAt,
+      placeId: v.placeId,
+      placeName: v.placeName,
+      placeArea: v.placeArea,
+    }));
+
+    return (
+      <ProfileClient
+        profile={{
+          id: profile.id,
+          handle: profile.handle,
+          displayName: profile.displayName,
+          bio: profile.bio,
+          tasteLine: profile.tasteLine || null,
+          avatarUrl: profile.avatarUrl,
+          avatarTint: profile.avatarTint,
+          isPublic: profile.isPublic,
+          vouchCount: profile.vouchCount,
+          followerCount: profile.followerCount,
+          followingCount: profile.followingCount,
+          listCount: profile.listCount,
+        }}
+        vouches={vouches}
+        isOwnProfile={isOwnProfile}
+        isFollowing={!isOwnProfile}
+        savedPlaceIds={DEMO_SAVED_PLACE_IDS}
+        currentUserId={DEMO_USER.id}
+        isDemo
+      />
+    );
+  }
+
+  // Production
+  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
   const {
@@ -16,20 +67,16 @@ export default async function ProfilePage({ params }: PageProps) {
 
   if (!user) return null;
 
-  // Get profile by handle
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
     .eq("handle", handle)
     .single();
 
-  if (!profile) {
-    notFound();
-  }
+  if (!profile) notFound();
 
   const isOwnProfile = profile.id === user.id;
 
-  // Get vouches
   const { data: vouchesData } = await supabase
     .from("vouches")
     .select(
@@ -57,13 +104,6 @@ export default async function ProfilePage({ params }: PageProps) {
     placeArea: v.places?.area || "",
   }));
 
-  // Get lists count
-  const { count: listCount } = await supabase
-    .from("lists")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", profile.id);
-
-  // Get follower/following counts
   const { count: followerCount } = await supabase
     .from("follows")
     .select("id", { count: "exact", head: true })
@@ -76,7 +116,6 @@ export default async function ProfilePage({ params }: PageProps) {
     .eq("follower_id", profile.id)
     .eq("status", "active");
 
-  // Check if current user follows this profile
   let isFollowing = false;
   if (!isOwnProfile) {
     const { data: followData } = await supabase
@@ -89,13 +128,10 @@ export default async function ProfilePage({ params }: PageProps) {
     isFollowing = !!followData;
   }
 
-  // Get saved places for bookmark state
   const { data: savedData } = await supabase
     .from("saved_places")
     .select("place_id")
     .eq("user_id", user.id);
-
-  const savedPlaceIds = (savedData || []).map((s) => s.place_id);
 
   return (
     <ProfileClient
@@ -111,12 +147,12 @@ export default async function ProfilePage({ params }: PageProps) {
         vouchCount: vouches.length,
         followerCount: followerCount || 0,
         followingCount: followingCount || 0,
-        listCount: listCount || 0,
+        listCount: 0,
       }}
       vouches={vouches}
       isOwnProfile={isOwnProfile}
       isFollowing={isFollowing}
-      savedPlaceIds={savedPlaceIds}
+      savedPlaceIds={(savedData || []).map((s) => s.place_id)}
       currentUserId={user.id}
     />
   );

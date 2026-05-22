@@ -7,7 +7,6 @@ import { Icon } from "@/components/ui/icon";
 import { Tag } from "@/components/ui/tag";
 import { Stamp } from "@/components/ui/stamp";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import styles from "./vouch-card.module.css";
 
 interface VouchCardProps {
@@ -81,11 +80,24 @@ export function VouchCard({
     if (savingState === "saving" || !currentUserId) return;
     setSavingState("saving");
 
-    const supabase = createClient();
     const newSaved = !saved;
     setSaved(newSaved);
 
+    // Check if Supabase is configured
+    const hasSupabase =
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!hasSupabase) {
+      // Demo mode: just toggle locally
+      setSavingState("idle");
+      return;
+    }
+
     try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+
       if (newSaved) {
         await supabase.from("saved_places").insert({
           user_id: currentUserId,

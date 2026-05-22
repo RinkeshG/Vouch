@@ -10,7 +10,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import styles from "./profile.module.css";
 
 interface ProfileInfo {
@@ -45,6 +44,7 @@ interface ProfileClientProps {
   isFollowing: boolean;
   savedPlaceIds: string[];
   currentUserId: string;
+  isDemo?: boolean;
 }
 
 export function ProfileClient({
@@ -54,6 +54,7 @@ export function ProfileClient({
   isFollowing: initialFollowing,
   savedPlaceIds,
   currentUserId,
+  isDemo = false,
 }: ProfileClientProps) {
   const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
@@ -62,11 +63,15 @@ export function ProfileClient({
   const savedSet = new Set(savedPlaceIds);
 
   async function toggleFollow() {
-    const supabase = createClient();
     const newFollowing = !following;
-
     setFollowing(newFollowing);
     setFollowerCount((c) => c + (newFollowing ? 1 : -1));
+
+    // In demo mode, just toggle locally
+    if (isDemo) return;
+
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
 
     try {
       if (newFollowing) {
