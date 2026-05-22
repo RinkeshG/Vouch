@@ -88,7 +88,7 @@
   background: var(--v-paper);
   border: 1px solid var(--v-line-strong);
   border-radius: var(--v-radius-input);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--v-shadow-lg);
   padding: 4px;
   z-index: 50;
   animation: shareIn var(--v-duration-fast) var(--v-ease-out);
@@ -154,8 +154,8 @@
 }
 
 .listCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: var(--v-shadow-xl);
 }
 
 .listCard:active {
@@ -226,7 +226,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.9);
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(24, 18, 16, 0.3);
   padding: 2px 8px;
   border-radius: var(--v-radius-tag);
   margin-top: var(--v-sp2);

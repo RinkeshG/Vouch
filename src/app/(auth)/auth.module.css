@@ -31,7 +31,7 @@
 .editorialSide {
   display: none;
   width: 45%;
-  background-color: var(--v-dark-paper);
+  background: linear-gradient(160deg, #1C1814 0%, var(--v-dark-paper) 100%);
   color: var(--v-dark-ink);
   padding: var(--v-sp16);
   align-items: flex-end;
@@ -44,8 +44,8 @@
 
 .quote {
   font-family: var(--v-font-serif);
-  font-size: 24px;
-  line-height: 1.35;
+  font-size: 26px;
+  line-height: 1.4;
   letter-spacing: -0.01em;
   font-style: italic;
   margin-bottom: var(--v-sp6);

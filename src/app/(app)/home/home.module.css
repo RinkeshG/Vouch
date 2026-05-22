@@ -67,6 +67,7 @@
 
 .listRow:hover {
   background-color: var(--v-faint);
+  box-shadow: var(--v-shadow-sm);
 }
 
 .listRow:active {
@@ -163,8 +164,8 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #2d6a4f;
-  background: rgba(45, 106, 79, 0.08);
+  color: var(--v-sage);
+  background: var(--v-sage-dim);
   padding: 2px 8px;
   border-radius: var(--v-radius-tag);
 }

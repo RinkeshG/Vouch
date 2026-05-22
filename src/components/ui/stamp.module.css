@@ -26,7 +26,8 @@
 
 .letter {
   font-family: var(--v-font-serif);
-  font-weight: 400;
+  font-weight: 500;
+  font-variation-settings: 'opsz' 144;
   transform: translateY(1px);
 }
 

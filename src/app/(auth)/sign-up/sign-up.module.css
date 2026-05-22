@@ -27,7 +27,7 @@
 }
 
 .checkIcon {
-  color: #2d7d46;
+  color: var(--v-sage);
 }
 
 .spinner {
@@ -98,8 +98,8 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: var(--v-faint);
-  color: var(--v-ink);
+  background-color: var(--v-sage-dim);
+  color: var(--v-sage);
   margin-bottom: var(--v-sp5);
 }
 

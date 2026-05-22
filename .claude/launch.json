@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "vouch-web",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/Users/rinkeshgorasia/.nvm/versions/node/v22.17.0/bin/node",
+      "runtimeArgs": ["node_modules/.bin/next", "dev", "--turbopack"],
       "port": 3000,
       "autoPort": true
     }

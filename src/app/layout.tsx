@@ -24,7 +24,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#F4EFE6",
+  themeColor: "#F2ECDF",
 };
 
 export default function RootLayout({
@@ -35,10 +35,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link
-          href="https://api.fontshare.com/v2/css?f[]=gambarino@400&f[]=general-sans@200,300,400,500,600,700&display=swap"
-          rel="stylesheet"
-        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

@@ -36,7 +36,7 @@
 }
 
 .active:hover {
-  background-color: #2a2a29;
+  background-color: #2C2420;
 }
 
 .outline {
@@ -50,12 +50,12 @@
 }
 
 .dark {
-  background-color: rgba(246, 245, 242, 0.08);
+  background-color: rgba(242, 236, 223, 0.08);
   color: var(--v-dark-ink);
 }
 
 .dark:hover {
-  background-color: rgba(246, 245, 242, 0.14);
+  background-color: rgba(242, 236, 223, 0.14);
 }
 
 .dark-active {

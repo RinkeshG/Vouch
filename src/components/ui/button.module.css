@@ -52,7 +52,7 @@
 }
 
 .primary:hover:not(:disabled) {
-  background-color: #2a2a29;
+  background-color: #2C2420;
 }
 
 .seal {
@@ -89,7 +89,7 @@
 }
 
 .dark:hover:not(:disabled) {
-  background-color: #e8e7e4;
+  background-color: #E8E2D8;
 }
 
 .dark-secondary {
@@ -99,7 +99,7 @@
 }
 
 .dark-secondary:hover:not(:disabled) {
-  background-color: rgba(246, 245, 242, 0.08);
+  background-color: rgba(242, 236, 223, 0.08);
 }
 
 /* — States — */

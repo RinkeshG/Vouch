@@ -17,7 +17,7 @@
   height: 44px;
   padding: 0 var(--v-sp3);
   gap: var(--v-sp2);
-  background-color: #fff;
+  background-color: var(--v-surface);
   border: 1px solid var(--v-line);
   border-radius: var(--v-radius-input);
   transition:

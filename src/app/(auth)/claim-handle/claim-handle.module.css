@@ -29,7 +29,7 @@
 }
 
 .checkIcon {
-  color: #2d7d46;
+  color: var(--v-sage);
 }
 
 .spinner {

@@ -5,6 +5,7 @@
 
 .page {
   margin: calc(-1 * var(--v-sp6)) calc(-1 * var(--v-sp6));
+  overflow: hidden;
 }
 
 /* ============================================================
@@ -169,12 +170,12 @@
 }
 
 .placeNote {
-  font-family: var(--v-font-serif);
-  font-style: italic;
-  font-size: 14px;
+  font-family: var(--v-font-hand);
+  font-style: normal;
+  font-size: 17px;
   color: var(--v-ink2);
   margin-top: var(--v-sp2);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 /* ============================================================
@@ -194,10 +195,11 @@
   display: flex;
   align-items: center;
   gap: var(--v-sp3);
-  padding: var(--v-sp4);
+  padding: var(--v-sp5);
   background: var(--v-surface);
   border: 1px solid var(--v-line);
   border-radius: var(--v-radius-card);
+  box-shadow: var(--v-shadow-md);
   width: 100%;
   max-width: 400px;
 }

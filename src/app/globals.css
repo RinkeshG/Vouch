@@ -1,40 +1,49 @@
 /* ============================================================
    Vouch Design Tokens
-   Paper-and-ink aesthetic. One accent. 4px grid. No exceptions.
+   Warm paper-and-ink aesthetic. Editorial magazine feel.
+   4px grid. Fraunces + Instrument Sans. One accent (rust).
    ============================================================ */
 
 :root {
-  /* — Colors — */
-  --v-paper: #F6F5F2;
-  --v-surface: #FFFFFF;
-  --v-surface-dim: #EDECE9;
-  --v-ink: #0F0F0E;
-  --v-ink2: #5C5752;
-  --v-ink3: #9A958F;
-  --v-seal: #BF3A2B;
-  --v-seal-hover: #A83225;
-  --v-seal-pressed: #952D20;
-  --v-seal-dim: rgba(191, 58, 43, 0.07);
-  --v-seal-wash: rgba(191, 58, 43, 0.12);
-  --v-line: rgba(15, 15, 14, 0.07);
-  --v-line-strong: rgba(15, 15, 14, 0.14);
-  --v-faint: rgba(15, 15, 14, 0.05);
-  --v-muted: rgba(15, 15, 14, 0.45);
+  /* — Colors (warm paper palette) — */
+  --v-paper: #F2ECDF;
+  --v-surface: #FAF7F0;
+  --v-surface-dim: #EBE6D9;
+  --v-ink: #181210;
+  --v-ink2: #564E44;
+  --v-ink3: #948A7C;
+  --v-seal: #B8412C;
+  --v-seal-hover: #A33824;
+  --v-seal-pressed: #8F3120;
+  --v-seal-dim: rgba(184, 65, 44, 0.07);
+  --v-seal-wash: rgba(184, 65, 44, 0.12);
+  --v-line: rgba(24, 18, 16, 0.08);
+  --v-line-strong: rgba(24, 18, 16, 0.15);
+  --v-faint: rgba(24, 18, 16, 0.04);
+  --v-muted: rgba(24, 18, 16, 0.45);
+
+  /* — Accent palette (sage, ochre for badges/highlights) — */
+  --v-sage: #7A8472;
+  --v-sage-dim: rgba(122, 132, 114, 0.10);
+  --v-ochre: #C49A4A;
+  --v-ochre-dim: rgba(196, 154, 74, 0.10);
+  --v-cream: #FBF6E9;
 
   /* — Dark surfaces (share cards, OG images, footer) — */
-  --v-dark-paper: #111110;
-  --v-dark-surface: #1A1918;
-  --v-dark-ink: #EDEBE7;
-  --v-dark-ink2: #9A958F;
+  --v-dark-paper: #121110;
+  --v-dark-surface: #1C1A18;
+  --v-dark-ink: #EDE8DF;
+  --v-dark-ink2: #948A7C;
   --v-dark-seal: #D95640;
-  --v-dark-line: rgba(237, 235, 231, 0.08);
-  --v-dark-line-strong: rgba(237, 235, 231, 0.16);
-  --v-dark-muted: rgba(246, 245, 242, 0.50);
+  --v-dark-line: rgba(237, 232, 223, 0.08);
+  --v-dark-line-strong: rgba(237, 232, 223, 0.16);
+  --v-dark-muted: rgba(242, 236, 223, 0.50);
 
   /* — Typography — */
-  --v-font-serif: 'Gambarino', serif;
-  --v-font-sans: 'General Sans', sans-serif;
-  --v-font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --v-font-serif: 'Fraunces', serif;
+  --v-font-sans: 'Instrument Sans', sans-serif;
+  --v-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --v-font-hand: 'Caveat', cursive;
 
   /* — Spacing (4px grid) — */
   --v-sp1: 4px;
@@ -55,13 +64,21 @@
   --v-radius-card: 14px;
   --v-radius-pill: 9999px;
 
-  /* — Shadows — */
-  --v-shadow-sm: 0 1px 2px rgba(15, 15, 14, 0.06);
-  --v-shadow-md: 0 2px 8px rgba(15, 15, 14, 0.08);
-  --v-shadow-lg: 0 4px 16px rgba(15, 15, 14, 0.10);
+  /* — Shadows (layered, warm) — */
+  --v-shadow-sm: 0 1px 3px rgba(24, 18, 16, 0.06);
+  --v-shadow-md:
+    0 4px 12px rgba(24, 18, 16, 0.08),
+    0 1px 3px rgba(24, 18, 16, 0.04);
+  --v-shadow-lg:
+    0 8px 24px rgba(24, 18, 16, 0.10),
+    0 2px 6px rgba(24, 18, 16, 0.05);
+  --v-shadow-xl:
+    0 12px 40px rgba(24, 18, 16, 0.12),
+    0 4px 12px rgba(24, 18, 16, 0.06);
 
   /* — Transitions — */
   --v-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --v-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --v-duration-fast: 120ms;
   --v-duration-base: 200ms;
   --v-duration-normal: 200ms;
@@ -74,16 +91,16 @@
   --v-safe-left: env(safe-area-inset-left, 0px);
   --v-safe-right: env(safe-area-inset-right, 0px);
 
-  /* — Avatar tints — */
-  --v-tint-0: #E8D5C4;
-  --v-tint-1: #C4D4C0;
-  --v-tint-2: #C9D1DC;
-  --v-tint-3: #D4C4B0;
-  --v-tint-4: #B8C8C0;
-  --v-tint-5: #D0C4D4;
-  --v-tint-6: #C8D0B8;
-  --v-tint-7: #DCC8B4;
-  --v-tint-8: #B4C4CC;
+  /* — Avatar tints (warmed) — */
+  --v-tint-0: #E4CEBC;
+  --v-tint-1: #C2D0BC;
+  --v-tint-2: #C0C9D4;
+  --v-tint-3: #D4C0AC;
+  --v-tint-4: #B4C4BC;
+  --v-tint-5: #CCBCD0;
+  --v-tint-6: #C4CCB4;
+  --v-tint-7: #D8C4B0;
+  --v-tint-8: #B0C0C8;
 }
 
 
@@ -162,6 +179,7 @@ ol {
   line-height: 1.0;
   letter-spacing: -0.02em;
   font-weight: 400;
+  font-variation-settings: 'opsz' 144;
 }
 
 .v-display {
@@ -170,6 +188,7 @@ ol {
   line-height: 1.08;
   letter-spacing: -0.02em;
   font-weight: 400;
+  font-variation-settings: 'opsz' 72;
 }
 
 .v-title {

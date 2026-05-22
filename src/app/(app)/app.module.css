@@ -16,9 +16,9 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--v-line);
-  background-color: var(--v-paper);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(242, 236, 223, 0.85);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
 }
 
 .topBarInner {
@@ -138,7 +138,7 @@
 }
 
 .authLinkPrimary:hover {
-  background: var(--v-ink-hover, #2a2a28);
+  background-color: #2C2420;
 }
 
 /* Avatar link */
