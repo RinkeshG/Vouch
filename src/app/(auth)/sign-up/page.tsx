@@ -226,6 +226,13 @@ export default function SignUpPage() {
           Sign in
         </Link>
       </p>
+
+      <p className={styles.footer} style={{ marginTop: "8px" }}>
+        Just looking?{" "}
+        <Link href="/home" className={styles.link}>
+          Preview the app &rarr;
+        </Link>
+      </p>
     </div>
   );
 }

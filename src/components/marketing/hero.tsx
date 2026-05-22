@@ -30,9 +30,9 @@ export function Hero() {
               Build your list
             </Button>
           </Link>
-          <Link href="/how-it-works">
+          <Link href="/home">
             <Button variant="ghost" size="lg">
-              See how it works
+              Preview the app
             </Button>
           </Link>
         </div>

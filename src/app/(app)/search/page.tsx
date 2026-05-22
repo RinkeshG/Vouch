@@ -1,14 +1,16 @@
 import {
-  isDemoMode,
   DEMO_USER,
   getDemoSuggestedPeople,
   getDemoPopularPlaces,
 } from "@/lib/demo";
+import { tryGetUser } from "@/lib/demo-server";
 import { SearchClient } from "./search-client";
 
 export default async function SearchPage() {
+  const user = await tryGetUser();
+
   // Demo mode
-  if (isDemoMode()) {
+  if (!user) {
     return (
       <SearchClient
         suggestedPeople={getDemoSuggestedPeople()}
@@ -22,12 +24,6 @@ export default async function SearchPage() {
   // Production
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
 
   const { data: suggestedPeople } = await supabase
     .from("profiles")

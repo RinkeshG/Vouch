@@ -1,17 +1,21 @@
 /**
  * Demo Mode
  *
- * Auto-activates when Supabase env vars aren't set.
- * Provides realistic mock data so every screen works
- * without any backend. Add your env vars to disable.
+ * Auto-activates when Supabase env vars aren't set, OR
+ * when the user isn't authenticated. Provides realistic
+ * mock data so every screen works without any backend.
  */
 
-export function isDemoMode(): boolean {
+/** True when Supabase env vars are missing (server & client) */
+export function isSupabaseMissing(): boolean {
   return (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 }
+
+// NOTE: tryGetUser() is in demo-server.ts to avoid bundling
+// server-only code into client components.
 
 // ============================================================
 // Mock Users

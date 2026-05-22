@@ -1,14 +1,16 @@
 import {
-  isDemoMode,
   DEMO_USER,
   DEMO_SAVED_PLACE_IDS,
   DEMO_PLACES,
 } from "@/lib/demo";
+import { tryGetUser } from "@/lib/demo-server";
 import { SavedClient } from "./saved-client";
 
 export default async function SavedPage() {
+  const user = await tryGetUser();
+
   // Demo mode
-  if (isDemoMode()) {
+  if (!user) {
     const savedPlaces = DEMO_SAVED_PLACE_IDS.map((placeId) => {
       const place = DEMO_PLACES.find((p) => p.id === placeId);
       return {
@@ -34,19 +36,11 @@ export default async function SavedPage() {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
   const { data: savedData } = await supabase
     .from("saved_places")
     .select(
       `
-      id,
-      place_id,
-      saved_at,
+      id, place_id, saved_at,
       places!saved_places_place_id_fkey ( id, name, area, vouch_count )
     `
     )

@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import {
-  isDemoMode,
   DEMO_USER,
   DEMO_SAVED_PLACE_IDS,
   getDemoPlace,
   getDemoPlaceVouches,
 } from "@/lib/demo";
+import { tryGetUser } from "@/lib/demo-server";
 import { PlaceDetailClient } from "./place-client";
 
 interface PageProps {
@@ -14,9 +14,10 @@ interface PageProps {
 
 export default async function PlacePage({ params }: PageProps) {
   const { id } = await params;
+  const user = await tryGetUser();
 
   // Demo mode
-  if (isDemoMode()) {
+  if (!user) {
     const place = getDemoPlace(id);
     if (!place) notFound();
 
@@ -59,12 +60,6 @@ export default async function PlacePage({ params }: PageProps) {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
   const { data: place } = await supabase
     .from("places")
     .select("*")
@@ -77,11 +72,7 @@ export default async function PlacePage({ params }: PageProps) {
     .from("vouches")
     .select(
       `
-      id,
-      take,
-      context_tags,
-      created_at,
-      user_id,
+      id, take, context_tags, created_at, user_id,
       profiles!vouches_user_id_fkey ( handle, display_name, avatar_url )
     `
     )
