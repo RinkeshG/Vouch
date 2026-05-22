@@ -20,11 +20,16 @@ export default async function NewListPage() {
     .eq("id", user.id)
     .maybeSingle();
 
+  // No profile → send to claim-handle to set up handle + name first
+  if (!profile || !profile.handle || profile.handle.startsWith("user_")) {
+    redirect("/claim-handle");
+  }
+
   return (
     <NewListClient
       userId={user.id}
-      handle={profile?.handle || "user"}
-      city={profile?.city || "bangalore"}
+      handle={profile.handle}
+      city={profile.city || "bangalore"}
     />
   );
 }

@@ -18,6 +18,14 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // Claim-handle: always let through (needs auth but shouldn't redirect)
+  if (pathname === "/claim-handle") {
+    if (!user) {
+      return NextResponse.redirect(new URL("/sign-up", request.url));
+    }
+    return response;
+  }
+
   // Auth pages: already-authenticated users go to their profile
   if ((pathname === "/sign-up" || pathname === "/sign-in") && user) {
     // Fetch handle to redirect to profile

@@ -36,18 +36,17 @@ export async function GET(request: Request) {
             }
           }
 
-          // Google OAuth users get auto-generated handles (user_XXXXXXXX)
-          // Send them to claim a real username first
-          if (profile && profile.handle.startsWith("user_")) {
+          // No profile or auto-generated handle → set up profile first
+          if (!profile || profile.handle.startsWith("user_")) {
             return NextResponse.redirect(`${origin}/claim-handle`);
           }
 
-          // Returning user — go to their profile
-          if (profile && profile.onboarding_step >= 4) {
+          // Returning user with proper handle → profile page
+          if (profile.handle) {
             return NextResponse.redirect(`${origin}/@${profile.handle}`);
           }
 
-          // New user — go to create their first list (or wherever `next` points)
+          // Fallback → create first list
           return NextResponse.redirect(`${origin}${next}`);
         }
       }

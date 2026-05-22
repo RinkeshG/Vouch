@@ -11,8 +11,10 @@ import styles from "./claim-handle.module.css";
 type HandleStatus = "idle" | "checking" | "available" | "taken" | "invalid";
 
 /**
- * Interstitial for Google OAuth users who got an auto-generated handle.
- * They need to pick a real handle before proceeding to onboarding.
+ * Set up your Vouch profile — pick a handle and display name.
+ * Covers two cases:
+ *   1. Profile exists with auto-generated handle (user_XXXXX) → UPDATE
+ *   2. Profile doesn't exist at all (trigger didn't fire) → INSERT
  */
 export default function ClaimHandlePage() {
   const router = useRouter();
@@ -23,25 +25,46 @@ export default function ClaimHandlePage() {
   const [handleStatus, setHandleStatus] = useState<HandleStatus>("idle");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [profileExists, setProfileExists] = useState<boolean | null>(null);
 
-  // Load existing display name from Google profile
+  // Check if profile exists + load any existing data
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        router.push("/sign-in");
+        return;
+      }
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, handle")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (profile?.display_name && profile.display_name !== "New User") {
-        setDisplayName(profile.display_name);
+      if (profile) {
+        setProfileExists(true);
+        // If they already have a proper handle, send them to /new
+        if (profile.handle && !profile.handle.startsWith("user_")) {
+          router.push("/new");
+          return;
+        }
+        if (profile.display_name && profile.display_name !== "New User") {
+          setDisplayName(profile.display_name);
+        }
+      } else {
+        setProfileExists(false);
+        // Pre-fill display name from auth metadata
+        const name = user.user_metadata?.display_name
+          || user.user_metadata?.full_name
+          || user.user_metadata?.name
+          || user.email?.split("@")[0]
+          || "";
+        if (name) setDisplayName(name);
       }
     }
     load();
-  }, [supabase]);
+  }, [supabase, router]);
 
   const validateHandle = useCallback((value: string) => {
     if (!value) {
@@ -103,26 +126,52 @@ export default function ClaimHandlePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          handle,
-          display_name: displayName.trim(),
-        })
-        .eq("id", user.id);
+      if (profileExists) {
+        // Profile exists — update handle + display name
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            handle,
+            display_name: displayName.trim(),
+          })
+          .eq("id", user.id);
 
-      if (updateError) {
-        if (updateError.message.includes("unique")) {
-          setHandleStatus("taken");
-          setError("This username was just taken. Try another.");
-        } else {
-          setError("Something went wrong. Please try again.");
+        if (updateError) {
+          if (updateError.message.includes("unique")) {
+            setHandleStatus("taken");
+            setError("This username was just taken. Try another.");
+          } else {
+            setError("Something went wrong. Please try again.");
+            console.error("Profile update error:", updateError.message);
+          }
+          setLoading(false);
+          return;
         }
-        setLoading(false);
-        return;
+      } else {
+        // No profile row — insert a new one
+        const { error: insertError } = await supabase
+          .from("profiles")
+          .insert({
+            id: user.id,
+            handle,
+            display_name: displayName.trim(),
+            avatar_tint: Math.floor(Math.random() * 9),
+          });
+
+        if (insertError) {
+          if (insertError.message.includes("unique")) {
+            setHandleStatus("taken");
+            setError("This username was just taken. Try another.");
+          } else {
+            setError("Something went wrong. Please try again.");
+            console.error("Profile insert error:", insertError.message);
+          }
+          setLoading(false);
+          return;
+        }
       }
 
-      router.push("/onboarding");
+      router.push("/new");
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -133,8 +182,8 @@ export default function ClaimHandlePage() {
     <div>
       <h1 className={styles.title}>Pick your username</h1>
       <p className={styles.sub}>
-        One more thing — pick a unique username for your Vouch profile.
-        This is how friends will find you.
+        Choose a unique username for your Vouch profile.
+        This is how people will find your lists.
       </p>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -183,7 +232,7 @@ export default function ClaimHandlePage() {
           loading={loading}
           disabled={handleStatus !== "available" || !displayName.trim()}
         >
-          Continue to onboarding
+          Continue
         </Button>
       </form>
     </div>
