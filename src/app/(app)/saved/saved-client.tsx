@@ -21,20 +21,16 @@ interface SavedPlace {
 interface SavedClientProps {
   savedPlaces: SavedPlace[];
   currentUserId: string;
-  isDemo?: boolean;
 }
 
 export function SavedClient({
   savedPlaces: initialPlaces,
   currentUserId,
-  isDemo = false,
 }: SavedClientProps) {
   const [places, setPlaces] = useState(initialPlaces);
 
   async function unsavePlace(placeId: string) {
     setPlaces((prev) => prev.filter((p) => p.placeId !== placeId));
-
-    if (isDemo) return;
 
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();

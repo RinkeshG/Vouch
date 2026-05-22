@@ -42,7 +42,6 @@ interface PlaceDetailClientProps {
   vouches: PlaceVouch[];
   isSaved: boolean;
   currentUserId: string;
-  isDemo?: boolean;
 }
 
 export function PlaceDetailClient({
@@ -50,7 +49,6 @@ export function PlaceDetailClient({
   vouches,
   isSaved: initialSaved,
   currentUserId,
-  isDemo = false,
 }: PlaceDetailClientProps) {
   const [saved, setSaved] = useState(initialSaved);
   const [listModalOpen, setListModalOpen] = useState(false);
@@ -72,8 +70,6 @@ export function PlaceDetailClient({
   async function toggleSave() {
     const newSaved = !saved;
     setSaved(newSaved);
-
-    if (isDemo) return;
 
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();

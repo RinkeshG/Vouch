@@ -1,13 +1,6 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  DEMO_USER,
-  DEMO_SAVED_PLACE_IDS,
-  DEMO_PLACES,
-  getDemoProfile,
-  getDemoProfileVouches,
-} from "@/lib/demo";
-import { tryGetUser } from "@/lib/demo-server";
+import { createClient } from "@/lib/supabase/server";
 import { ProfileClient } from "./profile-client";
 
 interface PageProps {
@@ -38,61 +31,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProfilePage({ params }: PageProps) {
   const { handle } = await params;
-  const user = await tryGetUser();
-
-  // Demo mode
-  if (!user) {
-    const profile = getDemoProfile(handle);
-    if (!profile) notFound();
-
-    const isOwnProfile = profile.id === DEMO_USER.id;
-    const placeMap = new Map(DEMO_PLACES.map((p) => [p.id, p]));
-    const vouches = getDemoProfileVouches(profile.id).map((v) => {
-      const place = placeMap.get(v.placeId);
-      return {
-        id: v.id,
-        take: v.take,
-        contextTags: v.contextTags,
-        createdAt: v.createdAt,
-        placeId: v.placeId,
-        placeName: v.placeName,
-        placeArea: v.placeArea,
-        placeCuisine: place?.cuisines?.[0] || "",
-        placeImageUrl: place?.coverImageUrl || null,
-      };
-    });
-
-    return (
-      <ProfileClient
-        profile={{
-          id: profile.id,
-          handle: profile.handle,
-          displayName: profile.displayName,
-          bio: profile.bio,
-          tasteLine: profile.tasteLine || null,
-          avatarUrl: profile.avatarUrl,
-          avatarTint: profile.avatarTint,
-          isPublic: profile.isPublic,
-          vouchCount: profile.vouchCount,
-          followerCount: profile.followerCount,
-          followingCount: profile.followingCount,
-          listCount: profile.listCount,
-          city: "city" in profile ? String(profile.city) : "Bangalore",
-        }}
-        vouches={vouches}
-        isOwnProfile={isOwnProfile}
-        isFollowing={!isOwnProfile}
-        savedPlaceIds={DEMO_SAVED_PLACE_IDS}
-        currentUserId={DEMO_USER.id}
-        isDemo
-      />
-    );
-  }
-
-  // Production
-  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Fetch profile — public profiles are readable by all (RLS policy)
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
@@ -101,8 +46,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
   if (!profile) notFound();
 
-  const isOwnProfile = profile.id === user.id;
-
+  // Fetch vouches (public data)
   const { data: vouchesData } = await supabase
     .from("vouches")
     .select(
@@ -127,6 +71,7 @@ export default async function ProfilePage({ params }: PageProps) {
     placeImageUrl: v.places?.cover_image_url || null,
   }));
 
+  // Follower/following counts (public data)
   const { count: followerCount } = await supabase
     .from("follows")
     .select("id", { count: "exact", head: true })
@@ -138,6 +83,61 @@ export default async function ProfilePage({ params }: PageProps) {
     .select("id", { count: "exact", head: true })
     .eq("follower_id", profile.id)
     .eq("status", "active");
+
+  // Fetch user's lists (public data)
+  const { data: listsData } = await supabase
+    .from("lists")
+    .select("id, title, description, is_public, created_at, updated_at")
+    .eq("user_id", profile.id)
+    .order("updated_at", { ascending: false });
+
+  const listsWithCounts = await Promise.all(
+    (listsData || []).map(async (list) => {
+      const { count } = await supabase
+        .from("list_places")
+        .select("id", { count: "exact", head: true })
+        .eq("list_id", list.id);
+      return {
+        id: list.id,
+        title: list.title,
+        description: list.description,
+        placeCount: count || 0,
+        updatedAt: list.updated_at,
+      };
+    })
+  );
+
+  // If no authenticated user, show public view without follow/saved data
+  if (!user) {
+    return (
+      <ProfileClient
+        profile={{
+          id: profile.id,
+          handle: profile.handle,
+          displayName: profile.display_name,
+          bio: profile.bio,
+          tasteLine: profile.taste_line,
+          avatarUrl: profile.avatar_url,
+          avatarTint: profile.avatar_tint,
+          isPublic: profile.is_public,
+          vouchCount: vouches.length,
+          followerCount: followerCount || 0,
+          followingCount: followingCount || 0,
+          listCount: listsWithCounts.length,
+          city: profile.city ? String(profile.city).charAt(0).toUpperCase() + String(profile.city).slice(1) : "Bangalore",
+        }}
+        vouches={vouches}
+        isOwnProfile={false}
+        isFollowing={false}
+        savedPlaceIds={[]}
+        currentUserId=""
+        lists={listsWithCounts}
+      />
+    );
+  }
+
+  // Authenticated — get follow/saved state
+  const isOwnProfile = profile.id === user.id;
 
   let isFollowing = false;
   if (!isOwnProfile) {
@@ -155,30 +155,6 @@ export default async function ProfilePage({ params }: PageProps) {
     .from("saved_places")
     .select("place_id")
     .eq("user_id", user.id);
-
-  // Fetch user's lists
-  const { data: listsData } = await supabase
-    .from("lists")
-    .select("id, title, description, is_public, created_at, updated_at")
-    .eq("user_id", profile.id)
-    .order("updated_at", { ascending: false });
-
-  // For each list, get place count
-  const listsWithCounts = await Promise.all(
-    (listsData || []).map(async (list) => {
-      const { count } = await supabase
-        .from("list_places")
-        .select("id", { count: "exact", head: true })
-        .eq("list_id", list.id);
-      return {
-        id: list.id,
-        title: list.title,
-        description: list.description,
-        placeCount: count || 0,
-        updatedAt: list.updated_at,
-      };
-    })
-  );
 
   return (
     <ProfileClient

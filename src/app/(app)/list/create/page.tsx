@@ -8,18 +8,9 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import styles from "./create.module.css";
 
-function isClientDemoMode() {
-  return (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-}
-
 export default function CreateListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isDemo = isClientDemoMode();
-
   const placeId = searchParams.get("placeId");
   const placeName = searchParams.get("placeName");
 
@@ -35,12 +26,6 @@ export default function CreateListPage() {
     }
     setError(null);
     setSaving(true);
-
-    if (isDemo) {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      router.push("/home");
-      return;
-    }
 
     try {
       const { createClient } = await import("@/lib/supabase/client");

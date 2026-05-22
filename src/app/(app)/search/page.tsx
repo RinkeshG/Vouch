@@ -1,36 +1,30 @@
-import {
-  DEMO_USER,
-  getDemoSuggestedPeople,
-  getDemoPopularPlaces,
-} from "@/lib/demo";
-import { tryGetUser } from "@/lib/demo-server";
+import { createClient } from "@/lib/supabase/server";
 import { SearchClient } from "./search-client";
 
 export default async function SearchPage() {
-  const user = await tryGetUser();
+  const supabase = await createClient();
 
-  // Demo mode
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Middleware ensures auth, but just in case
   if (!user) {
     return (
       <SearchClient
-        suggestedPeople={getDemoSuggestedPeople()}
-        popularPlaces={getDemoPopularPlaces()}
-        currentUserId={DEMO_USER.id}
-        isDemo
+        suggestedPeople={[]}
+        popularPlaces={[]}
+        currentUserId=""
       />
     );
   }
 
-  // Production
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
-
   const { data: suggestedPeople } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, avatar_url, vouch_count, taste_line, bio")
+    .select("id, handle, display_name, avatar_url, taste_line, bio")
     .eq("is_public", true)
     .neq("id", user.id)
-    .order("vouch_count", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(10);
 
   const { data: popularPlaces } = await supabase
@@ -42,7 +36,7 @@ export default async function SearchPage() {
 
   return (
     <SearchClient
-      suggestedPeople={suggestedPeople || []}
+      suggestedPeople={(suggestedPeople || []).map((p) => ({ ...p, vouch_count: 0 }))}
       popularPlaces={popularPlaces || []}
       currentUserId={user.id}
     />

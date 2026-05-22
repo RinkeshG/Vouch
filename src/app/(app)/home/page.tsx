@@ -1,11 +1,15 @@
-import { tryGetUser } from "@/lib/demo-server";
+import { createClient } from "@/lib/supabase/server";
 import { HomeFeedClient } from "./feed-client";
 import type { FeedItem } from "./feed-client";
 
 export default async function HomePage() {
-  const user = await tryGetUser();
+  const supabase = await createClient();
 
-  // Not authenticated — show empty state prompting sign-up
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Middleware ensures auth, but just in case
   if (!user) {
     return (
       <HomeFeedClient
@@ -15,9 +19,6 @@ export default async function HomePage() {
       />
     );
   }
-
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
 
   // Get circle IDs (people the user follows)
   const { data: circleFollows } = await supabase

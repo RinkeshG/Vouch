@@ -52,7 +52,6 @@ interface ProfileClientProps {
   isFollowing: boolean;
   savedPlaceIds: string[];
   currentUserId: string;
-  isDemo?: boolean;
   lists?: ProfileList[];
 }
 
@@ -63,7 +62,6 @@ export function ProfileClient({
   isFollowing: initialFollowing,
   savedPlaceIds,
   currentUserId,
-  isDemo = false,
   lists = [],
 }: ProfileClientProps) {
   const [following, setFollowing] = useState(initialFollowing);
@@ -141,8 +139,6 @@ export function ProfileClient({
     const newFollowing = !following;
     setFollowing(newFollowing);
     setFollowerCount((c) => c + (newFollowing ? 1 : -1));
-
-    if (isDemo) return;
 
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();

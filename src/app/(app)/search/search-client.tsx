@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Stamp } from "@/components/ui/stamp";
 import { EmptyState } from "@/components/app/empty-state";
 import { cn } from "@/lib/utils";
-import { searchDemoPlaces, searchDemoPeople } from "@/lib/demo";
+
 import styles from "./search.module.css";
 
 interface SuggestedPerson {
@@ -43,13 +43,11 @@ interface SearchClientProps {
   suggestedPeople: SuggestedPerson[];
   popularPlaces: PopularPlace[];
   currentUserId: string;
-  isDemo?: boolean;
 }
 
 export function SearchClient({
   suggestedPeople,
   popularPlaces,
-  isDemo = false,
 }: SearchClientProps) {
   const [query, setQuery] = useState("");
   const [searchType, setSearchType] = useState<"places" | "people">("places");
@@ -71,74 +69,46 @@ export function SearchClient({
       setHasSearched(true);
 
       try {
-        if (isDemo) {
-          if (searchType === "places") {
-            const places = searchDemoPlaces(q);
-            setResults(
-              places.map((p) => ({
-                type: "place" as const,
-                id: p.id,
-                name: p.name,
-                subtitle: p.area,
-                vouchCount: p.vouchCount,
-              }))
-            );
-          } else {
-            const people = searchDemoPeople(q);
-            setResults(
-              people.map((p) => ({
-                type: "person" as const,
-                id: p.id,
-                name: p.displayName,
-                subtitle: `@${p.handle}`,
-                handle: p.handle,
-                avatarUrl: p.avatarUrl,
-                vouchCount: p.vouchCount,
-              }))
-            );
-          }
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+
+        if (searchType === "places") {
+          const { data } = await supabase
+            .from("places")
+            .select("id, name, area, vouch_count")
+            .or(`name.ilike.%${q}%,area.ilike.%${q}%`)
+            .order("vouch_count", { ascending: false })
+            .limit(15);
+
+          setResults(
+            (data || []).map((p) => ({
+              type: "place" as const,
+              id: p.id,
+              name: p.name,
+              subtitle: p.area,
+              vouchCount: p.vouch_count,
+            }))
+          );
         } else {
-          const { createClient } = await import("@/lib/supabase/client");
-          const supabase = createClient();
+          const { data } = await supabase
+            .from("profiles")
+            .select("id, handle, display_name, avatar_url")
+            .eq("is_public", true)
+            .or(`handle.ilike.%${q}%,display_name.ilike.%${q}%`)
+            .order("created_at", { ascending: false })
+            .limit(15);
 
-          if (searchType === "places") {
-            const { data } = await supabase
-              .from("places")
-              .select("id, name, area, vouch_count")
-              .or(`name.ilike.%${q}%,area.ilike.%${q}%`)
-              .order("vouch_count", { ascending: false })
-              .limit(15);
-
-            setResults(
-              (data || []).map((p) => ({
-                type: "place" as const,
-                id: p.id,
-                name: p.name,
-                subtitle: p.area,
-                vouchCount: p.vouch_count,
-              }))
-            );
-          } else {
-            const { data } = await supabase
-              .from("profiles")
-              .select("id, handle, display_name, avatar_url, vouch_count")
-              .eq("is_public", true)
-              .or(`handle.ilike.%${q}%,display_name.ilike.%${q}%`)
-              .order("vouch_count", { ascending: false })
-              .limit(15);
-
-            setResults(
-              (data || []).map((p) => ({
-                type: "person" as const,
-                id: p.id,
-                name: p.display_name,
-                subtitle: `@${p.handle}`,
-                handle: p.handle,
-                avatarUrl: p.avatar_url,
-                vouchCount: p.vouch_count,
-              }))
-            );
-          }
+          setResults(
+            (data || []).map((p) => ({
+              type: "person" as const,
+              id: p.id,
+              name: p.display_name,
+              subtitle: `@${p.handle}`,
+              handle: p.handle,
+              avatarUrl: p.avatar_url,
+              vouchCount: 0,
+            }))
+          );
         }
       } catch {
         // Fail silently
@@ -146,7 +116,7 @@ export function SearchClient({
         setSearching(false);
       }
     },
-    [searchType, isDemo]
+    [searchType]
   );
 
   useEffect(() => {

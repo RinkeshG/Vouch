@@ -1,40 +1,17 @@
-import {
-  DEMO_USER,
-  DEMO_SAVED_PLACE_IDS,
-  DEMO_PLACES,
-} from "@/lib/demo";
-import { tryGetUser } from "@/lib/demo-server";
+import { createClient } from "@/lib/supabase/server";
 import { SavedClient } from "./saved-client";
 
 export default async function SavedPage() {
-  const user = await tryGetUser();
-
-  // Demo mode
-  if (!user) {
-    const savedPlaces = DEMO_SAVED_PLACE_IDS.map((placeId) => {
-      const place = DEMO_PLACES.find((p) => p.id === placeId);
-      return {
-        savedId: `saved-${placeId}`,
-        placeId,
-        name: place?.name || "Unknown",
-        area: place?.area || "",
-        vouchCount: place?.vouchCount || 0,
-        savedAt: new Date().toISOString(),
-      };
-    });
-
-    return (
-      <SavedClient
-        savedPlaces={savedPlaces}
-        currentUserId={DEMO_USER.id}
-        isDemo
-      />
-    );
-  }
-
-  // Production
-  const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Middleware ensures auth, but just in case
+  if (!user) {
+    return <SavedClient savedPlaces={[]} currentUserId="" />;
+  }
 
   const { data: savedData } = await supabase
     .from("saved_places")

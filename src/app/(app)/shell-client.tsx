@@ -1,10 +1,9 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { BottomNav } from "@/components/app/bottom-nav";
-import { DemoBanner } from "@/components/app/demo-banner";
 import { Avatar } from "@/components/ui/avatar";
 import { Stamp } from "@/components/ui/stamp";
 import { Icon } from "@/components/ui/icon";
@@ -31,7 +30,8 @@ interface AppShellClientProps {
   handle?: string;
   displayName?: string;
   avatarUrl?: string | null;
-  isDemo?: boolean;
+  currentUserId?: string;
+  vouchCount?: number;
   suggestedPeople?: SuggestedPerson[];
   trendingPlaces?: TrendingPlace[];
   children: ReactNode;
@@ -40,12 +40,15 @@ interface AppShellClientProps {
 export function AppShellClient({
   handle,
   displayName,
-  isDemo,
+  currentUserId,
+  vouchCount = 0,
   suggestedPeople = [],
   trendingPlaces = [],
   children,
 }: AppShellClientProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = (path: string) => {
     if (path === "/home") return pathname === "/home";
@@ -66,10 +69,17 @@ export function AppShellClient({
     { id: "profile", label: "Profile", icon: "users" as const, href: profileHref, badge: null },
   ];
 
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/search");
+    }
+  }
+
   return (
     <>
-      {isDemo && <DemoBanner />}
-
       {/* ---- Desktop Top Nav ---- */}
       <header className={styles.topNav}>
         <div className={styles.topNavLeft}>
@@ -77,17 +87,19 @@ export function AppShellClient({
           <Link href="/home" className={styles.wordmark}>vouch</Link>
         </div>
 
-        <div className={styles.searchBar}>
+        <form className={styles.searchBar} onSubmit={handleSearchSubmit}>
           <div className={styles.searchInner}>
             <Icon name="search" size={16} />
             <input
               className={styles.searchInput}
               placeholder="Search places, friends, lists…"
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <kbd className={styles.searchKbd}>⌘K</kbd>
           </div>
-        </div>
+        </form>
 
         <div className={styles.topNavRight}>
           <Link href="/add" className={styles.vouchBtn}>
@@ -96,7 +108,6 @@ export function AppShellClient({
           </Link>
           <button className={styles.notifBtn} aria-label="Notifications">
             <Icon name="bell" size={18} />
-            <span className={styles.notifDot} />
           </button>
           <Link href={profileHref} className={styles.avatarBtn}>
             <Avatar
@@ -136,15 +147,17 @@ export function AppShellClient({
           </nav>
 
           <div className={styles.progressWidget}>
-            <div className={styles.progressLabel}>Your vouch this month</div>
+            <div className={styles.progressLabel}>Your vouches</div>
             <div className={styles.progressNumber}>
-              3<span className={styles.progressFraction}>/12</span>
+              {vouchCount}<span className={styles.progressFraction}> places</span>
             </div>
             <div className={styles.progressBar}>
-              <div className={styles.progressFill} style={{ width: "25%" }} />
+              <div className={styles.progressFill} style={{ width: `${Math.min(100, (vouchCount / 12) * 100)}%` }} />
             </div>
             <div className={styles.progressHint}>
-              Vouch a place a week. Keep the canon honest.
+              {vouchCount < 4
+                ? "Vouch for more places to build your taste profile."
+                : "Vouch a place a week. Keep the canon honest."}
             </div>
           </div>
 
@@ -165,21 +178,11 @@ export function AppShellClient({
               <div className={styles.rightCardLabel}>People you might trust</div>
               <div className={styles.suggestList}>
                 {suggestedPeople.slice(0, 3).map((p) => (
-                  <div key={p.id} className={styles.suggestRow}>
-                    <Avatar
-                      handle={p.handle}
-                      name={p.display_name}
-                      imageUrl={p.avatar_url}
-                      size="sm"
-                    />
-                    <div className={styles.suggestInfo}>
-                      <div className={styles.suggestName}>{p.display_name}</div>
-                      <div className={styles.suggestSub}>
-                        {p.vouch_count} vouches
-                      </div>
-                    </div>
-                    <button className={styles.followBtn}>Follow</button>
-                  </div>
+                  <SuggestedPersonRow
+                    key={p.id}
+                    person={p}
+                    currentUserId={currentUserId}
+                  />
                 ))}
               </div>
               <Link href="/search" className={styles.seeAll}>See all →</Link>
@@ -222,5 +225,61 @@ export function AppShellClient({
       {/* ---- Mobile Bottom Nav ---- */}
       <BottomNav handle={handle} />
     </>
+  );
+}
+
+/* ============================================================
+   Suggested Person Row — with working follow button
+   ============================================================ */
+
+function SuggestedPersonRow({
+  person,
+  currentUserId,
+}: {
+  person: SuggestedPerson;
+  currentUserId?: string;
+}) {
+  const [following, setFollowing] = useState(false);
+
+  async function handleFollow() {
+    if (!currentUserId) return;
+    setFollowing(true);
+
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      await supabase.from("follows").insert({
+        follower_id: currentUserId,
+        following_id: person.id,
+      });
+    } catch {
+      setFollowing(false);
+    }
+  }
+
+  return (
+    <div className={styles.suggestRow}>
+      <Link href={`/${person.handle}`} style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
+        <Avatar
+          handle={person.handle}
+          name={person.display_name}
+          imageUrl={person.avatar_url}
+          size="sm"
+        />
+        <div className={styles.suggestInfo}>
+          <div className={styles.suggestName}>{person.display_name}</div>
+          <div className={styles.suggestSub}>
+            {person.vouch_count} vouches
+          </div>
+        </div>
+      </Link>
+      {following ? (
+        <span className={styles.followedLabel}>Following</span>
+      ) : (
+        <button className={styles.followBtn} onClick={handleFollow}>
+          Follow
+        </button>
+      )}
+    </div>
   );
 }

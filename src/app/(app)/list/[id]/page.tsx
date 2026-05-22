@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { tryGetUser } from "@/lib/demo-server";
+import { createClient } from "@/lib/supabase/server";
 import { ListDetailClient } from "./list-client";
 
 interface PageProps {
@@ -8,16 +8,16 @@ interface PageProps {
 
 export default async function ListPage({ params }: PageProps) {
   const { id } = await params;
-  const user = await tryGetUser();
+  const supabase = await createClient();
 
-  // Demo mode — lists require real data
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Middleware redirects unauthenticated users
   if (!user) {
     notFound();
   }
-
-  // Production
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
 
   const { data: list } = await supabase
     .from("lists")

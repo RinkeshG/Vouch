@@ -1,72 +1,38 @@
-import {
-  DEMO_USER,
-  isSupabaseMissing,
-  getDemoSuggestedPeople,
-  getDemoPopularPlaces,
-} from "@/lib/demo";
 import { AppShellClient } from "./shell-client";
 
 export const dynamic = "force-dynamic";
-
-function DemoShell({ children }: { children: React.ReactNode }) {
-  const suggestedPeople = getDemoSuggestedPeople().map((p) => ({
-    id: p.id,
-    handle: p.handle,
-    display_name: p.display_name,
-    avatar_url: p.avatar_url,
-    vouch_count: p.vouch_count,
-  }));
-
-  const trendingPlaces = getDemoPopularPlaces().slice(0, 3).map((p) => ({
-    id: p.id,
-    name: p.name,
-    area: p.area,
-    cuisines: p.cuisines,
-    vouch_count: p.vouch_count,
-  }));
-
-  return (
-    <AppShellClient
-      handle={DEMO_USER.handle}
-      displayName={DEMO_USER.displayName}
-      avatarUrl={DEMO_USER.avatarUrl}
-      isDemo
-      suggestedPeople={suggestedPeople}
-      trendingPlaces={trendingPlaces}
-    >
-      {children}
-    </AppShellClient>
-  );
-}
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // If Supabase isn't configured, serve demo mode
-  if (isSupabaseMissing()) {
-    return <DemoShell>{children}</DemoShell>;
-  }
-
-  // Supabase is configured — try to authenticate
   let user = null;
   try {
     const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient();
-
     const { data } = await supabase.auth.getUser();
     user = data.user;
   } catch {
-    // Auth check failed (rate limited, network) — fall through
+    // Auth check failed — fall through
   }
 
-  // Not authenticated → demo mode
+  // Not authenticated — minimal shell for public pages (e.g. /[handle])
   if (!user) {
-    return <DemoShell>{children}</DemoShell>;
+    return (
+      <AppShellClient
+        handle="user"
+        displayName="User"
+        avatarUrl={null}
+        suggestedPeople={[]}
+        trendingPlaces={[]}
+      >
+        {children}
+      </AppShellClient>
+    );
   }
 
-  // Authenticated — get profile (separate try/catch so auth errors don't cascade)
+  // Authenticated — get profile and sidebar data
   try {
     const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient();
@@ -77,20 +43,26 @@ export default async function AppLayout({
       .eq("id", user.id)
       .single();
 
-    // If profile doesn't exist yet or onboarding incomplete,
-    // still show real shell (not demo) with fallback values
     const handle = profile?.handle || "user";
     const displayName = profile?.display_name || "User";
     const avatarUrl = profile?.avatar_url || null;
 
-    // Fetch sidebar data — these are non-critical, failures are fine
+    // Fetch suggested people (exclude self, exclude already-followed)
+    const { data: followingIds } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", user.id)
+      .eq("status", "active");
+
+    const excludeIds = [user.id, ...(followingIds || []).map((f) => f.following_id)];
+
     const { data: suggestedPeople } = await supabase
       .from("profiles")
       .select("id, handle, display_name, avatar_url")
       .eq("is_public", true)
-      .neq("id", user.id)
+      .not("id", "in", `(${excludeIds.join(",")})`)
       .order("created_at", { ascending: false })
-      .limit(3);
+      .limit(5);
 
     const { data: trendingPlaces } = await supabase
       .from("places")
@@ -99,11 +71,19 @@ export default async function AppLayout({
       .gt("vouch_count", 0)
       .limit(3);
 
+    // Get user's vouch count for progress widget
+    const { count: vouchCount } = await supabase
+      .from("vouches")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
     return (
       <AppShellClient
         handle={handle}
         displayName={displayName}
         avatarUrl={avatarUrl}
+        currentUserId={user.id}
+        vouchCount={vouchCount || 0}
         suggestedPeople={(suggestedPeople || []).map((p) => ({
           ...p,
           vouch_count: 0,
@@ -114,13 +94,12 @@ export default async function AppLayout({
       </AppShellClient>
     );
   } catch {
-    // Profile/sidebar queries failed but user IS authenticated
-    // Show real shell with fallback values — never dump back to demo
     return (
       <AppShellClient
         handle="user"
         displayName="User"
         avatarUrl={null}
+        currentUserId={user.id}
         suggestedPeople={[]}
         trendingPlaces={[]}
       >
