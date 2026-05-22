@@ -1,15 +1,62 @@
 /* ============================================================
-   Place Detail Page
+   Place Detail — Visual dossier with cuisine-colored hero
    ============================================================ */
 
 .page {
   min-height: 100dvh;
+  background-color: var(--v-paper);
 }
 
-/* Place hero */
+/* Top bar floats over hero */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+}
+
+/* ---- Visual hero (cuisine gradient) ---- */
 .hero {
-  padding: var(--v-sp5) var(--v-sp4);
-  border-bottom: 1px solid var(--v-line);
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroIcon {
+  font-size: 56px;
+  opacity: 0.85;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  z-index: 1;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 25% 40%, rgba(255, 255, 255, 0.2) 0%, transparent 60%),
+    radial-gradient(circle at 75% 60%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.08) 100%);
+  pointer-events: none;
+}
+
+/* ---- Info card (overlaps hero bottom) ---- */
+.infoCard {
+  position: relative;
+  z-index: 2;
+  margin: -32px var(--v-sp4) 0;
+  background-color: #fff;
+  border-radius: var(--v-radius-card);
+  box-shadow: var(--v-shadow-md);
+  border: 1px solid var(--v-line);
+  padding: var(--v-sp5);
 }
 
 .placeName {
@@ -28,6 +75,7 @@
   color: var(--v-muted);
   font-size: 14px;
   flex-wrap: wrap;
+  margin-bottom: var(--v-sp3);
 }
 
 .metaDot {
@@ -38,38 +86,99 @@
   flex-shrink: 0;
 }
 
-.vouchCount {
-  display: flex;
-  align-items: center;
-  gap: var(--v-sp1);
+.priceDots {
+  letter-spacing: 2px;
+  font-size: 10px;
+}
+
+.closedBadge {
   color: var(--v-seal);
   font-weight: 600;
 }
 
+/* Cuisine pills */
 .cuisines {
   display: flex;
   gap: var(--v-sp1);
   flex-wrap: wrap;
-  margin-top: var(--v-sp3);
+  margin-bottom: var(--v-sp3);
 }
 
-/* Action bar below hero */
-.actionBar {
+.cuisinePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: var(--v-radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  background-color: var(--pill-bg, var(--v-faint));
+  color: var(--pill-color, var(--v-ink));
+}
+
+/* Vouch badge */
+.vouchBadge {
   display: flex;
   align-items: center;
   gap: var(--v-sp2);
-  padding: var(--v-sp3) var(--v-sp4);
+  margin-bottom: var(--v-sp3);
+  padding: var(--v-sp2) var(--v-sp3);
+  background-color: rgba(191, 58, 43, 0.06);
+  border-radius: var(--v-radius-input);
+}
+
+.vouchCount {
+  font-family: var(--v-font-serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--v-seal);
+  line-height: 1;
+}
+
+.vouchLabel {
+  font-size: 13px;
+  color: var(--v-seal);
+  opacity: 0.8;
+}
+
+/* Social proof */
+.socialProof {
+  margin-bottom: var(--v-sp3);
+  padding-bottom: var(--v-sp3);
   border-bottom: 1px solid var(--v-line);
 }
 
-.actionBarSpacer {
-  flex: 1;
+/* Mood/context tags */
+.moodTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--v-sp1);
+  margin-bottom: var(--v-sp4);
 }
 
-/* Tabs */
+.moodTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: var(--v-radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--v-muted);
+  background-color: var(--v-faint);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--v-sp2);
+}
+
+/* ---- Tabs ---- */
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--v-line);
+  margin-top: var(--v-sp4);
 }
 
 .tab {
@@ -90,58 +199,82 @@
 
 .tabActive {
   color: var(--v-ink);
-  border-bottom-color: var(--v-ink);
+  border-bottom-color: var(--v-seal);
 }
 
-/* Vouches list */
+/* ---- Vouches list ---- */
 .vouches {
   display: flex;
   flex-direction: column;
 }
 
-/* Info section */
-.info {
+/* ---- Details tab ---- */
+.details {
   padding: var(--v-sp4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--v-sp4);
 }
 
-.infoRow {
+.detailCard {
+  background-color: #fff;
+  border-radius: var(--v-radius-card);
+  box-shadow: var(--v-shadow-sm);
+  border: 1px solid var(--v-line);
+  overflow: hidden;
+}
+
+.detailRow {
   display: flex;
   align-items: flex-start;
   gap: var(--v-sp3);
+  padding: var(--v-sp3) var(--v-sp4);
+  border-bottom: 1px solid var(--v-line);
 }
 
-.infoIcon {
-  color: var(--v-muted);
-  flex-shrink: 0;
-  margin-top: 2px;
+.detailRow:last-child {
+  border-bottom: none;
 }
 
-.infoText {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--v-ink);
-}
-
-.infoLink {
-  color: var(--v-seal);
-}
-
-.infoLink:hover {
-  text-decoration: underline;
-}
-
-/* Map placeholder */
-.mapPlaceholder {
-  height: 180px;
+.detailIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--v-radius-input);
   background-color: var(--v-faint);
-  border-radius: var(--v-radius-card);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--v-muted);
-  font-size: 13px;
-  margin: 0 var(--v-sp4) var(--v-sp4);
+  flex-shrink: 0;
+}
+
+.detailContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+
+.detailLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--v-muted);
+}
+
+.detailValue {
+  font-size: 14px;
+  color: var(--v-ink);
+}
+
+.detailLink {
+  font-size: 14px;
+  color: var(--v-seal);
+}
+
+.detailLink:hover {
+  text-decoration: underline;
+}
+
+/* Bottom spacer */
+.bottomSpacer {
+  height: var(--v-sp16);
 }

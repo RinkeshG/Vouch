@@ -414,16 +414,26 @@ export const DEMO_VOUCHES = [
 // Helper: get data subsets
 // ============================================================
 
+/** Enrich a vouch with place data (cuisines, priceTier) */
+function enrichVouch(v: (typeof DEMO_VOUCHES)[number]) {
+  const place = DEMO_PLACES.find((p) => p.id === v.placeId);
+  return {
+    ...v,
+    cuisines: place?.cuisines || [],
+    priceTier: place?.priceTier || 0,
+  };
+}
+
 /** Vouches from people the demo user "follows" (circle) */
 export function getDemoCircleFeed() {
   const circleIds = new Set(["demo-user-002", "demo-user-003", "demo-user-005"]);
-  return DEMO_VOUCHES.filter((v) => circleIds.has(v.authorId));
+  return DEMO_VOUCHES.filter((v) => circleIds.has(v.authorId)).map(enrichVouch);
 }
 
 /** Vouches from people outside the circle */
 export function getDemoDiscoverFeed() {
   const circleIds = new Set(["demo-user-002", "demo-user-003", "demo-user-005", DEMO_USER.id]);
-  return DEMO_VOUCHES.filter((v) => !circleIds.has(v.authorId));
+  return DEMO_VOUCHES.filter((v) => !circleIds.has(v.authorId)).map(enrichVouch);
 }
 
 /** Trending places sorted by vouch count */
@@ -432,6 +442,9 @@ export function getDemoTrendingPlaces() {
     .sort((a, b) => b.vouchCount - a.vouchCount)
     .slice(0, 6);
 }
+
+/** IDs of people in the demo user's circle */
+export const DEMO_CIRCLE_IDS = ["demo-user-002", "demo-user-003", "demo-user-005"];
 
 /** Current user's vouches */
 export function getDemoUserVouches() {
@@ -473,7 +486,7 @@ export function getDemoSuggestedPeople() {
   }));
 }
 
-/** Popular places for search */
+/** Popular places for search (includes cuisines for visual display) */
 export function getDemoPopularPlaces() {
   return DEMO_PLACES
     .sort((a, b) => b.vouchCount - a.vouchCount)
@@ -483,6 +496,7 @@ export function getDemoPopularPlaces() {
       name: p.name,
       area: p.area,
       vouch_count: p.vouchCount,
+      cuisines: p.cuisines,
     }));
 }
 

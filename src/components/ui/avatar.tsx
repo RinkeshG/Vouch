@@ -1,9 +1,10 @@
 import { cn, avatarTint, getInitials } from "@/lib/utils";
 import styles from "./avatar.module.css";
 
-type AvatarSize = "sm" | "md" | "lg" | "xl";
+type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 const sizeMap: Record<AvatarSize, number> = {
+  xs: 20,
   sm: 28,
   md: 40,
   lg: 56,

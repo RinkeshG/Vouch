@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import {
   DEMO_USER,
   DEMO_SAVED_PLACE_IDS,
+  DEMO_PLACES,
   getDemoProfile,
   getDemoProfileVouches,
 } from "@/lib/demo";
@@ -22,15 +23,20 @@ export default async function ProfilePage({ params }: PageProps) {
     if (!profile) notFound();
 
     const isOwnProfile = profile.id === DEMO_USER.id;
-    const vouches = getDemoProfileVouches(profile.id).map((v) => ({
-      id: v.id,
-      take: v.take,
-      contextTags: v.contextTags,
-      createdAt: v.createdAt,
-      placeId: v.placeId,
-      placeName: v.placeName,
-      placeArea: v.placeArea,
-    }));
+    const vouches = getDemoProfileVouches(profile.id).map((v) => {
+      const place = DEMO_PLACES.find((p) => p.id === v.placeId);
+      return {
+        id: v.id,
+        take: v.take,
+        contextTags: v.contextTags,
+        createdAt: v.createdAt,
+        placeId: v.placeId,
+        placeName: v.placeName,
+        placeArea: v.placeArea,
+        cuisines: place?.cuisines || [],
+        priceTier: place?.priceTier || 0,
+      };
+    });
 
     return (
       <ProfileClient
@@ -77,7 +83,7 @@ export default async function ProfilePage({ params }: PageProps) {
     .select(
       `
       id, take, context_tags, created_at, user_id, place_id,
-      places!vouches_place_id_fkey ( id, name, area )
+      places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier )
     `
     )
     .eq("user_id", profile.id)
@@ -92,6 +98,8 @@ export default async function ProfilePage({ params }: PageProps) {
     placeId: v.places?.id || v.place_id,
     placeName: v.places?.name || "Unknown",
     placeArea: v.places?.area || "",
+    cuisines: v.places?.cuisines || [],
+    priceTier: v.places?.price_tier || 0,
   }));
 
   const { count: followerCount } = await supabase

@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
-import { Tag } from "@/components/ui/tag";
-import { Stamp } from "@/components/ui/stamp";
+import { getCuisineVisual, getCuisineIcon, getTagIcon } from "@/lib/cuisine";
 import { cn } from "@/lib/utils";
 import styles from "./vouch-card.module.css";
 
@@ -23,13 +22,16 @@ interface VouchCardProps {
   take: string;
   contextTags: string[];
   createdAt: string;
+  // Visual
+  cuisines?: string[];
   // Interactions
   isSaved?: boolean;
   currentUserId?: string;
   authorId?: string;
-  // Display
+  // Display variants
   compact?: boolean;
   hidePlace?: boolean;
+  feedCard?: boolean;
 }
 
 function timeAgo(dateStr: string): string {
@@ -57,7 +59,6 @@ function timeAgo(dateStr: string): string {
 }
 
 export function VouchCard({
-  id,
   authorHandle,
   authorName,
   authorAvatarUrl,
@@ -67,14 +68,18 @@ export function VouchCard({
   take,
   contextTags,
   createdAt,
+  cuisines = [],
   isSaved: initialSaved = false,
   currentUserId,
-  authorId,
   compact = false,
   hidePlace = false,
+  feedCard = false,
 }: VouchCardProps) {
   const [saved, setSaved] = useState(initialSaved);
   const [savingState, setSavingState] = useState<"idle" | "saving">("idle");
+
+  const visual = getCuisineVisual(cuisines);
+  const cuisineIcon = getCuisineIcon(cuisines);
 
   async function toggleSave() {
     if (savingState === "saving" || !currentUserId) return;
@@ -83,13 +88,11 @@ export function VouchCard({
     const newSaved = !saved;
     setSaved(newSaved);
 
-    // Check if Supabase is configured
     const hasSupabase =
       process.env.NEXT_PUBLIC_SUPABASE_URL &&
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!hasSupabase) {
-      // Demo mode: just toggle locally
       setSavingState("idle");
       return;
     }
@@ -111,90 +114,98 @@ export function VouchCard({
           .eq("place_id", placeId);
       }
     } catch {
-      setSaved(!newSaved); // Revert on error
+      setSaved(!newSaved);
     } finally {
       setSavingState("idle");
     }
   }
 
   return (
-    <article className={cn(styles.card, compact && styles.compact)}>
-      {/* Header */}
-      <div className={styles.header}>
+    <article
+      className={cn(
+        styles.card,
+        compact && styles.compact,
+        feedCard && styles.feedCard
+      )}
+    >
+      {/* Color accent bar (cuisine-colored) */}
+      {!compact && (
+        <span
+          className={styles.accentBar}
+          style={{ backgroundColor: visual.color }}
+        />
+      )}
+
+      {/* THE TAKE — always the hero */}
+      <div className={styles.takeWrap}>
+        <span className={styles.openQuote}>&ldquo;</span>
+        <p className={styles.take}>{take}&rdquo;</p>
+      </div>
+
+      {/* Place chip — visually colored */}
+      {!hidePlace && !compact && (
+        <Link
+          href={`/place/${placeId}`}
+          className={styles.placeChip}
+          style={{
+            "--chip-bg": visual.bg,
+            "--chip-color": visual.color,
+          } as React.CSSProperties}
+        >
+          <span className={styles.placeChipIcon}>{cuisineIcon}</span>
+          <span className={styles.placeChipName}>{placeName}</span>
+          <span className={styles.placeChipSep}>&middot;</span>
+          <span className={styles.placeChipArea}>{placeArea}</span>
+        </Link>
+      )}
+
+      {/* Author — secondary */}
+      <div className={styles.author}>
         <Link href={`/${authorHandle}`}>
           <Avatar
             handle={authorHandle}
             name={authorName}
             imageUrl={authorAvatarUrl}
-            size="sm"
+            size="xs"
           />
         </Link>
-        <div className={styles.headerInfo}>
-          <div className={styles.nameRow}>
-            <Link href={`/${authorHandle}`} className={styles.displayName}>
-              {authorName}
-            </Link>
-            <span className={styles.handle}>@{authorHandle}</span>
-            <span className={styles.dot}>&middot;</span>
-            <span className={styles.time}>{timeAgo(createdAt)}</span>
-          </div>
-        </div>
-        <Stamp size={18} variant="outline" />
+        <Link href={`/${authorHandle}`} className={styles.authorName}>
+          {authorName}
+        </Link>
+        <span className={styles.authorMeta}>
+          &middot; {timeAgo(createdAt)}
+        </span>
       </div>
 
-      {/* Place pill */}
-      {!hidePlace && (
-        <Link href={`/place/${placeId}`} className={styles.place}>
-          <Icon name="map-pin" size={16} className={styles.placeIcon} />
-          <div className={styles.placeInfo}>
-            <p className={styles.placeName}>{placeName}</p>
-            <p className={styles.placeArea}>{placeArea}</p>
-          </div>
-          <Icon
-            name="chevron-right"
-            size={14}
-            className={styles.placeChevron}
-          />
-        </Link>
-      )}
-
-      {/* Take */}
-      <p className={styles.take}>
-        <span className={styles.takeQuote}>&ldquo;</span>
-        {take}
-        <span className={styles.takeQuote}>&rdquo;</span>
-      </p>
-
-      {/* Context tags */}
-      {contextTags.length > 0 && (
+      {/* Footer: tags with emoji + bookmark */}
+      <div className={styles.footer}>
         <div className={styles.tags}>
-          {contextTags.map((tag) => (
-            <Tag key={tag} variant="default" as="span">
-              {tag}
-            </Tag>
-          ))}
+          {contextTags.map((tag) => {
+            const emoji = getTagIcon(tag);
+            return (
+              <span key={tag} className={styles.tagPill}>
+                {emoji && <span className={styles.tagEmoji}>{emoji}</span>}
+                {tag}
+              </span>
+            );
+          })}
         </div>
-      )}
 
-      {/* Actions */}
-      <div className={styles.actions}>
-        <button
-          className={cn(styles.actionBtn, saved && styles.actionBtnActive)}
-          onClick={toggleSave}
-          aria-label={saved ? "Unsave place" : "Save place"}
-          disabled={!currentUserId}
-        >
-          <Icon
-            name={saved ? "bookmark-filled" : "bookmark"}
-            size={16}
-          />
-          <span>{saved ? "Saved" : "Save"}</span>
-        </button>
-
-        <button className={styles.actionBtn} aria-label="Share vouch">
-          <Icon name="share" size={16} />
-          <span>Share</span>
-        </button>
+        {currentUserId && (
+          <button
+            className={cn(
+              styles.bookmarkBtn,
+              saved && styles.bookmarkBtnActive
+            )}
+            onClick={toggleSave}
+            aria-label={saved ? "Unsave place" : "Save place"}
+          >
+            <Icon
+              name={saved ? "bookmark-filled" : "bookmark"}
+              size={16}
+            />
+          </button>
+        )}
       </div>
     </article>
   );

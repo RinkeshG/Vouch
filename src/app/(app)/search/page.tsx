@@ -35,7 +35,7 @@ export default async function SearchPage() {
 
   const { data: popularPlaces } = await supabase
     .from("places")
-    .select("id, name, area, vouch_count")
+    .select("id, name, area, vouch_count, cuisines")
     .order("vouch_count", { ascending: false })
     .gt("vouch_count", 0)
     .limit(10);

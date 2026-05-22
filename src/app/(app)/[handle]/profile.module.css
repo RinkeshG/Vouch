@@ -1,21 +1,36 @@
 /* ============================================================
-   Profile Page
+   Profile — Visual taste card with identity focus
    ============================================================ */
 
 .page {
   min-height: 100dvh;
+  background-color: var(--v-paper);
 }
 
-/* Profile header */
-.profileHeader {
+/* ---- Color header band (avatar tint) ---- */
+.headerBand {
+  height: 100px;
+  position: relative;
+}
+
+/* ---- Profile card (overlaps header band) ---- */
+.profileCard {
+  position: relative;
+  z-index: 2;
+  margin: -40px var(--v-sp4) 0;
+  background-color: #fff;
+  border-radius: var(--v-radius-card);
+  box-shadow: var(--v-shadow-md);
+  border: 1px solid var(--v-line);
+  padding: 0 var(--v-sp5) var(--v-sp5);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--v-sp6) var(--v-sp4) var(--v-sp4);
 }
 
 .avatarWrap {
+  margin-top: -36px;
   margin-bottom: var(--v-sp3);
 }
 
@@ -27,34 +42,57 @@
   line-height: 1.2;
 }
 
-.handleText {
+.handle {
   font-size: 14px;
   color: var(--v-muted);
   margin-top: var(--v-sp1);
 }
 
-.bio {
-  font-size: 14px;
-  color: var(--v-ink);
-  line-height: 1.5;
-  margin-top: var(--v-sp2);
+/* ---- Taste line: the HERO ---- */
+.tasteLineWrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  margin-top: var(--v-sp3);
+  padding: var(--v-sp3) var(--v-sp4);
+  background-color: rgba(191, 58, 43, 0.04);
+  border-radius: var(--v-radius-input);
   max-width: 320px;
 }
 
 .tasteLine {
   font-family: var(--v-font-serif);
+  font-size: 16px;
   font-style: italic;
-  font-size: 14px;
-  color: var(--v-muted);
-  margin-top: var(--v-sp2);
+  line-height: 1.4;
+  color: var(--v-ink);
 }
 
-/* Stats row */
+.tasteQuote {
+  font-family: var(--v-font-serif);
+  font-size: 24px;
+  color: var(--v-seal);
+  opacity: 0.4;
+  line-height: 0.8;
+  flex-shrink: 0;
+}
+
+/* Bio */
+.bio {
+  font-size: 14px;
+  color: var(--v-muted);
+  line-height: 1.5;
+  margin-top: var(--v-sp2);
+  max-width: 320px;
+}
+
+/* ---- Stats: visual badges ---- */
 .stats {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--v-sp6);
+  gap: var(--v-sp3);
   margin-top: var(--v-sp4);
   padding-top: var(--v-sp4);
   border-top: 1px solid var(--v-line);
@@ -63,24 +101,28 @@
 
 .stat {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--v-sp1);
 }
 
 .statCount {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   font-family: var(--v-font-serif);
   line-height: 1;
+  color: var(--v-ink);
 }
 
 .statLabel {
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: var(--v-muted);
+}
+
+.statDivider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--v-line);
 }
 
 /* Action buttons */
@@ -89,14 +131,13 @@
   gap: var(--v-sp2);
   margin-top: var(--v-sp4);
   width: 100%;
-  max-width: 320px;
+  max-width: 280px;
 }
 
-/* Tabs */
+/* ---- Tabs ---- */
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--v-line);
-  border-top: 1px solid var(--v-line);
   margin-top: var(--v-sp4);
 }
 
@@ -118,85 +159,37 @@
 
 .tabActive {
   color: var(--v-ink);
-  border-bottom-color: var(--v-ink);
+  border-bottom-color: var(--v-seal);
 }
 
-/* Vouches grid */
-.vouches {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Lists */
-.lists {
-  display: flex;
-  flex-direction: column;
-  padding: var(--v-sp2) 0;
-}
-
-.listCard {
-  display: flex;
-  align-items: center;
+/* ---- Places grid (taste map) ---- */
+.placeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--v-sp3);
-  padding: var(--v-sp3) var(--v-sp4);
-  transition: background-color var(--v-duration-fast) var(--v-ease-out);
+  padding: var(--v-sp4);
 }
 
-.listCard:hover {
-  background-color: var(--v-faint);
+@media (min-width: 600px) {
+  .placeGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.listInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.listTitle {
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.3;
-}
-
-.listCount {
-  font-size: 13px;
-  color: var(--v-muted);
-}
-
-.listChevron {
-  color: var(--v-muted);
-}
-
-/* Circle — following/followers */
-.circleGrid {
+/* ---- Takes list ---- */
+.takesList {
   display: flex;
   flex-direction: column;
-  padding: var(--v-sp2) 0;
-}
-
-.circleRow {
-  display: flex;
-  align-items: center;
   gap: var(--v-sp3);
-  padding: var(--v-sp3) var(--v-sp4);
-  transition: background-color var(--v-duration-fast) var(--v-ease-out);
+  padding: var(--v-sp4) 0;
 }
 
-.circleRow:hover {
-  background-color: var(--v-faint);
+/* Lists tab */
+.listsTab {
+  padding: var(--v-sp4);
 }
 
-.circleInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.circleName {
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-.circleHandle {
-  font-size: 13px;
-  color: var(--v-muted);
+/* Bottom spacer */
+.bottomSpacer {
+  height: var(--v-sp16);
 }

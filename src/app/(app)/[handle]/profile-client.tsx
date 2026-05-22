@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TopBar, TopBarIconButton } from "@/components/app/top-bar";
 import { VouchCard } from "@/components/app/vouch-card";
+import { PlaceCard } from "@/components/app/place-card";
 import { EmptyState } from "@/components/app/empty-state";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { Stamp } from "@/components/ui/stamp";
 import { cn } from "@/lib/utils";
 import styles from "./profile.module.css";
 
@@ -35,6 +37,8 @@ interface ProfileVouch {
   placeId: string;
   placeName: string;
   placeArea: string;
+  cuisines?: string[];
+  priceTier?: number;
 }
 
 interface ProfileClientProps {
@@ -45,6 +49,37 @@ interface ProfileClientProps {
   savedPlaceIds: string[];
   currentUserId: string;
   isDemo?: boolean;
+}
+
+/** Group vouches by place to build a "taste map" */
+function groupVouchesByPlace(vouches: ProfileVouch[]) {
+  const map = new Map<
+    string,
+    {
+      placeId: string;
+      placeName: string;
+      placeArea: string;
+      cuisines: string[];
+      priceTier: number;
+      vouches: ProfileVouch[];
+    }
+  >();
+
+  for (const v of vouches) {
+    if (!map.has(v.placeId)) {
+      map.set(v.placeId, {
+        placeId: v.placeId,
+        placeName: v.placeName,
+        placeArea: v.placeArea,
+        cuisines: v.cuisines || [],
+        priceTier: v.priceTier || 0,
+        vouches: [],
+      });
+    }
+    map.get(v.placeId)!.vouches.push(v);
+  }
+
+  return Array.from(map.values());
 }
 
 export function ProfileClient({
@@ -59,15 +94,24 @@ export function ProfileClient({
   const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
   const [followerCount, setFollowerCount] = useState(profile.followerCount);
-  const [activeTab, setActiveTab] = useState<"vouches" | "lists">("vouches");
+  const [activeTab, setActiveTab] = useState<"places" | "takes" | "lists">(
+    "places"
+  );
   const savedSet = new Set(savedPlaceIds);
+  const placeGroups = groupVouchesByPlace(vouches);
+
+  // Avatar tint as header color
+  const tintColors = [
+    "#E8D5C4", "#C4D4C0", "#C9D1DC", "#D4C4B0",
+    "#B8C8C0", "#D0C4D4", "#C8D0B8", "#DCC8B4", "#B4C4CC",
+  ];
+  const headerColor = tintColors[profile.avatarTint % tintColors.length];
 
   async function toggleFollow() {
     const newFollowing = !following;
     setFollowing(newFollowing);
     setFollowerCount((c) => c + (newFollowing ? 1 : -1));
 
-    // In demo mode, just toggle locally
     if (isDemo) return;
 
     const { createClient } = await import("@/lib/supabase/client");
@@ -116,8 +160,14 @@ export function ProfileClient({
         }
       />
 
-      {/* Profile header */}
-      <div className={styles.profileHeader}>
+      {/* ---- Visual header band (avatar tint color) ---- */}
+      <div
+        className={styles.headerBand}
+        style={{ backgroundColor: headerColor }}
+      />
+
+      {/* ---- Profile card (overlaps band) ---- */}
+      <div className={styles.profileCard}>
         <div className={styles.avatarWrap}>
           <Avatar
             handle={profile.handle}
@@ -129,28 +179,42 @@ export function ProfileClient({
         </div>
 
         <h1 className={styles.name}>{profile.displayName}</h1>
-        <p className={styles.handleText}>@{profile.handle}</p>
+        <p className={styles.handle}>@{profile.handle}</p>
 
-        {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+        {/* Taste line — the HERO of the profile */}
         {profile.tasteLine && (
-          <p className={styles.tasteLine}>
-            &ldquo;{profile.tasteLine}&rdquo;
-          </p>
+          <div className={styles.tasteLineWrap}>
+            <span className={styles.tasteQuote}>&ldquo;</span>
+            <p className={styles.tasteLine}>{profile.tasteLine}</p>
+            <span className={styles.tasteQuote}>&rdquo;</span>
+          </div>
         )}
 
-        {/* Stats */}
+        {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+
+        {/* Stats — visual badges */}
         <div className={styles.stats}>
           <div className={styles.stat}>
+            <Stamp size={14} variant="outline" />
             <span className={styles.statCount}>{profile.vouchCount}</span>
-            <span className={styles.statLabel}>Vouches</span>
+            <span className={styles.statLabel}>
+              vouch{profile.vouchCount !== 1 ? "es" : ""}
+            </span>
           </div>
+          <div className={styles.statDivider} />
+          <div className={styles.stat}>
+            <span className={styles.statCount}>{placeGroups.length}</span>
+            <span className={styles.statLabel}>places</span>
+          </div>
+          <div className={styles.statDivider} />
           <div className={styles.stat}>
             <span className={styles.statCount}>{followerCount}</span>
-            <span className={styles.statLabel}>Followers</span>
+            <span className={styles.statLabel}>followers</span>
           </div>
+          <div className={styles.statDivider} />
           <div className={styles.stat}>
             <span className={styles.statCount}>{profile.followingCount}</span>
-            <span className={styles.statLabel}>Following</span>
+            <span className={styles.statLabel}>following</span>
           </div>
         </div>
 
@@ -161,69 +225,85 @@ export function ProfileClient({
               Edit profile
             </Button>
           ) : (
-            <>
-              <Button
-                variant={following ? "secondary" : "seal"}
-                fullWidth
-                size="sm"
-                onClick={toggleFollow}
-              >
-                {following ? "Following" : "Follow"}
-              </Button>
-            </>
+            <Button
+              variant={following ? "secondary" : "seal"}
+              fullWidth
+              size="sm"
+              onClick={toggleFollow}
+            >
+              {following ? "Following" : "Follow"}
+            </Button>
           )}
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* ---- Tabs ---- */}
       <div className={styles.tabs}>
         <button
-          className={cn(styles.tab, activeTab === "vouches" && styles.tabActive)}
-          onClick={() => setActiveTab("vouches")}
+          className={cn(
+            styles.tab,
+            activeTab === "places" && styles.tabActive
+          )}
+          onClick={() => setActiveTab("places")}
         >
-          Vouches
+          Places
         </button>
         <button
-          className={cn(styles.tab, activeTab === "lists" && styles.tabActive)}
+          className={cn(
+            styles.tab,
+            activeTab === "takes" && styles.tabActive
+          )}
+          onClick={() => setActiveTab("takes")}
+        >
+          Takes
+        </button>
+        <button
+          className={cn(
+            styles.tab,
+            activeTab === "lists" && styles.tabActive
+          )}
           onClick={() => setActiveTab("lists")}
         >
           Lists
         </button>
       </div>
 
-      {/* Vouches tab */}
-      {activeTab === "vouches" && (
-        <div className={styles.vouches}>
-          {vouches.length > 0 ? (
-            vouches.map((v) => (
-              <VouchCard
-                key={v.id}
-                id={v.id}
-                authorHandle={profile.handle}
-                authorName={profile.displayName}
-                authorAvatarUrl={profile.avatarUrl}
-                placeId={v.placeId}
-                placeName={v.placeName}
-                placeArea={v.placeArea}
-                take={v.take}
-                contextTags={v.contextTags}
-                createdAt={v.createdAt}
-                isSaved={savedSet.has(v.placeId)}
+      {/* ---- Places tab: visual place cards (taste map) ---- */}
+      {activeTab === "places" && (
+        <div className={styles.placeGrid}>
+          {placeGroups.length > 0 ? (
+            placeGroups.map((group) => (
+              <PlaceCard
+                key={group.placeId}
+                id={group.placeId}
+                name={group.placeName}
+                area={group.placeArea}
+                cuisines={group.cuisines}
+                priceTier={group.priceTier}
+                vouchCount={group.vouches.length}
+                vouches={group.vouches.map((v) => ({
+                  take: v.take,
+                  authorName: profile.displayName,
+                  authorHandle: profile.handle,
+                  authorAvatarUrl: profile.avatarUrl,
+                }))}
+                isSaved={savedSet.has(group.placeId)}
                 currentUserId={currentUserId}
-                authorId={profile.id}
+                variant="compact"
+                isDemo={isDemo}
               />
             ))
           ) : (
             <EmptyState
-              icon="vouch"
+              icon="map-pin"
               title={
                 isOwnProfile
-                  ? "No vouches yet"
+                  ? "No places yet"
                   : `${profile.displayName} hasn't vouched yet`
               }
               message={
                 isOwnProfile
-                  ? "Vouch for your favorite spots to build your taste profile."
+                  ? "Vouch for your favorite spots to build your taste map."
                   : "Check back later for their recommendations."
               }
               action={
@@ -240,9 +320,47 @@ export function ProfileClient({
         </div>
       )}
 
-      {/* Lists tab */}
+      {/* ---- Takes tab: individual vouches ---- */}
+      {activeTab === "takes" && (
+        <div className={styles.takesList}>
+          {vouches.length > 0 ? (
+            vouches.map((v) => (
+              <VouchCard
+                key={v.id}
+                id={v.id}
+                authorHandle={profile.handle}
+                authorName={profile.displayName}
+                authorAvatarUrl={profile.avatarUrl}
+                placeId={v.placeId}
+                placeName={v.placeName}
+                placeArea={v.placeArea}
+                take={v.take}
+                contextTags={v.contextTags}
+                createdAt={v.createdAt}
+                cuisines={v.cuisines}
+                isSaved={savedSet.has(v.placeId)}
+                currentUserId={currentUserId}
+                authorId={profile.id}
+                feedCard
+              />
+            ))
+          ) : (
+            <EmptyState
+              icon="vouch"
+              title="No takes yet"
+              message={
+                isOwnProfile
+                  ? "Share your honest takes on places."
+                  : "No takes to show yet."
+              }
+            />
+          )}
+        </div>
+      )}
+
+      {/* ---- Lists tab ---- */}
       {activeTab === "lists" && (
-        <div className={styles.lists}>
+        <div className={styles.listsTab}>
           <EmptyState
             icon="list"
             title={isOwnProfile ? "No lists yet" : "No lists"}
@@ -254,6 +372,8 @@ export function ProfileClient({
           />
         </div>
       )}
+
+      <div className={styles.bottomSpacer} />
     </div>
   );
 }

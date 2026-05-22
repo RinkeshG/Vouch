@@ -1,0 +1,256 @@
+/* ============================================================
+   Place Card — Visually rich place discovery card
+   The visual anchor for the entire Vouch experience.
+   Uses cuisine-colored heroes as photo substitutes.
+   ============================================================ */
+
+/* ---- Base card with elevation ---- */
+.card {
+  background-color: #fff;
+  border-radius: var(--v-radius-card);
+  overflow: hidden;
+  box-shadow: var(--v-shadow-sm);
+  border: 1px solid var(--v-line);
+  transition:
+    transform var(--v-duration-fast) var(--v-ease-out),
+    box-shadow var(--v-duration-fast) var(--v-ease-out);
+}
+
+.card:hover {
+  box-shadow: var(--v-shadow-md);
+}
+
+.card:active {
+  transform: scale(0.985);
+}
+
+/* ---- Visual hero banner (cuisine-colored gradient + icon) ---- */
+.hero {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroIcon {
+  font-size: 32px;
+  opacity: 0.9;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  z-index: 1;
+}
+
+/* Subtle pattern overlay */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ---- Card body ---- */
+.body {
+  padding: var(--v-sp3) var(--v-sp4) var(--v-sp4);
+}
+
+/* Place name */
+.name {
+  font-family: var(--v-font-serif);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--v-ink);
+  margin-bottom: var(--v-sp1);
+}
+
+/* Meta row: area + price + vouch badge */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+  font-size: 13px;
+  color: var(--v-muted);
+  margin-bottom: var(--v-sp3);
+  flex-wrap: wrap;
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: var(--v-muted);
+  flex-shrink: 0;
+}
+
+.priceDots {
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+
+.vouchBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-sp1);
+  font-weight: 600;
+  color: var(--v-seal);
+  font-size: 12px;
+}
+
+/* Cuisine pills */
+.cuisines {
+  display: flex;
+  gap: var(--v-sp1);
+  flex-wrap: wrap;
+  margin-bottom: var(--v-sp3);
+}
+
+.cuisinePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--v-radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background-color: var(--pill-bg, var(--v-faint));
+  color: var(--pill-color, var(--v-ink));
+}
+
+.cuisineEmoji {
+  font-size: 11px;
+}
+
+/* Featured take (pull quote) */
+.quote {
+  position: relative;
+  padding-left: var(--v-sp3);
+  margin-bottom: var(--v-sp3);
+}
+
+.quote::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+  background-color: var(--v-seal);
+  opacity: 0.5;
+}
+
+.quoteText {
+  font-family: var(--v-font-serif);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--v-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.quoteAuthor {
+  font-family: var(--v-font-sans);
+  font-size: 12px;
+  font-style: normal;
+  color: var(--v-muted);
+  margin-top: var(--v-sp1);
+}
+
+/* Social proof (avatar stack) */
+.socialProof {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+}
+
+/* Footer actions */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--v-sp2);
+  border-top: 1px solid var(--v-line);
+  margin-top: var(--v-sp2);
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp1);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--v-muted);
+  padding: var(--v-sp1) var(--v-sp2);
+  border-radius: var(--v-radius-tag);
+  transition: all var(--v-duration-fast) var(--v-ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.saveBtn:hover {
+  background-color: var(--v-faint);
+  color: var(--v-ink);
+}
+
+.saveBtn:active {
+  transform: scale(0.94);
+}
+
+.saveBtnActive {
+  color: var(--v-seal);
+}
+
+.saveBtnActive:hover {
+  color: var(--v-seal-hover);
+}
+
+/* ============================================================
+   Variant: Compact (used in lists, saved page)
+   No hero banner, more compact layout
+   ============================================================ */
+
+.compact .hero {
+  height: 48px;
+}
+
+.compact .heroIcon {
+  font-size: 22px;
+}
+
+.compact .body {
+  padding: var(--v-sp2) var(--v-sp3) var(--v-sp3);
+}
+
+.compact .name {
+  font-size: 15px;
+}
+
+/* ============================================================
+   Variant: Wide (used as featured hero on home)
+   Taller hero, bigger text
+   ============================================================ */
+
+.wide .hero {
+  height: 120px;
+}
+
+.wide .heroIcon {
+  font-size: 44px;
+}
+
+.wide .name {
+  font-size: 22px;
+}
+
+.wide .quoteText {
+  font-size: 16px;
+  -webkit-line-clamp: 3;
+}

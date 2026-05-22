@@ -6,8 +6,9 @@ import { TopBar } from "@/components/app/top-bar";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { Tag } from "@/components/ui/tag";
+import { Stamp } from "@/components/ui/stamp";
 import { EmptyState } from "@/components/app/empty-state";
+import { getCuisineVisual, getCuisineIcon, getTagIcon } from "@/lib/cuisine";
 import { cn } from "@/lib/utils";
 import { CONTEXT_TAGS } from "@/types";
 import { searchDemoPlaces, searchDemoPeople } from "@/lib/demo";
@@ -26,6 +27,7 @@ interface PopularPlace {
   name: string;
   area: string;
   vouch_count: number;
+  cuisines?: string[];
 }
 
 interface SearchResult {
@@ -36,6 +38,7 @@ interface SearchResult {
   handle?: string;
   avatarUrl?: string | null;
   vouchCount?: number;
+  cuisines?: string[];
 }
 
 interface SearchClientProps {
@@ -44,6 +47,24 @@ interface SearchClientProps {
   currentUserId: string;
   isDemo?: boolean;
 }
+
+// Tag colors for mood cards
+const MOOD_COLORS: Record<string, string> = {
+  "date night": "linear-gradient(135deg, #8B6B8E 0%, #6A4B5E 100%)",
+  "group dinner": "linear-gradient(135deg, #C47040 0%, #A05830 100%)",
+  "solo meal": "linear-gradient(135deg, #8B8178 0%, #6A6158 100%)",
+  "family friendly": "linear-gradient(135deg, #6B8E5E 0%, #4A6E3E 100%)",
+  "late night": "linear-gradient(135deg, #3D3D5C 0%, #2A2A40 100%)",
+  "quick bite": "linear-gradient(135deg, #C4893A 0%, #A06820 100%)",
+  "special occasion": "linear-gradient(135deg, #BF3A2B 0%, #9A2A1B 100%)",
+  "work lunch": "linear-gradient(135deg, #6B8E7E 0%, #4A6E5E 100%)",
+  brunch: "linear-gradient(135deg, #D49A4A 0%, #B07830 100%)",
+  drinks: "linear-gradient(135deg, #7A5B6E 0%, #5A3B4E 100%)",
+  "cafe vibes": "linear-gradient(135deg, #8B6E4E 0%, #6A4E2E 100%)",
+  "outdoor seating": "linear-gradient(135deg, #6B8E5E 0%, #5A7E4E 100%)",
+  "delivery worthy": "linear-gradient(135deg, #C45A3A 0%, #A03A1A 100%)",
+  "worth the wait": "linear-gradient(135deg, #B08A30 0%, #907020 100%)",
+};
 
 export function SearchClient({
   suggestedPeople,
@@ -71,7 +92,6 @@ export function SearchClient({
 
       try {
         if (isDemo) {
-          // Demo mode: search local mock data
           if (searchType === "places") {
             const places = searchDemoPlaces(q);
             setResults(
@@ -81,6 +101,7 @@ export function SearchClient({
                 name: p.name,
                 subtitle: p.area,
                 vouchCount: p.vouchCount,
+                cuisines: p.cuisines,
               }))
             );
           } else {
@@ -98,14 +119,13 @@ export function SearchClient({
             );
           }
         } else {
-          // Production: search via Supabase
           const { createClient } = await import("@/lib/supabase/client");
           const supabase = createClient();
 
           if (searchType === "places") {
             const { data } = await supabase
               .from("places")
-              .select("id, name, area, vouch_count")
+              .select("id, name, area, vouch_count, cuisines")
               .or(`name.ilike.%${q}%,area.ilike.%${q}%`)
               .order("vouch_count", { ascending: false })
               .limit(15);
@@ -117,6 +137,7 @@ export function SearchClient({
                 name: p.name,
                 subtitle: p.area,
                 vouchCount: p.vouch_count,
+                cuisines: p.cuisines || [],
               }))
             );
           } else {
@@ -167,7 +188,7 @@ export function SearchClient({
 
   return (
     <div className={styles.page}>
-      <TopBar title="Search" />
+      <TopBar title="Explore" />
 
       {/* Search input */}
       <div className={styles.searchWrap}>
@@ -211,7 +232,7 @@ export function SearchClient({
             setHasSearched(false);
           }}
         >
-          Places
+          <Icon name="map-pin" size={14} /> Places
         </button>
         <button
           className={cn(
@@ -224,7 +245,7 @@ export function SearchClient({
             setHasSearched(false);
           }}
         >
-          People
+          <Icon name="users" size={14} /> People
         </button>
       </div>
 
@@ -245,8 +266,15 @@ export function SearchClient({
                 href={`/place/${r.id}`}
                 className={styles.placeResult}
               >
-                <div className={styles.placeResultIcon}>
-                  <Icon name="map-pin" size={18} />
+                <div
+                  className={styles.placeResultIcon}
+                  style={{
+                    background: getCuisineVisual(r.cuisines || []).gradient,
+                  }}
+                >
+                  <span className={styles.placeResultEmoji}>
+                    {getCuisineIcon(r.cuisines || [])}
+                  </span>
                 </div>
                 <div className={styles.placeResultInfo}>
                   <p className={styles.placeResultName}>{r.name}</p>
@@ -254,8 +282,8 @@ export function SearchClient({
                     <span>{r.subtitle}</span>
                     {r.vouchCount && r.vouchCount > 0 && (
                       <span className={styles.placeResultVouches}>
-                        &middot; {r.vouchCount} vouch
-                        {r.vouchCount !== 1 ? "es" : ""}
+                        <Stamp size={10} variant="outline" />
+                        {r.vouchCount}
                       </span>
                     )}
                   </div>
@@ -279,7 +307,8 @@ export function SearchClient({
                   <p className={styles.personHandle}>{r.subtitle}</p>
                 </div>
                 <span className={styles.personVouches}>
-                  {r.vouchCount || 0} vouches
+                  <Stamp size={10} variant="outline" />
+                  {r.vouchCount || 0}
                 </span>
               </Link>
             )
@@ -296,80 +325,102 @@ export function SearchClient({
         />
       )}
 
-      {/* Suggestions — shown when not searching */}
+      {/* ---- Suggestions (when not searching) ---- */}
       {showSuggestions && (
         <>
-          {/* Browse by context */}
-          <div className={styles.section}>
-            <p className={styles.sectionTitle}>Browse by vibe</p>
+          {/* Browse by mood — visual mood cards */}
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>Browse by mood</h3>
           </div>
-          <div className={styles.tagGrid}>
+          <div className={styles.moodGrid}>
             {CONTEXT_TAGS.map((tag) => (
-              <Tag key={tag} variant="default" as="span">
-                {tag}
-              </Tag>
+              <button
+                key={tag}
+                className={styles.moodCard}
+                style={{
+                  background: MOOD_COLORS[tag] || "var(--v-faint)",
+                }}
+                onClick={() => {
+                  setQuery(tag);
+                  setSearchType("places");
+                }}
+              >
+                <span className={styles.moodEmoji}>{getTagIcon(tag)}</span>
+                <span className={styles.moodLabel}>{tag}</span>
+              </button>
             ))}
           </div>
 
-          {/* Popular places */}
+          {/* Popular places — visual cards */}
           {popularPlaces.length > 0 && (
             <>
-              <div className={styles.section}>
-                <p className={styles.sectionTitle}>Popular places</p>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>Most vouched</h3>
               </div>
               <div className={styles.results}>
-                {popularPlaces.map((p) => (
-                  <Link
-                    key={p.id}
-                    href={`/place/${p.id}`}
-                    className={styles.placeResult}
-                  >
-                    <div className={styles.placeResultIcon}>
-                      <Icon name="map-pin" size={18} />
-                    </div>
-                    <div className={styles.placeResultInfo}>
-                      <p className={styles.placeResultName}>{p.name}</p>
-                      <div className={styles.placeResultMeta}>
-                        <span>{p.area}</span>
-                        <span className={styles.placeResultVouches}>
-                          &middot; {p.vouch_count} vouch
-                          {p.vouch_count !== 1 ? "es" : ""}
+                {popularPlaces.map((p) => {
+                  const cuisines = (p as PopularPlace).cuisines || [];
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/place/${p.id}`}
+                      className={styles.placeResult}
+                    >
+                      <div
+                        className={styles.placeResultIcon}
+                        style={{
+                          background: getCuisineVisual(cuisines).gradient,
+                        }}
+                      >
+                        <span className={styles.placeResultEmoji}>
+                          {getCuisineIcon(cuisines)}
                         </span>
                       </div>
-                    </div>
-                    <Icon name="chevron-right" size={16} />
-                  </Link>
-                ))}
+                      <div className={styles.placeResultInfo}>
+                        <p className={styles.placeResultName}>{p.name}</p>
+                        <div className={styles.placeResultMeta}>
+                          <span>{p.area}</span>
+                          <span className={styles.placeResultVouches}>
+                            <Stamp size={10} variant="outline" />
+                            {p.vouch_count}
+                          </span>
+                        </div>
+                      </div>
+                      <Icon name="chevron-right" size={16} />
+                    </Link>
+                  );
+                })}
               </div>
             </>
           )}
 
-          {/* Suggested people */}
+          {/* Suggested people — visual cards */}
           {suggestedPeople.length > 0 && (
             <>
-              <div className={styles.section}>
-                <p className={styles.sectionTitle}>People to follow</p>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>People to follow</h3>
               </div>
-              <div className={styles.results}>
+              <div className={styles.peopleGrid}>
                 {suggestedPeople.map((p) => (
                   <Link
                     key={p.id}
                     href={`/${p.handle}`}
-                    className={styles.personResult}
+                    className={styles.personCard}
                   >
                     <Avatar
                       handle={p.handle}
                       name={p.display_name}
                       imageUrl={p.avatar_url}
-                      size="md"
+                      size="lg"
                     />
-                    <div className={styles.personInfo}>
-                      <p className={styles.personName}>{p.display_name}</p>
-                      <p className={styles.personHandle}>@{p.handle}</p>
+                    <p className={styles.personCardName}>{p.display_name}</p>
+                    <p className={styles.personCardHandle}>@{p.handle}</p>
+                    <div className={styles.personCardBadge}>
+                      <Stamp size={10} variant="outline" />
+                      <span>
+                        {p.vouch_count} vouch{p.vouch_count !== 1 ? "es" : ""}
+                      </span>
                     </div>
-                    <span className={styles.personVouches}>
-                      {p.vouch_count} vouches
-                    </span>
                   </Link>
                 ))}
               </div>
@@ -377,6 +428,8 @@ export function SearchClient({
           )}
         </>
       )}
+
+      <div className={styles.bottomSpacer} />
     </div>
   );
 }

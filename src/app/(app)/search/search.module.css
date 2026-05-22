@@ -1,30 +1,34 @@
 /* ============================================================
-   Search Page
+   Explore/Search — Visual city exploration
    ============================================================ */
 
 .page {
   min-height: 100dvh;
+  background-color: var(--v-paper);
 }
 
 .searchWrap {
   padding: var(--v-sp3) var(--v-sp4);
-  border-bottom: 1px solid var(--v-line);
 }
 
-/* Tabs for search type */
+/* ---- Search type tabs ---- */
 .searchTabs {
   display: flex;
   gap: var(--v-sp2);
-  padding: var(--v-sp3) var(--v-sp4) 0;
+  padding: var(--v-sp2) var(--v-sp4) var(--v-sp3);
 }
 
 .searchTab {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp1);
   padding: var(--v-sp1) var(--v-sp3);
   font-size: 13px;
   font-weight: 500;
   color: var(--v-muted);
   border-radius: var(--v-radius-pill);
   background-color: transparent;
+  border: 1px solid var(--v-line);
   transition: all var(--v-duration-fast) var(--v-ease-out);
 }
 
@@ -35,19 +39,86 @@
 .searchTabActive {
   color: var(--v-paper);
   background-color: var(--v-ink);
+  border-color: var(--v-ink);
 }
 
 .searchTabActive:hover {
   background-color: var(--v-ink);
 }
 
-/* Results */
+/* ---- Section headers ---- */
+.sectionHeader {
+  padding: var(--v-sp5) var(--v-sp4) var(--v-sp2);
+}
+
+.sectionTitle {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-muted);
+}
+
+/* ---- Mood cards grid ---- */
+.moodGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--v-sp2);
+  padding: var(--v-sp2) var(--v-sp4);
+}
+
+@media (min-width: 480px) {
+  .moodGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.moodCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-sp1);
+  padding: var(--v-sp4) var(--v-sp2);
+  border-radius: var(--v-radius-card);
+  color: #fff;
+  text-align: center;
+  transition: transform var(--v-duration-fast) var(--v-ease-out),
+    box-shadow var(--v-duration-fast) var(--v-ease-out);
+  box-shadow: var(--v-shadow-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.moodCard:hover {
+  transform: scale(1.02);
+  box-shadow: var(--v-shadow-md);
+}
+
+.moodCard:active {
+  transform: scale(0.97);
+}
+
+.moodEmoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.moodLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  opacity: 0.95;
+}
+
+/* ---- Results ---- */
 .results {
   display: flex;
   flex-direction: column;
 }
 
-/* Place result */
+/* ---- Place result row ---- */
 .placeResult {
   display: flex;
   align-items: center;
@@ -61,15 +132,19 @@
 }
 
 .placeResultIcon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--v-radius-input);
-  background-color: var(--v-faint);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--v-seal);
   flex-shrink: 0;
+  box-shadow: var(--v-shadow-sm);
+}
+
+.placeResultEmoji {
+  font-size: 20px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
 }
 
 .placeResultInfo {
@@ -88,15 +163,19 @@
   color: var(--v-muted);
   display: flex;
   align-items: center;
-  gap: var(--v-sp1);
+  gap: var(--v-sp2);
 }
 
 .placeResultVouches {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   color: var(--v-seal);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 12px;
 }
 
-/* Person result */
+/* ---- Person result row ---- */
 .personResult {
   display: flex;
   align-items: center;
@@ -126,21 +205,72 @@
 }
 
 .personVouches {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 12px;
-  color: var(--v-muted);
-}
-
-/* Recent / suggested section */
-.section {
-  padding: var(--v-sp4) var(--v-sp4) var(--v-sp2);
-}
-
-.sectionTitle {
-  font-size: 11px;
+  color: var(--v-seal);
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+}
+
+/* ---- People grid (suggestion cards) ---- */
+.peopleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--v-sp3);
+  padding: var(--v-sp3) var(--v-sp4);
+}
+
+@media (min-width: 600px) {
+  .peopleGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.personCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--v-sp4) var(--v-sp2);
+  background-color: #fff;
+  border-radius: var(--v-radius-card);
+  box-shadow: var(--v-shadow-sm);
+  border: 1px solid var(--v-line);
+  transition: transform var(--v-duration-fast) var(--v-ease-out),
+    box-shadow var(--v-duration-fast) var(--v-ease-out);
+}
+
+.personCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--v-shadow-md);
+}
+
+.personCardName {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  margin-top: var(--v-sp2);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personCardHandle {
+  font-size: 11px;
   color: var(--v-muted);
+  margin-top: 2px;
+}
+
+.personCardBadge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: var(--v-sp2);
+  font-size: 11px;
+  color: var(--v-seal);
+  font-weight: 500;
 }
 
 /* Loading */
@@ -156,19 +286,18 @@
   width: 20px;
   height: 20px;
   border: 2px solid var(--v-line);
-  border-top-color: var(--v-ink);
+  border-top-color: var(--v-seal);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Context tags for discovery */
-.tagGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--v-sp2);
-  padding: var(--v-sp3) var(--v-sp4);
+/* Bottom spacer */
+.bottomSpacer {
+  height: var(--v-sp16);
 }

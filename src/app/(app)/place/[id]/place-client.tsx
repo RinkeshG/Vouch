@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TopBar, TopBarIconButton } from "@/components/app/top-bar";
 import { VouchCard } from "@/components/app/vouch-card";
+import { AvatarStack } from "@/components/app/avatar-stack";
 import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Tag } from "@/components/ui/tag";
 import { Stamp } from "@/components/ui/stamp";
+import { getCuisineVisual, getCuisineIcon, priceDots, getTagIcon } from "@/lib/cuisine";
 import { cn } from "@/lib/utils";
 import styles from "./place.module.css";
 
@@ -58,13 +59,32 @@ export function PlaceDetailClient({
   const [saved, setSaved] = useState(initialSaved);
   const [activeTab, setActiveTab] = useState<"vouches" | "info">("vouches");
 
-  const priceTierLabel = "$".repeat(place.priceTier);
+  const visual = getCuisineVisual(place.cuisines);
+  const cuisineIcon = getCuisineIcon(place.cuisines);
+
+  // Unique authors for social proof
+  const uniqueAuthors = vouches.reduce<
+    { handle: string; name: string; avatarUrl?: string | null }[]
+  >((acc, v) => {
+    if (!acc.find((a) => a.handle === v.authorHandle)) {
+      acc.push({
+        handle: v.authorHandle,
+        name: v.authorName,
+        avatarUrl: v.authorAvatarUrl,
+      });
+    }
+    return acc;
+  }, []);
+
+  // Collect all unique tags across vouches
+  const allTags = Array.from(
+    new Set(vouches.flatMap((v) => v.contextTags))
+  ).slice(0, 6);
 
   async function toggleSave() {
     const newSaved = !saved;
     setSaved(newSaved);
 
-    // In demo mode, just toggle locally
     if (isDemo) return;
 
     const { createClient } = await import("@/lib/supabase/client");
@@ -90,95 +110,158 @@ export function PlaceDetailClient({
 
   return (
     <div className={styles.page}>
+      {/* Transparent top bar overlaying hero */}
       <TopBar
         title=""
+        className={styles.topBar}
         left={
           <TopBarIconButton label="Go back" onClick={() => router.back()}>
             <Icon name="chevron-left" size={20} />
           </TopBarIconButton>
         }
         right={
-          <>
-            <TopBarIconButton label="Share place">
-              <Icon name="share" size={20} />
-            </TopBarIconButton>
-          </>
+          <TopBarIconButton label="Share place">
+            <Icon name="share" size={20} />
+          </TopBarIconButton>
         }
       />
 
-      {/* Hero */}
-      <div className={styles.hero}>
+      {/* ---- Visual Hero with cuisine gradient ---- */}
+      <div
+        className={styles.hero}
+        style={{ background: visual.gradient }}
+      >
+        <span className={styles.heroIcon}>{cuisineIcon}</span>
+        {/* Subtle decorative pattern */}
+        <div className={styles.heroOverlay} />
+      </div>
+
+      {/* ---- Place info card (overlaps hero) ---- */}
+      <div className={styles.infoCard}>
         <h1 className={styles.placeName}>{place.name}</h1>
+
+        {/* Meta row */}
         <div className={styles.meta}>
-          <span className={styles.vouchCount}>
-            <Stamp size={14} />
-            {place.vouchCount} vouch{place.vouchCount !== 1 ? "es" : ""}
-          </span>
-          <span className={styles.metaDot} />
           <span>{place.area}</span>
           {place.priceTier > 0 && (
             <>
               <span className={styles.metaDot} />
-              <span>{priceTierLabel}</span>
+              <span className={styles.priceDots}>
+                {priceDots(place.priceTier)}
+              </span>
             </>
           )}
           {place.isClosed && (
             <>
               <span className={styles.metaDot} />
-              <span style={{ color: "var(--v-seal)" }}>Closed</span>
+              <span className={styles.closedBadge}>Closed</span>
             </>
           )}
         </div>
+
+        {/* Cuisine pills */}
         {place.cuisines.length > 0 && (
           <div className={styles.cuisines}>
-            {place.cuisines.map((c) => (
-              <Tag key={c} variant="default" as="span">
-                {c}
-              </Tag>
+            {place.cuisines.map((c) => {
+              const cv = getCuisineVisual([c]);
+              return (
+                <span
+                  key={c}
+                  className={styles.cuisinePill}
+                  style={{
+                    "--pill-bg": cv.bg,
+                    "--pill-color": cv.color,
+                  } as React.CSSProperties}
+                >
+                  {getCuisineIcon([c])} {c}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Vouch stamp badge */}
+        <div className={styles.vouchBadge}>
+          <Stamp size={20} />
+          <span className={styles.vouchCount}>{place.vouchCount}</span>
+          <span className={styles.vouchLabel}>
+            vouch{place.vouchCount !== 1 ? "es" : ""}
+          </span>
+        </div>
+
+        {/* Social proof: who vouches */}
+        {uniqueAuthors.length > 0 && (
+          <div className={styles.socialProof}>
+            <AvatarStack
+              people={uniqueAuthors}
+              label="vouch for this place"
+            />
+          </div>
+        )}
+
+        {/* Context tags — visual mood indicators */}
+        {allTags.length > 0 && (
+          <div className={styles.moodTags}>
+            {allTags.map((tag) => (
+              <span key={tag} className={styles.moodTag}>
+                {getTagIcon(tag)} {tag}
+              </span>
             ))}
           </div>
         )}
-      </div>
 
-      {/* Action bar */}
-      <div className={styles.actionBar}>
-        <Button
-          variant={saved ? "seal" : "secondary"}
-          size="sm"
-          icon={<Icon name={saved ? "bookmark-filled" : "bookmark"} size={16} />}
-          onClick={toggleSave}
-        >
-          {saved ? "Saved" : "Save"}
-        </Button>
-        <Link href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}>
+        {/* Action buttons */}
+        <div className={styles.actions}>
           <Button
-            variant="primary"
+            variant={saved ? "seal" : "secondary"}
             size="sm"
-            icon={<Icon name="plus" size={16} />}
+            icon={
+              <Icon
+                name={saved ? "bookmark-filled" : "bookmark"}
+                size={16}
+              />
+            }
+            onClick={toggleSave}
           >
-            Vouch
+            {saved ? "Saved" : "Save"}
           </Button>
-        </Link>
-        <div className={styles.actionBarSpacer} />
+          <Link
+            href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}
+          >
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<Icon name="plus" size={16} />}
+            >
+              Vouch
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Tabs */}
+      {/* ---- Tabs ---- */}
       <div className={styles.tabs}>
         <button
-          className={cn(styles.tab, activeTab === "vouches" && styles.tabActive)}
+          className={cn(
+            styles.tab,
+            activeTab === "vouches" && styles.tabActive
+          )}
           onClick={() => setActiveTab("vouches")}
         >
           Vouches ({vouches.length})
         </button>
         <button
-          className={cn(styles.tab, activeTab === "info" && styles.tabActive)}
+          className={cn(
+            styles.tab,
+            activeTab === "info" && styles.tabActive
+          )}
           onClick={() => setActiveTab("info")}
         >
-          Info
+          Details
         </button>
       </div>
 
-      {/* Vouches tab */}
+      {/* ---- Vouches tab ---- */}
       {activeTab === "vouches" && (
         <div className={styles.vouches}>
           {vouches.length > 0 ? (
@@ -208,7 +291,9 @@ export function PlaceDetailClient({
               title="No vouches yet"
               message="Be the first to vouch for this place."
               action={
-                <Link href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}>
+                <Link
+                  href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}
+                >
                   <Button variant="seal" size="sm">
                     Vouch for {place.name}
                   </Button>
@@ -219,56 +304,81 @@ export function PlaceDetailClient({
         </div>
       )}
 
-      {/* Info tab */}
+      {/* ---- Info tab ---- */}
       {activeTab === "info" && (
-        <div className={styles.info}>
-          <div className={styles.infoRow}>
-            <Icon name="map-pin" size={18} className={styles.infoIcon} />
-            <span className={styles.infoText}>{place.area}, Bangalore</span>
+        <div className={styles.details}>
+          <div className={styles.detailCard}>
+            <div className={styles.detailRow}>
+              <div className={styles.detailIcon}>
+                <Icon name="map-pin" size={18} />
+              </div>
+              <div className={styles.detailContent}>
+                <span className={styles.detailLabel}>Location</span>
+                <span className={styles.detailValue}>
+                  {place.area}, {place.city}
+                </span>
+              </div>
+            </div>
+
+            {place.phone && (
+              <div className={styles.detailRow}>
+                <div className={styles.detailIcon}>
+                  <Icon name="send" size={18} />
+                </div>
+                <div className={styles.detailContent}>
+                  <span className={styles.detailLabel}>Phone</span>
+                  <a
+                    href={`tel:${place.phone}`}
+                    className={styles.detailLink}
+                  >
+                    {place.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {place.website && (
+              <div className={styles.detailRow}>
+                <div className={styles.detailIcon}>
+                  <Icon name="globe" size={18} />
+                </div>
+                <div className={styles.detailContent}>
+                  <span className={styles.detailLabel}>Website</span>
+                  <a
+                    href={place.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.detailLink}
+                  >
+                    Visit website
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {place.latitude && place.longitude && (
+              <div className={styles.detailRow}>
+                <div className={styles.detailIcon}>
+                  <Icon name="external" size={18} />
+                </div>
+                <div className={styles.detailContent}>
+                  <span className={styles.detailLabel}>Directions</span>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.detailLink}
+                  >
+                    Open in Google Maps
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
-
-          {place.phone && (
-            <div className={styles.infoRow}>
-              <Icon name="send" size={18} className={styles.infoIcon} />
-              <a
-                href={`tel:${place.phone}`}
-                className={cn(styles.infoText, styles.infoLink)}
-              >
-                {place.phone}
-              </a>
-            </div>
-          )}
-
-          {place.website && (
-            <div className={styles.infoRow}>
-              <Icon name="globe" size={18} className={styles.infoIcon} />
-              <a
-                href={place.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(styles.infoText, styles.infoLink)}
-              >
-                Visit website
-              </a>
-            </div>
-          )}
-
-          {place.latitude && place.longitude && (
-            <div className={styles.mapPlaceholder}>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(styles.infoText, styles.infoLink)}
-                style={{ display: "flex", alignItems: "center", gap: "4px" }}
-              >
-                <Icon name="external" size={14} />
-                Open in Google Maps
-              </a>
-            </div>
-          )}
         </div>
       )}
+
+      <div className={styles.bottomSpacer} />
     </div>
   );
 }

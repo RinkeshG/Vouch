@@ -14,6 +14,8 @@ function demoHomeFeed() {
     name: p.name,
     area: p.area,
     vouch_count: p.vouchCount,
+    cuisines: p.cuisines,
+    price_tier: p.priceTier,
   }));
 
   return (
@@ -23,6 +25,7 @@ function demoHomeFeed() {
       trending={trending}
       savedPlaceIds={DEMO_SAVED_PLACE_IDS}
       currentUserId={DEMO_USER.id}
+      userName={DEMO_USER.displayName.split(" ")[0]}
     />
   );
 }
@@ -30,12 +33,18 @@ function demoHomeFeed() {
 export default async function HomePage() {
   const user = await tryGetUser();
 
-  // No user → demo mode
   if (!user) return demoHomeFeed();
 
-  // Production — authenticated
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", user.id)
+    .single();
+
+  const userName = profile?.display_name?.split(" ")[0] || "there";
 
   const { data: circleFollows } = await supabase
     .from("follows")
@@ -53,7 +62,7 @@ export default async function HomePage() {
         `
         id, take, context_tags, created_at, user_id, place_id,
         profiles!vouches_user_id_fkey ( handle, display_name, avatar_url ),
-        places!vouches_place_id_fkey ( id, name, area )
+        places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier )
       `
       )
       .in("user_id", circleIds)
@@ -70,7 +79,7 @@ export default async function HomePage() {
       `
       id, take, context_tags, created_at, user_id, place_id,
       profiles!vouches_user_id_fkey ( handle, display_name, avatar_url ),
-      places!vouches_place_id_fkey ( id, name, area )
+      places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier )
     `
     )
     .not("user_id", "in", `(${excludeIds.join(",")})`)
@@ -81,7 +90,7 @@ export default async function HomePage() {
 
   const { data: trendingData } = await supabase
     .from("places")
-    .select("id, name, area, vouch_count")
+    .select("id, name, area, vouch_count, cuisines, price_tier")
     .order("vouch_count", { ascending: false })
     .gt("vouch_count", 0)
     .limit(8);
@@ -98,6 +107,7 @@ export default async function HomePage() {
       trending={trendingData || []}
       savedPlaceIds={(savedData || []).map((s) => s.place_id)}
       currentUserId={user.id}
+      userName={userName}
     />
   );
 }
@@ -114,6 +124,8 @@ interface FeedVouch {
   placeId: string;
   placeName: string;
   placeArea: string;
+  cuisines: string[];
+  priceTier: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,5 +144,7 @@ function mapVouch(row: any): FeedVouch {
     placeId: place?.id || row.place_id,
     placeName: place?.name || "Unknown Place",
     placeArea: place?.area || "",
+    cuisines: place?.cuisines || [],
+    priceTier: place?.price_tier || 0,
   };
 }
