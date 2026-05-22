@@ -96,7 +96,11 @@ export default function SignUpPage() {
     setLoading(false);
 
     if (error) {
-      setError("Something went wrong. Please try again.");
+      if (error.status === 429 || error.message?.toLowerCase().includes("rate")) {
+        setError("Too many attempts. Please wait a few minutes and try again.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
       return;
     }
 
