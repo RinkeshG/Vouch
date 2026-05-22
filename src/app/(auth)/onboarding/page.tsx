@@ -9,6 +9,7 @@ import { Icon } from "@/components/ui/icon";
 import { Tag } from "@/components/ui/tag";
 import { Stamp } from "@/components/ui/stamp";
 import { CONTEXT_TAGS } from "@/types";
+import { getOnboardingCategories } from "@/lib/local-places";
 import styles from "./onboarding.module.css";
 
 interface PlaceResult {
@@ -48,10 +49,36 @@ export default function OnboardingPage() {
   // Tasteline state
   const [tasteLine, setTasteLine] = useState("");
 
+  // Curated categories for tile grid
+  const [categories] = useState(() => getOnboardingCategories());
+
   // Saving state
   const [saving, setSaving] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Redirect if user is not authenticated or already finished onboarding
+  useEffect(() => {
+    async function checkOnboardingState() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/sign-in");
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_step")
+        .eq("id", user.id)
+        .single();
+
+      if (profile && profile.onboarding_step >= 4) {
+        router.push("/home");
+      }
+    }
+    checkOnboardingState();
+  }, [supabase, router]);
 
   const searchPlaces = useCallback(async (q: string) => {
     if (q.length < 2) {
@@ -201,10 +228,15 @@ export default function OnboardingPage() {
         profileUpdate.taste_line = tasteLine.trim();
       }
 
-      await supabase
+      const { error: updateError } = await supabase
         .from("profiles")
         .update(profileUpdate)
         .eq("id", user.id);
+
+      if (updateError) {
+        setSaving(false);
+        return;
+      }
 
       router.push("/welcome");
     } catch {
@@ -358,18 +390,23 @@ export default function OnboardingPage() {
           <div className={styles.searchLabel}>
             Place {filled + 1} of 4
           </div>
-          <Input
-            placeholder="Search for a restaurant, cafe, bar..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            adornStart={<Icon name="search" size={18} />}
-            adornEnd={
-              searching ? <span className={styles.spinner} /> : null
-            }
-            autoFocus
-          />
 
-          {results.length > 0 && (
+          {/* Search bar — always visible at top */}
+          <div className={styles.searchInputWrap}>
+            <Input
+              placeholder="Search for a restaurant, cafe, bar..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              adornStart={<Icon name="search" size={18} />}
+              adornEnd={
+                searching ? <span className={styles.spinner} /> : null
+              }
+              autoFocus
+            />
+          </div>
+
+          {/* Search results — show if query is active */}
+          {query.length >= 2 && results.length > 0 && (
             <div className={styles.results}>
               {results.map((place) => {
                 const alreadyPicked = vouches.some(
@@ -402,6 +439,45 @@ export default function OnboardingPage() {
             <p className={styles.noResults}>
               No places found for &ldquo;{query}&rdquo;. Try a different search.
             </p>
+          )}
+
+          {/* Curated grid — show when NO search query */}
+          {query.length < 2 && (
+            <div className={styles.tileGrid}>
+              {categories.map((cat) => (
+                <div key={cat.label} className={styles.tileCategory}>
+                  <div className={styles.tileCategoryLabel}>
+                    <span>{cat.emoji}</span>
+                    <span>{cat.label}</span>
+                  </div>
+                  <div className={styles.tileCategoryGrid}>
+                    {cat.places.map((place) => {
+                      const alreadyPicked = vouches.some(
+                        (v) => v.place.place_id === place.place_id
+                      );
+                      return (
+                        <button
+                          key={place.place_id}
+                          className={`${styles.tile} ${alreadyPicked ? styles.tileDisabled : ""}`}
+                          onClick={() => selectPlace(place)}
+                          disabled={alreadyPicked}
+                        >
+                          <span className={styles.tileName}>{place.name}</span>
+                          <span className={styles.tileArea}>
+                            {place.formatted_address.split(",")[0]}
+                          </span>
+                          {alreadyPicked && (
+                            <span className={styles.tileCheck}>
+                              <Icon name="check" size={14} />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

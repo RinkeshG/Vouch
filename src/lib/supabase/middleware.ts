@@ -1,8 +1,12 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { type User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function updateSession(request: NextRequest) {
+export async function updateSession(
+  request: NextRequest
+): Promise<{ response: NextResponse; user: User | null }> {
   let supabaseResponse = NextResponse.next({ request });
+  let user: User | null = null;
 
   try {
     const supabase = createServerClient(
@@ -27,11 +31,12 @@ export async function updateSession(request: NextRequest) {
     );
 
     // Refresh the auth token — important for Server Components.
-    await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
   } catch {
     // If Supabase is rate-limited or unreachable, continue without auth refresh.
     // The page will handle unauthenticated state gracefully.
   }
 
-  return supabaseResponse;
+  return { response: supabaseResponse, user };
 }

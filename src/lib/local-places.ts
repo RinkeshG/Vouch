@@ -12,7 +12,7 @@ export interface LocalPlace {
   types: string[];
 }
 
-const BANGALORE_PLACES: LocalPlace[] = [
+export const BANGALORE_PLACES: LocalPlace[] = [
   // South Indian classics
   { place_id: "local-001", name: "Vidyarthi Bhavan", formatted_address: "Gandhi Bazaar, Basavanagudi, Bangalore", geometry: { location: { lat: 12.9432, lng: 77.5674 } }, types: ["south_indian", "restaurant"] },
   { place_id: "local-002", name: "CTR (Central Tiffin Room)", formatted_address: "7th Cross, Malleshwaram, Bangalore", geometry: { location: { lat: 12.9967, lng: 77.5713 } }, types: ["south_indian", "restaurant"] },
@@ -73,6 +73,52 @@ const BANGALORE_PLACES: LocalPlace[] = [
   { place_id: "local-041", name: "Edo Japanese", formatted_address: "ITC Gardenia, Residency Road, Bangalore", geometry: { location: { lat: 12.9700, lng: 77.6045 } }, types: ["japanese", "fine_dining"] },
   { place_id: "local-042", name: "Nasi and Mee", formatted_address: "Church Street, Bangalore", geometry: { location: { lat: 12.9748, lng: 77.6068 } }, types: ["malaysian", "asian", "restaurant"] },
 ];
+
+export interface PlaceCategory {
+  label: string;
+  emoji: string;
+  places: LocalPlace[];
+}
+
+export function getOnboardingCategories(): PlaceCategory[] {
+  return [
+    {
+      label: "South Indian Classics",
+      emoji: "🫓",
+      places: BANGALORE_PLACES.filter(p => p.types.includes("south_indian")).slice(0, 6),
+    },
+    {
+      label: "Biryani & Andhra",
+      emoji: "🍚",
+      places: BANGALORE_PLACES.filter(p => p.types.some(t => ["biryani", "andhra", "mughlai"].includes(t))).slice(0, 4),
+    },
+    {
+      label: "Cafes & Coffee",
+      emoji: "☕",
+      places: BANGALORE_PLACES.filter(p => p.types.some(t => ["cafe", "coffee"].includes(t))).slice(0, 6),
+    },
+    {
+      label: "Bars & Brewpubs",
+      emoji: "🍺",
+      places: BANGALORE_PLACES.filter(p => p.types.some(t => ["bar", "brewpub", "pub"].includes(t))).slice(0, 4),
+    },
+    {
+      label: "Casual & Global",
+      emoji: "🍔",
+      places: BANGALORE_PLACES.filter(p => p.types.some(t => ["burger", "continental", "asian", "mexican", "burmese", "italian", "pizza"].includes(t))).slice(0, 6),
+    },
+    {
+      label: "Fine Dining",
+      emoji: "✨",
+      places: BANGALORE_PLACES.filter(p => p.types.includes("fine_dining")).slice(0, 4),
+    },
+    {
+      label: "Street Food & Quick Bites",
+      emoji: "🛒",
+      places: BANGALORE_PLACES.filter(p => p.types.some(t => ["street_food", "ice_cream", "dessert"].includes(t))).slice(0, 4),
+    },
+  ];
+}
 
 /**
  * Search local places by name or area.

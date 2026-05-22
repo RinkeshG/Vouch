@@ -9,7 +9,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  return await updateSession(request);
+  const { response, user } = await updateSession(request);
+  const pathname = request.nextUrl.pathname;
+
+  // Root page: authenticated users go straight to /home
+  if (pathname === "/" && user) {
+    return NextResponse.redirect(new URL("/home", request.url));
+  }
+
+  // Auth pages: already-authenticated users skip sign-in/sign-up
+  if ((pathname === "/sign-up" || pathname === "/sign-in") && user) {
+    return NextResponse.redirect(new URL("/home", request.url));
+  }
+
+  return response;
 }
 
 export const config = {
