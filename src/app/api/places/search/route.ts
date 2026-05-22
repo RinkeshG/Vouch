@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { searchLocalPlaces } from "@/lib/local-places";
 
 const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
@@ -18,11 +19,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ results: [] });
   }
 
+  // No Google API key — fall back to curated local Bangalore directory
   if (!GOOGLE_API_KEY) {
-    return NextResponse.json(
-      { error: "Google Places API key not configured" },
-      { status: 500 }
-    );
+    const results = searchLocalPlaces(query);
+    return NextResponse.json({ results });
   }
 
   const bounds = CITY_BOUNDS[city] || CITY_BOUNDS.bangalore;
@@ -58,9 +58,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ results });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to search places" },
-      { status: 500 }
-    );
+    // If Google fails, fall back to local
+    const results = searchLocalPlaces(query);
+    return NextResponse.json({ results });
   }
 }
