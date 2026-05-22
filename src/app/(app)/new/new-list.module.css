@@ -433,6 +433,19 @@
   padding: var(--v-sp3) var(--v-sp6);
 }
 
+.publishError {
+  max-width: 720px;
+  margin: 0 auto var(--v-sp2);
+  padding: 8px 12px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--v-radius-tag);
+  color: var(--v-seal);
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .publishBarInner {
   max-width: 720px;
   margin: 0 auto;

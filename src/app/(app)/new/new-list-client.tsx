@@ -84,6 +84,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState("");
+  const [publishError, setPublishError] = useState("");
 
   // Note editing
   const [editingNote, setEditingNote] = useState<string | null>(null);
@@ -238,16 +239,50 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
   async function handlePublish() {
     if (!canPublish || publishing) return;
     setPublishing(true);
+    setPublishError("");
 
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
+      // Get the authenticated user from the client session
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        setPublishError("You need to be signed in to publish. Please refresh and try again.");
+        setPublishing(false);
+        return;
+      }
+
+      // Ensure profile exists (FK: lists.user_id → profiles.id)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        // Profile missing — attempt to create a minimal one
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: user.id,
+            handle: "user_" + user.id.substring(0, 8),
+            display_name: user.user_metadata?.display_name || user.email?.split("@")[0] || "User",
+          });
+
+        if (profileError) {
+          console.error("Profile creation failed:", profileError.message);
+          setPublishError("Couldn't set up your profile. Please try signing out and back in.");
+          setPublishing(false);
+          return;
+        }
+      }
+
       // 1. Insert list
       const { data: list, error: listError } = await supabase
         .from("lists")
         .insert({
-          user_id: userId,
+          user_id: user.id,
           title: title.trim(),
           description: description.trim() || null,
           slug,
@@ -261,6 +296,11 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
 
       if (listError || !list) {
         console.error("List insert failed:", listError?.message);
+        setPublishError(
+          listError?.message?.includes("slug")
+            ? "A list with this URL already exists. Try a different title."
+            : `Couldn't create list: ${listError?.message || "unknown error"}`
+        );
         setPublishing(false);
         return;
       }
@@ -271,7 +311,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
 
         // Upsert place (local or Google)
         const isLocal = item.placeId.startsWith("local-");
-        const { data: place } = await supabase
+        const { data: place, error: placeError } = await supabase
           .from("places")
           .upsert(
             {
@@ -287,13 +327,20 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
           .select("id")
           .single();
 
+        if (placeError) {
+          console.error(`Place upsert failed for ${item.name}:`, placeError.message);
+        }
+
         if (place) {
-          await supabase.from("list_places").insert({
+          const { error: lpError } = await supabase.from("list_places").insert({
             list_id: list.id,
             place_id: place.id,
             position: i,
             note: item.note || null,
           });
+          if (lpError) {
+            console.error(`List place insert failed for ${item.name}:`, lpError.message);
+          }
         }
       }
 
@@ -301,6 +348,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
       setPublished(true);
     } catch (err) {
       console.error("Publish error:", err);
+      setPublishError("Something went wrong. Please try again.");
     } finally {
       setPublishing(false);
     }
@@ -541,6 +589,9 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
 
       {/* Fixed publish bar */}
       <div className={styles.publishBar}>
+        {publishError && (
+          <div className={styles.publishError}>{publishError}</div>
+        )}
         <div className={styles.publishBarInner}>
           <div className={styles.placeCounter}>
             <span className={styles.placeCountNum} key={items.length}>
