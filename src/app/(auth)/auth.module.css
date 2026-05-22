@@ -1,20 +1,21 @@
+/* ============================================================
+   Auth Shell — Clean centered layout on paper background
+   ============================================================ */
+
 .shell {
-  display: flex;
   min-height: 100vh;
   min-height: 100dvh;
-}
-
-.formSide {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--v-sp8) var(--v-sp5);
+  padding-top: calc(var(--v-sp8) + var(--v-safe-top));
+  padding-bottom: calc(var(--v-sp8) + var(--v-safe-bottom));
 }
 
 .formInner {
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
 }
 
 .logo {
@@ -28,53 +29,12 @@
   opacity: 0.7;
 }
 
-.editorialSide {
-  display: none;
-  width: 45%;
-  background: linear-gradient(160deg, #1C1814 0%, var(--v-dark-paper) 100%);
-  color: var(--v-dark-ink);
-  padding: var(--v-sp16);
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-.editorialContent {
-  max-width: 360px;
-}
-
-.quote {
-  font-family: var(--v-font-serif);
-  font-size: 26px;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  font-style: italic;
-  margin-bottom: var(--v-sp6);
-}
-
-.attribution {
-  display: flex;
-  align-items: center;
-  gap: var(--v-sp3);
-}
-
-.attributionName {
-  font-family: var(--v-font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--v-dark-muted);
-}
-
-/* Mobile: add safe area padding */
+/* ---- Mobile ---- */
 @media (max-width: 640px) {
-  .formSide {
+  .shell {
     padding: var(--v-sp6) var(--v-sp5);
     padding-top: calc(var(--v-sp6) + var(--v-safe-top));
     padding-bottom: calc(var(--v-sp6) + var(--v-safe-bottom));
-  }
-}
-
-@media (min-width: 1024px) {
-  .editorialSide {
-    display: flex;
+    align-items: flex-start;
   }
 }
