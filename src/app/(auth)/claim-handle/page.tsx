@@ -80,14 +80,14 @@ export default function ClaimHandlePage() {
   function statusMessage(): string | undefined {
     switch (handleStatus) {
       case "checking": return "Checking...";
-      case "taken": return "Already taken";
+      case "taken": return "This username is taken";
       case "invalid": return "3–20 chars, lowercase letters, numbers, underscores";
       default: return undefined;
     }
   }
 
   function statusHint(): string | undefined {
-    if (handleStatus === "available") return "Available!";
+    if (handleStatus === "available") return "Username available!";
     return undefined;
   }
 
@@ -114,7 +114,7 @@ export default function ClaimHandlePage() {
       if (updateError) {
         if (updateError.message.includes("unique")) {
           setHandleStatus("taken");
-          setError("This handle was just taken. Try another.");
+          setError("This username was just taken. Try another.");
         } else {
           setError("Something went wrong. Please try again.");
         }
@@ -131,15 +131,15 @@ export default function ClaimHandlePage() {
 
   return (
     <div>
-      <h1 className={styles.title}>Claim your handle</h1>
+      <h1 className={styles.title}>Pick your username</h1>
       <p className={styles.sub}>
-        One more thing — pick a unique handle for your Vouch profile.
+        One more thing — pick a unique username for your Vouch profile.
         This is how friends will find you.
       </p>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <Input
-          label="Handle"
+          label="Username"
           placeholder="yourname"
           value={handle}
           onChange={(e) => onHandleChange(e.target.value)}

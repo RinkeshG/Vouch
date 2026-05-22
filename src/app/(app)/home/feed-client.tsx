@@ -64,12 +64,14 @@ interface HomeFeedClientProps {
   feedItems: FeedItem[];
   savedPlaceIds: string[];
   currentUserId: string;
+  isDemo?: boolean;
 }
 
 export function HomeFeedClient({
   feedItems,
   savedPlaceIds,
   currentUserId,
+  isDemo,
 }: HomeFeedClientProps) {
   const savedSet = new Set(savedPlaceIds);
   const hasFeed = feedItems.length > 0;

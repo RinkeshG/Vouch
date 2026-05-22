@@ -15,6 +15,7 @@ function demoHomeFeed() {
       feedItems={feedItems as FeedItem[]}
       savedPlaceIds={DEMO_SAVED_PLACE_IDS}
       currentUserId={DEMO_USER.id}
+      isDemo
     />
   );
 }
@@ -75,6 +76,12 @@ export default async function HomePage() {
 
   for (const row of discoverData || []) {
     feedItems.push(mapVouchToFeedItem(row));
+  }
+
+  // If authenticated user has no feed data, show demo feed so the app
+  // feels alive rather than an empty screen
+  if (feedItems.length === 0) {
+    return demoHomeFeed();
   }
 
   // Sort by recency

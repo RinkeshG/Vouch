@@ -64,14 +64,14 @@ export default function SignUpPage() {
     switch (handleStatus) {
       case "checking": return "Checking availability...";
       case "available": return undefined;
-      case "taken": return "This handle is already taken";
+      case "taken": return "This username is already taken";
       case "invalid": return "3–20 chars, lowercase letters, numbers, underscores only";
       default: return undefined;
     }
   }
 
   function handleStatusHint(): string | undefined {
-    if (handleStatus === "available") return "This handle is available!";
+    if (handleStatus === "available") return "This username is available!";
     return undefined;
   }
 
@@ -129,7 +129,7 @@ export default function SignUpPage() {
         <h1 className={styles.sentTitle}>Check your email</h1>
         <p className={styles.sentBody}>
           We sent a sign-in link to <strong>{email}</strong>.
-          Click it to claim <strong>@{handle}</strong> and start building your list.
+          Click it to claim <strong>@{handle}</strong> and start building your taste profile.
         </p>
         <button
           className={styles.resend}
@@ -143,15 +143,15 @@ export default function SignUpPage() {
 
   return (
     <div>
-      <h1 className={styles.title}>Claim your handle</h1>
+      <h1 className={styles.title}>Pick your username</h1>
       <p className={styles.sub}>
-        Your handle is your identity on Vouch — it&rsquo;s how friends
+        Your username is your identity on Vouch — it&rsquo;s how friends
         find you and how your taste profile lives on the web.
       </p>
 
       <form onSubmit={handleSignUp} className={styles.form}>
         <Input
-          label="Handle"
+          label="Username"
           placeholder="yourname"
           value={handle}
           onChange={(e) => onHandleChange(e.target.value)}
@@ -171,8 +171,7 @@ export default function SignUpPage() {
 
         {handle && handleStatus === "available" && (
           <p className={styles.handlePreview}>
-            Your profile will live at{" "}
-            <strong>vouch.app/@{handle}</strong>
+            Your profile → <strong>vouch.app/@{handle}</strong>
           </p>
         )}
 

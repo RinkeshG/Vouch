@@ -14,11 +14,27 @@ export async function GET(request: Request) {
       if (!error) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("onboarding_step, handle")
-            .eq("id", user.id)
-            .single();
+          // Profile may not exist yet if the trigger is still running.
+          // Retry up to 3 times with a short delay.
+          let profile: { onboarding_step: number; handle: string } | null = null;
+
+          for (let attempt = 0; attempt < 3; attempt++) {
+            const { data } = await supabase
+              .from("profiles")
+              .select("onboarding_step, handle")
+              .eq("id", user.id)
+              .maybeSingle();
+
+            if (data) {
+              profile = data;
+              break;
+            }
+
+            // Wait 500ms before retrying
+            if (attempt < 2) {
+              await new Promise((r) => setTimeout(r, 500));
+            }
+          }
 
           // Fully onboarded — go to home
           if (profile && profile.onboarding_step >= 4) {
@@ -26,7 +42,7 @@ export async function GET(request: Request) {
           }
 
           // Google OAuth users get auto-generated handles (user_XXXXXXXX)
-          // If handle looks auto-generated, send them to claim a real handle first
+          // If handle looks auto-generated, send them to claim a real username first
           if (profile && profile.handle.startsWith("user_")) {
             return NextResponse.redirect(`${origin}/claim-handle`);
           }
