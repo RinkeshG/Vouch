@@ -1,29 +1,20 @@
-import {
-  DEMO_USER,
-  DEMO_SAVED_PLACE_IDS,
-  getDemoHomeFeed,
-} from "@/lib/demo";
 import { tryGetUser } from "@/lib/demo-server";
 import { HomeFeedClient } from "./feed-client";
 import type { FeedItem } from "./feed-client";
 
-function demoHomeFeed() {
-  const feedItems = getDemoHomeFeed();
-
-  return (
-    <HomeFeedClient
-      feedItems={feedItems as FeedItem[]}
-      savedPlaceIds={DEMO_SAVED_PLACE_IDS}
-      currentUserId={DEMO_USER.id}
-      isDemo
-    />
-  );
-}
-
 export default async function HomePage() {
   const user = await tryGetUser();
 
-  if (!user) return demoHomeFeed();
+  // Not authenticated — show empty state prompting sign-up
+  if (!user) {
+    return (
+      <HomeFeedClient
+        feedItems={[]}
+        savedPlaceIds={[]}
+        currentUserId=""
+      />
+    );
+  }
 
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
@@ -59,7 +50,8 @@ export default async function HomePage() {
     }
   }
 
-  // Fetch discover vouches (beyond circle)
+  // Fetch all public vouches as discover feed
+  // (for new users this is their entire feed)
   const excludeIds = [user.id, ...circleIds];
   const { data: discoverData } = await supabase
     .from("vouches")
@@ -78,10 +70,22 @@ export default async function HomePage() {
     feedItems.push(mapVouchToFeedItem(row));
   }
 
-  // If authenticated user has no feed data, show demo feed so the app
-  // feels alive rather than an empty screen
-  if (feedItems.length === 0) {
-    return demoHomeFeed();
+  // Also include the user's own vouches so they see their own activity
+  const { data: ownVouches } = await supabase
+    .from("vouches")
+    .select(
+      `
+      id, take, context_tags, created_at, user_id, place_id,
+      profiles!vouches_user_id_fkey ( handle, display_name, avatar_url ),
+      places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier, cover_image_url )
+    `
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  for (const row of ownVouches || []) {
+    feedItems.push(mapVouchToFeedItem(row));
   }
 
   // Sort by recency

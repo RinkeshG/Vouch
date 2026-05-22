@@ -50,17 +50,26 @@ export default async function AppLayout({
   }
 
   // Supabase is configured — try to authenticate
+  let user = null;
   try {
     const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Auth check failed (rate limited, network) — fall through
+  }
 
-    if (!user) {
-      return <DemoShell>{children}</DemoShell>;
-    }
+  // Not authenticated → demo mode
+  if (!user) {
+    return <DemoShell>{children}</DemoShell>;
+  }
+
+  // Authenticated — get profile (separate try/catch so auth errors don't cascade)
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -68,37 +77,55 @@ export default async function AppLayout({
       .eq("id", user.id)
       .single();
 
-    if (!profile || profile.onboarding_step < 4) {
-      return <DemoShell>{children}</DemoShell>;
-    }
+    // If profile doesn't exist yet or onboarding incomplete,
+    // still show real shell (not demo) with fallback values
+    const handle = profile?.handle || "user";
+    const displayName = profile?.display_name || "User";
+    const avatarUrl = profile?.avatar_url || null;
 
+    // Fetch sidebar data — these are non-critical, failures are fine
     const { data: suggestedPeople } = await supabase
       .from("profiles")
-      .select("id, handle, display_name, avatar_url, vouch_count")
+      .select("id, handle, display_name, avatar_url")
       .eq("is_public", true)
       .neq("id", user.id)
-      .order("vouch_count", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(3);
 
     const { data: trendingPlaces } = await supabase
       .from("places")
-      .select("id, name, area, vouch_count")
+      .select("id, name, area, cuisines, vouch_count")
       .order("vouch_count", { ascending: false })
       .gt("vouch_count", 0)
       .limit(3);
 
     return (
       <AppShellClient
-        handle={profile.handle}
-        displayName={profile.display_name}
-        avatarUrl={profile.avatar_url}
-        suggestedPeople={suggestedPeople || []}
+        handle={handle}
+        displayName={displayName}
+        avatarUrl={avatarUrl}
+        suggestedPeople={(suggestedPeople || []).map((p) => ({
+          ...p,
+          vouch_count: 0,
+        }))}
         trendingPlaces={trendingPlaces || []}
       >
         {children}
       </AppShellClient>
     );
   } catch {
-    return <DemoShell>{children}</DemoShell>;
+    // Profile/sidebar queries failed but user IS authenticated
+    // Show real shell with fallback values — never dump back to demo
+    return (
+      <AppShellClient
+        handle="user"
+        displayName="User"
+        avatarUrl={null}
+        suggestedPeople={[]}
+        trendingPlaces={[]}
+      >
+        {children}
+      </AppShellClient>
+    );
   }
 }

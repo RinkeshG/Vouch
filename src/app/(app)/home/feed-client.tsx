@@ -64,14 +64,12 @@ interface HomeFeedClientProps {
   feedItems: FeedItem[];
   savedPlaceIds: string[];
   currentUserId: string;
-  isDemo?: boolean;
 }
 
 export function HomeFeedClient({
   feedItems,
   savedPlaceIds,
   currentUserId,
-  isDemo,
 }: HomeFeedClientProps) {
   const savedSet = new Set(savedPlaceIds);
   const hasFeed = feedItems.length > 0;
@@ -192,12 +190,27 @@ export function HomeFeedClient({
         <div className={styles.emptyWrap}>
           <EmptyState
             icon="vouch"
-            title="Your feed is empty"
-            message="Follow people whose taste you trust to see their recommendations here."
+            title={currentUserId ? "You're all set" : "See what people are vouching for"}
+            message={
+              currentUserId
+                ? "Your vouches are saved. Follow people to see their recommendations here, or vouch for more places."
+                : "Sign up to vouch for your favorite places and follow people whose taste you trust."
+            }
             action={
-              <Link href="/search">
-                <Button variant="seal">Find people to follow</Button>
-              </Link>
+              currentUserId ? (
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <Link href="/add">
+                    <Button variant="seal">Vouch a place</Button>
+                  </Link>
+                  <Link href="/search">
+                    <Button variant="secondary">Find people</Button>
+                  </Link>
+                </div>
+              ) : (
+                <Link href="/sign-up">
+                  <Button variant="seal">Get started</Button>
+                </Link>
+              )
             }
           />
         </div>
