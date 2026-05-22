@@ -1,34 +1,54 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const PROTECTED_PREFIXES = ["/home", "/search", "/saved", "/add", "/place", "/list"];
-
 export async function middleware(request: NextRequest) {
   const { response, user } = await updateSession(request);
   const pathname = request.nextUrl.pathname;
 
-  // Root page: authenticated users go to /home, unauthenticated go to /sign-in
+  // /@handle URLs: rewrite to /[handle] internally (Next.js reserves @ for parallel routes)
+  if (pathname.startsWith("/@")) {
+    const rewritten = pathname.replace(/^\/@/, "/");
+    const url = request.nextUrl.clone();
+    url.pathname = rewritten;
+    return NextResponse.rewrite(url);
+  }
+
+  // Root page: pass through — landing page renders for everyone
   if (pathname === "/") {
-    if (user) {
-      return NextResponse.redirect(new URL("/home", request.url));
-    }
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    return response;
   }
 
-  // Auth pages: already-authenticated users skip sign-in/sign-up
+  // Auth pages: already-authenticated users go to their profile
   if ((pathname === "/sign-up" || pathname === "/sign-in") && user) {
-    return NextResponse.redirect(new URL("/home", request.url));
+    // Fetch handle to redirect to profile
+    try {
+      const { createServerClient } = await import("@supabase/ssr");
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { cookies: { getAll: () => request.cookies.getAll() } }
+      );
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("handle")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile?.handle) {
+        return NextResponse.redirect(new URL(`/@${profile.handle}`, request.url));
+      }
+    } catch {
+      // Fall through
+    }
+    return NextResponse.redirect(new URL("/new", request.url));
   }
 
-  // Protected routes: unauthenticated users go to /sign-in
-  const isProtected = PROTECTED_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-  );
-
-  if (isProtected && !user) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+  // Protected route: /new requires auth
+  if (pathname === "/new" && !user) {
+    return NextResponse.redirect(new URL("/sign-up?next=/new", request.url));
   }
 
+  // Everything else (/@handle, /explore, public pages): pass through
   return response;
 }
 

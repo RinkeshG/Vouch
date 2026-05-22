@@ -4,23 +4,18 @@ import styles from "./how-it-works.module.css";
 const steps: { icon: IconName; title: string; body: string }[] = [
   {
     icon: "edit",
-    title: "Claim your handle",
-    body: "Pick a unique handle and tell us your city. That's your identity on Vouch — short, simple, yours.",
+    title: "Pick your handle",
+    body: "Claim a unique handle — that becomes your profile URL. Quick, simple, yours forever.",
   },
   {
-    icon: "vouch",
-    title: "Vouch for four places",
-    body: "Share the places you actually go back to. Write a take for each — the way you'd tell a friend. Your profile goes live once you hit four.",
+    icon: "list",
+    title: "Name your list & add places",
+    body: "Type a name, search for places, tap to add. Build curated lists of your favorites — cafes, biryani spots, date nights, whatever you love.",
   },
   {
-    icon: "users",
-    title: "Build your circle",
-    body: "Follow the people whose taste you trust. Friends, food friends, that one colleague who always picks the right spot.",
-  },
-  {
-    icon: "search",
-    title: "Discover through trust",
-    body: "Your feed shows only recommendations from your circle. No noise, no strangers, no sponsored posts. Just signal.",
+    icon: "share",
+    title: "Share your beautiful link",
+    body: "Hit publish and share your list anywhere — WhatsApp, Instagram, Twitter. Friends see it, love it, create their own.",
   },
 ];
 
@@ -30,7 +25,7 @@ export function HowItWorks() {
       <div className={styles.inner}>
         <h2 className={styles.heading}>How it works</h2>
         <p className={styles.intro}>
-          From sign-up to your first discovery — it takes about three minutes.
+          From sign-up to your first published list — about two minutes.
         </p>
 
         <div className={styles.steps}>

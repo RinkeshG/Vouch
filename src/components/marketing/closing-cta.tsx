@@ -10,10 +10,10 @@ export function ClosingCta() {
       <div className={styles.inner}>
         <Stamp size={48} animated />
         <h2 className={styles.heading}>
-          Your friends already know{"\n"}where to eat
+          Your taste deserves{"\n"}a beautiful home
         </h2>
         <p className={styles.body}>
-          Start building your list. It takes three minutes.
+          Create your first list in two minutes. Share it everywhere.
         </p>
         <Link href="/sign-up">
           <Button
@@ -21,7 +21,7 @@ export function ClosingCta() {
             variant="seal"
             icon={<Icon name="arrow-right" size={18} />}
           >
-            Build your list
+            Create your first list
           </Button>
         </Link>
       </div>

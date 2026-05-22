@@ -4,23 +4,23 @@ import styles from "./principles.module.css";
 const principles = [
   {
     number: "01",
-    title: "Real people, real takes",
-    body: "Every vouch comes with a personal take — not a star rating, not a template. You hear it the way your friend would say it to you over coffee.",
+    title: "Curation over reviews",
+    body: "No star ratings, no anonymous reviews. Just curated lists from real people who actually eat there. Your taste, organized beautifully.",
   },
   {
     number: "02",
-    title: "Your circle, your signal",
-    body: "You only see recommendations from people you follow. No strangers, no sponsored content, no algorithms deciding what you should eat.",
+    title: "Beautiful by default",
+    body: "Every list you publish looks stunning. Pick a color, add an emoji, write a note — share something people actually want to screenshot.",
   },
   {
     number: "03",
-    title: "Skin in the game",
-    body: "Your profile doesn't go live until you vouch for four places. Everyone who's here has contributed. No lurkers, just tastemakers.",
+    title: "Frictionless creation",
+    body: "Name your list, search, tap to add. No forms, no required fields, no friction. Building a list feels like making a playlist.",
   },
   {
     number: "04",
-    title: "One city at a time",
-    body: "We go deep, not wide. Starting with Bangalore — every neighbourhood, every hidden gem, every late-night spot your circle actually goes to.",
+    title: "One city, done right",
+    body: "Starting with Bangalore — every neighbourhood, every hidden gem, every late-night spot. Going deep before going wide.",
   },
 ];
 
@@ -33,7 +33,7 @@ export function Principles() {
           <h2 className={styles.heading}>Why Vouch</h2>
         </div>
         <p className={styles.intro}>
-          Built on a simple belief: the best food recommendations come from
+          Built on a simple belief: the best recommendations come from
           people whose taste you trust, not the internet at large.
         </p>
 

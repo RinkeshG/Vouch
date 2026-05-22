@@ -14,25 +14,25 @@ export function Hero() {
         </div>
 
         <h1 className={styles.headline}>
-          The only restaurant guide that matters is your{" "}
-          <em className={styles.em}>friends&rsquo;</em>
+          Build and share curated lists of your{" "}
+          <em className={styles.em}>favorite places</em>
         </h1>
 
         <p className={styles.sub}>
-          No strangers. No algorithms. Just honest takes from the people
-          you actually trust. Vouch for the places you love, discover
-          through your circle.
+          Name it, curate it, share it. Create beautiful, shareable lists
+          of the places you love — from the best biryani spots to
+          your go-to cafes. Your taste, beautifully organized.
         </p>
 
         <div className={styles.ctas}>
           <Link href="/sign-up">
             <Button size="lg" icon={<Icon name="arrow-right" size={18} />}>
-              Build your list
+              Create your first list
             </Button>
           </Link>
-          <Link href="/home">
+          <Link href="/explore">
             <Button variant="ghost" size="lg">
-              Preview the app
+              Explore lists
             </Button>
           </Link>
         </div>
@@ -53,7 +53,7 @@ export function Hero() {
             ))}
           </div>
           <p className={styles.proofText}>
-            Joined by <strong>500+</strong> people building their lists in Bangalore
+            Joined by <strong>500+</strong> people curating their lists in Bangalore
           </p>
         </div>
       </div>

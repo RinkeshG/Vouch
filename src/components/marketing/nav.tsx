@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Lockup, Stamp } from "@/components/ui/stamp";
+import { Lockup } from "@/components/ui/stamp";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import styles from "./nav.module.css";
@@ -18,11 +18,8 @@ export function MarketingNav() {
         </Link>
 
         <div className={styles.links}>
-          <Link href="/how-it-works" className={styles.link}>
-            How it works
-          </Link>
-          <Link href="/manifesto" className={styles.link}>
-            Manifesto
+          <Link href="/explore" className={styles.link}>
+            Explore
           </Link>
         </div>
 
@@ -34,7 +31,7 @@ export function MarketingNav() {
           </Link>
           <Link href="/sign-up">
             <Button variant="primary" size="sm">
-              Build your list
+              Create a list
             </Button>
           </Link>
         </div>
@@ -53,18 +50,11 @@ export function MarketingNav() {
         <div className={styles.mobileMenu} role="dialog" aria-label="Mobile menu">
           <div className={styles.mobileLinks}>
             <Link
-              href="/how-it-works"
+              href="/explore"
               className={styles.mobileLink}
               onClick={() => setMenuOpen(false)}
             >
-              How it works
-            </Link>
-            <Link
-              href="/manifesto"
-              className={styles.mobileLink}
-              onClick={() => setMenuOpen(false)}
-            >
-              Manifesto
+              Explore
             </Link>
           </div>
           <div className={styles.mobileActions}>
@@ -75,7 +65,7 @@ export function MarketingNav() {
             </Link>
             <Link href="/sign-up" style={{ width: "100%" }}>
               <Button variant="primary" size="lg" fullWidth>
-                Build your list
+                Create a list
               </Button>
             </Link>
           </div>

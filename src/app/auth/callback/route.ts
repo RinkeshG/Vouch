@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/onboarding";
+  const next = searchParams.get("next") ?? "/new";
 
   if (code) {
     try {
@@ -36,17 +36,18 @@ export async function GET(request: Request) {
             }
           }
 
-          // Fully onboarded — go to home
-          if (profile && profile.onboarding_step >= 4) {
-            return NextResponse.redirect(`${origin}/home`);
-          }
-
           // Google OAuth users get auto-generated handles (user_XXXXXXXX)
-          // If handle looks auto-generated, send them to claim a real username first
+          // Send them to claim a real username first
           if (profile && profile.handle.startsWith("user_")) {
             return NextResponse.redirect(`${origin}/claim-handle`);
           }
 
+          // Returning user — go to their profile
+          if (profile && profile.onboarding_step >= 4) {
+            return NextResponse.redirect(`${origin}/@${profile.handle}`);
+          }
+
+          // New user — go to create their first list (or wherever `next` points)
           return NextResponse.redirect(`${origin}${next}`);
         }
       }

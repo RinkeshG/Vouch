@@ -6,26 +6,16 @@ const footerLinks = {
   product: {
     title: "Product",
     links: [
-      { label: "How it works", href: "/how-it-works" },
-      { label: "Manifesto", href: "/manifesto" },
-      { label: "FAQ", href: "/faq" },
+      { label: "Explore", href: "/explore" },
+      { label: "Create a list", href: "/sign-up" },
     ],
   },
   cities: {
     title: "Cities",
     links: [
-      { label: "Bangalore", href: "/city/bangalore" },
+      { label: "Bangalore", href: "/explore" },
       { label: "Bombay", href: "#", disabled: true },
       { label: "Delhi", href: "#", disabled: true },
-      { label: "Goa", href: "#", disabled: true },
-    ],
-  },
-  company: {
-    title: "Company",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Blog", href: "/blog" },
-      { label: "Careers", href: "/careers" },
     ],
   },
   legal: {
@@ -33,7 +23,6 @@ const footerLinks = {
     links: [
       { label: "Terms", href: "/terms" },
       { label: "Privacy", href: "/privacy" },
-      { label: "Cookies", href: "/cookies" },
     ],
   },
 };
@@ -48,7 +37,7 @@ export function Footer() {
             <Wordmark />
           </div>
           <p className={styles.tagline}>
-            Trusted places from the people you trust.
+            Curated lists of the places you love.
           </p>
         </div>
 

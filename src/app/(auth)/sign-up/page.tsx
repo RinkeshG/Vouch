@@ -85,7 +85,7 @@ export default function SignUpPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/new`,
         data: {
           handle: handle,
           display_name: displayName.trim(),
@@ -111,7 +111,7 @@ export default function SignUpPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/new`,
       },
     });
 
@@ -237,8 +237,8 @@ export default function SignUpPage() {
 
       <p className={styles.footer} style={{ marginTop: "8px" }}>
         Just exploring?{" "}
-        <Link href="/home" className={styles.link}>
-          Preview the app &rarr;
+        <Link href="/explore" className={styles.link}>
+          Browse lists &rarr;
         </Link>
       </p>
     </div>

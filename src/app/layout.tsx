@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Vouch — Trusted places from the people you trust",
+  title: "Vouch — Curated lists of your favorite places",
   description:
-    "The only restaurant guide that matters is your friends'. Vouch is where your circle shares the places they actually love. Now in Bangalore.",
+    "Build and share beautiful, curated lists of the places you love. Your taste, beautifully organized. Now in Bangalore.",
   openGraph: {
-    title: "Vouch — Trusted places from the people you trust",
+    title: "Vouch — Curated lists of your favorite places",
     description:
-      "The only restaurant guide that matters is your friends'. Now in Bangalore.",
+      "Build and share beautiful lists of the places you love. Now in Bangalore.",
     siteName: "Vouch",
     type: "website",
   },
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vouch",
     description:
-      "The only restaurant guide that matters is your friends'. Now in Bangalore.",
+      "Build and share beautiful lists of the places you love. Now in Bangalore.",
   },
 };
 

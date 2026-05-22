@@ -1,171 +1,81 @@
 /* ============================================================
-   Profile — Own + Friend view
-   Horizontal header, Four Vouches canon, tabs, vouch grid.
-   Matches design spec: screens-web-content.jsx WebProfileOwn/Friend
+   Profile — V1: Centered hero + list gallery
    ============================================================ */
 
 .page {
-  min-height: 100dvh;
-  background-color: var(--v-paper);
-  padding-right: 24px;
+  min-height: 60dvh;
 }
 
-/* ============================================================
-   Header — horizontal layout with avatar + info + actions
-   ============================================================ */
-
-.header {
+/* ---- Hero: centered stack ---- */
+.hero {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 30px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--v-sp8) 0 var(--v-sp6);
+  border-bottom: 1px solid var(--v-line);
+  margin-bottom: var(--v-sp6);
 }
 
-.headerLeft {
+.displayName {
+  font-family: var(--v-font-serif);
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 400;
+  color: var(--v-ink);
+  margin-top: var(--v-sp3);
+  line-height: 1.15;
+}
+
+.handle {
+  font-family: var(--v-font-mono);
+  font-size: 13px;
+  color: var(--v-ink2);
+  margin-top: var(--v-sp1);
+}
+
+.bio {
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--v-ink2);
+  margin-top: var(--v-sp3);
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+.meta {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  gap: var(--v-sp3);
+  margin-top: var(--v-sp3);
 }
 
-.headerInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.headerLabel {
+.cityTag {
   font-family: var(--v-font-sans);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--v-ink3);
+  padding: 4px 10px;
+  border-radius: var(--v-radius-tag);
+  border: 1px solid var(--v-line);
 }
 
-.headerName {
-  font-family: var(--v-font-serif);
-  font-size: 48px;
-  line-height: 1;
-  letter-spacing: -0.025em;
-  color: var(--v-ink);
-  margin-top: 8px;
-}
-
-.headerHandle {
-  font-family: var(--v-font-mono);
-  font-size: 13px;
-  color: var(--v-ink3);
-  margin-top: 6px;
-  letter-spacing: 0.02em;
-}
-
-.headerTasteLine {
+.stat {
   font-family: var(--v-font-sans);
-  font-style: italic;
-  font-size: 17px;
-  color: var(--v-ink);
-  line-height: 1.4;
-  margin-top: 14px;
-  max-width: 560px;
-}
-
-.headerStats {
-  margin-top: 16px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
   font-size: 13px;
   color: var(--v-ink2);
 }
 
-.statStrong {
-  color: var(--v-ink);
-  font-weight: 600;
-}
-
-.headerActions {
+.heroActions {
   display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-/* Shared button styles */
-.btnSecondary {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 18px;
-  border-radius: var(--v-radius-pill);
-  background: transparent;
-  border: 1px solid var(--v-line-strong);
-  color: var(--v-ink);
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: border-color var(--v-duration-fast);
+  gap: var(--v-sp2);
+  margin-top: var(--v-sp4);
 }
 
-.btnSecondary:hover {
-  border-color: var(--v-ink2);
-}
-
-.btnSeal {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 18px;
-  border-radius: var(--v-radius-pill);
-  background: var(--v-seal);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: transform var(--v-duration-fast), box-shadow var(--v-duration-fast);
-}
-
-.btnSeal:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(191, 58, 43, 0.2);
-}
-
-.btnGhost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: var(--v-ink2);
-  transition: background var(--v-duration-fast);
-}
-
-.btnGhost:hover {
-  background: var(--v-faint);
-}
-
-.btnGhostSmall {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: var(--v-radius-pill);
-  background: transparent;
-  color: var(--v-ink2);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: color var(--v-duration-fast);
-}
-
-.btnGhostSmall:hover {
-  color: var(--v-ink);
-}
-
-/* ============================================================
-   Share menu
-   ============================================================ */
-
+/* Share dropdown */
 .shareWrap {
   position: relative;
 }
@@ -174,320 +84,155 @@
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
+  min-width: 160px;
+  background: var(--v-paper);
+  border: 1px solid var(--v-line-strong);
+  border-radius: var(--v-radius-input);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 4px;
   z-index: 50;
-  min-width: 170px;
-  background: var(--v-surface);
-  border: 1px solid var(--v-line);
-  border-radius: var(--v-radius-card);
-  box-shadow: var(--v-shadow-sm);
-  padding: 4px 0;
+  animation: shareIn var(--v-duration-fast) var(--v-ease-out);
+}
+
+@keyframes shareIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .shareMenuItem {
   display: block;
   width: 100%;
-  padding: 10px 16px;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 10px 12px;
+  font-size: 13px;
   color: var(--v-ink);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background var(--v-duration-fast);
+  text-align: left;
+  border-radius: 6px;
+  transition: background-color var(--v-duration-fast);
 }
 
 .shareMenuItem:hover {
-  background: var(--v-faint);
+  background: var(--v-surface-dim);
 }
 
-.shareMenuBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 49;
-}
-
-/* ============================================================
-   Four Vouches — The Canon
-   ============================================================ */
-
-.fourSection {
-  margin-top: 40px;
-}
-
-.sectionHead {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.sectionKicker {
-  font-family: var(--v-font-sans);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--v-ink3);
-}
-
-.sectionTitle {
-  font-family: var(--v-font-serif);
-  font-size: 28px;
-  letter-spacing: -0.015em;
-  line-height: 1.1;
-  color: var(--v-ink);
-  margin-top: 4px;
-}
-
-.fourGrid {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-
-.fourCard {
-  background: var(--v-surface);
-  border: 1px solid var(--v-line);
-  border-radius: var(--v-radius-card);
-  overflow: hidden;
-  transition: box-shadow var(--v-duration-fast);
-}
-
-.fourCard:hover {
-  box-shadow: var(--v-shadow-sm);
-}
-
-.fourImage {
-  aspect-ratio: 4 / 5;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--v-faint);
-}
-
-.fourBody {
-  padding: 14px;
-}
-
-.fourIndex {
-  font-family: var(--v-font-mono);
-  font-size: 11px;
-  color: var(--v-ink3);
-  letter-spacing: 0.02em;
-}
-
-.fourName {
-  font-family: var(--v-font-serif);
-  font-size: 18px;
-  letter-spacing: -0.01em;
-  color: var(--v-ink);
-  margin-top: 6px;
-  line-height: 1.15;
-}
-
-.fourArea {
-  font-family: var(--v-font-sans);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--v-ink3);
-  margin-top: 4px;
-}
-
-/* ============================================================
-   Tabs
-   ============================================================ */
-
-.tabs {
-  margin-top: 36px;
-  border-bottom: 1px solid var(--v-line);
-  display: flex;
-  gap: 24px;
-}
-
-.tab {
-  padding: 14px 2px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--v-ink2);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  cursor: pointer;
-  transition: color var(--v-duration-fast);
-  white-space: nowrap;
-}
-
-.tab:hover {
-  color: var(--v-ink);
-}
-
-.tabActive {
-  color: var(--v-ink);
-  border-bottom-color: var(--v-ink);
-}
-
-/* ============================================================
-   Vouches grid — 3 columns
-   ============================================================ */
-
-.vouchGrid {
-  margin-top: 24px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-/* ============================================================
-   Empty state
-   ============================================================ */
-
-.emptyWrap {
-  margin-top: 40px;
-  padding: 48px 24px;
-  text-align: center;
-  border: 1px dashed var(--v-line-strong);
-  border-radius: var(--v-radius-card);
-}
-
-/* ============================================================
-   List grid — Lists tab
-   ============================================================ */
-
+/* ---- List gallery ---- */
 .listGrid {
-  margin-top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--v-sp4);
 }
 
 .listCard {
-  display: block;
-  padding: 18px 20px;
-  background: var(--v-surface);
-  border: 1px solid var(--v-line);
+  position: relative;
   border-radius: var(--v-radius-card);
-  transition: box-shadow var(--v-duration-fast);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition:
+    transform var(--v-duration-base) var(--v-ease-out),
+    box-shadow var(--v-duration-base) var(--v-ease-out);
 }
 
 .listCard:hover {
-  box-shadow: var(--v-shadow-sm);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.listCard:active {
+  transform: scale(0.99);
+}
+
+/* Cover gradient background — 5 palette presets */
+.listCardBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.listCardBg[data-style="0"] {
+  background: linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%);
+}
+
+.listCardBg[data-style="1"] {
+  background: linear-gradient(135deg, #1B4332 0%, #40916C 100%);
+}
+
+.listCardBg[data-style="2"] {
+  background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%);
+}
+
+.listCardBg[data-style="3"] {
+  background: linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%);
+}
+
+.listCardBg[data-style="4"] {
+  background: linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%);
+}
+
+.listCardContent {
+  position: relative;
+  z-index: 1;
+  padding: var(--v-sp4);
+}
+
+.listCardEmoji {
+  font-size: 28px;
+  line-height: 1;
+  display: block;
+  margin-bottom: var(--v-sp2);
 }
 
 .listCardTitle {
   font-family: var(--v-font-serif);
   font-size: 18px;
-  letter-spacing: -0.01em;
-  color: var(--v-ink);
-  line-height: 1.2;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.25;
 }
 
-.listCardDesc {
-  font-size: 14px;
-  color: var(--v-ink2);
-  margin-top: 4px;
-  line-height: 1.4;
+.listCardCount {
+  font-family: var(--v-font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: var(--v-sp1);
+  display: block;
 }
 
-.listCardMeta {
-  font-size: 12px;
-  color: var(--v-ink3);
-  margin-top: 8px;
-}
-
-.listCreateCard {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 20px;
-  border: 1px dashed var(--v-line-strong);
-  border-radius: var(--v-radius-card);
-  color: var(--v-seal);
-  font-size: 14px;
+.draftBadge {
+  display: inline-block;
+  font-family: var(--v-font-sans);
+  font-size: 10px;
   font-weight: 600;
-  transition: background var(--v-duration-fast);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 8px;
+  border-radius: var(--v-radius-tag);
+  margin-top: var(--v-sp2);
 }
 
-.listCreateCard:hover {
-  background: var(--v-seal-dim);
+/* ---- Empty state ---- */
+.emptyWrap {
+  padding: var(--v-sp12) 0;
 }
 
-/* ============================================================
-   Bottom spacer
-   ============================================================ */
-
-.bottomSpacer {
-  height: var(--v-sp16);
-}
-
-/* ============================================================
-   Mobile responsive
-   ============================================================ */
-
-@media (max-width: 1023px) {
-  .page {
-    padding: 0 var(--v-sp4);
-  }
-
-  .header {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .headerLeft {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 100%;
-  }
-
-  .headerName {
-    font-size: 32px;
-  }
-
-  .headerTasteLine {
-    text-align: center;
-  }
-
-  .headerStats {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .headerActions {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .fourGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .tabs {
-    overflow-x: auto;
-    gap: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .vouchGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .sectionTitle {
-    font-size: 22px;
-  }
-}
-
-@media (max-width: 480px) {
-  .headerName {
-    font-size: 28px;
-  }
-
-  .vouchGrid {
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .listGrid {
     grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: var(--v-sp6) 0 var(--v-sp4);
   }
 }
