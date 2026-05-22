@@ -44,6 +44,20 @@
   to { transform: rotate(360deg); }
 }
 
+.handlePreview {
+  font-size: 13px;
+  color: var(--v-ink2);
+  margin-top: -8px;
+}
+
+.handlePreview strong {
+  color: var(--v-ink);
+  font-weight: 600;
+  font-family: var(--v-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
 .error {
   font-size: 14px;
   color: var(--v-seal);

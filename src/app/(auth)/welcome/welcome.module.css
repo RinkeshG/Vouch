@@ -1,48 +1,396 @@
+/* ============================================================
+   Welcome — Your Four Card + Share
+   The moment after onboarding: see your card, share it, enter the product.
+   ============================================================ */
+
 .page {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: var(--v-sp6) var(--v-sp5) var(--v-sp16);
+}
+
+/* ---- Celebration header ---- */
+
+.celebration {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--v-sp16) var(--v-sp5);
-  max-width: 440px;
-  margin: 0 auto;
+  margin-bottom: var(--v-sp10);
 }
 
 .title {
   font-family: var(--v-font-serif);
-  font-size: clamp(28px, 5vw, 36px);
+  font-size: clamp(28px, 5vw, 38px);
   font-weight: 400;
-  letter-spacing: -0.02em;
-  margin-top: var(--v-sp6);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--v-ink);
+  margin-top: var(--v-sp5);
   margin-bottom: var(--v-sp3);
 }
 
 .sub {
+  font-family: var(--v-font-sans);
   font-size: 15px;
   line-height: 1.6;
-  color: var(--v-muted);
-  margin-bottom: var(--v-sp8);
+  color: var(--v-ink2);
+  max-width: 400px;
 }
 
 .handle {
   color: var(--v-ink);
   font-weight: 600;
+  font-family: var(--v-font-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
 }
 
-.actions {
+/* ---- Card preview section ---- */
+
+.cardSection {
+  margin-bottom: var(--v-sp10);
+}
+
+.cardLabel {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  margin-bottom: var(--v-sp3);
+}
+
+.cardPreview {
+  border-radius: var(--v-radius-card);
+  overflow: hidden;
+  box-shadow: var(--v-shadow-lg), 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+/* ---- The dark card (HTML recreation of OG image) ---- */
+
+.card {
+  background-color: #111110;
+  color: #EDEBE7;
+  padding: 28px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: var(--v-sp3);
-  width: 100%;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.divider {
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(237,235,231,0.025) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.cardLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardStamp {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #BF3A2B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--v-font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cardBrand {
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(237, 235, 231, 0.4);
+  letter-spacing: 0.02em;
+}
+
+.cardHandle {
+  font-family: var(--v-font-mono);
+  font-size: 12px;
+  color: rgba(237, 235, 231, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.cardTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardKicker {
+  font-family: var(--v-font-sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(237, 235, 231, 0.35);
+}
+
+.cardName {
+  font-family: var(--v-font-serif);
+  font-size: clamp(22px, 4vw, 28px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #EDEBE7;
+}
+
+.cardTaste {
+  font-family: var(--v-font-serif);
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(237, 235, 231, 0.45);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* Four vouches in card */
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cardVouch {
+  padding: 14px 12px;
+  border-radius: 10px;
+  background: rgba(237, 235, 231, 0.05);
+  border: 1px solid rgba(237, 235, 231, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardVouchNum {
+  font-family: var(--v-font-mono);
+  font-size: 9px;
+  color: rgba(237, 235, 231, 0.25);
+  letter-spacing: 0.04em;
+}
+
+.cardVouchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardVouchPlace {
+  font-family: var(--v-font-serif);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #EDEBE7;
+  line-height: 1.15;
+}
+
+.cardVouchArea {
+  font-family: var(--v-font-sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(237, 235, 231, 0.3);
+  margin-top: 1px;
+}
+
+.cardVouchTake {
+  font-family: var(--v-font-serif);
+  font-size: 11px;
+  font-style: italic;
+  color: rgba(237, 235, 231, 0.35);
+  line-height: 1.35;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(237, 235, 231, 0.06);
+}
+
+.cardFooterLeft {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  color: rgba(237, 235, 231, 0.25);
+  letter-spacing: 0.02em;
+}
+
+.cardFooterRight {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  color: #BF3A2B;
+  letter-spacing: 0.02em;
+}
+
+/* Format selector */
+
+.formatRow {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--v-sp3);
+}
+
+.formatBtn {
+  flex: 1;
+  height: 32px;
+  border-radius: var(--v-radius-pill);
+  border: 1px solid var(--v-line-strong);
+  background: transparent;
+  color: var(--v-ink2);
+  font-family: var(--v-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--v-duration-fast);
+}
+
+.formatBtn:hover {
+  border-color: var(--v-ink3);
+  color: var(--v-ink);
+}
+
+.formatActive {
+  background: var(--v-ink);
+  border-color: var(--v-ink);
+  color: var(--v-paper);
+}
+
+.formatActive:hover {
+  background: var(--v-ink);
+  border-color: var(--v-ink);
+  color: var(--v-paper);
+}
+
+/* ---- Share section ---- */
+
+.shareSection {
+  margin-bottom: var(--v-sp10);
+}
+
+.shareLabel {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  margin-bottom: var(--v-sp4);
+}
+
+.shareGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: var(--v-sp4);
+}
+
+.shareBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: var(--v-sp3) var(--v-sp2);
+  border-radius: var(--v-radius-card);
+  border: 1px solid var(--v-line);
+  background: var(--v-surface);
+  cursor: pointer;
+  transition: border-color var(--v-duration-fast), box-shadow var(--v-duration-fast);
+}
+
+.shareBtn:hover {
+  border-color: var(--v-line-strong);
+  box-shadow: var(--v-shadow-sm);
+}
+
+.shareBtnIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.shareBtn span:last-child {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--v-ink2);
+}
+
+/* ---- Continue section ---- */
+
+.continueSection {
+  text-align: center;
+}
+
+.continueDivider {
   width: 100%;
   height: 1px;
-  background-color: var(--v-line);
-  margin: var(--v-sp8) 0;
+  background: var(--v-line);
+  margin-bottom: var(--v-sp6);
+}
+
+.continueHint {
+  font-family: var(--v-font-sans);
+  font-size: 14px;
+  color: var(--v-ink3);
+  margin-bottom: var(--v-sp4);
+  line-height: 1.5;
 }
 
 .continueLink {
+  display: block;
   width: 100%;
+}
+
+/* ---- Mobile ---- */
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--v-sp5) var(--v-sp4) var(--v-sp12);
+  }
+
+  .shareGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .formatRow {
+    flex-wrap: wrap;
+  }
 }

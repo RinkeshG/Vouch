@@ -16,6 +16,7 @@ interface PlaceResult {
   name: string;
   formatted_address: string;
   geometry?: { location: { lat: number; lng: number } };
+  types?: string[];
 }
 
 interface VouchDraft {
@@ -24,12 +25,15 @@ interface VouchDraft {
   contextTags: string[];
 }
 
+type Phase = "vouching" | "tasteline";
+
 export default function OnboardingPage() {
   const router = useRouter();
   const supabase = createClient();
 
   const [vouches, setVouches] = useState<VouchDraft[]>([]);
   const [currentStep, setCurrentStep] = useState<"search" | "take">("search");
+  const [phase, setPhase] = useState<Phase>("vouching");
 
   // Search state
   const [query, setQuery] = useState("");
@@ -40,6 +44,9 @@ export default function OnboardingPage() {
   // Take state
   const [take, setTake] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // Tasteline state
+  const [tasteLine, setTasteLine] = useState("");
 
   // Saving state
   const [saving, setSaving] = useState(false);
@@ -121,8 +128,12 @@ export default function OnboardingPage() {
     setVouches((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function finishOnboarding() {
+  function moveToTasteLine() {
     if (vouches.length < 4) return;
+    setPhase("tasteline");
+  }
+
+  async function finishOnboarding() {
     setSaving(true);
 
     try {
@@ -142,7 +153,18 @@ export default function OnboardingPage() {
         if (existingPlace) {
           placeId = existingPlace.id;
         } else {
-          const area = vouch.place.formatted_address.split(",")[0] || "Bangalore";
+          const addressParts = vouch.place.formatted_address.split(",");
+          const area = addressParts[0]?.trim() || "Bangalore";
+
+          // Extract cuisine hint from Google types
+          const types = vouch.place.types || [];
+          const cuisineTypes = types.filter(
+            (t) => !["restaurant", "food", "point_of_interest", "establishment"].includes(t)
+          );
+          const cuisines = cuisineTypes.length > 0
+            ? cuisineTypes.slice(0, 3).map((t) => t.replace(/_/g, " "))
+            : [];
+
           const { data: newPlace } = await supabase
             .from("places")
             .insert({
@@ -150,6 +172,7 @@ export default function OnboardingPage() {
               name: vouch.place.name,
               area,
               city: "bangalore",
+              cuisines,
               latitude: vouch.place.geometry?.location.lat,
               longitude: vouch.place.geometry?.location.lng,
             })
@@ -169,10 +192,18 @@ export default function OnboardingPage() {
         });
       }
 
-      // Update onboarding step
+      // Update profile — onboarding complete + tasteline
+      const profileUpdate: Record<string, unknown> = {
+        onboarding_step: 4,
+        is_public: true,
+      };
+      if (tasteLine.trim()) {
+        profileUpdate.taste_line = tasteLine.trim();
+      }
+
       await supabase
         .from("profiles")
-        .update({ onboarding_step: 4, is_public: true })
+        .update(profileUpdate)
         .eq("id", user.id);
 
       router.push("/welcome");
@@ -181,48 +212,140 @@ export default function OnboardingPage() {
     }
   }
 
-  const remaining = 4 - vouches.length;
+  const filled = vouches.length;
+  const remaining = 4 - filled;
+
+  // Tasteline phase
+  if (phase === "tasteline") {
+    return (
+      <div className={styles.page}>
+        <div className={styles.progress}>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={styles.progressStep}>
+              <span className={styles.dotFilled} />
+              <span className={styles.progressStepLabel}>
+                {vouches[i]?.place.name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.tastelineSection}>
+          <div className={styles.tastelineIcon}>
+            <Stamp size={48} />
+          </div>
+          <h1 className={styles.title}>Almost there</h1>
+          <p className={styles.sub}>
+            One last thing — describe your food philosophy in a single sentence.
+            This shows up on your profile as your tasteline.
+          </p>
+
+          <div className={styles.tastelineInput}>
+            <textarea
+              className={styles.tastelineTextarea}
+              placeholder={`"I eat like a local tourist — street food first, fine dining if I have to."`}
+              value={tasteLine}
+              onChange={(e) => setTasteLine(e.target.value)}
+              maxLength={120}
+              rows={3}
+              autoFocus
+            />
+            <span className={styles.charCount}>
+              {tasteLine.length}/120
+            </span>
+          </div>
+
+          <div className={styles.tastelineActions}>
+            <Button
+              variant="ghost"
+              onClick={() => setPhase("vouching")}
+            >
+              Back
+            </Button>
+            <div className={styles.tastelineRight}>
+              <button
+                className={styles.skipBtn}
+                onClick={finishOnboarding}
+                disabled={saving}
+              >
+                Skip for now
+              </button>
+              <Button
+                variant="seal"
+                size="lg"
+                loading={saving}
+                onClick={finishOnboarding}
+                disabled={!tasteLine.trim()}
+              >
+                Go live
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
+      {/* Progress: labeled steps */}
       <div className={styles.progress}>
         {[0, 1, 2, 3].map((i) => (
-          <span
-            key={i}
-            className={
-              i < vouches.length ? styles.dotFilled : styles.dot
-            }
-          />
+          <div key={i} className={styles.progressStep}>
+            <span className={i < filled ? styles.dotFilled : styles.dot} />
+            <span className={styles.progressStepLabel}>
+              {i < filled
+                ? vouches[i].place.name
+                : i === filled
+                  ? "Next place"
+                  : ""}
+            </span>
+          </div>
         ))}
       </div>
 
       <h1 className={styles.title}>
-        Vouch for your four
+        {filled === 0
+          ? "Vouch for your four"
+          : filled < 4
+            ? `${remaining} more to go`
+            : "Your four are set"}
       </h1>
       <p className={styles.sub}>
-        {remaining > 0
-          ? `${remaining} more place${remaining === 1 ? "" : "s"} to go. These are the spots you'd stake your reputation on.`
-          : "You've got your four! Review and finish."}
+        {filled === 0
+          ? "Pick four places you'd stake your reputation on. These become your canon — the spots that define your taste."
+          : filled < 4
+            ? `You've vouched for ${filled}. Keep going — ${remaining} more place${remaining === 1 ? "" : "s"} to complete your four.`
+            : "Looking good. Review your picks, then we'll add your tasteline."}
       </p>
 
-      {/* Picked vouches */}
+      {/* Picked vouches — rich cards */}
       {vouches.length > 0 && (
         <div className={styles.picked}>
           {vouches.map((v, i) => (
             <div key={v.place.place_id} className={styles.pickedCard}>
-              <div className={styles.pickedInfo}>
-                <Stamp size={20} />
-                <div>
-                  <p className={styles.pickedName}>{v.place.name}</p>
-                  <p className={styles.pickedTake}>&ldquo;{v.take}&rdquo;</p>
-                </div>
+              <div className={styles.pickedIndex}>
+                <span className={styles.pickedIndexNumber}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <div className={styles.pickedContent}>
+                <p className={styles.pickedName}>{v.place.name}</p>
+                <p className={styles.pickedTake}>&ldquo;{v.take}&rdquo;</p>
+                {v.contextTags.length > 0 && (
+                  <div className={styles.pickedTags}>
+                    {v.contextTags.map((tag) => (
+                      <span key={tag} className={styles.pickedTag}>{tag}</span>
+                    ))}
+                  </div>
+                )}
               </div>
               <button
                 className={styles.removeBtn}
                 onClick={() => removeVouch(i)}
                 aria-label={`Remove ${v.place.name}`}
               >
-                <Icon name="x" size={16} />
+                <Icon name="x" size={14} />
               </button>
             </div>
           ))}
@@ -232,6 +355,9 @@ export default function OnboardingPage() {
       {/* Search step */}
       {currentStep === "search" && vouches.length < 4 && (
         <div className={styles.search}>
+          <div className={styles.searchLabel}>
+            Place {filled + 1} of 4
+          </div>
           <Input
             placeholder="Search for a restaurant, cafe, bar..."
             value={query}
@@ -283,9 +409,14 @@ export default function OnboardingPage() {
       {/* Take step */}
       {currentStep === "take" && selectedPlace && (
         <div className={styles.takeStep}>
-          <div className={styles.takePlace}>
-            <Icon name="map-pin" size={16} />
-            <span>{selectedPlace.name}</span>
+          <div className={styles.takeHeader}>
+            <div className={styles.takeNumber}>
+              Vouch {filled + 1} of 4
+            </div>
+            <div className={styles.takePlace}>
+              <Icon name="map-pin" size={16} />
+              <span className={styles.takePlaceName}>{selectedPlace.name}</span>
+            </div>
           </div>
 
           <div className={styles.takeInput}>
@@ -302,7 +433,7 @@ export default function OnboardingPage() {
             <span className={styles.charCount}>
               {take.length}/120
               {take.length > 0 && take.length < 20 && (
-                <span className={styles.charWarn}> — {20 - take.length} more chars needed</span>
+                <span className={styles.charWarn}> — {20 - take.length} more chars</span>
               )}
             </span>
           </div>
@@ -335,26 +466,27 @@ export default function OnboardingPage() {
               Back
             </Button>
             <Button
+              variant="seal"
               disabled={take.length < 20}
               onClick={addVouch}
             >
-              Add vouch
+              <Icon name="check" size={14} />
+              Seal vouch {filled + 1}
             </Button>
           </div>
         </div>
       )}
 
-      {/* Finish */}
-      {vouches.length >= 4 && (
+      {/* Ready to continue — show "Next: Tasteline" */}
+      {vouches.length >= 4 && currentStep === "search" && (
         <div className={styles.finish}>
           <Button
             variant="seal"
             size="lg"
             fullWidth
-            loading={saving}
-            onClick={finishOnboarding}
+            onClick={moveToTasteLine}
           >
-            Go live — make my profile public
+            Continue — add your tasteline
           </Button>
         </div>
       )}

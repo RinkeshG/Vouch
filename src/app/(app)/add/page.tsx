@@ -24,6 +24,7 @@ interface PlaceResult {
   name: string;
   formatted_address: string;
   geometry?: { location: { lat: number; lng: number } };
+  types?: string[];
 }
 
 export default function AddVouchPage() {
@@ -52,6 +53,7 @@ export default function AddVouchPage() {
     address: string;
     lat?: number;
     lng?: number;
+    types?: string[];
     isExisting: boolean;
   } | null>(
     preselectedPlaceId
@@ -130,6 +132,7 @@ export default function AddVouchPage() {
       address: place.formatted_address,
       lat: place.geometry?.location.lat,
       lng: place.geometry?.location.lng,
+      types: place.types,
       isExisting: isDemoPlace,
     });
     setStep("take");
@@ -182,6 +185,16 @@ export default function AddVouchPage() {
         } else {
           const area =
             selectedPlace.address.split(",")[0] || "Bangalore";
+
+          // Extract cuisine hint from Google types
+          const types = selectedPlace.types || [];
+          const cuisineTypes = types.filter(
+            (t) => !["restaurant", "food", "point_of_interest", "establishment"].includes(t)
+          );
+          const cuisines = cuisineTypes.length > 0
+            ? cuisineTypes.slice(0, 3).map((t) => t.replace(/_/g, " "))
+            : [];
+
           const { data: newPlace } = await supabase
             .from("places")
             .insert({
@@ -189,6 +202,7 @@ export default function AddVouchPage() {
               name: selectedPlace.name,
               area,
               city: "bangalore",
+              cuisines,
               latitude: selectedPlace.lat,
               longitude: selectedPlace.lng,
             })
@@ -402,7 +416,7 @@ export default function AddVouchPage() {
           <Stamp size={48} animated />
           <h2 className={styles.successTitle}>Vouched!</h2>
           <p className={styles.successSub}>
-            Your vouch for {selectedPlace?.name} is now live.
+            Your vouch for <strong>{selectedPlace?.name}</strong> is now live on your profile.
           </p>
           <div className={styles.actions}>
             <Button
@@ -416,8 +430,8 @@ export default function AddVouchPage() {
             >
               Vouch for another
             </Button>
-            <Button variant="primary" onClick={() => router.push("/home")}>
-              Back to feed
+            <Button variant="seal" onClick={() => router.push("/home")}>
+              View my profile
             </Button>
           </div>
         </div>

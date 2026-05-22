@@ -1,3 +1,4 @@
+import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   DEMO_USER,
@@ -11,6 +12,28 @@ import { ProfileClient } from "./profile-client";
 
 interface PageProps {
   params: Promise<{ handle: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { handle } = await params;
+  const ogImageUrl = `/api/og/four-card/${handle}`;
+
+  return {
+    title: `@${handle} — Vouch`,
+    description: `See ${handle}'s Four Vouches — the places they'd stake their reputation on.`,
+    openGraph: {
+      title: `@${handle}'s Four Vouches`,
+      description: `The places ${handle} stakes their reputation on. Built on Vouch — trust, not strangers.`,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `@${handle}'s Four Vouches`,
+      description: `The places ${handle} stakes their reputation on.`,
+      images: [ogImageUrl],
+    },
+  };
 }
 
 export default async function ProfilePage({ params }: PageProps) {
@@ -148,6 +171,7 @@ export default async function ProfilePage({ params }: PageProps) {
         followerCount: followerCount || 0,
         followingCount: followingCount || 0,
         listCount: 0,
+        city: profile.city ? String(profile.city).charAt(0).toUpperCase() + String(profile.city).slice(1) : "Bangalore",
       }}
       vouches={vouches}
       isOwnProfile={isOwnProfile}

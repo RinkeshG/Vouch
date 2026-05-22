@@ -46,11 +46,13 @@ export async function GET(request: Request) {
         name: string;
         formatted_address: string;
         geometry?: { location: { lat: number; lng: number } };
+        types?: string[];
       }) => ({
         place_id: place.place_id,
         name: place.name,
         formatted_address: place.formatted_address,
         geometry: place.geometry,
+        types: place.types || [],
       })
     );
 

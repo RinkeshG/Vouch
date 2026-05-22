@@ -16,9 +16,6 @@ export default function SignUpPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [step, setStep] = useState(1);
-
-  // Step 1: handle + email
   const [handle, setHandle] = useState("");
   const [handleStatus, setHandleStatus] = useState<HandleStatus>("idle");
   const [email, setEmail] = useState("");
@@ -144,9 +141,8 @@ export default function SignUpPage() {
     <div>
       <h1 className={styles.title}>Claim your handle</h1>
       <p className={styles.sub}>
-        Your handle is your identity on Vouch.
-        <br />
-        Step {step} of 4
+        Your handle is your identity on Vouch — it&rsquo;s how friends
+        find you and how your taste profile lives on the web.
       </p>
 
       <form onSubmit={handleSignUp} className={styles.form}>
@@ -168,6 +164,14 @@ export default function SignUpPage() {
           autoComplete="username"
           maxLength={20}
         />
+
+        {handle && handleStatus === "available" && (
+          <p className={styles.handlePreview}>
+            Your profile will live at{" "}
+            <strong>vouch.app/@{handle}</strong>
+          </p>
+        )}
+
         <Input
           label="Display name"
           placeholder="Your Name"
@@ -190,6 +194,7 @@ export default function SignUpPage() {
 
         <Button
           type="submit"
+          variant="seal"
           size="lg"
           fullWidth
           loading={loading}
@@ -228,7 +233,7 @@ export default function SignUpPage() {
       </p>
 
       <p className={styles.footer} style={{ marginTop: "8px" }}>
-        Just looking?{" "}
+        Just exploring?{" "}
         <Link href="/home" className={styles.link}>
           Preview the app &rarr;
         </Link>

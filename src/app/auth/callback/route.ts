@@ -15,12 +15,19 @@ export async function GET(request: Request) {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("onboarding_step")
+          .select("onboarding_step, handle")
           .eq("id", user.id)
           .single();
 
+        // Fully onboarded — go to home
         if (profile && profile.onboarding_step >= 4) {
           return NextResponse.redirect(`${origin}/home`);
+        }
+
+        // Google OAuth users get auto-generated handles (user_XXXXXXXX)
+        // If handle looks auto-generated, send them to claim a real handle first
+        if (profile && profile.handle.startsWith("user_")) {
+          return NextResponse.redirect(`${origin}/claim-handle`);
         }
 
         return NextResponse.redirect(`${origin}${next}`);

@@ -209,10 +209,13 @@ export function VouchCard({
 
         {/* Action buttons */}
         <div className={styles.actions}>
-          <button className={styles.actionBtn}>
+          <Link
+            href={`/add?placeId=${placeId}&placeName=${encodeURIComponent(placeName)}`}
+            className={styles.actionBtn}
+          >
             <Icon name="plus" size={14} strokeWidth={2} />
             Vouch this too
-          </button>
+          </Link>
           <button
             className={cn(styles.actionBtnSecondary, saved && styles.actionBtnSaved)}
             onClick={toggleSave}
