@@ -42,13 +42,14 @@ export async function middleware(request: NextRequest) {
         .eq("id", user.id)
         .maybeSingle();
 
-      if (profile?.handle) {
+      if (profile?.handle && !profile.handle.startsWith("user_")) {
         return NextResponse.redirect(new URL(`/@${profile.handle}`, request.url));
       }
     } catch {
       // Fall through
     }
-    return NextResponse.redirect(new URL("/new", request.url));
+    // No profile or auto-handle → claim handle first, then /new
+    return NextResponse.redirect(new URL("/claim-handle", request.url));
   }
 
   // Protected route: /new requires auth

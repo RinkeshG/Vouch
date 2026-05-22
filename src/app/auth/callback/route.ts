@@ -16,21 +16,27 @@ export async function GET(request: Request) {
         if (user) {
           // Profile may not exist yet if the trigger is still running.
           // Retry up to 3 times with a short delay.
-          let profile: { onboarding_step: number; handle: string } | null = null;
+          let profile: { handle: string; place_count_total: number } | null = null;
 
           for (let attempt = 0; attempt < 3; attempt++) {
             const { data } = await supabase
               .from("profiles")
-              .select("onboarding_step, handle")
+              .select("handle")
               .eq("id", user.id)
               .maybeSingle();
 
             if (data) {
-              profile = data;
+              // Check if they have any published lists
+              const { count } = await supabase
+                .from("lists")
+                .select("id", { count: "exact", head: true })
+                .eq("user_id", user.id)
+                .eq("is_published", true);
+
+              profile = { handle: data.handle, place_count_total: count || 0 };
               break;
             }
 
-            // Wait 500ms before retrying
             if (attempt < 2) {
               await new Promise((r) => setTimeout(r, 500));
             }
@@ -41,17 +47,16 @@ export async function GET(request: Request) {
             return NextResponse.redirect(`${origin}/claim-handle`);
           }
 
-          // Returning user with proper handle → profile page
-          if (profile.handle) {
+          // Returning user with lists → profile page
+          if (profile.place_count_total > 0) {
             return NextResponse.redirect(`${origin}/@${profile.handle}`);
           }
 
-          // Fallback → create first list
+          // User with proper handle but no lists → create first list
           return NextResponse.redirect(`${origin}${next}`);
         }
       }
     } catch {
-      // Supabase rate-limited or unreachable — redirect to sign-in with error
       return NextResponse.redirect(`${origin}/sign-in?error=rate_limited`);
     }
   }

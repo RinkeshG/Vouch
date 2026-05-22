@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { checkHandle, getProfile, saveProfile } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/ui/icon";
@@ -10,62 +10,44 @@ import styles from "./claim-handle.module.css";
 
 type HandleStatus = "idle" | "checking" | "available" | "taken" | "invalid";
 
-/**
- * Set up your Vouch profile — pick a handle and display name.
- * Covers two cases:
- *   1. Profile exists with auto-generated handle (user_XXXXX) → UPDATE
- *   2. Profile doesn't exist at all (trigger didn't fire) → INSERT
- */
 export default function ClaimHandlePage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [handle, setHandle] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [handleStatus, setHandleStatus] = useState<HandleStatus>("idle");
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
-  const [profileExists, setProfileExists] = useState<boolean | null>(null);
 
-  // Check if profile exists + load any existing data
+  // Load profile data via server action
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const result = await getProfile();
+
+      if (!result.userId) {
+        // Not authenticated
         router.push("/sign-in");
         return;
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name, handle")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (profile) {
-        setProfileExists(true);
-        // If they already have a proper handle, send them to /new
-        if (profile.handle && !profile.handle.startsWith("user_")) {
-          router.push("/new");
-          return;
-        }
-        if (profile.display_name && profile.display_name !== "New User") {
-          setDisplayName(profile.display_name);
-        }
-      } else {
-        setProfileExists(false);
-        // Pre-fill display name from auth metadata
-        const name = user.user_metadata?.display_name
-          || user.user_metadata?.full_name
-          || user.user_metadata?.name
-          || user.email?.split("@")[0]
-          || "";
-        if (name) setDisplayName(name);
+      // Already has a proper handle → go to /new
+      if (result.exists && result.handle && !result.handle.startsWith("user_")) {
+        router.push("/new");
+        return;
       }
+
+      // Pre-fill display name
+      if (result.displayName && result.displayName !== "New User") {
+        setDisplayName(result.displayName);
+      }
+
+      setPageLoading(false);
     }
     load();
-  }, [supabase, router]);
+  }, [router]);
 
+  // Debounced handle availability check via server action
   const validateHandle = useCallback((value: string) => {
     if (!value) {
       setHandleStatus("idle");
@@ -82,17 +64,16 @@ export default function ClaimHandlePage() {
     if (handleStatus !== "checking") return;
 
     const timer = setTimeout(async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("handle")
-        .eq("handle", handle)
-        .maybeSingle();
-
-      setHandleStatus(data ? "taken" : "available");
+      const result = await checkHandle(handle);
+      if (result.error === "invalid") {
+        setHandleStatus("invalid");
+      } else {
+        setHandleStatus(result.available ? "available" : "taken");
+      }
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [handle, handleStatus, supabase]);
+  }, [handle, handleStatus]);
 
   function onHandleChange(value: string) {
     const cleaned = value.toLowerCase().replace(/[^a-z0-9_]/g, "");
@@ -122,66 +103,30 @@ export default function ClaimHandlePage() {
     setLoading(true);
     setError("");
 
-    try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        setError("Your session has expired. Please sign in again.");
-        setLoading(false);
-        setTimeout(() => router.push("/sign-in"), 1500);
-        return;
+    const result = await saveProfile(handle, displayName.trim());
+
+    if (!result.success) {
+      if (result.error?.includes("taken")) {
+        setHandleStatus("taken");
       }
-
-      // Always try UPDATE first — profile likely exists from signup trigger
-      const { data: updated, error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          handle,
-          display_name: displayName.trim(),
-        })
-        .eq("id", user.id)
-        .select("id");
-
-      if (updateError) {
-        if (updateError.message.includes("unique")) {
-          setHandleStatus("taken");
-          setError("This username was just taken. Try another.");
-        } else {
-          setError("Something went wrong. Please try again.");
-          console.error("Profile update error:", updateError.message);
-        }
-        setLoading(false);
-        return;
-      }
-
-      // If UPDATE matched 0 rows, profile doesn't exist — try INSERT
-      if (!updated || updated.length === 0) {
-        const { error: insertError } = await supabase
-          .from("profiles")
-          .insert({
-            id: user.id,
-            handle,
-            display_name: displayName.trim(),
-            avatar_tint: Math.floor(Math.random() * 9),
-          });
-
-        if (insertError) {
-          if (insertError.message.includes("unique")) {
-            setHandleStatus("taken");
-            setError("This username was just taken. Try another.");
-          } else {
-            setError("Something went wrong. Please try again.");
-            console.error("Profile insert error:", insertError.message);
-          }
-          setLoading(false);
-          return;
-        }
-      }
-
-      router.push("/new");
-    } catch {
-      setError("Something went wrong. Please try again.");
+      setError(result.error || "Something went wrong.");
       setLoading(false);
+
+      if (result.error?.includes("session")) {
+        setTimeout(() => router.push("/sign-in"), 1500);
+      }
+      return;
     }
+
+    router.push("/new");
+  }
+
+  if (pageLoading) {
+    return (
+      <div>
+        <h1 className={styles.title}>Setting up...</h1>
+      </div>
+    );
   }
 
   return (

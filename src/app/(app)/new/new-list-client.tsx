@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Stamp } from "@/components/ui/stamp";
 import { ShareRow } from "@/components/app/share-row";
+import { publishList } from "./actions";
 import styles from "./new-list.module.css";
 
 /* ---- Types ---- */
@@ -234,7 +235,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  /* ---- Publish ---- */
+  /* ---- Publish (server action) ---- */
 
   async function handlePublish() {
     if (!canPublish || publishing) return;
@@ -242,132 +243,30 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
     setPublishError("");
 
     try {
-      const { createClient } = await import("@/lib/supabase/client");
-      const supabase = createClient();
+      const result = await publishList({
+        title: title.trim(),
+        description: description.trim(),
+        slug,
+        emoji,
+        coverStyle,
+        city,
+        items: items.map((item) => ({
+          placeId: item.placeId,
+          name: item.name,
+          area: item.area,
+          note: item.note,
+          lat: item.lat,
+          lng: item.lng,
+        })),
+      });
 
-      // Get the authenticated user from the client session
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        setPublishError("You need to be signed in to publish. Please refresh and try again.");
+      if (!result.success) {
+        setPublishError(result.error || "Something went wrong. Please try again.");
         setPublishing(false);
         return;
       }
 
-      // Ensure profile exists (FK: lists.user_id → profiles.id)
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!profile) {
-        console.error("Profile missing for user:", user.id);
-        setPublishError("Your profile isn't set up yet. Please sign out, sign back in, and try again.");
-        setPublishing(false);
-        return;
-      }
-
-      // 1. Insert list
-      const { data: list, error: listError } = await supabase
-        .from("lists")
-        .insert({
-          user_id: user.id,
-          title: title.trim(),
-          description: description.trim() || null,
-          slug,
-          emoji: emoji || null,
-          cover_style: coverStyle,
-          is_public: true,
-          is_published: true,
-        })
-        .select("id")
-        .single();
-
-      if (listError || !list) {
-        console.error("List insert failed:", listError?.message);
-        setPublishError(
-          listError?.message?.includes("slug")
-            ? "A list with this URL already exists. Try a different title."
-            : `Couldn't create list: ${listError?.message || "unknown error"}`
-        );
-        setPublishing(false);
-        return;
-      }
-
-      // 2. Resolve places + insert list_places
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const isLocal = item.placeId.startsWith("local-");
-        let placeUuid: string | null = null;
-
-        if (!isLocal) {
-          // Google place — look up by google_place_id first
-          const { data: existing } = await supabase
-            .from("places")
-            .select("id")
-            .eq("google_place_id", item.placeId)
-            .maybeSingle();
-
-          if (existing) {
-            placeUuid = existing.id;
-          } else {
-            const { data: inserted, error: insErr } = await supabase
-              .from("places")
-              .insert({
-                google_place_id: item.placeId,
-                name: item.name,
-                area: item.area,
-                city,
-                latitude: item.lat,
-                longitude: item.lng,
-              })
-              .select("id")
-              .single();
-            if (insErr) console.error(`Place insert failed for ${item.name}:`, insErr.message);
-            placeUuid = inserted?.id ?? null;
-          }
-        } else {
-          // Local place — look up by name + city
-          const { data: existing } = await supabase
-            .from("places")
-            .select("id")
-            .eq("name", item.name)
-            .eq("city", city)
-            .maybeSingle();
-
-          if (existing) {
-            placeUuid = existing.id;
-          } else {
-            const { data: inserted, error: insErr } = await supabase
-              .from("places")
-              .insert({
-                name: item.name,
-                area: item.area,
-                city,
-                latitude: item.lat,
-                longitude: item.lng,
-              })
-              .select("id")
-              .single();
-            if (insErr) console.error(`Place insert failed for ${item.name}:`, insErr.message);
-            placeUuid = inserted?.id ?? null;
-          }
-        }
-
-        if (placeUuid) {
-          const { error: lpError } = await supabase.from("list_places").insert({
-            list_id: list.id,
-            place_id: placeUuid,
-            position: i,
-            note: item.note || null,
-          });
-          if (lpError) {
-            console.error(`List place insert failed for ${item.name}:`, lpError.message);
-          }
-        }
-      }
-
-      setPublishedSlug(slug);
+      setPublishedSlug(result.slug || slug);
       setPublished(true);
     } catch (err) {
       console.error("Publish error:", err);

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { checkHandleAvailable } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Rule } from "@/components/ui/rule";
@@ -42,17 +43,12 @@ export default function SignUpPage() {
     if (handleStatus !== "checking") return;
 
     const timer = setTimeout(async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("handle")
-        .eq("handle", handle)
-        .maybeSingle();
-
-      setHandleStatus(data ? "taken" : "available");
+      const available = await checkHandleAvailable(handle);
+      setHandleStatus(available ? "available" : "taken");
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [handle, handleStatus, supabase]);
+  }, [handle, handleStatus]);
 
   function onHandleChange(value: string) {
     const cleaned = value.toLowerCase().replace(/[^a-z0-9_]/g, "");
