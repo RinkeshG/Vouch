@@ -163,6 +163,51 @@
 }
 
 /* ============================================================
+   Share menu
+   ============================================================ */
+
+.shareWrap {
+  position: relative;
+}
+
+.shareMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 170px;
+  background: var(--v-surface);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-card);
+  box-shadow: var(--v-shadow-sm);
+  padding: 4px 0;
+}
+
+.shareMenuItem {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--v-ink);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background var(--v-duration-fast);
+}
+
+.shareMenuItem:hover {
+  background: var(--v-faint);
+}
+
+.shareMenuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+}
+
+/* ============================================================
    Four Vouches — The Canon
    ============================================================ */
 
@@ -304,6 +349,68 @@
   text-align: center;
   border: 1px dashed var(--v-line-strong);
   border-radius: var(--v-radius-card);
+}
+
+/* ============================================================
+   List grid — Lists tab
+   ============================================================ */
+
+.listGrid {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listCard {
+  display: block;
+  padding: 18px 20px;
+  background: var(--v-surface);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-card);
+  transition: box-shadow var(--v-duration-fast);
+}
+
+.listCard:hover {
+  box-shadow: var(--v-shadow-sm);
+}
+
+.listCardTitle {
+  font-family: var(--v-font-serif);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--v-ink);
+  line-height: 1.2;
+}
+
+.listCardDesc {
+  font-size: 14px;
+  color: var(--v-ink2);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.listCardMeta {
+  font-size: 12px;
+  color: var(--v-ink3);
+  margin-top: 8px;
+}
+
+.listCreateCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border: 1px dashed var(--v-line-strong);
+  border-radius: var(--v-radius-card);
+  color: var(--v-seal);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background var(--v-duration-fast);
+}
+
+.listCreateCard:hover {
+  background: var(--v-seal-dim);
 }
 
 /* ============================================================

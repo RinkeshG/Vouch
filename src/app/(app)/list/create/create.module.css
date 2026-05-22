@@ -1,0 +1,82 @@
+/* ============================================================
+   Create List Page
+   ============================================================ */
+
+.page {
+  min-height: 100dvh;
+}
+
+.content {
+  padding: var(--v-sp4);
+  max-width: 520px;
+}
+
+.fieldGroup {
+  margin-bottom: var(--v-sp4);
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: var(--v-sp2);
+  display: block;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--v-sp3);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-input);
+  font-family: var(--v-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  background-color: transparent;
+  transition: border-color var(--v-duration-fast) var(--v-ease-out);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--v-ink);
+}
+
+.charCount {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  color: var(--v-muted);
+  margin-top: var(--v-sp1);
+}
+
+.placeBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+  padding: var(--v-sp3);
+  background-color: var(--v-faint);
+  border-radius: var(--v-radius-input);
+  margin-bottom: var(--v-sp4);
+  font-size: 14px;
+}
+
+.placeBadgeIcon {
+  color: var(--v-seal);
+  flex-shrink: 0;
+}
+
+.placeBadgeName {
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: var(--v-sp3);
+  margin-top: var(--v-sp6);
+}
+
+.error {
+  color: var(--v-seal);
+  font-size: 13px;
+  margin-top: var(--v-sp2);
+}

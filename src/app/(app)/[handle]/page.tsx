@@ -156,6 +156,30 @@ export default async function ProfilePage({ params }: PageProps) {
     .select("place_id")
     .eq("user_id", user.id);
 
+  // Fetch user's lists
+  const { data: listsData } = await supabase
+    .from("lists")
+    .select("id, title, description, is_public, created_at, updated_at")
+    .eq("user_id", profile.id)
+    .order("updated_at", { ascending: false });
+
+  // For each list, get place count
+  const listsWithCounts = await Promise.all(
+    (listsData || []).map(async (list) => {
+      const { count } = await supabase
+        .from("list_places")
+        .select("id", { count: "exact", head: true })
+        .eq("list_id", list.id);
+      return {
+        id: list.id,
+        title: list.title,
+        description: list.description,
+        placeCount: count || 0,
+        updatedAt: list.updated_at,
+      };
+    })
+  );
+
   return (
     <ProfileClient
       profile={{
@@ -170,7 +194,7 @@ export default async function ProfilePage({ params }: PageProps) {
         vouchCount: vouches.length,
         followerCount: followerCount || 0,
         followingCount: followingCount || 0,
-        listCount: 0,
+        listCount: listsWithCounts.length,
         city: profile.city ? String(profile.city).charAt(0).toUpperCase() + String(profile.city).slice(1) : "Bangalore",
       }}
       vouches={vouches}
@@ -178,6 +202,7 @@ export default async function ProfilePage({ params }: PageProps) {
       isFollowing={isFollowing}
       savedPlaceIds={(savedData || []).map((s) => s.place_id)}
       currentUserId={user.id}
+      lists={listsWithCounts}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { VouchCard } from "@/components/app/vouch-card";
 import { EmptyState } from "@/components/app/empty-state";
@@ -37,6 +37,14 @@ interface ProfileVouch {
   placeImageUrl?: string | null;
 }
 
+interface ProfileList {
+  id: string;
+  title: string;
+  description: string | null;
+  placeCount: number;
+  updatedAt: string;
+}
+
 interface ProfileClientProps {
   profile: ProfileInfo;
   vouches: ProfileVouch[];
@@ -45,6 +53,7 @@ interface ProfileClientProps {
   savedPlaceIds: string[];
   currentUserId: string;
   isDemo?: boolean;
+  lists?: ProfileList[];
 }
 
 export function ProfileClient({
@@ -55,11 +64,78 @@ export function ProfileClient({
   savedPlaceIds,
   currentUserId,
   isDemo = false,
+  lists = [],
 }: ProfileClientProps) {
   const [following, setFollowing] = useState(initialFollowing);
   const [followerCount, setFollowerCount] = useState(profile.followerCount);
   const [activeTab, setActiveTab] = useState(0);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareRef = useRef<HTMLDivElement>(null);
   const savedSet = new Set(savedPlaceIds);
+
+  const getShareUrl = useCallback(
+    () => `${window.location.origin}/${profile.handle}`,
+    [profile.handle]
+  );
+
+  const shareText = `Check out ${profile.displayName}'s vouches on Vouch — the places they'd stake their reputation on.`;
+
+  useEffect(() => {
+    if (!shareOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (shareRef.current && !shareRef.current.contains(e.target as Node)) {
+        setShareOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [shareOpen]);
+
+  async function handleShare() {
+    const url = getShareUrl();
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "Vouch", text: shareText, url });
+        return;
+      } catch {
+        // User cancelled or share failed — fall through to dropdown
+      }
+    }
+    setShareOpen((prev) => !prev);
+  }
+
+  async function copyLink() {
+    const url = getShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+        setShareOpen(false);
+      }, 1200);
+    } catch {
+      // Clipboard unavailable
+    }
+  }
+
+  function shareWhatsApp() {
+    const url = getShareUrl();
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}`,
+      "_blank"
+    );
+    setShareOpen(false);
+  }
+
+  function shareTwitter() {
+    const url = getShareUrl();
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`,
+      "_blank"
+    );
+    setShareOpen(false);
+  }
 
   async function toggleFollow() {
     const newFollowing = !following;
@@ -151,10 +227,25 @@ export function ProfileClient({
                 <Icon name="edit" size={14} />
                 Edit profile
               </button>
-              <button className={styles.btnSecondary}>
-                <Icon name="share" size={14} />
-                Share
-              </button>
+              <div className={styles.shareWrap} ref={shareRef}>
+                <button className={styles.btnSecondary} onClick={handleShare}>
+                  <Icon name="share" size={14} />
+                  Share
+                </button>
+                {shareOpen && (
+                  <div className={styles.shareMenu}>
+                    <button className={styles.shareMenuItem} onClick={copyLink}>
+                      {copied ? "Copied!" : "Copy link"}
+                    </button>
+                    <button className={styles.shareMenuItem} onClick={shareWhatsApp}>
+                      WhatsApp
+                    </button>
+                    <button className={styles.shareMenuItem} onClick={shareTwitter}>
+                      Twitter / X
+                    </button>
+                  </div>
+                )}
+              </div>
               <button className={styles.btnGhost}>
                 <Icon name="settings" size={18} />
               </button>
@@ -168,10 +259,25 @@ export function ProfileClient({
                 <Icon name="plus" size={14} />
                 {following ? "Following" : "Follow taste"}
               </button>
-              <button className={styles.btnSecondary}>
-                <Icon name="share" size={14} />
-                Share
-              </button>
+              <div className={styles.shareWrap} ref={shareRef}>
+                <button className={styles.btnSecondary} onClick={handleShare}>
+                  <Icon name="share" size={14} />
+                  Share
+                </button>
+                {shareOpen && (
+                  <div className={styles.shareMenu}>
+                    <button className={styles.shareMenuItem} onClick={copyLink}>
+                      {copied ? "Copied!" : "Copy link"}
+                    </button>
+                    <button className={styles.shareMenuItem} onClick={shareWhatsApp}>
+                      WhatsApp
+                    </button>
+                    <button className={styles.shareMenuItem} onClick={shareTwitter}>
+                      Twitter / X
+                    </button>
+                  </div>
+                )}
+              </div>
               <button className={styles.btnGhost}>
                 <Icon name="more" size={18} />
               </button>
@@ -291,19 +397,56 @@ export function ProfileClient({
         </>
       )}
 
-      {/* Lists tab placeholder */}
+      {/* Lists tab */}
       {activeTab === 1 && (
-        <div className={styles.emptyWrap}>
-          <EmptyState
-            icon="list"
-            title="No lists yet"
-            message={
-              isOwnProfile
-                ? "Create a curated list of your favorite places."
-                : `${firstName} hasn't created any lists yet.`
-            }
-          />
-        </div>
+        <>
+          {lists.length > 0 ? (
+            <div className={styles.listGrid}>
+              {isOwnProfile && (
+                <Link href="/list/create" className={styles.listCreateCard}>
+                  <Icon name="plus" size={18} />
+                  <span>Create a list</span>
+                </Link>
+              )}
+              {lists.map((list) => (
+                <Link
+                  key={list.id}
+                  href={`/list/${list.id}`}
+                  className={styles.listCard}
+                >
+                  <div className={styles.listCardTitle}>{list.title}</div>
+                  {list.description && (
+                    <div className={styles.listCardDesc}>
+                      {list.description}
+                    </div>
+                  )}
+                  <div className={styles.listCardMeta}>
+                    {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.emptyWrap}>
+              <EmptyState
+                icon="list"
+                title="No lists yet"
+                message={
+                  isOwnProfile
+                    ? "Create a curated list of your favorite places."
+                    : `${firstName} hasn't created any lists yet.`
+                }
+                action={
+                  isOwnProfile ? (
+                    <Link href="/list/create">
+                      <button className={styles.btnSeal}>Create a list</button>
+                    </Link>
+                  ) : undefined
+                }
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* Saved tab placeholder */}

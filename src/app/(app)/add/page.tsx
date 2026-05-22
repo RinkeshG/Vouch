@@ -10,6 +10,7 @@ import { Tag } from "@/components/ui/tag";
 import { Stamp } from "@/components/ui/stamp";
 import { CONTEXT_TAGS } from "@/types";
 import { searchDemoPlaces, DEMO_PLACES } from "@/lib/demo";
+import { AddToListModal } from "@/components/app/add-to-list-modal";
 import styles from "./add.module.css";
 
 function isClientDemoMode() {
@@ -70,6 +71,7 @@ export default function AddVouchPage() {
   const [take, setTake] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [listModalOpen, setListModalOpen] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -430,10 +432,26 @@ export default function AddVouchPage() {
             >
               Vouch for another
             </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setListModalOpen(true)}
+              icon={<Icon name="list" size={14} />}
+            >
+              Add to a list
+            </Button>
             <Button variant="seal" onClick={() => router.push("/home")}>
               View my profile
             </Button>
           </div>
+
+          {selectedPlace && (
+            <AddToListModal
+              placeId={selectedPlace.placeId}
+              placeName={selectedPlace.name}
+              isOpen={listModalOpen}
+              onClose={() => setListModalOpen(false)}
+            />
+          )}
         </div>
       )}
     </div>

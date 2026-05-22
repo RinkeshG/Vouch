@@ -6,6 +6,7 @@ import { VouchCard } from "@/components/app/vouch-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Stamp } from "@/components/ui/stamp";
+import { AddToListModal } from "@/components/app/add-to-list-modal";
 import { cn } from "@/lib/utils";
 import styles from "./place.module.css";
 
@@ -52,6 +53,7 @@ export function PlaceDetailClient({
   isDemo = false,
 }: PlaceDetailClientProps) {
   const [saved, setSaved] = useState(initialSaved);
+  const [listModalOpen, setListModalOpen] = useState(false);
 
   // Unique authors for social proof
   const uniqueAuthors = vouches.reduce<
@@ -182,6 +184,13 @@ export function PlaceDetailClient({
           >
             <Icon name={saved ? "bookmark-filled" : "bookmark"} size={14} />
             {saved ? "Saved" : "Save"}
+          </button>
+          <button
+            className={styles.btnSecondary}
+            onClick={() => setListModalOpen(true)}
+          >
+            <Icon name="list" size={14} />
+            Add to list
           </button>
           <button className={styles.btnSecondary}>
             <Icon name="share" size={14} />
@@ -386,6 +395,13 @@ export function PlaceDetailClient({
       </div>
 
       <div className={styles.bottomSpacer} />
+
+      <AddToListModal
+        placeId={place.id}
+        placeName={place.name}
+        isOpen={listModalOpen}
+        onClose={() => setListModalOpen(false)}
+      />
     </div>
   );
 }
