@@ -189,33 +189,36 @@ export function ProfileClient({
 
       {/* ---- List gallery ---- */}
       {visibleLists.length > 0 ? (
-        <div className={styles.listGrid}>
-          {visibleLists.map((list) => {
-            const href = list.slug
-              ? `/@${profile.handle}/${list.slug}`
-              : `/@${profile.handle}`;
-            return (
-              <Link key={list.id} href={href} className={styles.listCard}>
-                <div
-                  className={styles.listCardBg}
-                  data-style={list.coverStyle}
-                />
-                <div className={styles.listCardContent}>
-                  {list.emoji && (
-                    <span className={styles.listCardEmoji}>{list.emoji}</span>
-                  )}
-                  <h3 className={styles.listCardTitle}>{list.title}</h3>
-                  <span className={styles.listCardCount}>
-                    {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
-                  </span>
-                  {!list.isPublished && (
-                    <span className={styles.draftBadge}>Draft</span>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        <>
+          <div className={styles.sectionLabel}>Lists</div>
+          <div className={styles.listGrid}>
+            {visibleLists.map((list) => {
+              const href = list.slug
+                ? `/@${profile.handle}/${list.slug}`
+                : `/@${profile.handle}`;
+              return (
+                <Link key={list.id} href={href} className={styles.listCard}>
+                  <div
+                    className={styles.listCardBg}
+                    data-style={list.coverStyle}
+                  />
+                  <div className={styles.listCardContent}>
+                    {list.emoji && (
+                      <span className={styles.listCardEmoji}>{list.emoji}</span>
+                    )}
+                    <h3 className={styles.listCardTitle}>{list.title}</h3>
+                    <span className={styles.listCardCount}>
+                      {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
+                    </span>
+                    {!list.isPublished && (
+                      <span className={styles.draftBadge}>Draft</span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </>
       ) : (
         <div className={styles.emptyWrap}>
           <EmptyState
@@ -234,6 +237,18 @@ export function ProfileClient({
               ) : undefined
             }
           />
+        </div>
+      )}
+
+      {/* Bottom CTA for visitors */}
+      {!isOwnProfile && (
+        <div className={styles.bottomCta}>
+          <p className={styles.bottomCtaText}>
+            Inspired? Create your own curated list.
+          </p>
+          <Link href="/sign-up">
+            <Button variant="seal">Create yours on Vouch</Button>
+          </Link>
         </div>
       )}
     </div>

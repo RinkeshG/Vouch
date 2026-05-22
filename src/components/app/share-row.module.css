@@ -13,7 +13,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  height: 44px;
   padding: 0 16px;
   border-radius: var(--v-radius-pill);
   background: var(--v-surface);
@@ -43,14 +43,12 @@
   .btn {
     flex: 1;
     justify-content: center;
-    min-width: 0;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 14px;
   }
 
   .btn span {
     display: none;
-  }
-
-  .btn {
-    padding: 0 12px;
   }
 }

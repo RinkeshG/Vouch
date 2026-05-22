@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Stamp } from "@/components/ui/stamp";
 import styles from "./auth.module.css";
 
@@ -12,9 +13,9 @@ export default function AuthLayout({
     <div className={styles.shell}>
       <div className={styles.formSide}>
         <div className={styles.formInner}>
-          <div className={styles.logo}>
+          <Link href="/" className={styles.logo}>
             <Stamp size={32} />
-          </div>
+          </Link>
           {children}
         </div>
       </div>

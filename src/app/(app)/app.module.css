@@ -11,6 +11,7 @@
   z-index: 100;
   height: 56px;
   padding: 0 var(--v-sp6);
+  padding-top: var(--v-safe-top);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -29,6 +30,13 @@
   margin: 0 auto;
 }
 
+/* Left group: logo + nav links */
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp5);
+}
+
 /* Left: logo lockup */
 .logoLink {
   display: flex;
@@ -41,6 +49,21 @@
 
 .logoLink:hover {
   opacity: 0.75;
+}
+
+/* Nav links (Explore, etc.) */
+.navLink {
+  font-family: var(--v-font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--v-ink2);
+  text-decoration: none;
+  padding: 6px 0;
+  transition: color var(--v-duration-fast);
+}
+
+.navLink:hover {
+  color: var(--v-ink);
 }
 
 /* Right: action group */
@@ -67,6 +90,7 @@
   white-space: nowrap;
   border: none;
   cursor: pointer;
+  text-decoration: none;
   transition:
     background-color var(--v-duration-fast),
     transform var(--v-duration-fast) var(--v-ease-out);
@@ -79,6 +103,8 @@
 .newListBtn:active {
   transform: scale(0.97);
 }
+
+.newListLabel {}
 
 /* Ghost auth links */
 .authLink {
@@ -133,6 +159,7 @@
   max-width: 720px;
   margin: 0 auto;
   padding: var(--v-sp6) var(--v-sp6) var(--v-sp16);
+  padding-bottom: calc(var(--v-sp16) + var(--v-safe-bottom));
   min-height: calc(100dvh - 56px);
 }
 
@@ -140,21 +167,36 @@
 @media (max-width: 640px) {
   .topBar {
     padding: 0 var(--v-sp4);
+    padding-top: var(--v-safe-top);
+  }
+
+  .leftGroup {
+    gap: var(--v-sp3);
+  }
+
+  .navLink {
+    font-size: 13px;
   }
 
   .main {
     padding: var(--v-sp4) var(--v-sp4) var(--v-sp12);
+    padding-bottom: calc(var(--v-sp12) + var(--v-safe-bottom));
+  }
+
+  /* On very small screens, just show "+" icon for new list */
+  .newListLabel {
+    display: none;
   }
 
   .newListBtn {
-    height: 34px;
-    padding: 0 14px 0 10px;
+    height: 36px;
+    padding: 0 12px;
     font-size: 12.5px;
   }
 
   .authLink {
-    height: 34px;
+    height: 36px;
     padding: 0 12px;
-    font-size: 12.5px;
+    font-size: 13px;
   }
 }

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { searchLocalPlaces } from "@/lib/local-places";
 
-const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+// Check both env var names — server-side doesn't need NEXT_PUBLIC_ prefix
+const GOOGLE_API_KEY =
+  process.env.GOOGLE_PLACES_API_KEY ||
+  process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 const CITY_BOUNDS: Record<string, { lat: number; lng: number; radius: number }> = {
   bangalore: { lat: 12.9716, lng: 77.5946, radius: 30000 },

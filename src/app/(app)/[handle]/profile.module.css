@@ -120,6 +120,17 @@
   background: var(--v-surface-dim);
 }
 
+/* ---- Section label ---- */
+.sectionLabel {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  margin-bottom: var(--v-sp3);
+}
+
 /* ---- List gallery ---- */
 .listGrid {
   display: grid;
@@ -226,6 +237,26 @@
   padding: var(--v-sp12) 0;
 }
 
+/* ---- Bottom CTA (visitors) ---- */
+.bottomCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--v-sp10) 0 var(--v-sp4);
+  border-top: 1px solid var(--v-line);
+  margin-top: var(--v-sp8);
+}
+
+.bottomCtaText {
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--v-ink2);
+  margin-bottom: var(--v-sp4);
+  line-height: 1.4;
+}
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .listGrid {
@@ -234,5 +265,21 @@
 
   .hero {
     padding: var(--v-sp6) 0 var(--v-sp4);
+  }
+
+  .heroActions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .shareMenu {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .bottomCta {
+    padding: var(--v-sp8) 0 var(--v-sp4);
+    margin-top: var(--v-sp6);
   }
 }

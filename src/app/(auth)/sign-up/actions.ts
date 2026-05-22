@@ -25,3 +25,25 @@ export async function checkHandleAvailable(handle: string): Promise<boolean> {
 
   return !data; // data is true if taken, we return true if available
 }
+
+export async function checkEmailAvailable(email: string): Promise<boolean> {
+  if (!email || !email.includes("@")) {
+    return false;
+  }
+
+  const supabase = await createClient();
+
+  // Uses security-definer RPC to check auth.users (bypasses RLS)
+  const { data, error } = await supabase.rpc("is_email_registered", {
+    email_input: email.trim().toLowerCase(),
+  });
+
+  if (error) {
+    // If RPC doesn't exist yet (migration not run), allow sign-up
+    // Supabase will handle duplicate emails at the auth layer
+    console.error("Email check RPC error:", error.message);
+    return true;
+  }
+
+  return !data; // data is true if registered, we return true if available
+}

@@ -28,16 +28,21 @@ export function AppShellClient({
     <>
       <header className={styles.topBar}>
         <div className={styles.topBarInner}>
-          <Link href="/" className={styles.logoLink}>
-            <Lockup size={24} />
-          </Link>
+          <div className={styles.leftGroup}>
+            <Link href="/" className={styles.logoLink}>
+              <Lockup size={24} />
+            </Link>
+            <Link href="/explore" className={styles.navLink}>
+              Explore
+            </Link>
+          </div>
 
           <div className={styles.actions}>
             {isAuthed ? (
               <>
                 <Link href="/new" className={styles.newListBtn}>
                   <Icon name="plus" size={14} strokeWidth={2.5} />
-                  New list
+                  <span className={styles.newListLabel}>New list</span>
                 </Link>
                 <Link href={profileHref} className={styles.avatarLink}>
                   <Avatar

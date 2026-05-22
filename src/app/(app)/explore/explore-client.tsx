@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/app/empty-state";
 import styles from "./explore.module.css";
 
@@ -21,9 +22,10 @@ interface ExploreList {
 
 interface ExploreClientProps {
   initialLists: ExploreList[];
+  isAuthed: boolean;
 }
 
-export function ExploreClient({ initialLists }: ExploreClientProps) {
+export function ExploreClient({ initialLists, isAuthed }: ExploreClientProps) {
   if (initialLists.length === 0) {
     return (
       <div className={styles.page}>
@@ -32,6 +34,11 @@ export function ExploreClient({ initialLists }: ExploreClientProps) {
           icon="globe"
           title="No lists yet"
           message="Be the first to create and publish a curated list."
+          action={
+            <Link href={isAuthed ? "/new" : "/sign-up"}>
+              <Button variant="seal">Create your first list</Button>
+            </Link>
+          }
         />
       </div>
     );
@@ -77,6 +84,20 @@ export function ExploreClient({ initialLists }: ExploreClientProps) {
           );
         })}
       </div>
+
+      {/* Bottom CTA — drive signups from public explore page */}
+      {!isAuthed && (
+        <div className={styles.bottomCta}>
+          <p className={styles.bottomCtaText}>
+            Got a list in your head? Put it on the internet.
+          </p>
+          <Link href="/sign-up">
+            <Button variant="seal" size="lg">
+              Create your own list
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

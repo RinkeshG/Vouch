@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { NewListClient } from "./new-list-client";
@@ -26,10 +27,12 @@ export default async function NewListPage() {
   }
 
   return (
-    <NewListClient
-      userId={user.id}
-      handle={profile.handle}
-      city={profile.city || "bangalore"}
-    />
+    <Suspense>
+      <NewListClient
+        userId={user.id}
+        handle={profile.handle}
+        city={profile.city || "bangalore"}
+      />
+    </Suspense>
   );
 }

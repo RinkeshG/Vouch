@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   // Root page: authed users go inside the product, unauthed see landing page
   if (pathname === "/") {
     if (user) {
-      return NextResponse.redirect(new URL("/new", request.url));
+      return NextResponse.redirect(new URL("/home", request.url));
     }
     return response;
   }
@@ -36,13 +36,18 @@ export async function middleware(request: NextRequest) {
 
   // Auth pages: already-authenticated users go inside the product
   if ((pathname === "/sign-up" || pathname === "/sign-in") && user) {
-    // Go straight to /new — it handles profile checks + claim-handle redirect
-    return NextResponse.redirect(new URL("/new", request.url));
+    // Go straight to /home — it handles profile checks + claim-handle redirect
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
-  // Protected route: /new requires auth
-  if (pathname === "/new" && !user) {
-    return NextResponse.redirect(new URL("/sign-up?next=/new", request.url));
+  // Protected routes: /home, /new, /list/* require auth
+  if (
+    (pathname === "/home" || pathname === "/new" || pathname.startsWith("/list")) &&
+    !user
+  ) {
+    return NextResponse.redirect(
+      new URL(`/sign-up?next=${encodeURIComponent(pathname)}`, request.url)
+    );
   }
 
   // Everything else (/@handle, /explore, public pages): pass through

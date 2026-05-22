@@ -63,9 +63,16 @@
   /* — Transitions — */
   --v-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --v-duration-fast: 120ms;
+  --v-duration-base: 200ms;
   --v-duration-normal: 200ms;
   --v-duration-sheet: 320ms;
   --v-duration-spring: 400ms;
+
+  /* — Safe areas (notched phones) — */
+  --v-safe-top: env(safe-area-inset-top, 0px);
+  --v-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --v-safe-left: env(safe-area-inset-left, 0px);
+  --v-safe-right: env(safe-area-inset-right, 0px);
 
   /* — Avatar tints — */
   --v-tint-0: #E8D5C4;

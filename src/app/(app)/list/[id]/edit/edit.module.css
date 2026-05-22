@@ -1,11 +1,61 @@
 /* ============================================================
-   /new — List Creation
-   3 zones: header, search, live preview. Fixed publish bar.
-   All micro-interactions use --v-ease-out for spring feel.
+   /list/[id]/edit — List Edit Page
+   Same 3-zone structure as /new, plus status bar + danger zone.
    ============================================================ */
 
 .page {
-  padding-bottom: 100px; /* space for fixed publish bar */
+  padding-bottom: 100px; /* space for fixed action bar */
+}
+
+/* ============================================================
+   Status bar (Published / Draft indicator + view link)
+   ============================================================ */
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp3);
+  padding: var(--v-sp3) 0;
+  margin-bottom: var(--v-sp2);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--v-radius-pill);
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statusPublished {
+  background: rgba(27, 67, 50, 0.1);
+  color: #1B4332;
+}
+
+.statusDraft {
+  background: var(--v-surface-dim);
+  color: var(--v-ink3);
+}
+
+.viewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  color: var(--v-seal);
+  text-decoration: none;
+  transition: color var(--v-duration-fast);
+  margin-left: auto;
+}
+
+.viewLink:hover {
+  color: var(--v-seal-hover);
 }
 
 /* ============================================================
@@ -117,104 +167,6 @@
   border-radius: var(--v-radius-tag);
   display: inline-block;
   letter-spacing: -0.01em;
-}
-
-/* ============================================================
-   Import zone (shown when items.length === 0)
-   ============================================================ */
-
-.importZone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--v-sp3);
-  padding: var(--v-sp6) var(--v-sp4);
-  margin-bottom: var(--v-sp4);
-  border: 1.5px dashed var(--v-line-strong);
-  border-radius: var(--v-radius-input);
-  background: var(--v-surface);
-  animation: importFadeIn 400ms var(--v-ease-out) both;
-}
-
-.importZoneHighlight {
-  border-color: var(--v-seal);
-  background: rgba(191, 58, 43, 0.03);
-}
-
-@keyframes importFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.importText {
-  font-family: var(--v-font-serif);
-  font-style: italic;
-  font-size: 15px;
-  color: var(--v-ink3);
-}
-
-.importBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-family: var(--v-font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--v-ink);
-  background: var(--v-paper);
-  border: 1px solid var(--v-line-strong);
-  border-radius: var(--v-radius-input);
-  cursor: pointer;
-  transition:
-    border-color var(--v-duration-fast),
-    box-shadow var(--v-duration-fast),
-    transform var(--v-duration-fast) var(--v-ease-out);
-}
-
-.importBtn:hover {
-  border-color: var(--v-ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
-}
-
-.importBtn:active {
-  transform: translateY(0);
-}
-
-.importOr {
-  font-family: var(--v-font-sans);
-  font-size: 12px;
-  color: var(--v-ink3);
-  text-transform: lowercase;
-  letter-spacing: 0.02em;
-}
-
-.importNotice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  margin-bottom: var(--v-sp4);
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  border-radius: var(--v-radius-tag);
-  font-family: var(--v-font-sans);
-  font-size: 13px;
-  color: #166534;
-  line-height: 1.4;
-  animation: importFadeIn 300ms var(--v-ease-out) both;
-}
-
-.importNoticeIcon {
-  flex-shrink: 0;
-  color: #16A34A;
 }
 
 /* ============================================================
@@ -517,10 +469,10 @@
 }
 
 /* ============================================================
-   Fixed publish bar
+   Fixed action bar (replaces publish bar)
    ============================================================ */
 
-.publishBar {
+.actionBar {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -532,7 +484,7 @@
   padding-bottom: calc(var(--v-sp3) + var(--v-safe-bottom));
 }
 
-.publishError {
+.actionError {
   max-width: 720px;
   margin: 0 auto var(--v-sp2);
   padding: 8px 12px;
@@ -545,7 +497,7 @@
   line-height: 1.4;
 }
 
-.publishBarInner {
+.actionBarInner {
   max-width: 720px;
   margin: 0 auto;
   display: flex;
@@ -590,141 +542,133 @@
   color: var(--v-ink3);
 }
 
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+}
+
 /* ============================================================
-   Celebration overlay
+   Danger zone (delete confirmation)
    ============================================================ */
 
-.celebration {
+.dangerZone {
+  margin-top: var(--v-sp8);
+  padding-top: var(--v-sp6);
+  border-top: 1px solid var(--v-line);
+}
+
+.dangerTitle {
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--v-ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--v-sp3);
+}
+
+.dangerRow {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 60dvh;
-  padding: var(--v-sp8);
-  position: relative;
-  overflow: hidden;
+  justify-content: space-between;
+  gap: var(--v-sp4);
+  padding: var(--v-sp4);
+  background: var(--v-surface);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-input);
 }
 
-.celebStamp {
-  animation: stampIn 500ms var(--v-ease-out) both;
-  animation-delay: 200ms;
+.dangerInfo {
+  flex: 1;
+  min-width: 0;
 }
 
-@keyframes stampIn {
-  0% {
-    transform: scale(0) rotate(-15deg);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.08) rotate(3deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) rotate(0);
-    opacity: 1;
-  }
-}
-
-.celebTitle {
-  font-family: var(--v-font-serif);
-  font-size: clamp(32px, 6vw, 48px);
+.dangerLabel {
+  font-family: var(--v-font-sans);
+  font-size: 14px;
+  font-weight: 600;
   color: var(--v-ink);
-  margin-top: var(--v-sp4);
-  animation: fadeUp 400ms var(--v-ease-out) both;
-  animation-delay: 400ms;
 }
 
-.celebSub {
-  font-family: var(--v-font-serif);
-  font-style: italic;
-  font-size: 18px;
-  color: var(--v-ink2);
-  margin-top: var(--v-sp2);
-  animation: fadeUp 400ms var(--v-ease-out) both;
-  animation-delay: 500ms;
-}
-
-.celebUrl {
-  font-family: var(--v-font-mono);
+.dangerDesc {
+  font-family: var(--v-font-sans);
   font-size: 13px;
   color: var(--v-ink3);
-  margin-top: var(--v-sp2);
-  padding: 6px 14px;
-  background: var(--v-surface);
-  border-radius: var(--v-radius-tag);
-  animation: fadeUp 400ms var(--v-ease-out) both;
-  animation-delay: 600ms;
+  margin-top: 2px;
 }
 
-.celebShare {
-  margin-top: var(--v-sp6);
-  animation: fadeUp 400ms var(--v-ease-out) both;
-  animation-delay: 700ms;
+/* Delete confirmation overlay */
+.deleteConfirm {
+  margin-top: var(--v-sp3);
+  padding: var(--v-sp4);
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--v-radius-input);
+  animation: dropIn 150ms var(--v-ease-out);
 }
 
-.celebActions {
+.deleteConfirmText {
+  font-family: var(--v-font-sans);
+  font-size: 14px;
+  color: var(--v-ink);
+  margin-bottom: var(--v-sp3);
+  line-height: 1.5;
+}
+
+.deleteConfirmActions {
   display: flex;
-  gap: var(--v-sp3);
-  margin-top: var(--v-sp6);
-  animation: fadeUp 400ms var(--v-ease-out) both;
-  animation-delay: 800ms;
+  gap: var(--v-sp2);
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.deleteBtnConfirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--v-radius-tag);
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--v-seal);
+  color: white;
+  cursor: pointer;
+  transition:
+    background-color var(--v-duration-fast),
+    transform var(--v-duration-fast) var(--v-ease-out);
 }
 
-/* ---- CSS-only confetti ---- */
+.deleteBtnConfirm:hover {
+  background: var(--v-seal-hover);
+}
 
-.confettiWrap {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  z-index: 0;
+.deleteBtnConfirm:active {
+  transform: scale(0.97);
+}
+
+.deleteBtnConfirm:disabled {
+  opacity: 0.6;
   pointer-events: none;
 }
 
-.confettiPiece {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  animation: confettiBurst 1200ms var(--v-ease-out) both;
-  animation-delay: calc(var(--i) * 40ms + 200ms);
+.deleteBtnCancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--v-radius-tag);
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--v-ink2);
+  cursor: pointer;
+  transition: color var(--v-duration-fast);
 }
 
-.confettiPiece:nth-child(3n)   { background: var(--v-seal); }
-.confettiPiece:nth-child(3n+1) { background: #E8B44A; }
-.confettiPiece:nth-child(3n+2) { background: #457B9D; }
-.confettiPiece:nth-child(4n)   { width: 6px; height: 12px; border-radius: 3px; }
-.confettiPiece:nth-child(5n)   { width: 10px; height: 6px; }
-
-@keyframes confettiBurst {
-  0% {
-    transform: translate(0, 0) rotate(0deg) scale(0);
-    opacity: 1;
-  }
-  20% {
-    transform: translate(
-      calc(var(--x) * 0.3),
-      calc(var(--y) * 0.3)
-    ) rotate(calc(var(--r) * 0.3)) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--x), calc(var(--y) + 80px)) rotate(var(--r)) scale(0.6);
-    opacity: 0;
-  }
+.deleteBtnCancel:hover {
+  color: var(--v-ink);
 }
 
 /* ============================================================
@@ -758,7 +702,7 @@
 }
 
 @media (max-width: 640px) {
-  .publishBar {
+  .actionBar {
     padding: var(--v-sp3) var(--v-sp4);
     padding-bottom: calc(var(--v-sp3) + var(--v-safe-bottom));
   }
@@ -797,21 +741,27 @@
     height: 44px;
   }
 
-  .importZone {
-    padding: var(--v-sp5) var(--v-sp3);
+  .statusBar {
+    flex-wrap: wrap;
   }
 
-  .celebration {
-    padding: var(--v-sp6) var(--v-sp4);
+  .dangerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--v-sp3);
   }
 
-  .celebActions {
+  .deleteConfirmActions {
     flex-direction: column;
     width: 100%;
   }
 
-  .celebUrl {
-    font-size: 11px;
-    word-break: break-all;
+  .deleteBtnConfirm,
+  .deleteBtnCancel {
+    width: 100%;
+  }
+
+  .actionButtons {
+    gap: var(--v-sp1);
   }
 }

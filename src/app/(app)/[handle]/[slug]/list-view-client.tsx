@@ -92,16 +92,21 @@ export function ListViewClient({
         {list.description && (
           <p className={styles.heroDesc}>{list.description}</p>
         )}
-        <div className={styles.heroAuthor}>
-          <Avatar
-            handle={author.handle}
-            name={author.displayName}
-            imageUrl={author.avatarUrl}
-            size="sm"
-          />
-          <span className={styles.heroAuthorName}>{author.displayName}</span>
-          <span className={styles.heroAuthorSep}>·</span>
-          <span className={styles.heroAuthorCity}>{city}</span>
+        <div className={styles.heroMeta}>
+          <div className={styles.heroAuthor}>
+            <Avatar
+              handle={author.handle}
+              name={author.displayName}
+              imageUrl={author.avatarUrl}
+              size="sm"
+            />
+            <span className={styles.heroAuthorName}>{author.displayName}</span>
+            <span className={styles.heroAuthorSep}>·</span>
+            <span className={styles.heroAuthorCity}>{city}</span>
+          </div>
+          <span className={styles.heroPlaceCount}>
+            {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
+          </span>
         </div>
       </div>
 
@@ -169,14 +174,8 @@ export function ListViewClient({
           />
         </div>
 
-        {/* CTA for non-owners / non-authed */}
-        {isOwner ? (
-          <div className={styles.ownerActions}>
-            <Link href="/new">
-              <Button variant="ghost">Edit list</Button>
-            </Link>
-          </div>
-        ) : (
+        {/* CTA for visitors — owners just see the share buttons above */}
+        {!isOwner && (
           <div className={styles.cta}>
             <p className={styles.ctaText}>Want to build your own list?</p>
             <Link href="/sign-up">

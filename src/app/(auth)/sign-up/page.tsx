@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { checkHandleAvailable } from "./actions";
+import { checkHandleAvailable, checkEmailAvailable } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Rule } from "@/components/ui/rule";
@@ -77,6 +77,14 @@ export default function SignUpPage() {
 
     setLoading(true);
     setError("");
+
+    // Check email uniqueness before sending magic link
+    const emailAvailable = await checkEmailAvailable(email.trim());
+    if (!emailAvailable) {
+      setLoading(false);
+      setError("This email already has an account. Please sign in instead.");
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),

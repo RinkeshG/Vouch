@@ -110,9 +110,35 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* ---- Bottom CTA (unauthenticated visitors) ---- */
+.bottomCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--v-sp12) 0 var(--v-sp4);
+  border-top: 1px solid var(--v-line);
+  margin-top: var(--v-sp8);
+}
+
+.bottomCtaText {
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: clamp(18px, 3vw, 22px);
+  color: var(--v-ink2);
+  margin-bottom: var(--v-sp5);
+  max-width: 360px;
+  line-height: 1.4;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .bottomCta {
+    padding: var(--v-sp8) 0 var(--v-sp4);
+    margin-top: var(--v-sp6);
   }
 }

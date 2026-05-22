@@ -85,9 +85,30 @@ export async function publishList(input: PublishInput): Promise<{
   for (let i = 0; i < input.items.length; i++) {
     const item = input.items[i];
     const isLocal = item.placeId.startsWith("local-");
+    const isCsvImport = item.placeId.startsWith("csv_");
     let placeUuid: string | null = null;
 
-    if (!isLocal) {
+    if (isCsvImport) {
+      // CSV-imported place — no Google Place ID. Generate a unique manual ID.
+      const manualId = `manual_${crypto.randomUUID()}`;
+      const { data: inserted, error: insErr } = await supabase
+        .from("places")
+        .insert({
+          google_place_id: manualId,
+          name: item.name,
+          area: item.area,
+          city: input.city,
+          latitude: item.lat,
+          longitude: item.lng,
+        })
+        .select("id")
+        .single();
+
+      if (insErr) {
+        console.error(`CSV place insert failed for ${item.name}:`, insErr.message);
+      }
+      placeUuid = inserted?.id ?? null;
+    } else if (!isLocal) {
       // Google place — look up by google_place_id first
       const { data: existing } = await supabase
         .from("places")

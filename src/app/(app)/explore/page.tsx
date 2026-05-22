@@ -11,6 +11,10 @@ export const metadata = {
 export default async function ExplorePage() {
   const supabase = await createClient();
 
+  // Check if user is authenticated for CTA logic
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAuthed = !!user;
+
   const { data: listsData } = await supabase
     .from("lists")
     .select(
@@ -39,5 +43,5 @@ export default async function ExplorePage() {
     authorAvatarUrl: l.profiles?.avatar_url || null,
   }));
 
-  return <ExploreClient initialLists={lists} />;
+  return <ExploreClient initialLists={lists} isAuthed={isAuthed} />;
 }

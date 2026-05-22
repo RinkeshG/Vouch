@@ -7,14 +7,11 @@ import {
   useEffect,
   type KeyboardEvent,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
-import { Stamp } from "@/components/ui/stamp";
-import { ShareRow } from "@/components/app/share-row";
-import { parseCSV } from "@/lib/csv-parser";
-import { publishList } from "./actions";
-import styles from "./new-list.module.css";
+import { updateList, deleteList, togglePublish } from "./actions";
+import styles from "./edit.module.css";
 
 /* ---- Types ---- */
 
@@ -36,8 +33,22 @@ interface ListItem {
   lng: number | null;
 }
 
-interface NewListClientProps {
-  userId: string;
+interface EditListClientProps {
+  listId: string;
+  initialTitle: string;
+  initialDescription: string;
+  initialSlug: string;
+  initialEmoji: string;
+  initialCoverStyle: number;
+  initialIsPublished: boolean;
+  initialItems: Array<{
+    placeId: string;
+    name: string;
+    area: string;
+    note: string;
+    lat: number | null;
+    lng: number | null;
+  }>;
   handle: string;
   city: string;
 }
@@ -64,16 +75,32 @@ const COVER_STYLES = [
 
 /* ---- Component ---- */
 
-export function NewListClient({ userId, handle, city }: NewListClientProps) {
+export function EditListClient({
+  listId,
+  initialTitle,
+  initialDescription,
+  initialSlug,
+  initialEmoji,
+  initialCoverStyle,
+  initialIsPublished,
+  initialItems,
+  handle,
+  city,
+}: EditListClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  // List state
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [items, setItems] = useState<ListItem[]>([]);
-  const [coverStyle, setCoverStyle] = useState(0);
-  const [emoji, setEmoji] = useState("");
+  // List state (pre-filled from server)
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [items, setItems] = useState<ListItem[]>(
+    initialItems.map((item, idx) => ({
+      localId: `${item.placeId}-${idx}`,
+      ...item,
+    }))
+  );
+  const [coverStyle, setCoverStyle] = useState(initialCoverStyle);
+  const [emoji, setEmoji] = useState(initialEmoji);
+  const [isPublished, setIsPublished] = useState(initialIsPublished);
 
   // Search state
   const [query, setQuery] = useState("");
@@ -83,16 +110,12 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
   const searchRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // CSV import state
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importNotice, setImportNotice] = useState("");
-  const importFromUrl = searchParams.get("import") === "csv";
-
-  // Publish state
-  const [publishing, setPublishing] = useState(false);
-  const [published, setPublished] = useState(false);
-  const [publishedSlug, setPublishedSlug] = useState("");
-  const [publishError, setPublishError] = useState("");
+  // Save/action state
+  const [saving, setSaving] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [toggling, setToggling] = useState(false);
 
   // Note editing
   const [editingNote, setEditingNote] = useState<string | null>(null);
@@ -102,7 +125,8 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   // Derived
-  const slug = toSlug(title);
+  const slug = toSlug(title) || initialSlug;
+  const canSave = title.trim().length > 0;
   const canPublish = title.trim().length > 0 && items.length >= 3;
   const placesNeeded = Math.max(0, 3 - items.length);
 
@@ -144,53 +168,6 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
     debounceRef.current = setTimeout(() => doSearch(val), 300);
   }
 
-  /* ---- CSV import ---- */
-
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result;
-      if (typeof text !== "string") return;
-
-      const result = parseCSV(text);
-
-      if (result.places.length === 0) {
-        setImportNotice("No valid places found in this file. Check the format and try again.");
-        return;
-      }
-
-      const timestamp = Date.now();
-      const newItems: ListItem[] = result.places.map((p, index) => ({
-        localId: `csv-${index}-${timestamp}`,
-        placeId: `csv_${p.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").slice(0, 60)}`,
-        name: p.name,
-        area: p.area || "",
-        note: p.note || "",
-        lat: null,
-        lng: null,
-      }));
-
-      setItems(newItems);
-
-      let msg = `Imported ${result.places.length} place${result.places.length !== 1 ? "s" : ""} from CSV`;
-      if (result.skippedRows > 0) {
-        msg += ` · ${result.skippedRows} row${result.skippedRows !== 1 ? "s" : ""} skipped (empty or over limit)`;
-      }
-      setImportNotice(msg);
-
-      // Clear the notice after a few seconds
-      setTimeout(() => setImportNotice(""), 6000);
-    };
-
-    reader.readAsText(file);
-
-    // Reset the input so the same file can be re-selected
-    e.target.value = "";
-  }
-
   /* ---- Add place ---- */
 
   function addPlace(result: SearchResult) {
@@ -208,7 +185,6 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
     setQuery("");
     setResults([]);
     setFocusedIdx(-1);
-    // Re-focus search input for rapid tap-tap-tap
     setTimeout(() => searchRef.current?.focus(), 50);
   }
 
@@ -301,21 +277,23 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  /* ---- Publish (server action) ---- */
+  /* ---- Update (server action) ---- */
 
-  async function handlePublish() {
-    if (!canPublish || publishing) return;
-    setPublishing(true);
-    setPublishError("");
+  async function handleUpdate() {
+    if (!canSave || saving) return;
+    setSaving(true);
+    setActionError("");
 
     try {
-      const result = await publishList({
+      const result = await updateList({
+        listId,
         title: title.trim(),
         description: description.trim(),
         slug,
         emoji,
         coverStyle,
         city,
+        isPublished,
         items: items.map((item) => ({
           placeId: item.placeId,
           name: item.name,
@@ -327,95 +305,134 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
       });
 
       if (!result.success) {
-        setPublishError(result.error || "Something went wrong. Please try again.");
-        setPublishing(false);
+        setActionError(result.error || "Something went wrong. Please try again.");
+        setSaving(false);
         return;
       }
 
-      setPublishedSlug(result.slug || slug);
-      setPublished(true);
+      // Navigate to the list or refresh
+      if (isPublished) {
+        router.push(`/@${handle}/${slug}`);
+      } else {
+        router.refresh();
+      }
     } catch (err) {
-      console.error("Publish error:", err);
-      setPublishError("Something went wrong. Please try again.");
+      console.error("Update error:", err);
+      setActionError("Something went wrong. Please try again.");
     } finally {
-      setPublishing(false);
+      setSaving(false);
     }
   }
 
-  /* ---- Published overlay ---- */
+  /* ---- Publish / Unpublish ---- */
 
-  if (published) {
-    const listUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/@${handle}/${publishedSlug}`
-        : `/@${handle}/${publishedSlug}`;
+  async function handleTogglePublish() {
+    if (toggling) return;
 
-    return (
-      <div className={styles.celebration}>
-        <div className={styles.confettiWrap}>
-          {Array.from({ length: 14 }).map((_, i) => (
-            <span
-              key={i}
-              className={styles.confettiPiece}
-              style={{
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ["--i" as any]: i,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ["--x" as any]: `${(Math.random() - 0.5) * 300}px`,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ["--y" as any]: `${-Math.random() * 200 - 100}px`,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ["--r" as any]: `${Math.random() * 720 - 360}deg`,
-              }}
-            />
-          ))}
-        </div>
+    const willPublish = !isPublished;
 
-        <div className={styles.celebStamp}>
-          <Stamp size={64} variant="filled" animated />
-        </div>
+    // If publishing, validate first
+    if (willPublish && items.length < 3) {
+      setActionError("You need at least 3 places to publish.");
+      return;
+    }
 
-        <h1 className={styles.celebTitle}>Published!</h1>
-        <p className={styles.celebSub}>{title}</p>
-        <p className={styles.celebUrl}>vouch.app/@{handle}/{publishedSlug}</p>
+    setToggling(true);
+    setActionError("");
 
-        <div className={styles.celebShare}>
-          <ShareRow
-            url={listUrl}
-            title={title}
-            text={`Check out my list "${title}" on Vouch`}
-          />
-        </div>
+    try {
+      // Save current state first, then toggle
+      const saveResult = await updateList({
+        listId,
+        title: title.trim(),
+        description: description.trim(),
+        slug,
+        emoji,
+        coverStyle,
+        city,
+        isPublished: willPublish,
+        items: items.map((item) => ({
+          placeId: item.placeId,
+          name: item.name,
+          area: item.area,
+          note: item.note,
+          lat: item.lat,
+          lng: item.lng,
+        })),
+      });
 
-        <div className={styles.celebActions}>
-          <Button
-            variant="seal"
-            onClick={() => router.push(`/@${handle}/${publishedSlug}`)}
-          >
-            View your list
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setPublished(false);
-              setTitle("");
-              setDescription("");
-              setItems([]);
-              setEmoji("");
-              setCoverStyle(0);
-            }}
-          >
-            Create another
-          </Button>
-        </div>
-      </div>
-    );
+      if (!saveResult.success) {
+        setActionError(saveResult.error || "Something went wrong. Please try again.");
+        setToggling(false);
+        return;
+      }
+
+      setIsPublished(willPublish);
+
+      if (willPublish) {
+        router.push(`/@${handle}/${slug}`);
+      }
+    } catch (err) {
+      console.error("Toggle publish error:", err);
+      setActionError("Something went wrong. Please try again.");
+    } finally {
+      setToggling(false);
+    }
   }
 
-  /* ---- Main creation UI ---- */
+  /* ---- Delete ---- */
+
+  async function handleDelete() {
+    if (deleting) return;
+    setDeleting(true);
+    setActionError("");
+
+    try {
+      const result = await deleteList(listId);
+
+      if (!result.success) {
+        setActionError(result.error || "Something went wrong. Please try again.");
+        setDeleting(false);
+        setShowDeleteConfirm(false);
+        return;
+      }
+
+      router.push(`/@${handle}`);
+    } catch (err) {
+      console.error("Delete error:", err);
+      setActionError("Something went wrong. Please try again.");
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  }
+
+  /* ---- Main edit UI ---- */
 
   return (
     <div className={styles.page}>
+      {/* Status bar */}
+      <div className={styles.statusBar}>
+        <span
+          className={`${styles.statusBadge} ${
+            isPublished ? styles.statusPublished : styles.statusDraft
+          }`}
+        >
+          <Icon name={isPublished ? "globe" : "lock"} size={12} />
+          {isPublished ? "Published" : "Draft"}
+        </span>
+
+        {isPublished && slug && (
+          <a
+            href={`/@${handle}/${slug}`}
+            className={styles.viewLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View list <Icon name="external" size={12} />
+          </a>
+        )}
+      </div>
+
       {/* Zone 1: List header */}
       <div className={styles.headerZone}>
         <input
@@ -464,38 +481,6 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
           </div>
         )}
       </div>
-
-      {/* Import zone (shown when no items) */}
-      {items.length === 0 && (
-        <div
-          className={`${styles.importZone} ${importFromUrl ? styles.importZoneHighlight : ""}`}
-        >
-          <span className={styles.importText}>Have a list already?</span>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv,.txt"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-          />
-          <button
-            className={styles.importBtn}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Icon name="upload" size={16} />
-            Import from CSV
-          </button>
-          <span className={styles.importOr}>or search and add places below</span>
-        </div>
-      )}
-
-      {/* Import notice */}
-      {importNotice && (
-        <div className={styles.importNotice}>
-          <Icon name="check" size={16} className={styles.importNoticeIcon} />
-          {importNotice}
-        </div>
-      )}
 
       {/* Zone 2: Search + add */}
       <div className={styles.searchZone}>
@@ -627,12 +612,79 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
         </div>
       )}
 
-      {/* Fixed publish bar */}
-      <div className={styles.publishBar}>
-        {publishError && (
-          <div className={styles.publishError}>{publishError}</div>
+      {/* Danger zone */}
+      <div className={styles.dangerZone}>
+        <div className={styles.dangerTitle}>Danger zone</div>
+
+        {/* Unpublish row (only for published lists) */}
+        {isPublished && (
+          <div className={styles.dangerRow} style={{ marginBottom: "var(--v-sp3)" }}>
+            <div className={styles.dangerInfo}>
+              <div className={styles.dangerLabel}>Unpublish this list</div>
+              <div className={styles.dangerDesc}>
+                Remove from your public profile. You can republish later.
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              loading={toggling}
+              onClick={handleTogglePublish}
+            >
+              Unpublish
+            </Button>
+          </div>
         )}
-        <div className={styles.publishBarInner}>
+
+        {/* Delete row */}
+        <div className={styles.dangerRow}>
+          <div className={styles.dangerInfo}>
+            <div className={styles.dangerLabel}>Delete this list</div>
+            <div className={styles.dangerDesc}>
+              Permanently remove this list and all its places. This cannot be undone.
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            <Icon name="trash" size={14} />
+            Delete
+          </Button>
+        </div>
+
+        {showDeleteConfirm && (
+          <div className={styles.deleteConfirm}>
+            <div className={styles.deleteConfirmText}>
+              Are you sure you want to delete <strong>&ldquo;{title}&rdquo;</strong>?
+              This action cannot be undone.
+            </div>
+            <div className={styles.deleteConfirmActions}>
+              <button
+                className={styles.deleteBtnConfirm}
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Yes, delete permanently"}
+              </button>
+              <button
+                className={styles.deleteBtnCancel}
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Fixed action bar */}
+      <div className={styles.actionBar}>
+        {actionError && (
+          <div className={styles.actionError}>{actionError}</div>
+        )}
+        <div className={styles.actionBarInner}>
           <div className={styles.placeCounter}>
             <span className={styles.placeCountNum} key={items.length}>
               {items.length}
@@ -647,15 +699,40 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
             )}
           </div>
 
-          <Button
-            variant="seal"
-            size="md"
-            disabled={!canPublish}
-            loading={publishing}
-            onClick={handlePublish}
-          >
-            Publish
-          </Button>
+          <div className={styles.actionButtons}>
+            {isPublished ? (
+              <Button
+                variant="seal"
+                size="md"
+                disabled={!canSave}
+                loading={saving}
+                onClick={handleUpdate}
+              >
+                Update
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  disabled={!canSave}
+                  loading={saving}
+                  onClick={handleUpdate}
+                >
+                  Save draft
+                </Button>
+                <Button
+                  variant="seal"
+                  size="md"
+                  disabled={!canPublish}
+                  loading={toggling}
+                  onClick={handleTogglePublish}
+                >
+                  Publish
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
