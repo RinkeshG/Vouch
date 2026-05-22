@@ -123,32 +123,38 @@ export default function ClaimHandlePage() {
     setError("");
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        setError("Your session has expired. Please sign in again.");
+        setLoading(false);
+        setTimeout(() => router.push("/sign-in"), 1500);
+        return;
+      }
 
-      if (profileExists) {
-        // Profile exists — update handle + display name
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({
-            handle,
-            display_name: displayName.trim(),
-          })
-          .eq("id", user.id);
+      // Always try UPDATE first — profile likely exists from signup trigger
+      const { data: updated, error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          handle,
+          display_name: displayName.trim(),
+        })
+        .eq("id", user.id)
+        .select("id");
 
-        if (updateError) {
-          if (updateError.message.includes("unique")) {
-            setHandleStatus("taken");
-            setError("This username was just taken. Try another.");
-          } else {
-            setError("Something went wrong. Please try again.");
-            console.error("Profile update error:", updateError.message);
-          }
-          setLoading(false);
-          return;
+      if (updateError) {
+        if (updateError.message.includes("unique")) {
+          setHandleStatus("taken");
+          setError("This username was just taken. Try another.");
+        } else {
+          setError("Something went wrong. Please try again.");
+          console.error("Profile update error:", updateError.message);
         }
-      } else {
-        // No profile row — insert a new one
+        setLoading(false);
+        return;
+      }
+
+      // If UPDATE matched 0 rows, profile doesn't exist — try INSERT
+      if (!updated || updated.length === 0) {
         const { error: insertError } = await supabase
           .from("profiles")
           .insert({
