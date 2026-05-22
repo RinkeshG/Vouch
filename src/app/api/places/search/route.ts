@@ -40,6 +40,12 @@ export async function GET(request: Request) {
     const res = await fetch(url.toString());
     const data = await res.json();
 
+    // Google returns status like REQUEST_DENIED, OVER_QUERY_LIMIT without throwing
+    if (data.status && data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+      const localResults = searchLocalPlaces(query);
+      return NextResponse.json({ results: localResults });
+    }
+
     const results = (data.results || []).slice(0, 8).map(
       (place: {
         place_id: string;
@@ -55,6 +61,14 @@ export async function GET(request: Request) {
         types: place.types || [],
       })
     );
+
+    // If Google returned nothing, try local directory before giving up
+    if (results.length === 0) {
+      const localResults = searchLocalPlaces(query);
+      if (localResults.length > 0) {
+        return NextResponse.json({ results: localResults });
+      }
+    }
 
     return NextResponse.json({ results });
   } catch {
