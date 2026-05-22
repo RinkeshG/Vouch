@@ -1,5 +1,6 @@
 /* ============================================================
-   Home — Personal dashboard / list management
+   Home — Editorial dashboard / list management
+   Magazine table-of-contents design language
    ============================================================ */
 
 .page {
@@ -9,24 +10,42 @@
 
 /* ---- Header ---- */
 .header {
-  display: flex;
-  align-items: baseline;
-  gap: var(--v-sp3);
-  padding: var(--v-sp6) 0 var(--v-sp2);
+  padding: var(--v-sp10) 0 var(--v-sp4);
 }
 
-.heading {
+.eyebrow {
+  font-family: var(--v-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  margin-bottom: var(--v-sp3);
+}
+
+.eyebrowDash {
+  margin-right: 6px;
+}
+
+.statsHeading {
   font-family: var(--v-font-serif);
-  font-size: clamp(24px, 5vw, 32px);
+  font-size: clamp(28px, 5vw, 38px);
   font-weight: 400;
   color: var(--v-ink);
   line-height: 1.15;
+  margin-bottom: var(--v-sp1);
+}
+
+.statsSep {
+  margin: 0 0.15em;
+  color: var(--v-ink3);
 }
 
 .ownerHint {
   font-family: var(--v-font-sans);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--v-ink3);
+  line-height: 1.4;
 }
 
 /* ---- Action bar ---- */
@@ -35,51 +54,46 @@
   align-items: center;
   gap: var(--v-sp2);
   padding: var(--v-sp4) 0;
-  border-bottom: 1px solid var(--v-line);
+  border-bottom: 1px dashed var(--v-line-strong);
 }
 
-/* ---- Stats line ---- */
-.statsLine {
-  font-family: var(--v-font-sans);
-  font-size: 13px;
-  color: var(--v-ink3);
-  padding: var(--v-sp3) 0;
-}
-
-/* ---- List rows ---- */
+/* ---- List section ---- */
 .listSection {
   display: flex;
   flex-direction: column;
+  padding-top: var(--v-sp2);
 }
 
+/* ---- Editorial list rows ---- */
 .listRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--v-sp3);
-  padding: var(--v-sp3) var(--v-sp3);
-  margin: 0 calc(-1 * var(--v-sp3));
-  border-radius: var(--v-radius-input);
+  gap: var(--v-sp4);
+  padding: var(--v-sp4) var(--v-sp4);
+  margin: 0 calc(-1 * var(--v-sp4));
+  border-radius: var(--v-radius-card);
   text-decoration: none;
   color: inherit;
-  transition: background-color var(--v-duration-fast) var(--v-ease-out);
+  transition:
+    background-color var(--v-duration-base) var(--v-ease-out),
+    box-shadow var(--v-duration-base) var(--v-ease-out);
 }
 
 .listRow:hover {
-  background-color: var(--v-faint);
-  box-shadow: var(--v-shadow-sm);
+  background-color: var(--v-surface);
+  box-shadow: var(--v-shadow-md);
 }
 
 .listRow:active {
   background-color: var(--v-surface-dim);
+  box-shadow: var(--v-shadow-sm);
 }
 
-/* Separator between rows */
+/* Dashed separator between rows */
 .listRow + .listRow {
-  border-top: 1px solid var(--v-line);
+  border-top: 1px dashed var(--v-line);
 }
 
-/* Remove top border on hover (avoid double-line visual) */
 .listRow:hover + .listRow {
   border-top-color: transparent;
 }
@@ -88,33 +102,43 @@
   border-top-color: transparent;
 }
 
-/* ---- Left: emoji + info ---- */
-.listRowLeft {
+/* ---- Left: number ---- */
+.listNumber {
+  font-family: var(--v-font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--v-ink3);
+  line-height: 1;
+  width: 44px;
+  flex-shrink: 0;
+  text-align: right;
+  opacity: 0.5;
+  transition: opacity var(--v-duration-base) var(--v-ease-out);
+}
+
+.listRow:hover .listNumber {
+  opacity: 0.8;
+}
+
+/* ---- Middle: title + meta ---- */
+.listInfo {
   display: flex;
-  align-items: center;
-  gap: var(--v-sp3);
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
   flex: 1;
 }
 
-.listEmoji {
-  font-size: 24px;
-  line-height: 1;
-  flex-shrink: 0;
-  width: 32px;
-  text-align: center;
-}
-
-.listInfo {
+.listTitleRow {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: baseline;
+  gap: var(--v-sp2);
   min-width: 0;
 }
 
 .listTitle {
   font-family: var(--v-font-serif);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   color: var(--v-ink);
   line-height: 1.3;
@@ -123,17 +147,36 @@
   white-space: nowrap;
 }
 
+.listEmoji {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .listMeta {
-  font-family: var(--v-font-sans);
-  font-size: 12px;
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--v-ink3);
   display: flex;
   align-items: center;
   gap: 0;
 }
 
+.listPreview {
+  font-family: var(--v-font-sans);
+  font-size: 12px;
+  color: var(--v-ink3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
 .metaSep {
-  margin: 0 var(--v-sp1);
+  margin: 0 6px;
 }
 
 /* ---- Right: badge + actions ---- */
@@ -146,27 +189,27 @@
 
 .draftBadge {
   display: inline-block;
-  font-family: var(--v-font-sans);
+  font-family: var(--v-font-mono);
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--v-ink2);
   background: var(--v-surface-dim);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--v-radius-tag);
 }
 
 .publishedBadge {
   display: inline-block;
-  font-family: var(--v-font-sans);
+  font-family: var(--v-font-mono);
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--v-sage);
   background: var(--v-sage-dim);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--v-radius-tag);
 }
 
@@ -181,7 +224,9 @@
   padding: 4px 8px;
   border-radius: var(--v-radius-tag);
   cursor: pointer;
-  transition: color var(--v-duration-fast), background-color var(--v-duration-fast);
+  transition:
+    color var(--v-duration-fast),
+    background-color var(--v-duration-fast);
 }
 
 .viewLink:hover {
@@ -192,6 +237,12 @@
 .rowChevron {
   color: var(--v-ink3);
   flex-shrink: 0;
+  opacity: 0.4;
+  transition: opacity var(--v-duration-fast);
+}
+
+.listRow:hover .rowChevron {
+  opacity: 0.8;
 }
 
 /* ---- Empty state ---- */
@@ -209,9 +260,11 @@
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .header {
-    flex-direction: column;
-    gap: var(--v-sp1);
-    padding: var(--v-sp4) 0 var(--v-sp2);
+    padding: var(--v-sp6) 0 var(--v-sp3);
+  }
+
+  .statsHeading {
+    font-size: 24px;
   }
 
   .actionBar {
@@ -219,17 +272,22 @@
   }
 
   .listRow {
+    gap: var(--v-sp3);
     padding: var(--v-sp3) var(--v-sp2);
     margin: 0 calc(-1 * var(--v-sp2));
   }
 
-  .listEmoji {
-    font-size: 20px;
-    width: 28px;
+  .listNumber {
+    font-size: 24px;
+    width: 32px;
   }
 
   .listTitle {
-    font-size: 15px;
+    font-size: 16px;
+  }
+
+  .listPreview {
+    display: none;
   }
 
   .viewLink {

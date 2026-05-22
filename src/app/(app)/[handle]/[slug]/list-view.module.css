@@ -20,12 +20,23 @@
   align-items: flex-start;
 }
 
-/* 5 gradient palettes */
-.hero[data-style="0"] { background: linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%); }
-.hero[data-style="1"] { background: linear-gradient(135deg, #1B4332 0%, #40916C 100%); }
-.hero[data-style="2"] { background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%); }
-.hero[data-style="3"] { background: linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%); }
-.hero[data-style="4"] { background: linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%); }
+/* 5 flat band colors — matches landing page card palette */
+.hero[data-style="0"] { background: #B8412C; }
+.hero[data-style="1"] { background: #7A8472; }
+.hero[data-style="2"] { background: #3D2B3D; }
+.hero[data-style="3"] { background: #C49A4A; }
+.hero[data-style="4"] { background: #8A2E1F; }
+
+/* Ochre (style 3) needs dark text instead of white */
+.heroDarkText .heroTitle,
+.heroDarkText .heroAuthorName { color: var(--v-ink); }
+.heroDarkText .heroDesc { color: rgba(24, 18, 16, 0.7); }
+.heroDarkText .heroAuthorSep { color: rgba(24, 18, 16, 0.4); }
+.heroDarkText .heroAuthorCity { color: rgba(24, 18, 16, 0.6); }
+.heroDarkText .heroPlaceCount {
+  color: rgba(24, 18, 16, 0.6);
+  border-color: rgba(24, 18, 16, 0.2);
+}
 
 .heroEmoji {
   font-size: 48px;
@@ -106,7 +117,7 @@
   align-items: flex-start;
   gap: var(--v-sp4);
   padding: var(--v-sp5) 0;
-  border-bottom: 1px solid var(--v-line);
+  border-bottom: 1px dashed rgba(24, 18, 16, 0.12);
 
   /* Stagger animation — starts hidden */
   opacity: 0;

@@ -86,7 +86,10 @@ export function ListViewClient({
   return (
     <div className={styles.page}>
       {/* ---- Hero / Cover ---- */}
-      <div className={styles.hero} data-style={list.coverStyle}>
+      <div
+          className={`${styles.hero} ${list.coverStyle === 3 ? styles.heroDarkText : ""}`}
+          data-style={list.coverStyle}
+        >
         {list.emoji && <div className={styles.heroEmoji}>{list.emoji}</div>}
         <h1 className={styles.heroTitle}>{list.title}</h1>
         {list.description && (

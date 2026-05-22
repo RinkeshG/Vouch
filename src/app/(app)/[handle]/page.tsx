@@ -55,6 +55,30 @@ export default async function ProfilePage({ params }: PageProps) {
 
   const isOwnProfile = user?.id === profile.id;
 
+  // Fetch preview places (first 3 per list)
+  const listIds = (listsData || []).map((l) => l.id);
+  let previewMap: Record<string, { name: string; area: string }[]> = {};
+
+  if (listIds.length > 0) {
+    const { data: placesData } = await supabase
+      .from("list_places")
+      .select("list_id, position, places(name, area)")
+      .in("list_id", listIds)
+      .order("position", { ascending: true });
+
+    // Group by list_id, take first 3
+    const grouped: Record<string, { name: string; area: string }[]> = {};
+    for (const row of placesData || []) {
+      const lid = row.list_id;
+      if (!grouped[lid]) grouped[lid] = [];
+      const place = row.places as unknown as { name: string; area: string } | null;
+      if (place && grouped[lid].length < 3) {
+        grouped[lid].push({ name: place.name || "", area: place.area || "" });
+      }
+    }
+    previewMap = grouped;
+  }
+
   const lists = (listsData || []).map((l) => ({
     id: l.id,
     title: l.title,
@@ -64,6 +88,7 @@ export default async function ProfilePage({ params }: PageProps) {
     placeCount: l.place_count,
     coverStyle: l.cover_style,
     isPublished: l.is_published,
+    previewPlaces: previewMap[l.id] || [],
   }));
 
   return (

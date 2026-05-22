@@ -28,6 +28,7 @@ interface ProfileList {
   placeCount: number;
   coverStyle: number;
   isPublished: boolean;
+  previewPlaces: { name: string; area: string }[];
 }
 
 interface ProfileClientProps {
@@ -35,6 +36,15 @@ interface ProfileClientProps {
   lists: ProfileList[];
   isOwnProfile: boolean;
 }
+
+const BAND_COLORS: Record<number, { bg: string; text: string }> = {
+  0: { bg: "#B8412C", text: "#FFFFFF" },
+  1: { bg: "#7A8472", text: "#FFFFFF" },
+  2: { bg: "#3D2B3D", text: "#FFFFFF" },
+  3: { bg: "#C49A4A", text: "#181210" },
+  4: { bg: "#8A2E1F", text: "#FFFFFF" },
+};
+const BAND_FALLBACK = { bg: "#6E4F3A", text: "#FFFFFF" };
 
 export function ProfileClient({
   profile,
@@ -119,6 +129,7 @@ export function ProfileClient({
     <div className={styles.page}>
       {/* ---- Hero ---- */}
       <div className={styles.hero}>
+        <span className={styles.eyebrow}>Curator</span>
         <Avatar
           handle={profile.handle}
           name={profile.displayName}
@@ -192,27 +203,60 @@ export function ProfileClient({
         <>
           <div className={styles.sectionLabel}>Lists</div>
           <div className={styles.listGrid}>
-            {visibleLists.map((list) => {
+            {visibleLists.map((list, idx) => {
               const href = list.slug
                 ? `/@${profile.handle}/${list.slug}`
                 : `/@${profile.handle}`;
+              const band = BAND_COLORS[list.coverStyle] ?? BAND_FALLBACK;
+              const listNumber = String(idx + 1).padStart(2, "0");
+
               return (
                 <Link key={list.id} href={href} className={styles.listCard}>
+                  {/* Colored band header */}
                   <div
-                    className={styles.listCardBg}
-                    data-style={list.coverStyle}
-                  />
-                  <div className={styles.listCardContent}>
-                    {list.emoji && (
-                      <span className={styles.listCardEmoji}>{list.emoji}</span>
+                    className={styles.cardBand}
+                    style={{ background: band.bg, color: band.text }}
+                  >
+                    <div className={styles.cardBandRow}>
+                      <span>LIST №{listNumber}</span>
+                      <span className={styles.cardBandHandle}>
+                        @{profile.handle}
+                        {!list.isPublished && (
+                          <span className={styles.draftBadge}>Draft</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className={styles.cardBandTitle}>
+                      {list.emoji && (
+                        <span className={styles.cardBandEmoji}>{list.emoji}</span>
+                      )}
+                      {list.title}
+                    </div>
+                  </div>
+
+                  {/* Cream body with place previews */}
+                  <div className={styles.cardBody}>
+                    {list.previewPlaces.length > 0 ? (
+                      <ul className={styles.cardPlaces}>
+                        {list.previewPlaces.map((place, i) => (
+                          <li key={i} className={styles.cardPlaceItem}>
+                            <span className={styles.cardPlaceName}>{place.name}</span>
+                            {place.area && (
+                              <span className={styles.cardPlaceHood}>{place.area}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className={styles.cardPlacesEmpty}>No places yet</div>
                     )}
-                    <h3 className={styles.listCardTitle}>{list.title}</h3>
-                    <span className={styles.listCardCount}>
+                  </div>
+
+                  {/* Footer */}
+                  <div className={styles.cardFoot}>
+                    <span>
                       {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
                     </span>
-                    {!list.isPublished && (
-                      <span className={styles.draftBadge}>Draft</span>
-                    )}
                   </div>
                 </Link>
               );

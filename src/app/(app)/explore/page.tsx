@@ -26,6 +26,37 @@ export default async function ExplorePage() {
     .order("created_at", { ascending: false })
     .limit(12);
 
+  // Fetch first 3 places for each list for card preview
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const listIds = (listsData || []).map((l: any) => l.id as string);
+
+  let placesMap: Record<string, { name: string; area: string }[]> = {};
+
+  if (listIds.length > 0) {
+    const { data: placesData } = await supabase
+      .from("list_places")
+      .select("list_id, position, places(name, area)")
+      .in("list_id", listIds)
+      .order("position", { ascending: true })
+      .limit(3 * listIds.length);
+
+    // Group by list_id, keep first 3 per list
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const row of (placesData || []) as any[]) {
+      const lid = row.list_id as string;
+      if (!placesMap[lid]) placesMap[lid] = [];
+      if (placesMap[lid].length < 3) {
+        const p = row.places;
+        if (p) {
+          placesMap[lid].push({
+            name: p.name || "Untitled",
+            area: p.area || "",
+          });
+        }
+      }
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lists = (listsData || []).map((l: any) => ({
     id: l.id,
@@ -39,6 +70,7 @@ export default async function ExplorePage() {
     authorHandle: l.profiles?.handle || "user",
     authorName: l.profiles?.display_name || "User",
     authorAvatarUrl: l.profiles?.avatar_url || null,
+    previewPlaces: placesMap[l.id] || [],
   }));
 
   return <ExploreClient initialLists={lists} isAuthed={isAuthed} />;

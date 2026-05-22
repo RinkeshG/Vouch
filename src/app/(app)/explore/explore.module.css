@@ -1,17 +1,34 @@
 /* ============================================================
-   Explore — Public list gallery
+   Explore — Public list gallery (editorial magazine design)
    ============================================================ */
 
 .page {
   padding-top: var(--v-sp2);
+  padding-bottom: var(--v-sp8);
+}
+
+/* ---- Page header ---- */
+.header {
+  margin-bottom: var(--v-sp6);
+}
+
+.eyebrow {
+  font-family: var(--v-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  display: block;
+  margin-bottom: var(--v-sp1);
 }
 
 .heading {
   font-family: var(--v-font-serif);
-  font-size: clamp(28px, 5vw, 40px);
+  font-size: clamp(40px, 5vw, 56px);
   font-weight: 400;
   color: var(--v-ink);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .subheading {
@@ -19,95 +36,170 @@
   font-size: 15px;
   color: var(--v-ink2);
   margin-top: var(--v-sp1);
-  margin-bottom: var(--v-sp6);
 }
 
 /* ---- Grid ---- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--v-sp4);
 }
 
-/* ---- List card ---- */
+/* ---- Card ---- */
 .card {
-  position: relative;
-  border-radius: var(--v-radius-card);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  aspect-ratio: 4 / 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  border: 1px solid rgba(24, 18, 16, 0.06);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.04),
+    0 14px 28px -16px rgba(24, 18, 16, 0.28),
+    0 32px 60px -30px rgba(24, 18, 16, 0.18);
   transition:
     transform var(--v-duration-base) var(--v-ease-out),
     box-shadow var(--v-duration-base) var(--v-ease-out);
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--v-shadow-xl);
+  transform: translateY(-6px) rotate(-0.4deg);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.04),
+    0 20px 36px -16px rgba(24, 18, 16, 0.34),
+    0 44px 72px -30px rgba(24, 18, 16, 0.22);
 }
 
 .card:active {
   transform: scale(0.99);
 }
 
-/* Cover gradient */
-.cardBg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+/* ---- Card band (colored header) ---- */
+.cardBand {
+  padding: 14px 18px 16px;
 }
 
-.cardBg[data-style="0"] { background: linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%); }
-.cardBg[data-style="1"] { background: linear-gradient(135deg, #1B4332 0%, #40916C 100%); }
-.cardBg[data-style="2"] { background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%); }
-.cardBg[data-style="3"] { background: linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%); }
-.cardBg[data-style="4"] { background: linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%); }
+.cardBand[data-style="0"] { background: #B8412C; }
+.cardBand[data-style="1"] { background: #7A8472; }
+.cardBand[data-style="2"] { background: #3D2B3D; }
+.cardBand[data-style="3"] { background: #C49A4A; }
+.cardBand[data-style="4"] { background: #8A2E1F; }
+/* fallback: leather brown */
+.cardBand:not([data-style="0"]):not([data-style="1"]):not([data-style="2"]):not([data-style="3"]):not([data-style="4"]) {
+  background: #6E4F3A;
+}
 
-.cardContent {
-  position: relative;
-  z-index: 1;
-  padding: var(--v-sp4);
+.cardBandTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.cardBandLabel {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.cardBandHandle {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.cardBandTitle {
+  font-family: var(--v-font-serif);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #fff;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .cardEmoji {
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
-  display: block;
-  margin-bottom: var(--v-sp1);
+  flex-shrink: 0;
 }
 
-.cardTitle {
-  font-family: var(--v-font-serif);
-  font-size: 18px;
-  font-weight: 400;
-  color: #fff;
-  line-height: 1.25;
+/* ---- Card body (cream area with place rows) ---- */
+.cardBody {
+  background: #FBF6E9;
+  padding: 14px 18px 10px;
+  flex: 1;
 }
 
-.cardCount {
-  font-family: var(--v-font-mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 2px;
-  display: block;
-}
-
-.cardAuthor {
+.cardPlace {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: var(--v-sp2);
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
 }
 
-.cardAuthorName {
+.cardPlace + .cardPlace {
+  border-top: 1px dashed rgba(24, 18, 16, 0.12);
+}
+
+.cardPlaceName {
   font-family: var(--v-font-sans);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--v-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.cardPlaceHood {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 38%;
+  text-align: right;
+}
+
+.cardPlaceEmpty {
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  color: var(--v-ink3);
+  padding: 10px 0;
+  font-style: italic;
+}
+
+/* ---- Card footer ---- */
+.cardFoot {
+  background: #FBF6E9;
+  padding: 10px 18px 14px;
+  border-top: 1px solid rgba(24, 18, 16, 0.06);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.cardPlaceCount {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
 }
 
 /* ---- Bottom CTA (unauthenticated visitors) ---- */
@@ -132,6 +224,12 @@
 }
 
 /* ---- Responsive ---- */
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;

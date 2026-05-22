@@ -7,6 +7,11 @@ import { Icon } from "@/components/ui/icon";
 import { timeAgo } from "@/lib/utils";
 import styles from "./home.module.css";
 
+interface PreviewPlace {
+  name: string;
+  area: string | null;
+}
+
 interface HomeList {
   id: string;
   title: string;
@@ -16,6 +21,7 @@ interface HomeList {
   placeCount: number;
   isPublished: boolean;
   updatedAt: string;
+  previewPlaces: PreviewPlace[];
 }
 
 interface HomeClientProps {
@@ -23,6 +29,10 @@ interface HomeClientProps {
   displayName: string | null;
   lists: HomeList[];
   totalPlaces: number;
+}
+
+function padIndex(n: number): string {
+  return String(n).padStart(2, "0");
 }
 
 export function HomeClient({
@@ -35,7 +45,11 @@ export function HomeClient({
     return (
       <div className={styles.page}>
         <div className={styles.header}>
-          <h1 className={styles.heading}>Your lists</h1>
+          <p className={styles.eyebrow}>
+            <span className={styles.eyebrowDash}>&mdash;</span>
+            YOUR LISTS
+          </p>
+          <h1 className={styles.statsHeading}>Start curating</h1>
         </div>
 
         <div className={styles.emptyWrap}>
@@ -73,9 +87,17 @@ export function HomeClient({
     <div className={styles.page}>
       {/* ---- Header ---- */}
       <div className={styles.header}>
-        <h1 className={styles.heading}>Your lists</h1>
+        <p className={styles.eyebrow}>
+          <span className={styles.eyebrowDash}>&mdash;</span>
+          YOUR LISTS
+        </p>
+        <h1 className={styles.statsHeading}>
+          {lists.length} list{lists.length !== 1 ? "s" : ""}
+          <span className={styles.statsSep}>&middot;</span>
+          {totalPlaces} place{totalPlaces !== 1 ? "s" : ""}
+        </h1>
         {displayName && (
-          <span className={styles.ownerHint}>{displayName}</span>
+          <span className={styles.ownerHint}>by {displayName}</span>
         )}
       </div>
 
@@ -97,74 +119,81 @@ export function HomeClient({
         </Link>
       </div>
 
-      {/* ---- Stats ---- */}
-      <div className={styles.statsLine}>
-        {lists.length} list{lists.length !== 1 ? "s" : ""} &middot;{" "}
-        {totalPlaces} place{totalPlaces !== 1 ? "s" : ""} total
-      </div>
-
-      {/* ---- List rows ---- */}
+      {/* ---- Editorial list rows ---- */}
       <div className={styles.listSection}>
-        {lists.map((list) => (
-          <Link
-            key={list.id}
-            href={`/list/${list.id}/edit`}
-            className={styles.listRow}
-          >
-            {/* Left: emoji + title + meta */}
-            <div className={styles.listRowLeft}>
-              {list.emoji && (
-                <span className={styles.listEmoji}>{list.emoji}</span>
-              )}
+        {lists.map((list, idx) => {
+          const previewText =
+            list.previewPlaces.length > 0
+              ? list.previewPlaces.map((p) => p.name).join(", ")
+              : null;
+
+          return (
+            <Link
+              key={list.id}
+              href={`/list/${list.id}/edit`}
+              className={styles.listRow}
+            >
+              {/* Number */}
+              <span className={styles.listNumber}>{padIndex(idx + 1)}</span>
+
+              {/* Title + meta */}
               <div className={styles.listInfo}>
-                <span className={styles.listTitle}>{list.title}</span>
+                <div className={styles.listTitleRow}>
+                  <span className={styles.listTitle}>{list.title}</span>
+                  {list.emoji && (
+                    <span className={styles.listEmoji}>{list.emoji}</span>
+                  )}
+                </div>
                 <span className={styles.listMeta}>
                   {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
                   <span className={styles.metaSep}>&middot;</span>
                   {timeAgo(list.updatedAt)}
                 </span>
+                {previewText && (
+                  <span className={styles.listPreview}>{previewText}</span>
+                )}
               </div>
-            </div>
 
-            {/* Right: badge + actions */}
-            <div className={styles.listRowRight}>
-              {list.isPublished ? (
-                <span className={styles.publishedBadge}>Published</span>
-              ) : (
-                <span className={styles.draftBadge}>Draft</span>
-              )}
+              {/* Right: badge + actions */}
+              <div className={styles.listRowRight}>
+                {list.isPublished ? (
+                  <span className={styles.publishedBadge}>Published</span>
+                ) : (
+                  <span className={styles.draftBadge}>Draft</span>
+                )}
 
-              {list.isPublished && list.slug && handle && (
-                <span
-                  className={styles.viewLink}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.location.href = `/@${handle}/${list.slug}`;
-                  }}
-                  role="link"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                {list.isPublished && list.slug && handle && (
+                  <span
+                    className={styles.viewLink}
+                    onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       window.location.href = `/@${handle}/${list.slug}`;
-                    }
-                  }}
-                >
-                  <Icon name="external" size={13} />
-                  View
-                </span>
-              )}
+                    }}
+                    role="link"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = `/@${handle}/${list.slug}`;
+                      }
+                    }}
+                  >
+                    <Icon name="external" size={13} />
+                    View
+                  </span>
+                )}
 
-              <Icon
-                name="chevron-right"
-                size={16}
-                className={styles.rowChevron}
-              />
-            </div>
-          </Link>
-        ))}
+                <Icon
+                  name="chevron-right"
+                  size={16}
+                  className={styles.rowChevron}
+                />
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

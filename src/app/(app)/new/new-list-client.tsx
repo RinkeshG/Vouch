@@ -53,13 +53,13 @@ function toSlug(title: string): string {
     .slice(0, 80);
 }
 
-/* ---- Cover style palettes ---- */
+/* ---- Cover style palettes (matching landing page card bands) ---- */
 const COVER_STYLES = [
-  { label: "Crimson", gradient: "linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%)" },
-  { label: "Forest", gradient: "linear-gradient(135deg, #1B4332 0%, #40916C 100%)" },
-  { label: "Ocean", gradient: "linear-gradient(135deg, #1D3557 0%, #457B9D 100%)" },
-  { label: "Plum", gradient: "linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%)" },
-  { label: "Amber", gradient: "linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%)" },
+  { label: "Rust", gradient: "#B8412C" },
+  { label: "Sage", gradient: "#7A8472" },
+  { label: "Aubergine", gradient: "#3D2B3D" },
+  { label: "Ochre", gradient: "#C49A4A" },
+  { label: "Wine", gradient: "#8A2E1F" },
 ];
 
 /* ---- Component ---- */

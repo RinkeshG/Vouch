@@ -32,6 +32,30 @@ export default async function HomePage() {
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
+  // Fetch preview places (first 3 per list)
+  const listIds = (listsData || []).map((l) => l.id);
+  let previewMap: Record<string, { name: string; area: string | null }[]> = {};
+
+  if (listIds.length > 0) {
+    const { data: placesData } = await supabase
+      .from("list_places")
+      .select("list_id, position, places(name, area)")
+      .in("list_id", listIds)
+      .order("position", { ascending: true });
+
+    // Group by list_id and take first 3
+    const grouped: Record<string, { name: string; area: string | null }[]> = {};
+    for (const row of placesData || []) {
+      const lid = row.list_id as string;
+      if (!grouped[lid]) grouped[lid] = [];
+      const place = row.places as unknown as { name: string; area: string | null } | null;
+      if (place && grouped[lid].length < 3) {
+        grouped[lid].push({ name: place.name, area: place.area });
+      }
+    }
+    previewMap = grouped;
+  }
+
   const lists = (listsData || []).map((l) => ({
     id: l.id,
     title: l.title,
@@ -41,6 +65,7 @@ export default async function HomePage() {
     placeCount: l.place_count,
     isPublished: l.is_published,
     updatedAt: l.updated_at,
+    previewPlaces: previewMap[l.id] || [],
   }));
 
   const totalPlaces = lists.reduce((sum, l) => sum + l.placeCount, 0);
