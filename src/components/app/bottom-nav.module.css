@@ -96,7 +96,15 @@
    Desktop: convert to left sidebar
    ============================================================ */
 
-@media (min-width: 768px) {
+/* Hide bottom nav on desktop (desktop uses left rail from shell) */
+@media (min-width: 1024px) {
+  .nav {
+    display: none;
+  }
+}
+
+/* On tablet: convert to small left sidebar */
+@media (min-width: 768px) and (max-width: 1023px) {
   .nav {
     position: fixed;
     top: 0;

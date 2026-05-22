@@ -27,7 +27,7 @@ export default async function SearchPage() {
 
   const { data: suggestedPeople } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, avatar_url, vouch_count")
+    .select("id, handle, display_name, avatar_url, vouch_count, taste_line, bio")
     .eq("is_public", true)
     .neq("id", user.id)
     .order("vouch_count", { ascending: false })
@@ -35,7 +35,7 @@ export default async function SearchPage() {
 
   const { data: popularPlaces } = await supabase
     .from("places")
-    .select("id, name, area, vouch_count, cuisines")
+    .select("id, name, area, vouch_count")
     .order("vouch_count", { ascending: false })
     .gt("vouch_count", 0)
     .limit(10);

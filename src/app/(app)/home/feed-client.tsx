@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { TopBar, TopBarIconButton } from "@/components/app/top-bar";
 import { VouchCard } from "@/components/app/vouch-card";
-import { PlaceCard } from "@/components/app/place-card";
-import { EmptyState } from "@/components/app/empty-state";
+import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
-import { Stamp } from "@/components/ui/stamp";
+import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
+import { timeAgo } from "@/lib/utils";
 import styles from "./home.module.css";
 
-interface FeedVouch {
+/* ============================================================
+   Feed item types — a mixed activity stream
+   ============================================================ */
+
+export interface FeedVouch {
+  kind: "vouch";
   id: string;
   take: string;
   contextTags: string[];
@@ -22,234 +26,172 @@ interface FeedVouch {
   placeId: string;
   placeName: string;
   placeArea: string;
-  cuisines: string[];
-  priceTier: number;
+  placeCuisine?: string;
+  placePrice?: string;
+  placeImageUrl?: string | null;
+  reason: string;
 }
 
-interface TrendingPlace {
+export interface FeedList {
+  kind: "list";
   id: string;
-  name: string;
-  area: string;
-  vouch_count: number;
-  cuisines: string[];
-  price_tier: number;
+  listName: string;
+  listCount: number;
+  listArea: string;
+  createdAt: string;
+  authorHandle: string;
+  authorName: string;
+  authorAvatarUrl: string | null;
+  reason: string;
+  places: { id: string; name: string; imageUrl: string | null }[];
 }
+
+export interface FeedCircle {
+  kind: "circle";
+  id: string;
+  body: string;
+  createdAt: string;
+  userHandle: string;
+  userName: string;
+  userAvatarUrl: string | null;
+  reason: string;
+  fourVouches: { id: string; name: string; imageUrl: string | null }[];
+}
+
+export type FeedItem = FeedVouch | FeedList | FeedCircle;
 
 interface HomeFeedClientProps {
-  circleFeed: FeedVouch[];
-  discoverFeed: FeedVouch[];
-  trending: TrendingPlace[];
+  feedItems: FeedItem[];
   savedPlaceIds: string[];
   currentUserId: string;
-  userName?: string;
-}
-
-/** Group vouches by place — for visual place cards */
-function groupByPlace(vouches: FeedVouch[]) {
-  const map = new Map<
-    string,
-    {
-      placeId: string;
-      placeName: string;
-      placeArea: string;
-      cuisines: string[];
-      priceTier: number;
-      vouches: FeedVouch[];
-    }
-  >();
-
-  for (const v of vouches) {
-    if (!map.has(v.placeId)) {
-      map.set(v.placeId, {
-        placeId: v.placeId,
-        placeName: v.placeName,
-        placeArea: v.placeArea,
-        cuisines: v.cuisines,
-        priceTier: v.priceTier,
-        vouches: [],
-      });
-    }
-    map.get(v.placeId)!.vouches.push(v);
-  }
-
-  return Array.from(map.values());
-}
-
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
 }
 
 export function HomeFeedClient({
-  circleFeed,
-  discoverFeed,
-  trending,
+  feedItems,
   savedPlaceIds,
   currentUserId,
-  userName = "there",
 }: HomeFeedClientProps) {
   const savedSet = new Set(savedPlaceIds);
-  const circlePlaces = groupByPlace(circleFeed);
-  const hasFeed = circleFeed.length > 0 || discoverFeed.length > 0;
+  const hasFeed = feedItems.length > 0;
+
+  // Get today's date formatted
+  const now = new Date();
+  const dayNames = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const dateStr = `${dayNames[now.getDay()]} · ${now.getDate()} ${monthNames[now.getMonth()]}`;
 
   return (
     <div className={styles.page}>
-      <TopBar
-        title="Vouch"
-        left={<Stamp size={22} />}
-        right={
-          <TopBarIconButton label="Notifications">
-            <Icon name="bell" size={20} />
-          </TopBarIconButton>
-        }
-      />
-
-      {/* ---- Greeting ---- */}
-      <div className={styles.greeting}>
-        <h2 className={styles.greetingText}>
-          {getGreeting()}, {userName}
-        </h2>
-        <p className={styles.greetingSub}>
-          Your food guide to Bangalore
-        </p>
-      </div>
-
-      {/* ---- From Your Circle: horizontal place cards ---- */}
-      {circlePlaces.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>From your circle</h3>
-            <span className={styles.sectionCount}>
-              {circlePlaces.length} place{circlePlaces.length !== 1 ? "s" : ""}
-            </span>
+      {hasFeed ? (
+        <>
+          {/* Feed header — "Today in your circle." */}
+          <div className={styles.feedHeader}>
+            <div>
+              <div className={styles.feedDate}>{dateStr}</div>
+              <h1 className={styles.feedTitle}>
+                Today in your
+                <br />
+                circle.
+              </h1>
+            </div>
+            <div className={styles.cityTabs}>
+              <span className={`${styles.cityTab} ${styles.cityTabActive}`}>
+                Bangalore
+              </span>
+              <span className={styles.cityTab}>All cities</span>
+              <span className={styles.cityTab}>Open now</span>
+            </div>
           </div>
-          <div className={styles.carousel}>
-            {circlePlaces.map((group) => (
-              <div key={group.placeId} className={styles.carouselItem}>
-                <PlaceCard
-                  id={group.placeId}
-                  name={group.placeName}
-                  area={group.placeArea}
-                  cuisines={group.cuisines}
-                  priceTier={group.priceTier}
-                  vouchCount={group.vouches.length}
-                  vouches={group.vouches.map((v) => ({
-                    take: v.take,
-                    authorName: v.authorName,
-                    authorHandle: v.authorHandle,
-                    authorAvatarUrl: v.authorAvatarUrl,
-                  }))}
-                  isSaved={savedSet.has(group.placeId)}
-                  currentUserId={currentUserId}
-                  isDemo={!process.env.NEXT_PUBLIC_SUPABASE_URL}
-                />
+
+          {/* Feed stream */}
+          <div className={styles.feed}>
+            {feedItems.map((item) => {
+              switch (item.kind) {
+                case "vouch":
+                  return (
+                    <VouchCard
+                      key={item.id}
+                      id={item.id}
+                      authorHandle={item.authorHandle}
+                      authorName={item.authorName}
+                      authorAvatarUrl={item.authorAvatarUrl}
+                      placeId={item.placeId}
+                      placeName={item.placeName}
+                      placeArea={item.placeArea}
+                      placeCuisine={item.placeCuisine}
+                      placePrice={item.placePrice}
+                      placeImageUrl={item.placeImageUrl}
+                      take={item.take}
+                      contextTags={item.contextTags}
+                      createdAt={item.createdAt}
+                      isSaved={savedSet.has(item.placeId)}
+                      currentUserId={currentUserId}
+                      authorId={item.authorId}
+                      variant="feed"
+                      reason={item.reason}
+                    />
+                  );
+
+                case "list":
+                  return (
+                    <ListCard
+                      key={item.id}
+                      item={item}
+                      savedSet={savedSet}
+                    />
+                  );
+
+                case "circle":
+                  return <CircleCard key={item.id} item={item} />;
+
+                default:
+                  return null;
+              }
+            })}
+
+            {/* End of feed */}
+            <div className={styles.endOfFeed}>
+              <div className={styles.endTitle}>You&rsquo;re all caught up.</div>
+              <div className={styles.endSub}>
+                Next refresh tomorrow at 8 AM, or check trending.
               </div>
-            ))}
+              <div className={styles.endAction}>
+                <Link href="/search">
+                  <button className={styles.btnSecondary}>
+                    See trending in Bangalore →
+                  </button>
+                </Link>
+              </div>
+            </div>
           </div>
-        </section>
-      )}
-
-      {/* ---- Hot in Bangalore: 2-column place grid ---- */}
-      {trending.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Hot in Bangalore</h3>
-            <Link href="/search" className={styles.seeAll}>
-              See all <Icon name="chevron-right" size={14} />
-            </Link>
-          </div>
-          <div className={styles.placeGrid}>
-            {trending.slice(0, 6).map((place) => (
-              <PlaceCard
-                key={place.id}
-                id={place.id}
-                name={place.name}
-                area={place.area}
-                cuisines={place.cuisines || []}
-                priceTier={place.price_tier || 0}
-                vouchCount={place.vouch_count}
-                isSaved={savedSet.has(place.id)}
-                currentUserId={currentUserId}
-                variant="compact"
-                isDemo={!process.env.NEXT_PUBLIC_SUPABASE_URL}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ---- Fresh Takes: individual vouches as rich cards ---- */}
-      {circleFeed.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Fresh takes</h3>
-          </div>
-          <div className={styles.takeFeed}>
-            {circleFeed.slice(0, 5).map((vouch) => (
-              <VouchCard
-                key={vouch.id}
-                id={vouch.id}
-                authorHandle={vouch.authorHandle}
-                authorName={vouch.authorName}
-                authorAvatarUrl={vouch.authorAvatarUrl}
-                placeId={vouch.placeId}
-                placeName={vouch.placeName}
-                placeArea={vouch.placeArea}
-                take={vouch.take}
-                contextTags={vouch.contextTags}
-                createdAt={vouch.createdAt}
-                cuisines={vouch.cuisines}
-                isSaved={savedSet.has(vouch.placeId)}
-                currentUserId={currentUserId}
-                authorId={vouch.authorId}
-                feedCard
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ---- Discover: from outside your circle ---- */}
-      {discoverFeed.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Discover</h3>
-            <span className={styles.sectionCount}>Beyond your circle</span>
-          </div>
-          <div className={styles.takeFeed}>
-            {discoverFeed.map((vouch) => (
-              <VouchCard
-                key={vouch.id}
-                id={vouch.id}
-                authorHandle={vouch.authorHandle}
-                authorName={vouch.authorName}
-                authorAvatarUrl={vouch.authorAvatarUrl}
-                placeId={vouch.placeId}
-                placeName={vouch.placeName}
-                placeArea={vouch.placeArea}
-                take={vouch.take}
-                contextTags={vouch.contextTags}
-                createdAt={vouch.createdAt}
-                cuisines={vouch.cuisines}
-                isSaved={savedSet.has(vouch.placeId)}
-                currentUserId={currentUserId}
-                authorId={vouch.authorId}
-                feedCard
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ---- Empty state ---- */}
-      {!hasFeed && trending.length === 0 && (
+        </>
+      ) : (
         <div className={styles.emptyWrap}>
           <EmptyState
             icon="vouch"
-            title="Your guide is empty"
-            message="Follow people to see their restaurant picks here."
+            title="Your feed is empty"
+            message="Follow people whose taste you trust to see their recommendations here."
             action={
               <Link href="/search">
                 <Button variant="seal">Find people to follow</Button>
@@ -259,8 +201,147 @@ export function HomeFeedClient({
         </div>
       )}
 
-      {/* Bottom spacing for nav */}
       <div className={styles.bottomSpacer} />
     </div>
+  );
+}
+
+/* ============================================================
+   List Card — "Kabir just published" a list
+   ============================================================ */
+
+function ListCard({
+  item,
+  savedSet: _savedSet,
+}: {
+  item: FeedList;
+  savedSet: Set<string>;
+}) {
+  return (
+    <article className={styles.listCard}>
+      {/* Attribution row */}
+      <div className={styles.cardAttr}>
+        <Link href={`/${item.authorHandle}`}>
+          <Avatar
+            handle={item.authorHandle}
+            name={item.authorName}
+            imageUrl={item.authorAvatarUrl}
+            size="xs"
+          />
+        </Link>
+        <span className={styles.cardReason}>
+          <span className={styles.reasonDot} />
+          {item.reason}
+        </span>
+        <span className={styles.cardTime}>{timeAgo(item.createdAt)}</span>
+      </div>
+
+      {/* List title */}
+      <h3 className={styles.listTitle}>{item.listName}</h3>
+      <div className={styles.listMeta}>
+        {item.listCount} PLACES · {item.listArea.toUpperCase()}
+      </div>
+
+      {/* 4-photo grid */}
+      <div className={styles.listGrid}>
+        {item.places.slice(0, 4).map((place) => (
+          <Link
+            key={place.id}
+            href={`/place/${place.id}`}
+            className={styles.listGridItem}
+          >
+            <div
+              className={styles.listGridImage}
+              style={{
+                backgroundImage: place.imageUrl
+                  ? `url(${place.imageUrl})`
+                  : undefined,
+              }}
+            />
+            <div className={styles.listGridOverlay} />
+            <span className={styles.listGridName}>{place.name}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div className={styles.cardActions}>
+        <button className={styles.btnPrimary}>
+          Open list
+          <Icon name="arrow-right" size={14} />
+        </button>
+        <button className={styles.btnSecondary}>
+          <Icon name="bookmark" size={14} />
+          Save
+        </button>
+      </div>
+    </article>
+  );
+}
+
+/* ============================================================
+   Circle Card — "Priya joined Vouch and picked her Four Vouches."
+   ============================================================ */
+
+function CircleCard({ item }: { item: FeedCircle }) {
+  return (
+    <article className={styles.circleCard}>
+      {/* Attribution row */}
+      <div className={styles.cardAttr}>
+        <Link href={`/${item.userHandle}`}>
+          <Avatar
+            handle={item.userHandle}
+            name={item.userName}
+            imageUrl={item.userAvatarUrl}
+            size="xs"
+          />
+        </Link>
+        <span className={styles.cardReason}>
+          <span className={styles.reasonDot} />
+          {item.reason}
+        </span>
+        <span className={styles.cardTime}>{timeAgo(item.createdAt)}</span>
+      </div>
+
+      {/* Body */}
+      <h3 className={styles.circleBody}>{item.body}</h3>
+
+      {/* Four Vouches grid */}
+      <div className={styles.fourGrid}>
+        {item.fourVouches.slice(0, 4).map((place, idx) => (
+          <Link
+            key={place.id}
+            href={`/place/${place.id}`}
+            className={styles.fourItem}
+          >
+            <div
+              className={styles.fourImage}
+              style={{
+                backgroundImage: place.imageUrl
+                  ? `url(${place.imageUrl})`
+                  : undefined,
+              }}
+            />
+            <div className={styles.fourInfo}>
+              <span className={styles.fourIndex}>
+                0{idx + 1}/04
+              </span>
+              <span className={styles.fourName}>{place.name}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div className={styles.cardActions}>
+        <Link
+          href={`/${item.userHandle}`}
+          className={styles.btnPrimary}
+        >
+          <Icon name="users" size={14} />
+          See {item.userName.split(" ")[0]}&apos;s profile
+        </Link>
+      </div>
+    </article>
   );
 }

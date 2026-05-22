@@ -1,20 +1,41 @@
-import { DEMO_USER, isSupabaseMissing } from "@/lib/demo";
+import {
+  DEMO_USER,
+  isSupabaseMissing,
+  getDemoSuggestedPeople,
+  getDemoPopularPlaces,
+} from "@/lib/demo";
 import { AppShellClient } from "./shell-client";
-import styles from "./app.module.css";
 
 export const dynamic = "force-dynamic";
 
 function DemoShell({ children }: { children: React.ReactNode }) {
+  const suggestedPeople = getDemoSuggestedPeople().map((p) => ({
+    id: p.id,
+    handle: p.handle,
+    display_name: p.display_name,
+    avatar_url: p.avatar_url,
+    vouch_count: p.vouch_count,
+  }));
+
+  const trendingPlaces = getDemoPopularPlaces().slice(0, 3).map((p) => ({
+    id: p.id,
+    name: p.name,
+    area: p.area,
+    cuisines: p.cuisines,
+    vouch_count: p.vouch_count,
+  }));
+
   return (
-    <div className={styles.shell}>
-      <AppShellClient
-        handle={DEMO_USER.handle}
-        displayName={DEMO_USER.displayName}
-        avatarUrl={DEMO_USER.avatarUrl}
-        isDemo
-      />
-      <main className={styles.main}>{children}</main>
-    </div>
+    <AppShellClient
+      handle={DEMO_USER.handle}
+      displayName={DEMO_USER.displayName}
+      avatarUrl={DEMO_USER.avatarUrl}
+      isDemo
+      suggestedPeople={suggestedPeople}
+      trendingPlaces={trendingPlaces}
+    >
+      {children}
+    </AppShellClient>
   );
 }
 
@@ -37,37 +58,47 @@ export default async function AppLayout({
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Not logged in → serve demo mode (don't redirect to sign-in)
     if (!user) {
       return <DemoShell>{children}</DemoShell>;
     }
 
-    // Get profile for the nav
     const { data: profile } = await supabase
       .from("profiles")
       .select("handle, display_name, avatar_url, avatar_tint, onboarding_step")
       .eq("id", user.id)
       .single();
 
-    // If onboarding not complete, show demo mode too
-    // (they can still reach /onboarding via the auth routes)
     if (!profile || profile.onboarding_step < 4) {
       return <DemoShell>{children}</DemoShell>;
     }
 
-    // Fully authenticated + onboarded → real app
+    const { data: suggestedPeople } = await supabase
+      .from("profiles")
+      .select("id, handle, display_name, avatar_url, vouch_count")
+      .eq("is_public", true)
+      .neq("id", user.id)
+      .order("vouch_count", { ascending: false })
+      .limit(3);
+
+    const { data: trendingPlaces } = await supabase
+      .from("places")
+      .select("id, name, area, vouch_count")
+      .order("vouch_count", { ascending: false })
+      .gt("vouch_count", 0)
+      .limit(3);
+
     return (
-      <div className={styles.shell}>
-        <AppShellClient
-          handle={profile.handle}
-          displayName={profile.display_name}
-          avatarUrl={profile.avatar_url}
-        />
-        <main className={styles.main}>{children}</main>
-      </div>
+      <AppShellClient
+        handle={profile.handle}
+        displayName={profile.display_name}
+        avatarUrl={profile.avatar_url}
+        suggestedPeople={suggestedPeople || []}
+        trendingPlaces={trendingPlaces || []}
+      >
+        {children}
+      </AppShellClient>
     );
   } catch {
-    // If anything fails (bad env vars, network issue), fall back to demo
     return <DemoShell>{children}</DemoShell>;
   }
 }

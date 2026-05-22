@@ -47,6 +47,7 @@ export default async function PlacePage({ params }: PageProps) {
           latitude: place.latitude,
           longitude: place.longitude,
           isClosed: place.isClosed,
+          coverImageUrl: place.coverImageUrl,
         }}
         vouches={vouches}
         isSaved={DEMO_SAVED_PLACE_IDS.includes(id)}
@@ -113,6 +114,7 @@ export default async function PlacePage({ params }: PageProps) {
         latitude: place.latitude,
         longitude: place.longitude,
         isClosed: place.is_closed,
+        coverImageUrl: place.cover_image_url,
       }}
       vouches={vouches}
       isSaved={!!savedData}

@@ -4,58 +4,31 @@ import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
-import { getCuisineVisual, getCuisineIcon, getTagIcon } from "@/lib/cuisine";
-import { cn } from "@/lib/utils";
+import { Stamp } from "@/components/ui/stamp";
+import { cn, timeAgo } from "@/lib/utils";
 import styles from "./vouch-card.module.css";
 
 interface VouchCardProps {
   id: string;
-  // Author
   authorHandle: string;
   authorName: string;
   authorAvatarUrl?: string | null;
-  // Place
   placeId: string;
   placeName: string;
   placeArea: string;
-  // Content
+  placeCuisine?: string;
+  placePrice?: string;
+  placeImageUrl?: string | null;
   take: string;
-  contextTags: string[];
+  contextTags?: string[];
   createdAt: string;
-  // Visual
-  cuisines?: string[];
-  // Interactions
   isSaved?: boolean;
   currentUserId?: string;
   authorId?: string;
-  // Display variants
-  compact?: boolean;
+  /** Card style: "feed" (horizontal with photo), "compact" (for place page takes), "grid" (profile grid) */
+  variant?: "feed" | "compact" | "grid";
   hidePlace?: boolean;
-  feedCard?: boolean;
-}
-
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diff = now - then;
-
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "now";
-  if (minutes < 60) return `${minutes}m`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-
-  const weeks = Math.floor(days / 7);
-  if (weeks < 4) return `${weeks}w`;
-
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo`;
-
-  return `${Math.floor(months / 12)}y`;
+  reason?: string;
 }
 
 export function VouchCard({
@@ -65,26 +38,21 @@ export function VouchCard({
   placeId,
   placeName,
   placeArea,
+  placeCuisine,
+  placePrice,
+  placeImageUrl,
   take,
-  contextTags,
+  contextTags = [],
   createdAt,
-  cuisines = [],
   isSaved: initialSaved = false,
   currentUserId,
-  compact = false,
+  variant = "feed",
   hidePlace = false,
-  feedCard = false,
+  reason,
 }: VouchCardProps) {
   const [saved, setSaved] = useState(initialSaved);
-  const [savingState, setSavingState] = useState<"idle" | "saving">("idle");
-
-  const visual = getCuisineVisual(cuisines);
-  const cuisineIcon = getCuisineIcon(cuisines);
 
   async function toggleSave() {
-    if (savingState === "saving" || !currentUserId) return;
-    setSavingState("saving");
-
     const newSaved = !saved;
     setSaved(newSaved);
 
@@ -92,10 +60,7 @@ export function VouchCard({
       process.env.NEXT_PUBLIC_SUPABASE_URL &&
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!hasSupabase) {
-      setSavingState("idle");
-      return;
-    }
+    if (!hasSupabase) return;
 
     try {
       const { createClient } = await import("@/lib/supabase/client");
@@ -115,97 +80,151 @@ export function VouchCard({
       }
     } catch {
       setSaved(!newSaved);
-    } finally {
-      setSavingState("idle");
     }
   }
 
+  // ---- Compact variant (for place page takes) ----
+  if (variant === "compact") {
+    return (
+      <article className={styles.compactCard}>
+        <div className={styles.compactHeader}>
+          <Link href={`/${authorHandle}`} className={styles.compactAuthor}>
+            <Avatar
+              handle={authorHandle}
+              name={authorName}
+              imageUrl={authorAvatarUrl}
+              size="sm"
+            />
+            <div>
+              <div className={styles.compactAuthorName}>{authorName}</div>
+              <div className={styles.compactMeta}>
+                @{authorHandle} · {timeAgo(createdAt)}
+              </div>
+            </div>
+          </Link>
+          <Stamp size={28} />
+        </div>
+        <p className={styles.compactTake}>&ldquo;{take}&rdquo;</p>
+        {contextTags.length > 0 && (
+          <div className={styles.tags}>
+            {contextTags.map((tag) => (
+              <span key={tag} className={styles.tag}>{tag}</span>
+            ))}
+          </div>
+        )}
+      </article>
+    );
+  }
+
+  // ---- Grid variant (for profile vouch grid) ----
+  if (variant === "grid") {
+    return (
+      <article className={styles.gridCard}>
+        {placeImageUrl && (
+          <Link href={`/place/${placeId}`}>
+            <div
+              className={styles.gridImage}
+              style={{ backgroundImage: `url(${placeImageUrl})` }}
+            />
+          </Link>
+        )}
+        <div className={styles.gridBody}>
+          <Link href={`/place/${placeId}`} className={styles.gridPlaceName}>
+            {placeName}
+          </Link>
+          <div className={styles.gridLabel}>
+            {placeCuisine?.toUpperCase()}
+            {placeArea && ` · ${placeArea.toUpperCase()}`}
+          </div>
+          <p className={styles.gridTake}>&ldquo;{take}&rdquo;</p>
+        </div>
+      </article>
+    );
+  }
+
+  // ---- Feed variant (default — horizontal card with photo) ----
   return (
-    <article
-      className={cn(
-        styles.card,
-        compact && styles.compact,
-        feedCard && styles.feedCard
-      )}
-    >
-      {/* Color accent bar (cuisine-colored) */}
-      {!compact && (
-        <span
-          className={styles.accentBar}
-          style={{ backgroundColor: visual.color }}
-        />
-      )}
-
-      {/* THE TAKE — always the hero */}
-      <div className={styles.takeWrap}>
-        <span className={styles.openQuote}>&ldquo;</span>
-        <p className={styles.take}>{take}&rdquo;</p>
-      </div>
-
-      {/* Place chip — visually colored */}
-      {!hidePlace && !compact && (
-        <Link
-          href={`/place/${placeId}`}
-          className={styles.placeChip}
-          style={{
-            "--chip-bg": visual.bg,
-            "--chip-color": visual.color,
-          } as React.CSSProperties}
-        >
-          <span className={styles.placeChipIcon}>{cuisineIcon}</span>
-          <span className={styles.placeChipName}>{placeName}</span>
-          <span className={styles.placeChipSep}>&middot;</span>
-          <span className={styles.placeChipArea}>{placeArea}</span>
-        </Link>
-      )}
-
-      {/* Author — secondary */}
-      <div className={styles.author}>
-        <Link href={`/${authorHandle}`}>
-          <Avatar
-            handle={authorHandle}
-            name={authorName}
-            imageUrl={authorAvatarUrl}
-            size="xs"
+    <article className={styles.card}>
+      {/* Photo side */}
+      {placeImageUrl && (
+        <Link href={`/place/${placeId}`} className={styles.cardImage}>
+          <div
+            className={styles.cardImageInner}
+            style={{ backgroundImage: `url(${placeImageUrl})` }}
           />
         </Link>
-        <Link href={`/${authorHandle}`} className={styles.authorName}>
-          {authorName}
-        </Link>
-        <span className={styles.authorMeta}>
-          &middot; {timeAgo(createdAt)}
-        </span>
-      </div>
+      )}
 
-      {/* Footer: tags with emoji + bookmark */}
-      <div className={styles.footer}>
-        <div className={styles.tags}>
-          {contextTags.map((tag) => {
-            const emoji = getTagIcon(tag);
-            return (
-              <span key={tag} className={styles.tagPill}>
-                {emoji && <span className={styles.tagEmoji}>{emoji}</span>}
-                {tag}
-              </span>
-            );
-          })}
+      {/* Content side */}
+      <div className={cn(styles.cardContent, !placeImageUrl && styles.cardContentFull)}>
+        {/* Attribution row */}
+        <div className={styles.attrRow}>
+          <Link href={`/${authorHandle}`} className={styles.authorLink}>
+            <Avatar
+              handle={authorHandle}
+              name={authorName}
+              imageUrl={authorAvatarUrl}
+              size="xs"
+            />
+          </Link>
+          {reason ? (
+            <span className={styles.reason}>
+              <span className={styles.reasonDot} />
+              {reason}
+            </span>
+          ) : (
+            <span className={styles.reason}>
+              <span className={styles.reasonDot} />
+              Because {authorName.split(" ")[0]} vouched
+            </span>
+          )}
+          <span className={styles.time}>{timeAgo(createdAt)}</span>
         </div>
 
-        {currentUserId && (
-          <button
-            className={cn(
-              styles.bookmarkBtn,
-              saved && styles.bookmarkBtnActive
-            )}
-            onClick={toggleSave}
-            aria-label={saved ? "Unsave place" : "Save place"}
-          >
-            <Icon
-              name={saved ? "bookmark-filled" : "bookmark"}
-              size={16}
-            />
-          </button>
+        {/* Place name */}
+        {!hidePlace && (
+          <>
+            <Link href={`/place/${placeId}`} className={styles.placeName}>
+              {placeName}
+            </Link>
+            <div className={styles.placeLabel}>
+              {placeCuisine?.toUpperCase()}
+              {placeArea && ` · ${placeArea.split(",")[0].toUpperCase()}`}
+              {placePrice && ` · ${placePrice}`}
+            </div>
+          </>
         )}
+
+        {/* The take */}
+        <p className={styles.take}>&ldquo;{take}&rdquo;</p>
+
+        {/* Context tags */}
+        {contextTags.length > 0 && (
+          <div className={styles.tags}>
+            {contextTags.map((tag) => (
+              <span key={tag} className={styles.tag}>{tag}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className={styles.actions}>
+          <button className={styles.actionBtn}>
+            <Icon name="plus" size={14} strokeWidth={2} />
+            Vouch this too
+          </button>
+          <button
+            className={cn(styles.actionBtnSecondary, saved && styles.actionBtnSaved)}
+            onClick={toggleSave}
+          >
+            <Icon name={saved ? "bookmark-filled" : "bookmark"} size={14} />
+            {saved ? "Saved" : "Save"}
+          </button>
+          <button className={styles.actionBtnGhost}>
+            <Icon name="share" size={14} />
+            Send
+          </button>
+        </div>
       </div>
     </article>
   );

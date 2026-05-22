@@ -23,8 +23,9 @@ export default async function ProfilePage({ params }: PageProps) {
     if (!profile) notFound();
 
     const isOwnProfile = profile.id === DEMO_USER.id;
+    const placeMap = new Map(DEMO_PLACES.map((p) => [p.id, p]));
     const vouches = getDemoProfileVouches(profile.id).map((v) => {
-      const place = DEMO_PLACES.find((p) => p.id === v.placeId);
+      const place = placeMap.get(v.placeId);
       return {
         id: v.id,
         take: v.take,
@@ -33,8 +34,8 @@ export default async function ProfilePage({ params }: PageProps) {
         placeId: v.placeId,
         placeName: v.placeName,
         placeArea: v.placeArea,
-        cuisines: place?.cuisines || [],
-        priceTier: place?.priceTier || 0,
+        placeCuisine: place?.cuisines?.[0] || "",
+        placeImageUrl: place?.coverImageUrl || null,
       };
     });
 
@@ -53,6 +54,7 @@ export default async function ProfilePage({ params }: PageProps) {
           followerCount: profile.followerCount,
           followingCount: profile.followingCount,
           listCount: profile.listCount,
+          city: "city" in profile ? String(profile.city) : "Bangalore",
         }}
         vouches={vouches}
         isOwnProfile={isOwnProfile}
@@ -83,7 +85,7 @@ export default async function ProfilePage({ params }: PageProps) {
     .select(
       `
       id, take, context_tags, created_at, user_id, place_id,
-      places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier )
+      places!vouches_place_id_fkey ( id, name, area, cuisines, cover_image_url )
     `
     )
     .eq("user_id", profile.id)
@@ -98,8 +100,8 @@ export default async function ProfilePage({ params }: PageProps) {
     placeId: v.places?.id || v.place_id,
     placeName: v.places?.name || "Unknown",
     placeArea: v.places?.area || "",
-    cuisines: v.places?.cuisines || [],
-    priceTier: v.places?.price_tier || 0,
+    placeCuisine: v.places?.cuisines?.[0] || "",
+    placeImageUrl: v.places?.cover_image_url || null,
   }));
 
   const { count: followerCount } = await supabase

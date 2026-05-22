@@ -7,7 +7,6 @@ import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Stamp } from "@/components/ui/stamp";
-import { getCuisineVisual, getCuisineIcon, priceDots } from "@/lib/cuisine";
 import styles from "./saved.module.css";
 
 interface SavedPlace {
@@ -17,8 +16,6 @@ interface SavedPlace {
   area: string;
   vouchCount: number;
   savedAt: string;
-  cuisines?: string[];
-  priceTier?: number;
 }
 
 interface SavedClientProps {
@@ -58,76 +55,44 @@ export function SavedClient({
       <TopBar title="Saved" />
 
       {places.length > 0 ? (
-        <>
-          <div className={styles.header}>
-            <p className={styles.headerCount}>
-              {places.length} place{places.length !== 1 ? "s" : ""} saved
-            </p>
-          </div>
+        <div className={styles.content}>
+          <p className={styles.count}>
+            {places.length} place{places.length !== 1 ? "s" : ""} saved
+          </p>
 
-          <div className={styles.grid}>
-            {places.map((place) => {
-              const cuisines = place.cuisines || [];
-              const visual = getCuisineVisual(cuisines);
-              const icon = getCuisineIcon(cuisines);
+          <div className={styles.list}>
+            {places.map((place) => (
+              <div key={place.placeId} className={styles.row}>
+                <Link
+                  href={`/place/${place.placeId}`}
+                  className={styles.placeLink}
+                >
+                  <span className={styles.placeName}>{place.name}</span>
+                  <span className={styles.placeArea}>{place.area}</span>
+                </Link>
 
-              return (
-                <div key={place.placeId} className={styles.card}>
-                  {/* Visual hero */}
-                  <Link
-                    href={`/place/${place.placeId}`}
-                    className={styles.cardHero}
-                    style={{ background: visual.gradient }}
+                <div className={styles.rowRight}>
+                  <span className={styles.vouches}>
+                    <Stamp size={10} variant="outline" />
+                    {place.vouchCount}
+                  </span>
+                  <button
+                    className={styles.unsaveBtn}
+                    onClick={() => unsavePlace(place.placeId)}
+                    aria-label={`Remove ${place.name}`}
                   >
-                    <span className={styles.cardHeroIcon}>{icon}</span>
-                  </Link>
-
-                  {/* Card body */}
-                  <div className={styles.cardBody}>
-                    <Link
-                      href={`/place/${place.placeId}`}
-                      className={styles.cardName}
-                    >
-                      {place.name}
-                    </Link>
-                    <div className={styles.cardMeta}>
-                      <span>{place.area}</span>
-                      {place.priceTier && place.priceTier > 0 && (
-                        <>
-                          <span className={styles.cardMetaDot} />
-                          <span className={styles.cardPrice}>
-                            {priceDots(place.priceTier)}
-                          </span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Vouch count + unsave */}
-                    <div className={styles.cardFooter}>
-                      <span className={styles.cardVouches}>
-                        <Stamp size={12} variant="outline" />
-                        {place.vouchCount} vouch
-                        {place.vouchCount !== 1 ? "es" : ""}
-                      </span>
-                      <button
-                        className={styles.unsaveBtn}
-                        onClick={() => unsavePlace(place.placeId)}
-                        aria-label={`Unsave ${place.name}`}
-                      >
-                        <Icon name="bookmark-filled" size={16} />
-                      </button>
-                    </div>
-                  </div>
+                    <Icon name="bookmark-filled" size={16} />
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
-        </>
+        </div>
       ) : (
         <EmptyState
           icon="bookmark"
           title="No saved places"
-          message="When you save a place, it'll show up here for quick access."
+          message="Save places you want to remember. They'll appear here."
           action={
             <Link href="/search">
               <Button variant="secondary" size="sm">

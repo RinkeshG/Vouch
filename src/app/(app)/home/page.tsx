@@ -1,31 +1,20 @@
 import {
   DEMO_USER,
   DEMO_SAVED_PLACE_IDS,
-  getDemoCircleFeed,
-  getDemoDiscoverFeed,
-  getDemoTrendingPlaces,
+  getDemoHomeFeed,
 } from "@/lib/demo";
 import { tryGetUser } from "@/lib/demo-server";
 import { HomeFeedClient } from "./feed-client";
+import type { FeedItem } from "./feed-client";
 
 function demoHomeFeed() {
-  const trending = getDemoTrendingPlaces().map((p) => ({
-    id: p.id,
-    name: p.name,
-    area: p.area,
-    vouch_count: p.vouchCount,
-    cuisines: p.cuisines,
-    price_tier: p.priceTier,
-  }));
+  const feedItems = getDemoHomeFeed();
 
   return (
     <HomeFeedClient
-      circleFeed={getDemoCircleFeed()}
-      discoverFeed={getDemoDiscoverFeed()}
-      trending={trending}
+      feedItems={feedItems as FeedItem[]}
       savedPlaceIds={DEMO_SAVED_PLACE_IDS}
       currentUserId={DEMO_USER.id}
-      userName={DEMO_USER.displayName.split(" ")[0]}
     />
   );
 }
@@ -38,14 +27,7 @@ export default async function HomePage() {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", user.id)
-    .single();
-
-  const userName = profile?.display_name?.split(" ")[0] || "there";
-
+  // Get circle IDs (people the user follows)
   const { data: circleFollows } = await supabase
     .from("follows")
     .select("following_id")
@@ -54,7 +36,9 @@ export default async function HomePage() {
 
   const circleIds = (circleFollows || []).map((f) => f.following_id);
 
-  let circleFeed: FeedVouch[] = [];
+  const feedItems: FeedItem[] = [];
+
+  // Fetch circle vouches
   if (circleIds.length > 0) {
     const { data } = await supabase
       .from("vouches")
@@ -62,16 +46,19 @@ export default async function HomePage() {
         `
         id, take, context_tags, created_at, user_id, place_id,
         profiles!vouches_user_id_fkey ( handle, display_name, avatar_url ),
-        places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier )
+        places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier, cover_image_url )
       `
       )
       .in("user_id", circleIds)
       .order("created_at", { ascending: false })
       .limit(20);
 
-    circleFeed = (data || []).map(mapVouch);
+    for (const row of data || []) {
+      feedItems.push(mapVouchToFeedItem(row));
+    }
   }
 
+  // Fetch discover vouches (beyond circle)
   const excludeIds = [user.id, ...circleIds];
   const { data: discoverData } = await supabase
     .from("vouches")
@@ -79,22 +66,24 @@ export default async function HomePage() {
       `
       id, take, context_tags, created_at, user_id, place_id,
       profiles!vouches_user_id_fkey ( handle, display_name, avatar_url ),
-      places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier )
+      places!vouches_place_id_fkey ( id, name, area, cuisines, price_tier, cover_image_url )
     `
     )
     .not("user_id", "in", `(${excludeIds.join(",")})`)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(10);
 
-  const discoverFeed = (discoverData || []).map(mapVouch);
+  for (const row of discoverData || []) {
+    feedItems.push(mapVouchToFeedItem(row));
+  }
 
-  const { data: trendingData } = await supabase
-    .from("places")
-    .select("id, name, area, vouch_count, cuisines, price_tier")
-    .order("vouch_count", { ascending: false })
-    .gt("vouch_count", 0)
-    .limit(8);
+  // Sort by recency
+  feedItems.sort(
+    (a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
+  // Get saved place IDs
   const { data: savedData } = await supabase
     .from("saved_places")
     .select("place_id")
@@ -102,49 +91,34 @@ export default async function HomePage() {
 
   return (
     <HomeFeedClient
-      circleFeed={circleFeed}
-      discoverFeed={discoverFeed}
-      trending={trendingData || []}
+      feedItems={feedItems}
       savedPlaceIds={(savedData || []).map((s) => s.place_id)}
       currentUserId={user.id}
-      userName={userName}
     />
   );
 }
 
-interface FeedVouch {
-  id: string;
-  take: string;
-  contextTags: string[];
-  createdAt: string;
-  authorHandle: string;
-  authorName: string;
-  authorAvatarUrl: string | null;
-  authorId: string;
-  placeId: string;
-  placeName: string;
-  placeArea: string;
-  cuisines: string[];
-  priceTier: number;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapVouch(row: any): FeedVouch {
+function mapVouchToFeedItem(row: any): FeedItem {
   const profile = row.profiles;
   const place = row.places;
+  const authorName = profile?.display_name || "Unknown";
   return {
+    kind: "vouch",
     id: row.id,
     take: row.take,
     contextTags: row.context_tags || [],
     createdAt: row.created_at,
     authorHandle: profile?.handle || "unknown",
-    authorName: profile?.display_name || "Unknown",
+    authorName,
     authorAvatarUrl: profile?.avatar_url || null,
     authorId: row.user_id,
     placeId: place?.id || row.place_id,
     placeName: place?.name || "Unknown Place",
     placeArea: place?.area || "",
-    cuisines: place?.cuisines || [],
-    priceTier: place?.price_tier || 0,
+    placeCuisine: place?.cuisines?.[0] || "",
+    placePrice: place?.price_tier ? "₹".repeat(place.price_tier) : "",
+    placeImageUrl: place?.cover_image_url || null,
+    reason: `Because ${authorName.split(" ")[0]} vouched`,
   };
 }

@@ -20,8 +20,6 @@ export default async function SavedPage() {
         area: place?.area || "",
         vouchCount: place?.vouchCount || 0,
         savedAt: new Date().toISOString(),
-        cuisines: place?.cuisines || [],
-        priceTier: place?.priceTier || 0,
       };
     });
 
@@ -43,7 +41,7 @@ export default async function SavedPage() {
     .select(
       `
       id, place_id, saved_at,
-      places!saved_places_place_id_fkey ( id, name, area, vouch_count, cuisines, price_tier )
+      places!saved_places_place_id_fkey ( id, name, area, vouch_count )
     `
     )
     .eq("user_id", user.id)
@@ -57,8 +55,6 @@ export default async function SavedPage() {
     area: s.places?.area || "",
     vouchCount: s.places?.vouch_count || 0,
     savedAt: s.saved_at,
-    cuisines: s.places?.cuisines || [],
-    priceTier: s.places?.price_tier || 0,
   }));
 
   return <SavedClient savedPlaces={savedPlaces} currentUserId={user.id} />;

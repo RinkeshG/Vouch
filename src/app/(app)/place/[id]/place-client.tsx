@@ -1,16 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TopBar, TopBarIconButton } from "@/components/app/top-bar";
 import { VouchCard } from "@/components/app/vouch-card";
-import { AvatarStack } from "@/components/app/avatar-stack";
-import { EmptyState } from "@/components/app/empty-state";
-import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Stamp } from "@/components/ui/stamp";
-import { getCuisineVisual, getCuisineIcon, priceDots, getTagIcon } from "@/lib/cuisine";
 import { cn } from "@/lib/utils";
 import styles from "./place.module.css";
 
@@ -27,6 +22,7 @@ interface PlaceInfo {
   latitude: number | null;
   longitude: number | null;
   isClosed: boolean;
+  coverImageUrl?: string | null;
 }
 
 interface PlaceVouch {
@@ -55,12 +51,7 @@ export function PlaceDetailClient({
   currentUserId,
   isDemo = false,
 }: PlaceDetailClientProps) {
-  const router = useRouter();
   const [saved, setSaved] = useState(initialSaved);
-  const [activeTab, setActiveTab] = useState<"vouches" | "info">("vouches");
-
-  const visual = getCuisineVisual(place.cuisines);
-  const cuisineIcon = getCuisineIcon(place.cuisines);
 
   // Unique authors for social proof
   const uniqueAuthors = vouches.reduce<
@@ -75,11 +66,6 @@ export function PlaceDetailClient({
     }
     return acc;
   }, []);
-
-  // Collect all unique tags across vouches
-  const allTags = Array.from(
-    new Set(vouches.flatMap((v) => v.contextTags))
-  ).slice(0, 6);
 
   async function toggleSave() {
     const newSaved = !saved;
@@ -108,275 +94,296 @@ export function PlaceDetailClient({
     }
   }
 
+  const hasPhoto = !!place.coverImageUrl;
+  const priceStr = place.priceTier > 0 ? "₹".repeat(place.priceTier) : null;
+
+  // Collect all context tags across all vouches for the tag cloud
+  const allTags = new Map<string, number>();
+  for (const v of vouches) {
+    for (const tag of v.contextTags || []) {
+      allTags.set(tag, (allTags.get(tag) || 0) + 1);
+    }
+  }
+  const sortedTags = [...allTags.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+
   return (
     <div className={styles.page}>
-      {/* Transparent top bar overlaying hero */}
-      <TopBar
-        title=""
-        className={styles.topBar}
-        left={
-          <TopBarIconButton label="Go back" onClick={() => router.back()}>
-            <Icon name="chevron-left" size={20} />
-          </TopBarIconButton>
-        }
-        right={
-          <TopBarIconButton label="Share place">
-            <Icon name="share" size={20} />
-          </TopBarIconButton>
-        }
-      />
+      {/* Breadcrumbs */}
+      <nav className={styles.breadcrumbs}>
+        <Link href="/home">Home</Link>
+        {" / "}
+        <Link href="/search">{place.city}</Link>
+        {" / "}
+        <span className={styles.breadcrumbCurrent}>{place.name}</span>
+      </nav>
 
-      {/* ---- Visual Hero with cuisine gradient ---- */}
-      <div
-        className={styles.hero}
-        style={{ background: visual.gradient }}
-      >
-        <span className={styles.heroIcon}>{cuisineIcon}</span>
-        {/* Subtle decorative pattern */}
-        <div className={styles.heroOverlay} />
-      </div>
-
-      {/* ---- Place info card (overlaps hero) ---- */}
-      <div className={styles.infoCard}>
-        <h1 className={styles.placeName}>{place.name}</h1>
-
-        {/* Meta row */}
-        <div className={styles.meta}>
-          <span>{place.area}</span>
-          {place.priceTier > 0 && (
-            <>
-              <span className={styles.metaDot} />
-              <span className={styles.priceDots}>
-                {priceDots(place.priceTier)}
-              </span>
-            </>
-          )}
-          {place.isClosed && (
-            <>
-              <span className={styles.metaDot} />
-              <span className={styles.closedBadge}>Closed</span>
-            </>
-          )}
-        </div>
-
-        {/* Cuisine pills */}
-        {place.cuisines.length > 0 && (
-          <div className={styles.cuisines}>
-            {place.cuisines.map((c) => {
-              const cv = getCuisineVisual([c]);
-              return (
-                <span
-                  key={c}
-                  className={styles.cuisinePill}
-                  style={{
-                    "--pill-bg": cv.bg,
-                    "--pill-color": cv.color,
-                  } as React.CSSProperties}
-                >
-                  {getCuisineIcon([c])} {c}
-                </span>
-              );
-            })}
+      {/* Photo Gallery */}
+      {hasPhoto ? (
+        <div className={styles.gallery}>
+          <div
+            className={styles.galleryMain}
+            style={{ backgroundImage: `url(${place.coverImageUrl})` }}
+          />
+          <div className={styles.gallerySide}>
+            <div className={styles.gallerySmall} />
+            <div className={styles.gallerySmall} />
           </div>
-        )}
-
-        {/* Vouch stamp badge */}
-        <div className={styles.vouchBadge}>
-          <Stamp size={20} />
-          <span className={styles.vouchCount}>{place.vouchCount}</span>
-          <span className={styles.vouchLabel}>
-            vouch{place.vouchCount !== 1 ? "es" : ""}
-          </span>
         </div>
-
-        {/* Social proof: who vouches */}
-        {uniqueAuthors.length > 0 && (
-          <div className={styles.socialProof}>
-            <AvatarStack
-              people={uniqueAuthors}
-              label="vouch for this place"
-            />
-          </div>
-        )}
-
-        {/* Context tags — visual mood indicators */}
-        {allTags.length > 0 && (
-          <div className={styles.moodTags}>
-            {allTags.map((tag) => (
-              <span key={tag} className={styles.moodTag}>
-                {getTagIcon(tag)} {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className={styles.actions}>
-          <Button
-            variant={saved ? "seal" : "secondary"}
-            size="sm"
-            icon={
-              <Icon
-                name={saved ? "bookmark-filled" : "bookmark"}
-                size={16}
-              />
-            }
-            onClick={toggleSave}
-          >
-            {saved ? "Saved" : "Save"}
-          </Button>
-          <Link
-            href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}
-          >
-            <Button
-              variant="primary"
-              size="sm"
-              icon={<Icon name="plus" size={16} />}
-            >
-              Vouch
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* ---- Tabs ---- */}
-      <div className={styles.tabs}>
-        <button
-          className={cn(
-            styles.tab,
-            activeTab === "vouches" && styles.tabActive
-          )}
-          onClick={() => setActiveTab("vouches")}
-        >
-          Vouches ({vouches.length})
-        </button>
-        <button
-          className={cn(
-            styles.tab,
-            activeTab === "info" && styles.tabActive
-          )}
-          onClick={() => setActiveTab("info")}
-        >
-          Details
-        </button>
-      </div>
-
-      {/* ---- Vouches tab ---- */}
-      {activeTab === "vouches" && (
-        <div className={styles.vouches}>
-          {vouches.length > 0 ? (
-            vouches.map((v) => (
-              <VouchCard
-                key={v.id}
-                id={v.id}
-                authorHandle={v.authorHandle}
-                authorName={v.authorName}
-                authorAvatarUrl={v.authorAvatarUrl}
-                placeId={place.id}
-                placeName={place.name}
-                placeArea={place.area}
-                take={v.take}
-                contextTags={v.contextTags}
-                createdAt={v.createdAt}
-                isSaved={saved}
-                currentUserId={currentUserId}
-                authorId={v.userId}
-                hidePlace
-                compact
-              />
-            ))
-          ) : (
-            <EmptyState
-              icon="vouch"
-              title="No vouches yet"
-              message="Be the first to vouch for this place."
-              action={
-                <Link
-                  href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}
-                >
-                  <Button variant="seal" size="sm">
-                    Vouch for {place.name}
-                  </Button>
-                </Link>
-              }
-            />
-          )}
+      ) : (
+        <div className={styles.typeHero}>
+          <h1 className={styles.typeHeroName}>{place.name}</h1>
         </div>
       )}
 
-      {/* ---- Info tab ---- */}
-      {activeTab === "info" && (
-        <div className={styles.details}>
-          <div className={styles.detailCard}>
-            <div className={styles.detailRow}>
-              <div className={styles.detailIcon}>
-                <Icon name="map-pin" size={18} />
-              </div>
-              <div className={styles.detailContent}>
-                <span className={styles.detailLabel}>Location</span>
-                <span className={styles.detailValue}>
-                  {place.area}, {place.city}
-                </span>
-              </div>
-            </div>
+      {/* Title Row */}
+      <div className={styles.titleRow}>
+        <div className={styles.titleInfo}>
+          <div className={styles.categoryLabel}>
+            {place.cuisines[0]?.toUpperCase() || "RESTAURANT"}
+            {" · "}
+            {place.area.split(",")[0].toUpperCase()}
+            {priceStr && ` · ${priceStr}`}
+          </div>
 
+          {hasPhoto && (
+            <h1 className={styles.placeName}>{place.name}</h1>
+          )}
+
+          {place.isClosed && (
+            <span className={styles.closedBadge}>Permanently closed</span>
+          )}
+
+          <div className={styles.metaRow}>
+            <span className={styles.metaItem}>
+              <Icon name="map-pin" size={14} />
+              {place.area}
+            </span>
             {place.phone && (
-              <div className={styles.detailRow}>
-                <div className={styles.detailIcon}>
-                  <Icon name="send" size={18} />
+              <span className={styles.metaItem}>
+                · {place.phone}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.titleActions}>
+          <Link
+            href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}
+            className={styles.btnSeal}
+          >
+            <Icon name="plus" size={14} strokeWidth={2} />
+            Vouch this place
+          </Link>
+          <button
+            className={cn(styles.btnSecondary, saved && styles.btnSaved)}
+            onClick={toggleSave}
+          >
+            <Icon name={saved ? "bookmark-filled" : "bookmark"} size={14} />
+            {saved ? "Saved" : "Save"}
+          </button>
+          <button className={styles.btnSecondary}>
+            <Icon name="share" size={14} />
+            Send
+          </button>
+          <button className={styles.btnGhost}>
+            <Icon name="more" size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Social Proof Banner */}
+      {uniqueAuthors.length > 0 && (
+        <div className={styles.socialBanner}>
+          <div className={styles.socialAvatars}>
+            {uniqueAuthors.slice(0, 3).map((a, i) => (
+              <div key={a.handle} className={styles.socialAvatarWrap} style={{ zIndex: 3 - i }}>
+                <Avatar
+                  handle={a.handle}
+                  name={a.name}
+                  imageUrl={a.avatarUrl}
+                  size="sm"
+                />
+              </div>
+            ))}
+          </div>
+          <div className={styles.socialInfo}>
+            <div className={styles.socialTitle}>
+              {uniqueAuthors.length} in your circle vouched for this place.
+            </div>
+            <div className={styles.socialSub}>
+              {uniqueAuthors
+                .slice(0, 3)
+                .map((a) => a.name.split(" ")[0])
+                .join(", ")}
+              {" — across the last few months."}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Two-column body */}
+      <div className={styles.twoCol}>
+        {/* Left: Takes */}
+        <div className={styles.takesSection}>
+          <div className={styles.sectionKicker}>From your circle</div>
+          <h2 className={styles.sectionTitle}>What friends said.</h2>
+
+          {vouches.length > 0 ? (
+            <div className={styles.takesList}>
+              {vouches.map((v) => (
+                <VouchCard
+                  key={v.id}
+                  id={v.id}
+                  authorHandle={v.authorHandle}
+                  authorName={v.authorName}
+                  authorAvatarUrl={v.authorAvatarUrl}
+                  placeId={place.id}
+                  placeName={place.name}
+                  placeArea={place.area}
+                  take={v.take}
+                  contextTags={v.contextTags}
+                  createdAt={v.createdAt}
+                  isSaved={saved}
+                  currentUserId={currentUserId}
+                  authorId={v.userId}
+                  hidePlace
+                  variant="compact"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.emptyTakes}>
+              <p style={{ fontSize: 14, color: "var(--v-ink2)" }}>
+                No one has vouched for this place yet.
+              </p>
+              <Link
+                href={`/add?placeId=${place.id}&placeName=${encodeURIComponent(place.name)}`}
+                className={styles.btnSeal}
+                style={{ marginTop: 12, display: "inline-flex" }}
+              >
+                Be the first to vouch
+              </Link>
+            </div>
+          )}
+
+          {/* Beyond your circle */}
+          {place.vouchCount > uniqueAuthors.length && (
+            <>
+              <div className={styles.ruleRow}>
+                <div className={styles.ruleLine} />
+                <span className={styles.ruleLabel}>Beyond your circle</span>
+                <div className={styles.ruleLine} />
+              </div>
+              <p className={styles.beyondText}>
+                <span className={styles.beyondStrong}>
+                  {place.vouchCount - uniqueAuthors.length} other{" "}
+                  {place.vouchCount - uniqueAuthors.length === 1
+                    ? "person"
+                    : "people"}
+                </span>{" "}
+                on Vouch have endorsed this place. We don&rsquo;t average their
+                takes. Tap a tag to see one.
+              </p>
+              {sortedTags.length > 0 && (
+                <div className={styles.tagCloud}>
+                  {sortedTags.map(([tag, count]) => (
+                    <span key={tag} className={styles.tagPill}>
+                      {tag} · {count}
+                    </span>
+                  ))}
                 </div>
-                <div className={styles.detailContent}>
-                  <span className={styles.detailLabel}>Phone</span>
-                  <a
-                    href={`tel:${place.phone}`}
-                    className={styles.detailLink}
-                  >
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Right: Sidebar */}
+        <aside className={styles.sidebar}>
+          {/* The Basics */}
+          <div className={styles.sideCard}>
+            <div className={styles.sideCardLabel}>The basics</div>
+            <div className={styles.basicsList}>
+              {place.phone && (
+                <div className={styles.basicsRow}>
+                  <span className={styles.basicsKey}>Phone</span>
+                  <a href={`tel:${place.phone}`} className={styles.basicsVal}>
                     {place.phone}
                   </a>
                 </div>
-              </div>
-            )}
-
-            {place.website && (
-              <div className={styles.detailRow}>
-                <div className={styles.detailIcon}>
-                  <Icon name="globe" size={18} />
+              )}
+              {priceStr && (
+                <div className={styles.basicsRow}>
+                  <span className={styles.basicsKey}>Price</span>
+                  <span className={styles.basicsVal}>{priceStr}</span>
                 </div>
-                <div className={styles.detailContent}>
-                  <span className={styles.detailLabel}>Website</span>
+              )}
+              {place.cuisines.length > 0 && (
+                <div className={styles.basicsRow}>
+                  <span className={styles.basicsKey}>Cuisine</span>
+                  <span className={styles.basicsVal}>
+                    {place.cuisines.join(", ")}
+                  </span>
+                </div>
+              )}
+              <div className={styles.basicsRow}>
+                <span className={styles.basicsKey}>Area</span>
+                <span className={styles.basicsVal}>
+                  {place.area}, {place.city}
+                </span>
+              </div>
+              <div className={styles.basicsRow}>
+                <span className={styles.basicsKey}>Vouches</span>
+                <span className={styles.basicsVal}>
+                  {place.vouchCount} vouch
+                  {place.vouchCount !== 1 ? "es" : ""}
+                </span>
+              </div>
+              {place.website && (
+                <div className={styles.basicsRow}>
+                  <span className={styles.basicsKey}>Website</span>
                   <a
                     href={place.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.detailLink}
+                    className={styles.basicsVal}
+                    style={{ color: "var(--v-seal)" }}
                   >
-                    Visit website
+                    Visit website →
                   </a>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
 
-            {place.latitude && place.longitude && (
-              <div className={styles.detailRow}>
-                <div className={styles.detailIcon}>
-                  <Icon name="external" size={18} />
+          {/* Map Card */}
+          {place.latitude && place.longitude && (
+            <div className={styles.mapCard}>
+              <div className={styles.mapPlaceholder}>
+                <Stamp size={36} />
+              </div>
+              <div className={styles.mapBody}>
+                <div className={styles.mapAddress}>{place.area}</div>
+                <div className={styles.mapCoords}>
+                  {place.latitude.toFixed(2)} N · {place.longitude.toFixed(2)} E
                 </div>
-                <div className={styles.detailContent}>
-                  <span className={styles.detailLabel}>Directions</span>
+                <div className={styles.mapActions}>
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.detailLink}
+                    className={styles.btnSecondarySmall}
                   >
-                    Open in Google Maps
+                    Open in maps
                   </a>
+                  <button className={styles.btnGhostSmall}>Copy</button>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
+        </aside>
+      </div>
 
       <div className={styles.bottomSpacer} />
     </div>

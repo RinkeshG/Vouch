@@ -1,16 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TopBar, TopBarIconButton } from "@/components/app/top-bar";
 import { VouchCard } from "@/components/app/vouch-card";
-import { PlaceCard } from "@/components/app/place-card";
 import { EmptyState } from "@/components/app/empty-state";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Stamp } from "@/components/ui/stamp";
 import { cn } from "@/lib/utils";
 import styles from "./profile.module.css";
 
@@ -27,6 +22,7 @@ interface ProfileInfo {
   followerCount: number;
   followingCount: number;
   listCount: number;
+  city?: string;
 }
 
 interface ProfileVouch {
@@ -37,8 +33,8 @@ interface ProfileVouch {
   placeId: string;
   placeName: string;
   placeArea: string;
-  cuisines?: string[];
-  priceTier?: number;
+  placeCuisine?: string;
+  placeImageUrl?: string | null;
 }
 
 interface ProfileClientProps {
@@ -51,37 +47,6 @@ interface ProfileClientProps {
   isDemo?: boolean;
 }
 
-/** Group vouches by place to build a "taste map" */
-function groupVouchesByPlace(vouches: ProfileVouch[]) {
-  const map = new Map<
-    string,
-    {
-      placeId: string;
-      placeName: string;
-      placeArea: string;
-      cuisines: string[];
-      priceTier: number;
-      vouches: ProfileVouch[];
-    }
-  >();
-
-  for (const v of vouches) {
-    if (!map.has(v.placeId)) {
-      map.set(v.placeId, {
-        placeId: v.placeId,
-        placeName: v.placeName,
-        placeArea: v.placeArea,
-        cuisines: v.cuisines || [],
-        priceTier: v.priceTier || 0,
-        vouches: [],
-      });
-    }
-    map.get(v.placeId)!.vouches.push(v);
-  }
-
-  return Array.from(map.values());
-}
-
 export function ProfileClient({
   profile,
   vouches,
@@ -91,21 +56,10 @@ export function ProfileClient({
   currentUserId,
   isDemo = false,
 }: ProfileClientProps) {
-  const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
   const [followerCount, setFollowerCount] = useState(profile.followerCount);
-  const [activeTab, setActiveTab] = useState<"places" | "takes" | "lists">(
-    "places"
-  );
+  const [activeTab, setActiveTab] = useState(0);
   const savedSet = new Set(savedPlaceIds);
-  const placeGroups = groupVouchesByPlace(vouches);
-
-  // Avatar tint as header color
-  const tintColors = [
-    "#E8D5C4", "#C4D4C0", "#C9D1DC", "#D4C4B0",
-    "#B8C8C0", "#D0C4D4", "#C8D0B8", "#DCC8B4", "#B4C4CC",
-  ];
-  const headerColor = tintColors[profile.avatarTint % tintColors.length];
 
   async function toggleFollow() {
     const newFollowing = !following;
@@ -136,239 +90,229 @@ export function ProfileClient({
     }
   }
 
+  // Top 4 vouches for "The Canon" section
+  const fourVouches = vouches.slice(0, 4);
+
+  // Tab definitions
+  const tabs = [
+    `All vouches · ${profile.vouchCount}`,
+    `Lists · ${profile.listCount}`,
+    `Saved`,
+  ];
+
+  const firstName = profile.displayName.split(" ")[0];
+  const city = profile.city || "Bangalore";
+
   return (
     <div className={styles.page}>
-      <TopBar
-        title={`@${profile.handle}`}
-        left={
-          !isOwnProfile ? (
-            <TopBarIconButton label="Go back" onClick={() => router.back()}>
-              <Icon name="chevron-left" size={20} />
-            </TopBarIconButton>
-          ) : undefined
-        }
-        right={
-          isOwnProfile ? (
-            <TopBarIconButton label="Settings">
-              <Icon name="settings" size={20} />
-            </TopBarIconButton>
-          ) : (
-            <TopBarIconButton label="Share profile">
-              <Icon name="share" size={20} />
-            </TopBarIconButton>
-          )
-        }
-      />
-
-      {/* ---- Visual header band (avatar tint color) ---- */}
-      <div
-        className={styles.headerBand}
-        style={{ backgroundColor: headerColor }}
-      />
-
-      {/* ---- Profile card (overlaps band) ---- */}
-      <div className={styles.profileCard}>
-        <div className={styles.avatarWrap}>
+      {/* ---- Header ---- */}
+      <div className={styles.header}>
+        <div className={styles.headerLeft}>
           <Avatar
             handle={profile.handle}
             name={profile.displayName}
             imageUrl={profile.avatarUrl}
             size="xl"
-            ring
           />
-        </div>
-
-        <h1 className={styles.name}>{profile.displayName}</h1>
-        <p className={styles.handle}>@{profile.handle}</p>
-
-        {/* Taste line — the HERO of the profile */}
-        {profile.tasteLine && (
-          <div className={styles.tasteLineWrap}>
-            <span className={styles.tasteQuote}>&ldquo;</span>
-            <p className={styles.tasteLine}>{profile.tasteLine}</p>
-            <span className={styles.tasteQuote}>&rdquo;</span>
-          </div>
-        )}
-
-        {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
-
-        {/* Stats — visual badges */}
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <Stamp size={14} variant="outline" />
-            <span className={styles.statCount}>{profile.vouchCount}</span>
-            <span className={styles.statLabel}>
-              vouch{profile.vouchCount !== 1 ? "es" : ""}
-            </span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.stat}>
-            <span className={styles.statCount}>{placeGroups.length}</span>
-            <span className={styles.statLabel}>places</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.stat}>
-            <span className={styles.statCount}>{followerCount}</span>
-            <span className={styles.statLabel}>followers</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.stat}>
-            <span className={styles.statCount}>{profile.followingCount}</span>
-            <span className={styles.statLabel}>following</span>
+          <div className={styles.headerInfo}>
+            <div className={styles.headerLabel}>
+              {isOwnProfile ? `YOUR VOUCH · ${city.toUpperCase()}` : `A VOUCH BY · ${city.toUpperCase()}`}
+            </div>
+            <h1 className={styles.headerName}>{profile.displayName}</h1>
+            <div className={styles.headerHandle}>
+              vouch.app/@{profile.handle}
+            </div>
+            {profile.tasteLine && (
+              <p className={styles.headerTasteLine}>
+                &ldquo;{profile.tasteLine}&rdquo;
+              </p>
+            )}
+            <div className={styles.headerStats}>
+              <span>
+                <span className={styles.statStrong}>{profile.vouchCount}</span>{" "}
+                vouches
+              </span>
+              <span>
+                <span className={styles.statStrong}>{followerCount}</span>{" "}
+                in circle
+              </span>
+              <span>
+                <span className={styles.statStrong}>{profile.listCount}</span>{" "}
+                lists
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className={styles.actions}>
+        <div className={styles.headerActions}>
           {isOwnProfile ? (
-            <Button variant="secondary" fullWidth size="sm">
-              Edit profile
-            </Button>
+            <>
+              <button className={styles.btnSecondary}>
+                <Icon name="edit" size={14} />
+                Edit profile
+              </button>
+              <button className={styles.btnSecondary}>
+                <Icon name="share" size={14} />
+                Share
+              </button>
+              <button className={styles.btnGhost}>
+                <Icon name="settings" size={18} />
+              </button>
+            </>
           ) : (
-            <Button
-              variant={following ? "secondary" : "seal"}
-              fullWidth
-              size="sm"
-              onClick={toggleFollow}
-            >
-              {following ? "Following" : "Follow"}
-            </Button>
+            <>
+              <button
+                className={following ? styles.btnSecondary : styles.btnSeal}
+                onClick={toggleFollow}
+              >
+                <Icon name="plus" size={14} />
+                {following ? "Following" : "Follow taste"}
+              </button>
+              <button className={styles.btnSecondary}>
+                <Icon name="share" size={14} />
+                Share
+              </button>
+              <button className={styles.btnGhost}>
+                <Icon name="more" size={18} />
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      {/* ---- Four Vouches: The Canon ---- */}
+      {fourVouches.length > 0 && (
+        <div className={styles.fourSection}>
+          <div className={styles.sectionHead}>
+            <div>
+              <div className={styles.sectionKicker}>The canon</div>
+              <h2 className={styles.sectionTitle}>
+                {isOwnProfile ? "My Four Vouches" : `${firstName}'s Four Vouches`}
+              </h2>
+            </div>
+            {isOwnProfile && (
+              <button className={styles.btnGhostSmall}>
+                <Icon name="edit" size={12} />
+                Edit four
+              </button>
+            )}
+          </div>
+
+          <div className={styles.fourGrid}>
+            {fourVouches.map((v, i) => (
+              <Link
+                key={v.id}
+                href={`/place/${v.placeId}`}
+                className={styles.fourCard}
+              >
+                <div
+                  className={styles.fourImage}
+                  style={
+                    v.placeImageUrl
+                      ? { backgroundImage: `url(${v.placeImageUrl})` }
+                      : undefined
+                  }
+                />
+                <div className={styles.fourBody}>
+                  <div className={styles.fourIndex}>
+                    0{i + 1} / 0{Math.min(fourVouches.length, 4)}
+                  </div>
+                  <div className={styles.fourName}>{v.placeName}</div>
+                  <div className={styles.fourArea}>
+                    {v.placeArea.split(",")[0].toUpperCase()}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ---- Tabs ---- */}
       <div className={styles.tabs}>
-        <button
-          className={cn(
-            styles.tab,
-            activeTab === "places" && styles.tabActive
-          )}
-          onClick={() => setActiveTab("places")}
-        >
-          Places
-        </button>
-        <button
-          className={cn(
-            styles.tab,
-            activeTab === "takes" && styles.tabActive
-          )}
-          onClick={() => setActiveTab("takes")}
-        >
-          Takes
-        </button>
-        <button
-          className={cn(
-            styles.tab,
-            activeTab === "lists" && styles.tabActive
-          )}
-          onClick={() => setActiveTab("lists")}
-        >
-          Lists
-        </button>
+        {tabs.map((t, i) => (
+          <button
+            key={t}
+            className={cn(styles.tab, i === activeTab && styles.tabActive)}
+            onClick={() => setActiveTab(i)}
+          >
+            {t}
+          </button>
+        ))}
       </div>
 
-      {/* ---- Places tab: visual place cards (taste map) ---- */}
-      {activeTab === "places" && (
-        <div className={styles.placeGrid}>
-          {placeGroups.length > 0 ? (
-            placeGroups.map((group) => (
-              <PlaceCard
-                key={group.placeId}
-                id={group.placeId}
-                name={group.placeName}
-                area={group.placeArea}
-                cuisines={group.cuisines}
-                priceTier={group.priceTier}
-                vouchCount={group.vouches.length}
-                vouches={group.vouches.map((v) => ({
-                  take: v.take,
-                  authorName: profile.displayName,
-                  authorHandle: profile.handle,
-                  authorAvatarUrl: profile.avatarUrl,
-                }))}
-                isSaved={savedSet.has(group.placeId)}
-                currentUserId={currentUserId}
-                variant="compact"
-                isDemo={isDemo}
-              />
-            ))
-          ) : (
-            <EmptyState
-              icon="map-pin"
-              title={
-                isOwnProfile
-                  ? "No places yet"
-                  : `${profile.displayName} hasn't vouched yet`
-              }
-              message={
-                isOwnProfile
-                  ? "Vouch for your favorite spots to build your taste map."
-                  : "Check back later for their recommendations."
-              }
-              action={
-                isOwnProfile ? (
-                  <Link href="/add">
-                    <Button variant="seal" size="sm">
-                      Add a vouch
-                    </Button>
-                  </Link>
-                ) : undefined
-              }
-            />
-          )}
-        </div>
-      )}
-
-      {/* ---- Takes tab: individual vouches ---- */}
-      {activeTab === "takes" && (
-        <div className={styles.takesList}>
+      {/* ---- Vouch Grid ---- */}
+      {activeTab === 0 && (
+        <>
           {vouches.length > 0 ? (
-            vouches.map((v) => (
-              <VouchCard
-                key={v.id}
-                id={v.id}
-                authorHandle={profile.handle}
-                authorName={profile.displayName}
-                authorAvatarUrl={profile.avatarUrl}
-                placeId={v.placeId}
-                placeName={v.placeName}
-                placeArea={v.placeArea}
-                take={v.take}
-                contextTags={v.contextTags}
-                createdAt={v.createdAt}
-                cuisines={v.cuisines}
-                isSaved={savedSet.has(v.placeId)}
-                currentUserId={currentUserId}
-                authorId={profile.id}
-                feedCard
-              />
-            ))
+            <div className={styles.vouchGrid}>
+              {vouches.map((v) => (
+                <VouchCard
+                  key={v.id}
+                  id={v.id}
+                  authorHandle={profile.handle}
+                  authorName={profile.displayName}
+                  authorAvatarUrl={profile.avatarUrl}
+                  placeId={v.placeId}
+                  placeName={v.placeName}
+                  placeArea={v.placeArea}
+                  placeCuisine={v.placeCuisine}
+                  placeImageUrl={v.placeImageUrl}
+                  take={v.take}
+                  contextTags={v.contextTags}
+                  createdAt={v.createdAt}
+                  isSaved={savedSet.has(v.placeId)}
+                  currentUserId={currentUserId}
+                  authorId={profile.id}
+                  variant="grid"
+                />
+              ))}
+            </div>
           ) : (
-            <EmptyState
-              icon="vouch"
-              title="No takes yet"
-              message={
-                isOwnProfile
-                  ? "Share your honest takes on places."
-                  : "No takes to show yet."
-              }
-            />
+            <div className={styles.emptyWrap}>
+              <EmptyState
+                icon="vouch"
+                title={isOwnProfile ? "No takes yet" : "No takes yet"}
+                message={
+                  isOwnProfile
+                    ? "Share your honest take on a place you love."
+                    : `${profile.displayName} hasn't shared any takes yet.`
+                }
+                action={
+                  isOwnProfile ? (
+                    <Link href="/add">
+                      <button className={styles.btnSeal}>Add a vouch</button>
+                    </Link>
+                  ) : undefined
+                }
+              />
+            </div>
           )}
-        </div>
+        </>
       )}
 
-      {/* ---- Lists tab ---- */}
-      {activeTab === "lists" && (
-        <div className={styles.listsTab}>
+      {/* Lists tab placeholder */}
+      {activeTab === 1 && (
+        <div className={styles.emptyWrap}>
           <EmptyState
             icon="list"
-            title={isOwnProfile ? "No lists yet" : "No lists"}
+            title="No lists yet"
             message={
               isOwnProfile
-                ? "Create lists to organize your favorite places."
-                : `${profile.displayName} hasn't created any lists yet.`
+                ? "Create a curated list of your favorite places."
+                : `${firstName} hasn't created any lists yet.`
             }
+          />
+        </div>
+      )}
+
+      {/* Saved tab placeholder */}
+      {activeTab === 2 && (
+        <div className={styles.emptyWrap}>
+          <EmptyState
+            icon="bookmark"
+            title="Nothing saved yet"
+            message="Places you save will appear here."
           />
         </div>
       )}

@@ -6,23 +6,35 @@
 :root {
   /* — Colors — */
   --v-paper: #F6F5F2;
+  --v-surface: #FFFFFF;
+  --v-surface-dim: #EDECE9;
   --v-ink: #0F0F0E;
+  --v-ink2: #5C5752;
+  --v-ink3: #9A958F;
   --v-seal: #BF3A2B;
   --v-seal-hover: #A83225;
   --v-seal-pressed: #952D20;
-  --v-line: rgba(15, 15, 14, 0.10);
+  --v-seal-dim: rgba(191, 58, 43, 0.07);
+  --v-seal-wash: rgba(191, 58, 43, 0.12);
+  --v-line: rgba(15, 15, 14, 0.07);
+  --v-line-strong: rgba(15, 15, 14, 0.14);
   --v-faint: rgba(15, 15, 14, 0.05);
   --v-muted: rgba(15, 15, 14, 0.45);
 
   /* — Dark surfaces (share cards, OG images, footer) — */
-  --v-dark-paper: #1A1A19;
-  --v-dark-ink: #F6F5F2;
-  --v-dark-line: rgba(246, 245, 242, 0.12);
+  --v-dark-paper: #111110;
+  --v-dark-surface: #1A1918;
+  --v-dark-ink: #EDEBE7;
+  --v-dark-ink2: #9A958F;
+  --v-dark-seal: #D95640;
+  --v-dark-line: rgba(237, 235, 231, 0.08);
+  --v-dark-line-strong: rgba(237, 235, 231, 0.16);
   --v-dark-muted: rgba(246, 245, 242, 0.50);
 
   /* — Typography — */
   --v-font-serif: 'Gambarino', serif;
   --v-font-sans: 'General Sans', sans-serif;
+  --v-font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
 
   /* — Spacing (4px grid) — */
   --v-sp1: 4px;

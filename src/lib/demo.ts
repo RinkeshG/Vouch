@@ -57,7 +57,7 @@ const DEMO_PROFILES = [
     id: "demo-user-003",
     handle: "arjun.foodie",
     displayName: "Arjun Mehta",
-    bio: "Café crawler. Craft beer enthusiast. Always hunting the next hidden gem.",
+    bio: "Cafe crawler. Craft beer enthusiast. Always hunting the next hidden gem.",
     tasteLine: "Life's too short for bad coffee",
     avatarUrl: null,
     avatarTint: 5,
@@ -72,7 +72,7 @@ const DEMO_PROFILES = [
     handle: "naina.k",
     displayName: "Naina Kapoor",
     bio: "Weekend brunch is a religion.",
-    tasteLine: null,
+    tasteLine: "A meal without dessert is just a snack",
     avatarUrl: null,
     avatarTint: 7,
     isPublic: true,
@@ -129,7 +129,7 @@ export const DEMO_PLACES = [
     latitude: 12.9425,
     longitude: 77.5722,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1668236543090-82bbe735b561?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo001",
   },
   {
@@ -145,7 +145,7 @@ export const DEMO_PLACES = [
     latitude: 12.9716,
     longitude: 77.6099,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo002",
   },
   {
@@ -161,7 +161,7 @@ export const DEMO_PLACES = [
     latitude: 12.9784,
     longitude: 77.6408,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo003",
   },
   {
@@ -177,7 +177,7 @@ export const DEMO_PLACES = [
     latitude: 12.9783,
     longitude: 77.6409,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo004",
   },
   {
@@ -193,7 +193,7 @@ export const DEMO_PLACES = [
     latitude: 12.9735,
     longitude: 77.6033,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo005",
   },
   {
@@ -209,7 +209,7 @@ export const DEMO_PLACES = [
     latitude: 12.9967,
     longitude: 77.5713,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1567337710282-00832b415979?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo006",
   },
   {
@@ -225,7 +225,7 @@ export const DEMO_PLACES = [
     latitude: 12.9700,
     longitude: 77.5990,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo007",
   },
   {
@@ -241,7 +241,7 @@ export const DEMO_PLACES = [
     latitude: 12.9450,
     longitude: 77.5700,
     isClosed: false,
-    coverImageUrl: null,
+    coverImageUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=600&fit=crop&q=80",
     googlePlaceId: "ChIJDemo008",
   },
 ];
@@ -255,7 +255,7 @@ export const DEMO_VOUCHES = [
     id: "vouch-001",
     take: "The masala dosa here has been perfect for 80+ years. Crispy outside, soft inside, chutney is unreal.",
     contextTags: ["solo meal", "quick bite", "worth the wait"],
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     authorId: "demo-user-002",
     authorHandle: "priya_eats",
     authorName: "Priya Sharma",
@@ -266,7 +266,7 @@ export const DEMO_VOUCHES = [
   },
   {
     id: "vouch-002",
-    take: "Best biryani in Bangalore, no debate. The spice level is chef's kiss. Go for the chicken dum.",
+    take: "Best biryani in Bangalore, no debate. The spice level is chef’s kiss. Go for the chicken dum.",
     contextTags: ["group dinner", "worth the wait"],
     createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     authorId: "demo-user-003",
@@ -411,29 +411,207 @@ export const DEMO_VOUCHES = [
 ];
 
 // ============================================================
-// Helper: get data subsets
+// Mock Lists
 // ============================================================
 
-/** Enrich a vouch with place data (cuisines, priceTier) */
-function enrichVouch(v: (typeof DEMO_VOUCHES)[number]) {
-  const place = DEMO_PLACES.find((p) => p.id === v.placeId);
-  return {
-    ...v,
-    cuisines: place?.cuisines || [],
-    priceTier: place?.priceTier || 0,
-  };
-}
+export const DEMO_LISTS = [
+  {
+    id: "list-001",
+    name: "Indiranagar date spots that actually work",
+    count: 8,
+    area: "Indiranagar",
+    authorId: "demo-user-003",
+    authorHandle: "arjun.foodie",
+    authorName: "Arjun Mehta",
+    authorAvatarUrl: null,
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    placeIds: ["place-004", "place-003", "place-007", "place-005"],
+  },
+  {
+    id: "list-002",
+    name: "Filter coffee, ranked",
+    count: 7,
+    area: "Bangalore",
+    authorId: "demo-user-004",
+    authorHandle: "naina.k",
+    authorName: "Naina Kapoor",
+    authorAvatarUrl: null,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    placeIds: ["place-008", "place-003", "place-001", "place-006"],
+  },
+];
+
+// ============================================================
+// Mock Circle Events (new followers, joins)
+// ============================================================
+
+export const DEMO_CIRCLE_EVENTS = [
+  {
+    id: "circle-001",
+    kind: "joined" as const,
+    userId: "demo-user-006",
+    userHandle: "meera.taste",
+    userName: "Meera Iyer",
+    userAvatarUrl: null,
+    body: "Meera joined Vouch and picked her Four Vouches.",
+    fourPlaceIds: ["place-001", "place-006", "place-008", "place-003"],
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// ============================================================
+// Helper: get data subsets
+// ============================================================
 
 /** Vouches from people the demo user "follows" (circle) */
 export function getDemoCircleFeed() {
   const circleIds = new Set(["demo-user-002", "demo-user-003", "demo-user-005"]);
-  return DEMO_VOUCHES.filter((v) => circleIds.has(v.authorId)).map(enrichVouch);
+  return DEMO_VOUCHES.filter((v) => circleIds.has(v.authorId));
 }
 
 /** Vouches from people outside the circle */
 export function getDemoDiscoverFeed() {
   const circleIds = new Set(["demo-user-002", "demo-user-003", "demo-user-005", DEMO_USER.id]);
-  return DEMO_VOUCHES.filter((v) => !circleIds.has(v.authorId)).map(enrichVouch);
+  return DEMO_VOUCHES.filter((v) => !circleIds.has(v.authorId));
+}
+
+/**
+ * Mixed home feed — interleaves vouches, list publishes, and circle join events
+ * Returns a unified array sorted by recency, matching the design spec.
+ */
+export type DemoFeedItem =
+  | {
+      kind: "vouch";
+      id: string;
+      take: string;
+      contextTags: string[];
+      createdAt: string;
+      authorId: string;
+      authorHandle: string;
+      authorName: string;
+      authorAvatarUrl: string | null;
+      placeId: string;
+      placeName: string;
+      placeArea: string;
+      placeCuisine: string;
+      placePrice: string;
+      placeImageUrl: string | null;
+      reason: string;
+    }
+  | {
+      kind: "list";
+      id: string;
+      listName: string;
+      listCount: number;
+      listArea: string;
+      createdAt: string;
+      authorHandle: string;
+      authorName: string;
+      authorAvatarUrl: string | null;
+      reason: string;
+      places: {
+        id: string;
+        name: string;
+        imageUrl: string | null;
+      }[];
+    }
+  | {
+      kind: "circle";
+      id: string;
+      body: string;
+      createdAt: string;
+      userHandle: string;
+      userName: string;
+      userAvatarUrl: string | null;
+      reason: string;
+      fourVouches: {
+        id: string;
+        name: string;
+        imageUrl: string | null;
+      }[];
+    };
+
+export function getDemoHomeFeed(): DemoFeedItem[] {
+  const placeMap = new Map(DEMO_PLACES.map((p) => [p.id, p]));
+
+  const items: DemoFeedItem[] = [];
+
+  // Add circle vouches
+  const circleVouches = getDemoCircleFeed();
+  for (const v of circleVouches) {
+    const place = placeMap.get(v.placeId);
+    items.push({
+      kind: "vouch",
+      id: v.id,
+      take: v.take,
+      contextTags: v.contextTags,
+      createdAt: v.createdAt,
+      authorId: v.authorId,
+      authorHandle: v.authorHandle,
+      authorName: v.authorName,
+      authorAvatarUrl: v.authorAvatarUrl,
+      placeId: v.placeId,
+      placeName: v.placeName,
+      placeArea: v.placeArea,
+      placeCuisine: place?.cuisines?.[0] || "",
+      placePrice: place?.priceTier ? "₹".repeat(place.priceTier) : "",
+      placeImageUrl: place?.coverImageUrl || null,
+      reason: `Because ${v.authorName.split(" ")[0]} vouched`,
+    });
+  }
+
+  // Add list publishes
+  for (const list of DEMO_LISTS) {
+    items.push({
+      kind: "list",
+      id: list.id,
+      listName: list.name,
+      listCount: list.count,
+      listArea: list.area,
+      createdAt: list.createdAt,
+      authorHandle: list.authorHandle,
+      authorName: list.authorName,
+      authorAvatarUrl: list.authorAvatarUrl,
+      reason: `${list.authorName.split(" ")[0]} just published`,
+      places: list.placeIds.slice(0, 4).map((pid) => {
+        const p = placeMap.get(pid);
+        return {
+          id: pid,
+          name: p?.name || "Unknown",
+          imageUrl: p?.coverImageUrl || null,
+        };
+      }),
+    });
+  }
+
+  // Add circle events
+  for (const ev of DEMO_CIRCLE_EVENTS) {
+    items.push({
+      kind: "circle",
+      id: ev.id,
+      body: ev.body,
+      createdAt: ev.createdAt,
+      userHandle: ev.userHandle,
+      userName: ev.userName,
+      userAvatarUrl: ev.userAvatarUrl,
+      reason: "New in your circle",
+      fourVouches: ev.fourPlaceIds.slice(0, 4).map((pid) => {
+        const p = placeMap.get(pid);
+        return {
+          id: pid,
+          name: p?.name || "Unknown",
+          imageUrl: p?.coverImageUrl || null,
+        };
+      }),
+    });
+  }
+
+  // Sort by recency
+  items.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  return items;
 }
 
 /** Trending places sorted by vouch count */
@@ -475,7 +653,7 @@ export function getDemoProfileVouches(userId: string) {
 /** Saved place IDs for the demo user */
 export const DEMO_SAVED_PLACE_IDS = ["place-001", "place-004", "place-008"];
 
-/** All profiles for suggestions */
+/** All profiles for suggestions — includes tasteLine for editorial display */
 export function getDemoSuggestedPeople() {
   return DEMO_PROFILES.map((p) => ({
     id: p.id,
@@ -483,10 +661,12 @@ export function getDemoSuggestedPeople() {
     display_name: p.displayName,
     avatar_url: p.avatarUrl,
     vouch_count: p.vouchCount,
+    taste_line: p.tasteLine || null,
+    bio: p.bio,
   }));
 }
 
-/** Popular places for search (includes cuisines for visual display) */
+/** Popular places for search */
 export function getDemoPopularPlaces() {
   return DEMO_PLACES
     .sort((a, b) => b.vouchCount - a.vouchCount)

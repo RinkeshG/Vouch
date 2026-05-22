@@ -1,156 +1,277 @@
 /* ============================================================
-   Profile — Visual taste card with identity focus
+   Profile — Own + Friend view
+   Horizontal header, Four Vouches canon, tabs, vouch grid.
+   Matches design spec: screens-web-content.jsx WebProfileOwn/Friend
    ============================================================ */
 
 .page {
   min-height: 100dvh;
   background-color: var(--v-paper);
+  padding-right: 24px;
 }
 
-/* ---- Color header band (avatar tint) ---- */
-.headerBand {
-  height: 100px;
-  position: relative;
-}
+/* ============================================================
+   Header — horizontal layout with avatar + info + actions
+   ============================================================ */
 
-/* ---- Profile card (overlaps header band) ---- */
-.profileCard {
-  position: relative;
-  z-index: 2;
-  margin: -40px var(--v-sp4) 0;
-  background-color: #fff;
-  border-radius: var(--v-radius-card);
-  box-shadow: var(--v-shadow-md);
-  border: 1px solid var(--v-line);
-  padding: 0 var(--v-sp5) var(--v-sp5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.avatarWrap {
-  margin-top: -36px;
-  margin-bottom: var(--v-sp3);
-}
-
-.name {
-  font-family: var(--v-font-serif);
-  font-size: 24px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.handle {
-  font-size: 14px;
-  color: var(--v-muted);
-  margin-top: var(--v-sp1);
-}
-
-/* ---- Taste line: the HERO ---- */
-.tasteLineWrap {
+.header {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  gap: 2px;
-  margin-top: var(--v-sp3);
-  padding: var(--v-sp3) var(--v-sp4);
-  background-color: rgba(191, 58, 43, 0.04);
-  border-radius: var(--v-radius-input);
-  max-width: 320px;
+  justify-content: space-between;
+  gap: 30px;
 }
 
-.tasteLine {
+.headerLeft {
+  display: flex;
+  gap: 24px;
+}
+
+.headerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.headerLabel {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+}
+
+.headerName {
   font-family: var(--v-font-serif);
-  font-size: 16px;
-  font-style: italic;
-  line-height: 1.4;
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -0.025em;
   color: var(--v-ink);
+  margin-top: 8px;
 }
 
-.tasteQuote {
-  font-family: var(--v-font-serif);
-  font-size: 24px;
-  color: var(--v-seal);
-  opacity: 0.4;
-  line-height: 0.8;
+.headerHandle {
+  font-family: var(--v-font-mono);
+  font-size: 13px;
+  color: var(--v-ink3);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+
+.headerTasteLine {
+  font-family: var(--v-font-sans);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--v-ink);
+  line-height: 1.4;
+  margin-top: 14px;
+  max-width: 560px;
+}
+
+.headerStats {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--v-ink2);
+}
+
+.statStrong {
+  color: var(--v-ink);
+  font-weight: 600;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-/* Bio */
-.bio {
+/* Shared button styles */
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--v-radius-pill);
+  background: transparent;
+  border: 1px solid var(--v-line-strong);
+  color: var(--v-ink);
   font-size: 14px;
-  color: var(--v-muted);
-  line-height: 1.5;
-  margin-top: var(--v-sp2);
-  max-width: 320px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color var(--v-duration-fast);
 }
 
-/* ---- Stats: visual badges ---- */
-.stats {
-  display: flex;
+.btnSecondary:hover {
+  border-color: var(--v-ink2);
+}
+
+.btnSeal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--v-radius-pill);
+  background: var(--v-seal);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform var(--v-duration-fast), box-shadow var(--v-duration-fast);
+}
+
+.btnSeal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(191, 58, 43, 0.2);
+}
+
+.btnGhost {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--v-sp3);
-  margin-top: var(--v-sp4);
-  padding-top: var(--v-sp4);
-  border-top: 1px solid var(--v-line);
-  width: 100%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--v-ink2);
+  transition: background var(--v-duration-fast);
 }
 
-.stat {
-  display: flex;
+.btnGhost:hover {
+  background: var(--v-faint);
+}
+
+.btnGhostSmall {
+  display: inline-flex;
   align-items: center;
-  gap: var(--v-sp1);
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--v-radius-pill);
+  background: transparent;
+  color: var(--v-ink2);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color var(--v-duration-fast);
 }
 
-.statCount {
-  font-size: 16px;
-  font-weight: 600;
-  font-family: var(--v-font-serif);
-  line-height: 1;
+.btnGhostSmall:hover {
   color: var(--v-ink);
 }
 
-.statLabel {
+/* ============================================================
+   Four Vouches — The Canon
+   ============================================================ */
+
+.fourSection {
+  margin-top: 40px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sectionKicker {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+}
+
+.sectionTitle {
+  font-family: var(--v-font-serif);
+  font-size: 28px;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  color: var(--v-ink);
+  margin-top: 4px;
+}
+
+.fourGrid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.fourCard {
+  background: var(--v-surface);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-card);
+  overflow: hidden;
+  transition: box-shadow var(--v-duration-fast);
+}
+
+.fourCard:hover {
+  box-shadow: var(--v-shadow-sm);
+}
+
+.fourImage {
+  aspect-ratio: 4 / 5;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--v-faint);
+}
+
+.fourBody {
+  padding: 14px;
+}
+
+.fourIndex {
+  font-family: var(--v-font-mono);
   font-size: 11px;
-  font-weight: 500;
-  color: var(--v-muted);
+  color: var(--v-ink3);
+  letter-spacing: 0.02em;
 }
 
-.statDivider {
-  width: 1px;
-  height: 16px;
-  background-color: var(--v-line);
+.fourName {
+  font-family: var(--v-font-serif);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--v-ink);
+  margin-top: 6px;
+  line-height: 1.15;
 }
 
-/* Action buttons */
-.actions {
-  display: flex;
-  gap: var(--v-sp2);
-  margin-top: var(--v-sp4);
-  width: 100%;
-  max-width: 280px;
+.fourArea {
+  font-family: var(--v-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  margin-top: 4px;
 }
 
-/* ---- Tabs ---- */
+/* ============================================================
+   Tabs
+   ============================================================ */
+
 .tabs {
-  display: flex;
+  margin-top: 36px;
   border-bottom: 1px solid var(--v-line);
-  margin-top: var(--v-sp4);
+  display: flex;
+  gap: 24px;
 }
 
 .tab {
-  flex: 1;
-  padding: var(--v-sp3) var(--v-sp4);
-  font-size: 13px;
+  padding: 14px 2px;
+  font-size: 14px;
   font-weight: 600;
-  text-align: center;
-  color: var(--v-muted);
+  color: var(--v-ink2);
   border-bottom: 2px solid transparent;
-  transition: color var(--v-duration-fast) var(--v-ease-out),
-    border-color var(--v-duration-fast) var(--v-ease-out);
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color var(--v-duration-fast);
+  white-space: nowrap;
 }
 
 .tab:hover {
@@ -159,37 +280,107 @@
 
 .tabActive {
   color: var(--v-ink);
-  border-bottom-color: var(--v-seal);
+  border-bottom-color: var(--v-ink);
 }
 
-/* ---- Places grid (taste map) ---- */
-.placeGrid {
+/* ============================================================
+   Vouches grid — 3 columns
+   ============================================================ */
+
+.vouchGrid {
+  margin-top: 24px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--v-sp3);
-  padding: var(--v-sp4);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 
-@media (min-width: 600px) {
-  .placeGrid {
-    grid-template-columns: repeat(3, 1fr);
+/* ============================================================
+   Empty state
+   ============================================================ */
+
+.emptyWrap {
+  margin-top: 40px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed var(--v-line-strong);
+  border-radius: var(--v-radius-card);
+}
+
+/* ============================================================
+   Bottom spacer
+   ============================================================ */
+
+.bottomSpacer {
+  height: var(--v-sp16);
+}
+
+/* ============================================================
+   Mobile responsive
+   ============================================================ */
+
+@media (max-width: 1023px) {
+  .page {
+    padding: 0 var(--v-sp4);
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .headerLeft {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .headerName {
+    font-size: 32px;
+  }
+
+  .headerTasteLine {
+    text-align: center;
+  }
+
+  .headerStats {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .fourGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vouchGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
   }
 }
 
-/* ---- Takes list ---- */
-.takesList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--v-sp3);
-  padding: var(--v-sp4) 0;
-}
+@media (max-width: 480px) {
+  .headerName {
+    font-size: 28px;
+  }
 
-/* Lists tab */
-.listsTab {
-  padding: var(--v-sp4);
-}
-
-/* Bottom spacer */
-.bottomSpacer {
-  height: var(--v-sp16);
+  .vouchGrid {
+    grid-template-columns: 1fr;
+  }
 }
