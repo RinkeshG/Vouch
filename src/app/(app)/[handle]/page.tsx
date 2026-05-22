@@ -37,7 +37,7 @@ export default async function ProfilePage({ params }: PageProps) {
   // Fetch profile
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, avatar_tint, city, list_count")
+    .select("id, handle, display_name, bio, avatar_url, avatar_tint, city")
     .eq("handle", handle)
     .maybeSingle();
 

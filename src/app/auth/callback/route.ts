@@ -14,9 +14,8 @@ export async function GET(request: Request) {
       if (!error) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // Profile may not exist yet if the trigger is still running.
-          // Retry up to 3 times with a short delay.
-          let profile: { handle: string; place_count_total: number } | null = null;
+          // Wait for profile to be created by trigger (retries for timing)
+          let profile: { handle: string } | null = null;
 
           for (let attempt = 0; attempt < 3; attempt++) {
             const { data } = await supabase
@@ -26,14 +25,7 @@ export async function GET(request: Request) {
               .maybeSingle();
 
             if (data) {
-              // Check if they have any published lists
-              const { count } = await supabase
-                .from("lists")
-                .select("id", { count: "exact", head: true })
-                .eq("user_id", user.id)
-                .eq("is_published", true);
-
-              profile = { handle: data.handle, place_count_total: count || 0 };
+              profile = data;
               break;
             }
 
@@ -42,17 +34,17 @@ export async function GET(request: Request) {
             }
           }
 
-          // No profile or auto-generated handle → set up profile first
-          if (!profile || profile.handle.startsWith("user_")) {
+          // No profile at all → claim-handle will create one
+          if (!profile) {
             return NextResponse.redirect(`${origin}/claim-handle`);
           }
 
-          // Returning user with lists → profile page
-          if (profile.place_count_total > 0) {
-            return NextResponse.redirect(`${origin}/@${profile.handle}`);
+          // Auto-generated handle (Google OAuth) → pick a real username
+          if (profile.handle.startsWith("user_")) {
+            return NextResponse.redirect(`${origin}/claim-handle`);
           }
 
-          // User with proper handle but no lists → create first list
+          // Proper handle → go to /new (or wherever `next` points)
           return NextResponse.redirect(`${origin}${next}`);
         }
       }
