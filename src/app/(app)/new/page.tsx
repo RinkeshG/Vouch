@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { NewListClient } from "./new-list-client";
 
-export const dynamic = "force-dynamic";
-
 export default async function NewListPage() {
   const supabase = await createClient();
   const {

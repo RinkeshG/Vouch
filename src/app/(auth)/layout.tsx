@@ -2,8 +2,6 @@ import Link from "next/link";
 import { Stamp } from "@/components/ui/stamp";
 import styles from "./auth.module.css";
 
-export const dynamic = "force-dynamic";
-
 export default function AuthLayout({
   children,
 }: {

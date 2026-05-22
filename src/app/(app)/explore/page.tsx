@@ -1,8 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ExploreClient } from "./explore-client";
 
-export const dynamic = "force-dynamic";
-
 export const metadata = {
   title: "Explore — Vouch",
   description: "Browse curated lists of favorite places in Bangalore.",

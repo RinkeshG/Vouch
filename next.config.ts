@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Compress responses for faster transfer
+  compress: true,
+  experimental: {
+    // Tree-shake barrel imports for smaller bundles
+    optimizePackageImports: ["@supabase/supabase-js", "@supabase/ssr"],
+  },
 };
 
 export default nextConfig;

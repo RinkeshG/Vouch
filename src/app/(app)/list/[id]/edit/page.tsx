@@ -2,8 +2,6 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EditListClient } from "./edit-client";
 
-export const dynamic = "force-dynamic";
-
 interface EditListPageProps {
   params: Promise<{ id: string }>;
 }

@@ -40,10 +40,10 @@
   --v-dark-muted: rgba(242, 236, 223, 0.50);
 
   /* — Typography — */
-  --v-font-serif: 'Fraunces', serif;
-  --v-font-sans: 'Instrument Sans', sans-serif;
-  --v-font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --v-font-hand: 'Caveat', cursive;
+  /* Font families are self-hosted via next/font (see fonts.ts).
+     The CSS variables --v-font-serif, --v-font-sans, --v-font-mono,
+     --v-font-hand are injected on <html> by next/font's `variable` prop.
+     Do NOT redeclare them here — that would override the optimized values. */
 
   /* — Spacing (4px grid) — */
   --v-sp1: 4px;
