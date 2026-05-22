@@ -24,7 +24,7 @@ export default async function EditListPage({ params }: EditListPageProps) {
   // 2. Fetch the list and verify ownership
   const { data: list } = await supabase
     .from("lists")
-    .select("id, title, description, slug, emoji, cover_style, is_published, is_public, user_id, city")
+    .select("id, title, description, slug, emoji, cover_style, is_published, is_public, user_id")
     .eq("id", id)
     .maybeSingle();
 
