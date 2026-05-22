@@ -1,0 +1,147 @@
+/* ============================================================
+   Place Detail Page
+   ============================================================ */
+
+.page {
+  min-height: 100dvh;
+}
+
+/* Place hero */
+.hero {
+  padding: var(--v-sp5) var(--v-sp4);
+  border-bottom: 1px solid var(--v-line);
+}
+
+.placeName {
+  font-family: var(--v-font-serif);
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: var(--v-sp2);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+  color: var(--v-muted);
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: var(--v-muted);
+  flex-shrink: 0;
+}
+
+.vouchCount {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp1);
+  color: var(--v-seal);
+  font-weight: 600;
+}
+
+.cuisines {
+  display: flex;
+  gap: var(--v-sp1);
+  flex-wrap: wrap;
+  margin-top: var(--v-sp3);
+}
+
+/* Action bar below hero */
+.actionBar {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+  padding: var(--v-sp3) var(--v-sp4);
+  border-bottom: 1px solid var(--v-line);
+}
+
+.actionBarSpacer {
+  flex: 1;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--v-line);
+}
+
+.tab {
+  flex: 1;
+  padding: var(--v-sp3) var(--v-sp4);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--v-muted);
+  border-bottom: 2px solid transparent;
+  transition: color var(--v-duration-fast) var(--v-ease-out),
+    border-color var(--v-duration-fast) var(--v-ease-out);
+}
+
+.tab:hover {
+  color: var(--v-ink);
+}
+
+.tabActive {
+  color: var(--v-ink);
+  border-bottom-color: var(--v-ink);
+}
+
+/* Vouches list */
+.vouches {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Info section */
+.info {
+  padding: var(--v-sp4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-sp4);
+}
+
+.infoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--v-sp3);
+}
+
+.infoIcon {
+  color: var(--v-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.infoText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--v-ink);
+}
+
+.infoLink {
+  color: var(--v-seal);
+}
+
+.infoLink:hover {
+  text-decoration: underline;
+}
+
+/* Map placeholder */
+.mapPlaceholder {
+  height: 180px;
+  background-color: var(--v-faint);
+  border-radius: var(--v-radius-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--v-muted);
+  font-size: 13px;
+  margin: 0 var(--v-sp4) var(--v-sp4);
+}

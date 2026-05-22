@@ -1,0 +1,33 @@
+/* ============================================================
+   App Shell — Authenticated layout
+   ============================================================ */
+
+.shell {
+  min-height: 100dvh;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+.main {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Desktop: offset for sidebar */
+@media (min-width: 768px) {
+  .shell {
+    padding-left: 72px;
+    padding-bottom: 0;
+  }
+
+  .main {
+    max-width: 640px;
+    padding: 0 var(--v-sp4);
+  }
+}
+
+/* Wide desktop: center content with more breathing room */
+@media (min-width: 1200px) {
+  .main {
+    max-width: 680px;
+  }
+}

@@ -1,0 +1,202 @@
+/* ============================================================
+   Profile Page
+   ============================================================ */
+
+.page {
+  min-height: 100dvh;
+}
+
+/* Profile header */
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--v-sp6) var(--v-sp4) var(--v-sp4);
+}
+
+.avatarWrap {
+  margin-bottom: var(--v-sp3);
+}
+
+.name {
+  font-family: var(--v-font-serif);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.handleText {
+  font-size: 14px;
+  color: var(--v-muted);
+  margin-top: var(--v-sp1);
+}
+
+.bio {
+  font-size: 14px;
+  color: var(--v-ink);
+  line-height: 1.5;
+  margin-top: var(--v-sp2);
+  max-width: 320px;
+}
+
+.tasteLine {
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--v-muted);
+  margin-top: var(--v-sp2);
+}
+
+/* Stats row */
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-sp6);
+  margin-top: var(--v-sp4);
+  padding-top: var(--v-sp4);
+  border-top: 1px solid var(--v-line);
+  width: 100%;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statCount {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: var(--v-font-serif);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--v-muted);
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  gap: var(--v-sp2);
+  margin-top: var(--v-sp4);
+  width: 100%;
+  max-width: 320px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--v-line);
+  border-top: 1px solid var(--v-line);
+  margin-top: var(--v-sp4);
+}
+
+.tab {
+  flex: 1;
+  padding: var(--v-sp3) var(--v-sp4);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--v-muted);
+  border-bottom: 2px solid transparent;
+  transition: color var(--v-duration-fast) var(--v-ease-out),
+    border-color var(--v-duration-fast) var(--v-ease-out);
+}
+
+.tab:hover {
+  color: var(--v-ink);
+}
+
+.tabActive {
+  color: var(--v-ink);
+  border-bottom-color: var(--v-ink);
+}
+
+/* Vouches grid */
+.vouches {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Lists */
+.lists {
+  display: flex;
+  flex-direction: column;
+  padding: var(--v-sp2) 0;
+}
+
+.listCard {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp3);
+  padding: var(--v-sp3) var(--v-sp4);
+  transition: background-color var(--v-duration-fast) var(--v-ease-out);
+}
+
+.listCard:hover {
+  background-color: var(--v-faint);
+}
+
+.listInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.listTitle {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.listCount {
+  font-size: 13px;
+  color: var(--v-muted);
+}
+
+.listChevron {
+  color: var(--v-muted);
+}
+
+/* Circle — following/followers */
+.circleGrid {
+  display: flex;
+  flex-direction: column;
+  padding: var(--v-sp2) 0;
+}
+
+.circleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp3);
+  padding: var(--v-sp3) var(--v-sp4);
+  transition: background-color var(--v-duration-fast) var(--v-ease-out);
+}
+
+.circleRow:hover {
+  background-color: var(--v-faint);
+}
+
+.circleInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.circleName {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.circleHandle {
+  font-size: 13px;
+  color: var(--v-muted);
+}

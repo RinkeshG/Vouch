@@ -1,0 +1,33 @@
+/* ============================================================
+   Empty State — Shown when there's no content
+   ============================================================ */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--v-sp16) var(--v-sp5);
+}
+
+.icon {
+  color: var(--v-muted);
+  margin-bottom: var(--v-sp4);
+  opacity: 0.5;
+}
+
+.title {
+  font-family: var(--v-font-serif);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--v-sp2);
+}
+
+.message {
+  font-size: 14px;
+  color: var(--v-muted);
+  line-height: 1.5;
+  max-width: 280px;
+  margin-bottom: var(--v-sp6);
+}
