@@ -1293,7 +1293,7 @@ body::after {
       </a>
       <a href="#cards" class="toc-item">
         <div class="toc-item-title">Card System</div>
-        <div class="toc-item-desc">The editorial list card — band colors, cream bodies, dashed dividers</div>
+        <div class="toc-item-desc">List preview cards, place postcard layout, meta rows, save button, collapse pattern</div>
       </a>
       <a href="#motion" class="toc-item">
         <div class="toc-item-title">Motion & Interaction</div>
@@ -2816,6 +2816,144 @@ body::after {
           <div style="font-size: 13px; padding: 6px 0; border-top: 1px dashed rgba(24,18,16,0.12); color: var(--ink);">Bull Temple</div>
         </div>
       </div>
+    </div>
+
+    <!-- Place Card — Postcard Layout -->
+    <hr class="rule-line">
+    <h3 class="subsection-title">Place Card — Postcard Layout</h3>
+    <p class="subsection-desc">The place card appears on the list detail view (the most shared page). It uses a postcard aesthetic — cream surface, warm layered shadows, stacked information hierarchy. No images, no colored edges. Content and typography do all the work.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 24px; margin-bottom: 64px; align-items: start;">
+      <!-- Card example -->
+      <div style="background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid rgba(24,18,16,0.05); box-shadow: var(--shadow-card); padding: 24px;">
+        <!-- Number -->
+        <div style="font-family: var(--font-serif); font-size: 22px; line-height: 1; color: var(--ink3); opacity: 0.25; font-weight: 300; margin-bottom: 6px; user-select: none; position: relative;">
+          04
+          <span style="position: absolute; right: 0; top: 2px; font-family: var(--font-hand); font-size: 14px; color: var(--ink-mute); transform: rotate(3deg); opacity: 1;">← number</span>
+        </div>
+        <!-- Name -->
+        <div style="font-family: var(--font-serif); font-size: clamp(20px, 3vw, 24px); font-weight: 400; color: var(--ink); line-height: 1.25; letter-spacing: -0.01em; margin-bottom: 8px; position: relative;">
+          Obrigado by Craftels
+          <span style="position: absolute; right: -4px; top: 4px; font-family: var(--font-hand); font-size: 14px; color: var(--ink-mute); transform: rotate(2deg);">← name (v-title)</span>
+        </div>
+        <!-- Meta row -->
+        <div style="display: flex; align-items: baseline; gap: 12px; position: relative;">
+          <span style="font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); line-height: 1.2;">Vagator</span>
+          <span style="font-family: var(--font-serif); font-style: italic; font-size: 13px; font-weight: 400; color: var(--ink3); line-height: 1.3;">Bar, Cocktails</span>
+          <span style="position: absolute; right: 0; top: -2px; font-family: var(--font-hand); font-size: 14px; color: var(--ink-mute); transform: rotate(-2deg);">← meta row</span>
+        </div>
+        <!-- Note -->
+        <div style="font-family: var(--font-hand); font-size: 17px; font-weight: 500; color: var(--ink2); line-height: 1.4; margin-top: 16px; padding-top: 12px; border-top: 1px dashed rgba(24,18,16,0.1); position: relative;">
+          <span style="font-family: var(--font-sans); font-weight: 600; color: var(--seal); margin-right: 5px; font-size: 14px;">&rarr;</span>
+          sunset cocktails. sit outside on the terrace
+          <span style="position: absolute; right: 0; top: 14px; font-family: var(--font-hand); font-size: 14px; color: var(--ink-mute); transform: rotate(3deg);">← note</span>
+        </div>
+      </div>
+
+      <!-- Spec list -->
+      <div>
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--seal); margin-bottom: 16px;">Information Hierarchy</div>
+        <div style="display: grid; gap: 0;">
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Name</span>
+            <span style="font-size: 14px;">v-title &mdash; Fraunces 400, 20&ndash;24px, &minus;0.01em, lh 1.25. Dominant.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Hood</span>
+            <span style="font-size: 14px;">v-label &mdash; Sans 600, 10px, 0.06em, uppercase. Structural anchor.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Cuisine</span>
+            <span style="font-size: 14px;">v-take &mdash; Fraunces italic, 13px, ink3. Quiet, supplementary.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Note</span>
+            <span style="font-size: 14px;">Caveat 500, 17px, ink2. Dashed border-top separator. Seal arrow prefix.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Number</span>
+            <span style="font-size: 14px;">Fraunces 300, 22px, ink3 at 0.25 opacity. Decorative whisper.</span>
+          </div>
+        </div>
+
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--seal); margin-top: 32px; margin-bottom: 16px;">Card Structure</div>
+        <div style="display: grid; gap: 0;">
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Container</span>
+            <span style="font-size: 14px;">10px radius, surface bg, 1px border at 0.05, card shadow</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Padding</span>
+            <span style="font-size: 14px;">24px all sides (sp6). Hero card: 28px 32px.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Layout</span>
+            <span style="font-size: 14px;">2-col CSS Grid, left-to-right reading order. First card spans full width.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Hover</span>
+            <span style="font-size: 14px;"><code style="font-family: var(--font-mono); font-size: 12px; background: var(--faint); padding: 2px 6px; border-radius: 4px;">translateY(-4px)</code> + deeper shadow</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 100px 1fr; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); align-items: baseline;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute);">Tilt</span>
+            <span style="font-size: 14px;">Rare, organic. Max 2 cards per list. &plusmn;0.35deg. Never uniform.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meta Row Pattern -->
+    <h3 class="subsection-title">Meta Row Pattern</h3>
+    <p class="subsection-desc">Hood and cuisine sit on the same row but use distinct typographic treatments. The bold sans hood anchors the location; the italic serif cuisine is a quiet descriptor. They never compete because of font family contrast.</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; margin-bottom: 64px;">
+      <!-- Example 1 -->
+      <div style="padding: 20px 24px; background: var(--surface); border-radius: 10px; border: 1px solid rgba(24,18,16,0.05);">
+        <div style="display: flex; align-items: baseline; gap: 12px;">
+          <span style="font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink);">Indiranagar</span>
+          <span style="font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--ink3);">Cafe, Roastery</span>
+        </div>
+      </div>
+      <!-- Example 2 -->
+      <div style="padding: 20px 24px; background: var(--surface); border-radius: 10px; border: 1px solid rgba(24,18,16,0.05);">
+        <div style="display: flex; align-items: baseline; gap: 12px;">
+          <span style="font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink);">Koramangala</span>
+          <span style="font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--ink3);">Fine Dining, Italian</span>
+        </div>
+      </div>
+      <!-- Example 3 -->
+      <div style="padding: 20px 24px; background: var(--surface); border-radius: 10px; border: 1px solid rgba(24,18,16,0.05);">
+        <div style="display: flex; align-items: baseline; gap: 12px;">
+          <span style="font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink);">Basavanagudi</span>
+          <span style="font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--ink3);">South Indian</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <h3 class="subsection-title">Save Button</h3>
+    <p class="subsection-desc">Pill-shaped, mono uppercase, seal-colored. Heart icon fills on active state. Used in list footer alongside the short URL.</p>
+    <div style="display: flex; gap: 24px; margin-top: 24px; margin-bottom: 64px; align-items: center;">
+      <!-- Inactive -->
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 9999px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--seal); border: 1px solid rgba(184,65,44,0.2); background: rgba(184,65,44,0.04);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Save
+      </div>
+      <!-- Active -->
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 9999px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--seal); border: 1px solid var(--seal); background: rgba(184,65,44,0.08);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        42 Saves
+      </div>
+      <!-- Short URL -->
+      <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3); margin-left: auto;">vouch.in/@rinkesh/goa</span>
+    </div>
+
+    <!-- Show All / Collapse -->
+    <h3 class="subsection-title">Show All / Collapse</h3>
+    <p class="subsection-desc">Lists with more than 10 places show the first 10, then a collapse button between horizontal rules. Mono uppercase, pill border, seal hover tint. Clicking reveals remaining places with staggered animation.</p>
+    <div style="display: flex; align-items: center; gap: 16px; margin-top: 24px; margin-bottom: 48px; max-width: 500px;">
+      <div style="flex: 1; height: 1px; background: rgba(24,18,16,0.1);"></div>
+      <div style="font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink3); padding: 10px 20px; border: 1px solid rgba(24,18,16,0.12); border-radius: 9999px; background: var(--surface); white-space: nowrap;">Show all 34 places</div>
+      <div style="flex: 1; height: 1px; background: rgba(24,18,16,0.1);"></div>
     </div>
   </div>
 </section>
