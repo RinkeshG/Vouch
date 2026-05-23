@@ -19,7 +19,7 @@ export default async function LandingPage() {
 
   // Fetch hero photos for these lists
   const listIds = (listsData || []).map((l: { id: string }) => l.id);
-  const { data: heroPhotos, error: heroError } = listIds.length > 0
+  const { data: heroPhotos } = listIds.length > 0
     ? await supabase
         .from("list_places")
         .select("list_id, places ( photo_reference )")
@@ -27,10 +27,7 @@ export default async function LandingPage() {
         .eq("position", 0)
     : { data: [] as null[] };
 
-  if (heroError) {
-    console.error("landing hero query error:", heroError.message, heroError.details, heroError.hint);
-  }
-  console.log("landing hero photos:", { listCount: listIds.length, heroCount: heroPhotos?.length ?? 0, firstHero: JSON.stringify(heroPhotos?.[0] ?? null) });
+
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const heroPhotoMap = new Map<string, string | null>();

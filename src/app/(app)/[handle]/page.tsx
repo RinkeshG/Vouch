@@ -84,17 +84,35 @@ export default async function ProfilePage({ params }: PageProps) {
   });
 
   // Fetch all places across all lists for taste signals
+  // photo_reference excluded from join — column may not exist yet
   const { data: placesData } = listIds.length > 0
     ? await supabase
         .from("list_places")
-        .select("places ( area, cuisines, photo_reference )")
+        .select("places ( id, area, cuisines )")
         .in("list_id", listIds)
     : { data: [] };
+
+  // Try to fetch photos separately for mosaic
+  const allPlaceIds = (placesData || [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((lp: any) => lp.places?.id)
+    .filter(Boolean) as string[];
+  const placePhotos: string[] = [];
+  if (allPlaceIds.length > 0) {
+    const { data: photoData } = await supabase
+      .from("places")
+      .select("photo_reference")
+      .in("id", allPlaceIds.slice(0, 6))
+      .not("photo_reference", "is", null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (photoData || []).forEach((p: any) => {
+      if (p.photo_reference) placePhotos.push(p.photo_reference);
+    });
+  }
 
   // Derive taste signals
   const neighborhoods: Record<string, number> = {};
   const cuisineMap: Record<string, number> = {};
-  const placePhotos: string[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (placesData || []).forEach((lp: any) => {
@@ -108,7 +126,6 @@ export default async function ProfilePage({ params }: PageProps) {
         cuisineMap[name] = (cuisineMap[name] || 0) + 1;
       });
     }
-    if (place.photo_reference) placePhotos.push(place.photo_reference);
   });
 
   const topNeighborhoods = Object.entries(neighborhoods)

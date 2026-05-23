@@ -103,22 +103,34 @@ export default async function ListPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch places in order
-  const { data: listPlaces, error: lpError } = await supabase
+  // Fetch places in order (photo_reference excluded — column may not exist yet)
+  const { data: listPlaces } = await supabase
     .from("list_places")
     .select(
       `
       id, position, note,
-      places ( id, name, area, cuisines, photo_reference )
+      places ( id, name, area, cuisines )
     `
     )
     .eq("list_id", list.id)
     .order("position", { ascending: true });
 
-  if (lpError) {
-    console.error("list_places query error:", lpError.message, lpError.details, lpError.hint);
+  // Try to fetch photos separately (graceful degradation if column missing)
+  const placeIds = (listPlaces || [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((lp: any) => lp.places?.id)
+    .filter(Boolean) as string[];
+  const photoMap = new Map<string, string>();
+  if (placeIds.length > 0) {
+    const { data: photos } = await supabase
+      .from("places")
+      .select("id, photo_reference")
+      .in("id", placeIds);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (photos || []).forEach((p: any) => {
+      if (p.photo_reference) photoMap.set(p.id, p.photo_reference);
+    });
   }
-  console.log("list_places result:", { listId: list.id, count: listPlaces?.length ?? 0, hasPlacesJoin: listPlaces?.[0]?.places !== undefined });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const places = (listPlaces || []).map((lp: any) => ({
@@ -126,7 +138,7 @@ export default async function ListPage({ params }: PageProps) {
     name: lp.places?.name || "Unknown",
     area: lp.places?.area || "",
     cuisines: lp.places?.cuisines || [],
-    photoRef: lp.places?.photo_reference || null,
+    photoRef: photoMap.get(lp.places?.id) || null,
     note: lp.note,
     position: lp.position,
   }));
