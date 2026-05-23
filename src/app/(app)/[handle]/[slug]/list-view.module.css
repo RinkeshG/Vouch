@@ -1,6 +1,7 @@
 /* ============================================================
-   List View — editorial, magazine-feel shareable page
-   Gradient hero + numbered places + staggered animations
+   List View — Postcard Collection Layout
+   Editorial, magazine-feel. 2-col card grid with warm shadows,
+   stacked info hierarchy, handwriting notes, staggered animation.
    ============================================================ */
 
 .page {
@@ -13,180 +14,321 @@
    ============================================================ */
 
 .hero {
-  padding: var(--v-sp12) var(--v-sp6) var(--v-sp8);
+  padding: var(--v-sp12) var(--v-sp8) var(--v-sp8);
   border-radius: 0 0 var(--v-radius-card) var(--v-radius-card);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  position: relative;
+  overflow: hidden;
 }
 
-/* 5 flat band colors — matches landing page card palette */
+/* Subtle inner gradient on hero */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.08) 100%);
+  pointer-events: none;
+}
+
+.hero > * { position: relative; z-index: 1; }
+
+/* 5 flat band colors */
 .hero[data-style="0"] { background: #B8412C; }
 .hero[data-style="1"] { background: #7A8472; }
 .hero[data-style="2"] { background: #3D2B3D; }
 .hero[data-style="3"] { background: #C49A4A; }
 .hero[data-style="4"] { background: #8A2E1F; }
 
-/* Ochre (style 3) needs dark text instead of white */
+/* Ochre (style 3) needs dark text */
 .heroDarkText .heroTitle,
-.heroDarkText .heroAuthorName { color: var(--v-ink); }
+.heroDarkText .heroMetaText { color: var(--v-ink); }
 .heroDarkText .heroDesc { color: rgba(24, 18, 16, 0.7); }
-.heroDarkText .heroAuthorSep { color: rgba(24, 18, 16, 0.4); }
-.heroDarkText .heroAuthorCity { color: rgba(24, 18, 16, 0.6); }
-.heroDarkText .heroPlaceCount {
-  color: rgba(24, 18, 16, 0.6);
-  border-color: rgba(24, 18, 16, 0.2);
+.heroDarkText .heroEyebrow { color: rgba(24, 18, 16, 0.5); }
+.heroDarkText .heroDot { opacity: 0.3; }
+.heroDarkText .heroMetaSep { opacity: 0.3; }
+
+.heroEyebrow {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--v-sp5);
 }
 
+.heroDot { opacity: 0.35; }
+
 .heroEmoji {
-  font-size: 48px;
+  font-size: 40px;
   line-height: 1;
-  margin-bottom: var(--v-sp3);
+  margin-bottom: var(--v-sp2);
 }
 
 .heroTitle {
   font-family: var(--v-font-serif);
-  font-size: clamp(28px, 6vw, 44px);
+  font-size: clamp(30px, 6vw, 42px);
   font-weight: 400;
   color: #fff;
-  line-height: 1.1;
+  line-height: 1.08;
   letter-spacing: -0.02em;
+  margin-bottom: var(--v-sp1);
 }
 
 .heroDesc {
   font-family: var(--v-font-serif);
   font-style: italic;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: var(--v-sp2);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.5;
-  max-width: 480px;
+  max-width: 380px;
+  margin-bottom: var(--v-sp6);
 }
 
 .heroMeta {
   display: flex;
   align-items: center;
   gap: var(--v-sp2);
-  margin-top: var(--v-sp5);
-  flex-wrap: wrap;
 }
 
-.heroAuthor {
-  display: flex;
-  align-items: center;
-  gap: var(--v-sp2);
-}
-
-.heroAuthorName {
-  font-family: var(--v-font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.heroAuthorSep {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.heroAuthorCity {
-  font-family: var(--v-font-sans);
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: capitalize;
-}
-
-.heroPlaceCount {
+.heroMetaText {
   font-family: var(--v-font-mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  padding: 3px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--v-radius-pill);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.heroMetaSep {
+  margin: 0 2px;
+  opacity: 0.3;
 }
 
 /* ============================================================
-   Numbered places
+   Place Cards — Postcard Grid
    ============================================================ */
 
 .places {
-  padding: var(--v-sp6) var(--v-sp6) 0;
+  padding: var(--v-sp6);
 }
 
-.placeRow {
-  display: flex;
-  align-items: flex-start;
+.placeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--v-sp4);
-  padding: var(--v-sp5) 0;
-  border-bottom: 1px dashed rgba(24, 18, 16, 0.12);
+}
 
-  /* Stagger animation — starts hidden */
+/* ---- Card — The Postcard ---- */
+
+.card {
+  background: var(--v-surface);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(24, 18, 16, 0.05);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.03),
+    0 8px 20px -8px rgba(24, 18, 16, 0.18),
+    0 20px 44px -16px rgba(24, 18, 16, 0.12);
+  transition:
+    transform 0.35s var(--v-ease-out),
+    box-shadow 0.35s ease;
+
+  /* Stagger animation */
   opacity: 0;
   transform: translateY(16px);
   transition:
     opacity 500ms var(--v-ease-out),
-    transform 500ms var(--v-ease-out);
+    transform 500ms var(--v-ease-out),
+    box-shadow 0.35s ease;
   transition-delay: var(--delay, 0ms);
 }
 
-.placeRow.visible {
+.card.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.placeRow:last-child {
-  border-bottom: none;
+.card.visible:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.03),
+    0 16px 32px -8px rgba(24, 18, 16, 0.24),
+    0 32px 56px -16px rgba(24, 18, 16, 0.16);
 }
 
-.placeNum {
+/* Subtle tilt on 2 cards */
+.card:nth-child(5).visible { transform: rotate(-0.35deg); }
+.card:nth-child(5).visible:hover { transform: rotate(-0.35deg) translateY(-4px); }
+.card:nth-child(8).visible { transform: rotate(0.25deg); }
+.card:nth-child(8).visible:hover { transform: rotate(0.25deg) translateY(-4px); }
+
+/* Hero card — first place, full width */
+.cardHero {
+  grid-column: 1 / -1;
+}
+
+.cardInner {
+  padding: var(--v-sp6);
+}
+
+.cardHero .cardInner {
+  padding: var(--v-sp7) var(--v-sp8);
+  display: flex;
+  gap: var(--v-sp6);
+  align-items: flex-start;
+}
+
+.cardMain { flex: 1; }
+
+/* ---- Number — decorative ---- */
+
+.cardNum {
   font-family: var(--v-font-serif);
-  font-size: 48px;
+  font-size: 22px;
   line-height: 1;
   color: var(--v-ink3);
-  min-width: 56px;
-  flex-shrink: 0;
+  opacity: 0.25;
+  margin-bottom: var(--v-sp1);
+  font-weight: 300;
   user-select: none;
-  opacity: 0.3;
 }
 
-.placeInfo {
-  flex: 1;
-  min-width: 0;
-  padding-top: 8px;
+.cardHero .cardNum {
+  font-size: 56px;
+  opacity: 0.12;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  line-height: 0.85;
+  padding-top: 4px;
 }
 
-.placeName {
+/* ---- Name — v-title ---- */
+
+.cardName {
   font-family: var(--v-font-serif);
   font-size: clamp(20px, 3vw, 24px);
   font-weight: 400;
   color: var(--v-ink);
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--v-sp2);
 }
 
-.placeMeta {
+.cardHero .cardName {
+  font-size: clamp(24px, 4vw, 28px);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--v-sp2);
+}
+
+/* ---- Meta row — hood + cuisine ---- */
+
+.cardMeta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--v-sp3);
+}
+
+/* ---- Hood — v-label ---- */
+
+.cardHood {
   font-family: var(--v-font-sans);
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--v-ink);
+  line-height: 1.2;
+}
+
+/* ---- Cuisine — v-take ---- */
+
+.cardCuisine {
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--v-ink3);
-  margin-top: 4px;
+  line-height: 1.3;
+  text-transform: capitalize;
+}
+
+/* ---- Note — Caveat handwriting ---- */
+
+.cardNote {
+  font-family: var(--v-font-hand);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--v-ink2);
+  line-height: 1.4;
+  margin-top: var(--v-sp4);
+  padding-top: var(--v-sp3);
+  border-top: var(--v-dash);
+}
+
+.cardHero .cardNote {
+  font-size: 20px;
+  margin-top: var(--v-sp5);
+  padding-top: var(--v-sp4);
+}
+
+.arrow {
+  font-family: var(--v-font-sans);
+  font-weight: 600;
+  color: var(--v-seal);
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.cardHero .arrow {
+  font-size: 16px;
+}
+
+/* ============================================================
+   Show All Button
+   ============================================================ */
+
+.showAll {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--v-sp4);
+  padding: var(--v-sp6) 0 var(--v-sp2);
+  grid-column: 1 / -1;
 }
 
-.metaDot {
-  color: var(--v-line-strong);
+.showAllLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(24, 18, 16, 0.1);
 }
 
-.placeNote {
-  font-family: var(--v-font-hand);
-  font-style: normal;
-  font-size: 17px;
-  color: var(--v-ink2);
-  margin-top: var(--v-sp2);
-  line-height: 1.4;
+.showAllBtn {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  padding: 10px 20px;
+  border: 1px solid rgba(24, 18, 16, 0.12);
+  border-radius: var(--v-radius-pill);
+  background: var(--v-surface);
+  cursor: pointer;
+  transition: all 0.2s var(--v-ease-out);
+  white-space: nowrap;
+}
+
+.showAllBtn:hover {
+  color: var(--v-seal);
+  border-color: rgba(184, 65, 44, 0.25);
+  background: rgba(184, 65, 44, 0.04);
 }
 
 /* ============================================================
@@ -194,11 +336,76 @@
    ============================================================ */
 
 .footer {
-  padding: var(--v-sp8) var(--v-sp6) var(--v-sp12);
+  padding: var(--v-sp2) var(--v-sp6) var(--v-sp12);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--v-sp6);
+}
+
+/* Save + Short URL row */
+.footerActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  padding: var(--v-sp4) 0;
+  border-bottom: 1px solid var(--v-line);
+}
+
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: var(--v-radius-pill);
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--v-seal);
+  border: 1px solid rgba(184, 65, 44, 0.2);
+  background: rgba(184, 65, 44, 0.04);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.saveBtn:hover {
+  background: rgba(184, 65, 44, 0.1);
+  border-color: var(--v-seal);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.saveBtnActive {
+  border-color: var(--v-seal);
+  background: rgba(184, 65, 44, 0.08);
+}
+
+.saveIcon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--v-seal);
+  stroke-width: 2;
+}
+
+.saveBtnActive .saveIcon {
+  fill: var(--v-seal);
+}
+
+.shortUrl {
+  font-family: var(--v-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
 }
 
 /* Author card */
@@ -274,37 +481,26 @@
   }
 
   .places {
-    padding: var(--v-sp4) var(--v-sp4) 0;
+    padding: var(--v-sp4);
   }
 
-  .placeRow {
-    gap: var(--v-sp3);
+  .placeGrid {
+    grid-template-columns: 1fr;
   }
 
-  .placeNum {
-    font-size: 32px;
-    min-width: 40px;
+  .cardHero .cardInner {
+    flex-direction: column;
+    gap: var(--v-sp1);
+    padding: var(--v-sp6);
   }
 
-  .placeInfo {
-    padding-top: 4px;
+  .cardHero .cardNum {
+    font-size: 28px;
+    opacity: 0.2;
   }
 
   .footer {
     padding: var(--v-sp6) var(--v-sp4) var(--v-sp8);
     padding-bottom: calc(var(--v-sp8) + var(--v-safe-bottom));
-  }
-
-  .authorCard {
-    flex-direction: row;
-    gap: var(--v-sp3);
-  }
-
-  /* Stack View profile button below name on very small screens */
-  @media (max-width: 380px) {
-    .authorCard {
-      flex-direction: column;
-      text-align: center;
-    }
   }
 }

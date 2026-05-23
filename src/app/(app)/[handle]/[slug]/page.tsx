@@ -77,7 +77,7 @@ export default async function ListPage({ params }: PageProps) {
   // Owners can see their own unpublished lists
   let listQuery = supabase
     .from("lists")
-    .select("id, title, description, slug, emoji, cover_style, place_count, is_published, created_at")
+    .select("id, title, description, slug, emoji, cover_style, place_count, save_count, is_published, created_at, updated_at")
     .eq("user_id", profile.id)
     .eq("slug", slug);
 
@@ -89,6 +89,18 @@ export default async function ListPage({ params }: PageProps) {
 
   if (!list) {
     notFound();
+  }
+
+  // Check if current user saved this list
+  let isSaved = false;
+  if (user) {
+    const { data: saveRow } = await supabase
+      .from("list_saves")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("list_id", list.id)
+      .maybeSingle();
+    isSaved = !!saveRow;
   }
 
   // Fetch places in order
@@ -121,7 +133,9 @@ export default async function ListPage({ params }: PageProps) {
         emoji: list.emoji,
         coverStyle: list.cover_style,
         placeCount: list.place_count,
+        saveCount: list.save_count,
         createdAt: list.created_at,
+        updatedAt: list.updated_at,
       }}
       places={places}
       author={{
@@ -130,8 +144,11 @@ export default async function ListPage({ params }: PageProps) {
         avatarUrl: profile.avatar_url,
         city: profile.city || "bangalore",
       }}
+      listId={list.id}
       slug={slug}
       isOwner={isOwner}
+      isSaved={isSaved}
+      isAuthed={!!user}
     />
   );
 }
