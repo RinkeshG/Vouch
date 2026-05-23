@@ -28,7 +28,7 @@ export default async function HomePage() {
   // Fetch ALL lists (published + drafts) for the owner
   const { data: listsData } = await supabase
     .from("lists")
-    .select("id, title, description, slug, emoji, place_count, is_published, updated_at")
+    .select("id, title, description, slug, emoji, cover_style, place_count, save_count, is_published, updated_at")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
@@ -63,6 +63,8 @@ export default async function HomePage() {
     emoji: l.emoji,
     description: l.description,
     placeCount: l.place_count,
+    saveCount: l.save_count ?? 0,
+    coverStyle: l.cover_style ?? 0,
     isPublished: l.is_published,
     updatedAt: l.updated_at,
     previewPlaces: previewMap[l.id] || [],

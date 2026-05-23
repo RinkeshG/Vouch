@@ -17,7 +17,7 @@ export default async function ExplorePage() {
     .from("lists")
     .select(
       `
-      id, title, description, slug, emoji, cover_style, place_count, created_at,
+      id, title, description, slug, emoji, cover_style, place_count, save_count, created_at,
       profiles!lists_user_id_fkey ( handle, display_name, avatar_url )
     `
     )
@@ -66,6 +66,7 @@ export default async function ExplorePage() {
     emoji: l.emoji,
     coverStyle: l.cover_style,
     placeCount: l.place_count,
+    saveCount: l.save_count ?? 0,
     createdAt: l.created_at,
     authorHandle: l.profiles?.handle || "user",
     authorName: l.profiles?.display_name || "User",

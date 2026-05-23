@@ -49,7 +49,7 @@ export default async function ProfilePage({ params }: PageProps) {
   // Fetch lists with the V1 columns
   const { data: listsData } = await supabase
     .from("lists")
-    .select("id, title, description, slug, emoji, cover_style, place_count, is_published")
+    .select("id, title, description, slug, emoji, cover_style, place_count, save_count, is_published")
     .eq("user_id", profile.id)
     .order("updated_at", { ascending: false });
 
@@ -86,6 +86,7 @@ export default async function ProfilePage({ params }: PageProps) {
     emoji: l.emoji,
     description: l.description,
     placeCount: l.place_count,
+    saveCount: l.save_count ?? 0,
     coverStyle: l.cover_style,
     isPublished: l.is_published,
     previewPlaces: previewMap[l.id] || [],

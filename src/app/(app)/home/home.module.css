@@ -1,6 +1,6 @@
 /* ============================================================
-   Home — Editorial dashboard / list management
-   Magazine table-of-contents design language
+   Home — Editorial dashboard / card-based list management
+   Same card design as profile page for visual consistency
    ============================================================ */
 
 .page {
@@ -55,162 +55,186 @@
   gap: var(--v-sp2);
   padding: var(--v-sp4) 0;
   border-bottom: 1px dashed var(--v-line-strong);
+  margin-bottom: var(--v-sp6);
 }
 
-/* ---- List section ---- */
-.listSection {
-  display: flex;
-  flex-direction: column;
-  padding-top: var(--v-sp2);
-}
-
-/* ---- Editorial list rows ---- */
-.listRow {
-  display: flex;
-  align-items: center;
+/* ---- Card grid — same as profile ---- */
+.listGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--v-sp4);
-  padding: var(--v-sp4) var(--v-sp4);
-  margin: 0 calc(-1 * var(--v-sp4));
+}
+
+/* ---- Card: editorial magazine style ---- */
+.listCard {
+  position: relative;
   border-radius: var(--v-radius-card);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition:
-    background-color var(--v-duration-base) var(--v-ease-out),
-    box-shadow var(--v-duration-base) var(--v-ease-out);
-}
-
-.listRow:hover {
-  background-color: var(--v-surface);
-  box-shadow: var(--v-shadow-md);
-}
-
-.listRow:active {
-  background-color: var(--v-surface-dim);
-  box-shadow: var(--v-shadow-sm);
-}
-
-/* Dashed separator between rows */
-.listRow + .listRow {
-  border-top: 1px dashed var(--v-line);
-}
-
-.listRow:hover + .listRow {
-  border-top-color: transparent;
-}
-
-.listRow:hover {
-  border-top-color: transparent;
-}
-
-/* ---- Left: number ---- */
-.listNumber {
-  font-family: var(--v-font-serif);
-  font-size: 32px;
-  font-weight: 400;
-  color: var(--v-ink3);
-  line-height: 1;
-  width: 44px;
-  flex-shrink: 0;
-  text-align: right;
-  opacity: 0.5;
-  transition: opacity var(--v-duration-base) var(--v-ease-out);
-}
-
-.listRow:hover .listNumber {
-  opacity: 0.8;
-}
-
-/* ---- Middle: title + meta ---- */
-.listInfo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  flex: 1;
+  background: var(--v-cream, #FBF6E9);
+  border: 1px solid rgba(24, 18, 16, 0.06);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.04),
+    0 14px 28px -16px rgba(24, 18, 16, 0.28),
+    0 32px 60px -30px rgba(24, 18, 16, 0.18);
+  transition:
+    transform 0.4s var(--v-ease-out),
+    box-shadow 0.4s ease;
 }
 
-.listTitleRow {
+.listCard:hover {
+  transform: translateY(-6px) rotate(-0.4deg);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.04),
+    0 30px 50px -16px rgba(24, 18, 16, 0.35),
+    0 40px 70px -25px rgba(24, 18, 16, 0.22);
+}
+
+.listCard:active {
+  transform: scale(0.99);
+}
+
+/* ---- Card band (colored header) ---- */
+.cardBand {
+  padding: 20px 20px 16px;
+}
+
+.cardBandRow {
   display: flex;
-  align-items: baseline;
-  gap: var(--v-sp2);
-  min-width: 0;
-}
-
-.listTitle {
-  font-family: var(--v-font-serif);
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--v-ink);
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.listEmoji {
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.listMeta {
+  justify-content: space-between;
+  align-items: center;
   font-family: var(--v-font-mono);
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 10.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--v-ink3);
-  display: flex;
+  opacity: 0.75;
+  margin-bottom: 10px;
+}
+
+.cardBandRight {
+  display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 8px;
 }
 
-.listPreview {
-  font-family: var(--v-font-sans);
-  font-size: 12px;
-  color: var(--v-ink3);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  opacity: 0.7;
-}
-
-.metaSep {
-  margin: 0 6px;
-}
-
-/* ---- Right: badge + actions ---- */
-.listRowRight {
-  display: flex;
-  align-items: center;
-  gap: var(--v-sp2);
-  flex-shrink: 0;
-}
-
-.draftBadge {
-  display: inline-block;
-  font-family: var(--v-font-mono);
-  font-size: 10px;
+.cardBandTitle {
+  margin: 0;
+  font-family: var(--v-font-serif);
   font-weight: 500;
-  letter-spacing: 0.12em;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.cardBandEmoji {
+  margin-right: 8px;
+  font-size: 22px;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.15));
+}
+
+/* ---- Badges ---- */
+.draftBadge {
+  font-family: var(--v-font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--v-ink2);
-  background: var(--v-surface-dim);
-  padding: 3px 10px;
-  border-radius: var(--v-radius-tag);
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(24, 18, 16, 0.25);
+  line-height: 1.4;
 }
 
 .publishedBadge {
-  display: inline-block;
-  font-family: var(--v-font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-family: var(--v-font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--v-sage);
-  background: var(--v-sage-dim);
-  padding: 3px 10px;
-  border-radius: var(--v-radius-tag);
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  line-height: 1.4;
+}
+
+/* ---- Card body (cream with place previews) ---- */
+.cardBody {
+  padding: 14px 20px 6px;
+  flex: 1;
+}
+
+.cardPlaces {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cardPlaceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(24, 18, 16, 0.14);
+  font-size: 14px;
+}
+
+.cardPlaceItem:last-child {
+  border-bottom: 0;
+}
+
+.cardPlaceName {
+  font-weight: 500;
+  color: var(--v-ink);
+}
+
+.cardPlacesEmpty {
+  padding: 12px 0;
+  font-family: var(--v-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+}
+
+/* ---- Card footer ---- */
+.cardFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 16px;
+  border-top: 1px solid rgba(24, 18, 16, 0.08);
+  font-family: var(--v-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+}
+
+.footSep {
+  margin: 0 4px;
+}
+
+.cardFootRight {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp2);
+}
+
+.cardSaveCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--v-seal);
+}
+
+.heartIcon {
+  width: 12px;
+  height: 12px;
+  fill: var(--v-seal);
+  stroke: none;
 }
 
 .viewLink {
@@ -220,8 +244,10 @@
   font-family: var(--v-font-sans);
   font-size: 12px;
   font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--v-ink2);
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: var(--v-radius-tag);
   cursor: pointer;
   transition:
@@ -232,17 +258,6 @@
 .viewLink:hover {
   color: var(--v-seal);
   background: var(--v-seal-dim);
-}
-
-.rowChevron {
-  color: var(--v-ink3);
-  flex-shrink: 0;
-  opacity: 0.4;
-  transition: opacity var(--v-duration-fast);
-}
-
-.listRow:hover .rowChevron {
-  opacity: 0.8;
 }
 
 /* ---- Empty state ---- */
@@ -271,23 +286,12 @@
     flex-wrap: wrap;
   }
 
-  .listRow {
-    gap: var(--v-sp3);
-    padding: var(--v-sp3) var(--v-sp2);
-    margin: 0 calc(-1 * var(--v-sp2));
+  .listGrid {
+    grid-template-columns: 1fr;
   }
 
-  .listNumber {
-    font-size: 24px;
-    width: 32px;
-  }
-
-  .listTitle {
-    font-size: 16px;
-  }
-
-  .listPreview {
-    display: none;
+  .cardBandTitle {
+    font-size: 19px;
   }
 
   .viewLink {

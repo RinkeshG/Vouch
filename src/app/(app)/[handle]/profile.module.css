@@ -300,6 +300,9 @@
 
 /* ---- Card footer ---- */
 .cardFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 12px 20px 16px;
   border-top: 1px solid rgba(24, 18, 16, 0.08);
   font-family: var(--v-font-mono);
@@ -307,6 +310,20 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--v-ink3);
+}
+
+.cardSaveCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--v-seal);
+}
+
+.heartIcon {
+  width: 12px;
+  height: 12px;
+  fill: var(--v-seal);
+  stroke: none;
 }
 
 /* ---- Empty state ---- */
