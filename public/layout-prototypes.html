@@ -215,24 +215,7 @@ body::before {
 .card:nth-child(8) { transform: rotate(0.25deg); }
 .card:nth-child(8):hover { transform: rotate(0.25deg) translateY(-4px); }
 
-/* Subtle tinted top edge — a gentle color wash, not a stripe */
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  opacity: 0.5;
-  border-radius: 10px 10px 0 0;
-}
-
-.card[data-tint="0"]::before { background: var(--band-0); }
-.card[data-tint="1"]::before { background: var(--band-1); }
-.card[data-tint="2"]::before { background: var(--band-2); }
-.card[data-tint="3"]::before { background: var(--band-3); }
-.card[data-tint="4"]::before { background: var(--band-4); }
-.card[data-tint="5"]::before { background: var(--band-5); }
+/* No colored edges — clean cards, let content speak */
 
 /* Hero card — first place, spans full width */
 .card--hero {
