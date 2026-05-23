@@ -25,7 +25,7 @@
 
 .heading {
   font-family: var(--v-font-serif);
-  font-size: clamp(40px, 5vw, 56px);
+  font-size: clamp(32px, 5vw, 56px);
   font-weight: 400;
   color: var(--v-ink);
   line-height: 1.05;
@@ -355,6 +355,22 @@
 
   .featuredFoot {
     padding: 10px 18px 14px;
+  }
+
+  .cardBand {
+    padding: 12px 14px 14px;
+  }
+
+  .cardBandTitle {
+    font-size: 17px;
+  }
+
+  .cardBody {
+    padding: 12px 14px 8px;
+  }
+
+  .cardFoot {
+    padding: 8px 14px 12px;
   }
 
   .bottomCta {

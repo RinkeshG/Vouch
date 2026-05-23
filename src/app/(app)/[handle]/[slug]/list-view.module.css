@@ -108,6 +108,8 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .heroMetaSep {
@@ -352,6 +354,8 @@
   align-items: center;
   padding: var(--v-sp4) var(--v-sp7);
   border-top: 1px solid rgba(24, 18, 16, 0.06);
+  gap: var(--v-sp3);
+  min-width: 0;
 }
 
 /* Below-the-fold content — author, share, CTA */
@@ -415,6 +419,10 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--v-ink3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 /* Author card */
@@ -512,12 +520,31 @@
     opacity: 0.2;
   }
 
+  .heroMeta {
+    flex-wrap: wrap;
+  }
+
+  .heroMetaText {
+    font-size: 9px;
+  }
+
   .footerActions {
     padding: var(--v-sp4) var(--v-sp4);
+    gap: var(--v-sp2);
+    min-width: 0;
+  }
+
+  .shortUrl {
+    font-size: 9px;
   }
 
   .footerContent {
     padding: var(--v-sp5) var(--v-sp4) var(--v-sp8);
     padding-bottom: calc(var(--v-sp8) + var(--v-safe-bottom));
+  }
+
+  .authorCard {
+    flex-wrap: wrap;
+    gap: var(--v-sp2);
   }
 }

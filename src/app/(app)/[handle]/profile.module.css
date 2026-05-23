@@ -313,6 +313,11 @@
 .cardPlaceName {
   font-weight: 500;
   color: var(--v-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
 .cardPlaceHood {
@@ -321,6 +326,12 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--v-ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .cardPlacesEmpty {
@@ -411,7 +422,38 @@
     margin-top: var(--v-sp6);
   }
 
+  .tabs {
+    gap: var(--v-sp4);
+  }
+
+  .tab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  .cardBand {
+    padding: 16px 16px 14px;
+  }
+
   .cardBandTitle {
     font-size: 19px;
+  }
+
+  .cardBody {
+    padding: 12px 16px 6px;
+  }
+
+  .cardFoot {
+    padding: 10px 16px 14px;
+  }
+
+  .bio {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .meta {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

@@ -188,6 +188,9 @@
 .cardPlaceName {
   font-weight: 500;
   color: var(--v-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cardPlacesEmpty {
@@ -290,8 +293,21 @@
     grid-template-columns: 1fr;
   }
 
+  .cardBand {
+    padding: 16px 16px 14px;
+  }
+
   .cardBandTitle {
     font-size: 19px;
+  }
+
+  .cardBody {
+    padding: 12px 16px 6px;
+  }
+
+  .cardFoot {
+    padding: 10px 16px 14px;
+    font-size: 10px;
   }
 
   .viewLink {
