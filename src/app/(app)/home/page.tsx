@@ -2,6 +2,7 @@ import { type Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { HomeClient } from "./home-client";
+import { DEV_HOME_LISTS } from "@/lib/dev-seed";
 
 export const metadata: Metadata = {
   title: "Home — Vouch",
@@ -15,6 +16,17 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (process.env.NODE_ENV === "development") {
+      const totalPlaces = DEV_HOME_LISTS.reduce((sum, l) => sum + l.placeCount, 0);
+      return (
+        <HomeClient
+          handle="priya"
+          displayName="Priya Sharma"
+          lists={DEV_HOME_LISTS}
+          totalPlaces={totalPlaces}
+        />
+      );
+    }
     redirect("/sign-up");
   }
 

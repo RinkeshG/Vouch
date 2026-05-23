@@ -395,7 +395,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
         <div className={styles.celebActions}>
           <Button
             variant="seal"
-            onClick={() => router.push(`/@${handle}/${publishedSlug}`)}
+            onClick={() => router.push(`/${handle}/${publishedSlug}`)}
           >
             View your list
           </Button>

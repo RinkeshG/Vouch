@@ -40,16 +40,25 @@ const COVER_GRADIENTS = [
   "linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%)",
 ];
 
+interface TasteSignals {
+  topNeighborhoods: string[];
+  topCuisines: string[];
+  totalPlaceCount: number;
+  mosaicPhotos: string[];
+}
+
 interface ProfileClientProps {
   profile: ProfileInfo;
   lists: ProfileList[];
   isOwnProfile: boolean;
+  tasteSignals: TasteSignals;
 }
 
 export function ProfileClient({
   profile,
   lists,
   isOwnProfile,
+  tasteSignals,
 }: ProfileClientProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -129,6 +138,20 @@ export function ProfileClient({
     <div className={styles.page}>
       {/* ---- Hero ---- */}
       <div className={styles.hero}>
+        {tasteSignals.mosaicPhotos.length > 0 && (
+          <div className={styles.mosaic}>
+            {tasteSignals.mosaicPhotos.map((ref, i) => (
+              <div key={i} className={styles.mosaicCell}>
+                <img
+                  src={placePhotoUrl(ref, 400)!}
+                  alt=""
+                  className={styles.mosaicPhoto}
+                  loading={i < 3 ? "eager" : "lazy"}
+                />
+              </div>
+            ))}
+          </div>
+        )}
         <Avatar
           handle={profile.handle}
           name={profile.displayName}
@@ -138,6 +161,29 @@ export function ProfileClient({
         <h1 className={styles.displayName}>{profile.displayName}</h1>
         <div className={styles.handle}>@{profile.handle}</div>
         {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+        {(tasteSignals.topNeighborhoods.length > 0 || tasteSignals.topCuisines.length > 0) && (
+          <div className={styles.tasteSignals}>
+            {tasteSignals.topNeighborhoods.length > 0 && (
+              <div className={styles.tastePills}>
+                {tasteSignals.topNeighborhoods.map(n => (
+                  <span key={n} className={styles.tastePill}>{n}</span>
+                ))}
+              </div>
+            )}
+            {tasteSignals.topCuisines.length > 0 && (
+              <div className={styles.tastePills}>
+                {tasteSignals.topCuisines.map(c => (
+                  <span key={c} className={`${styles.tastePill} ${styles.tastePillCuisine}`}>{c}</span>
+                ))}
+              </div>
+            )}
+            {tasteSignals.totalPlaceCount > 0 && (
+              <span className={styles.tasteStat}>
+                {tasteSignals.totalPlaceCount} places across {visibleLists.length} lists
+              </span>
+            )}
+          </div>
+        )}
         <div className={styles.meta}>
           <span className={styles.cityTag}>{city}</span>
           <span className={styles.stat}>
@@ -202,42 +248,14 @@ export function ProfileClient({
         <>
           <div className={styles.sectionLabel}>Lists</div>
           <div className={styles.listGrid}>
-            {visibleLists.map((list) => {
-              const href = list.slug
-                ? `/@${profile.handle}/${list.slug}`
-                : `/@${profile.handle}`;
-              const photoUrl = placePhotoUrl(list.heroPhotoRef, 800);
-              const gradient = COVER_GRADIENTS[list.coverStyle] || COVER_GRADIENTS[0];
-              return (
-                <Link key={list.id} href={href} className={styles.listCard}>
-                  <div className={styles.listCardImage}>
-                    {photoUrl ? (
-                      <img
-                        src={photoUrl}
-                        alt={list.title}
-                        className={styles.listCardPhoto}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className={styles.listCardBg} style={{ background: gradient }} />
-                    )}
-                    <div className={styles.listCardOverlay} />
-                  </div>
-                  <div className={styles.listCardContent}>
-                    <h3 className={styles.listCardTitle}>
-                      {list.emoji && <span className={styles.listCardEmoji}>{list.emoji} </span>}
-                      {list.title}
-                    </h3>
-                    <span className={styles.listCardCount}>
-                      {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
-                    </span>
-                    {!list.isPublished && (
-                      <span className={styles.draftBadge}>Draft</span>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
+            {visibleLists.map((list, idx) => (
+              <ProfileListCard
+                key={list.id}
+                list={list}
+                handle={profile.handle}
+                isHero={idx === 0}
+              />
+            ))}
           </div>
         </>
       ) : (
@@ -272,6 +290,67 @@ export function ProfileClient({
           </Link>
         </div>
       )}
+
+      {/* Mobile FAB for profile owners */}
+      {isOwnProfile && (
+        <Link href="/new" className={styles.fab}>
+          <Icon name="plus" size={20} />
+        </Link>
+      )}
     </div>
+  );
+}
+
+function ProfileListCard({
+  list,
+  handle,
+  isHero,
+}: {
+  list: ProfileList;
+  handle: string;
+  isHero: boolean;
+}) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const href = list.slug ? `/${handle}/${list.slug}` : `/${handle}`;
+  const photoUrl = placePhotoUrl(list.heroPhotoRef, isHero ? 1200 : 800);
+
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setImgLoaded(true);
+    }
+  }, []);
+  const gradient = COVER_GRADIENTS[list.coverStyle] || COVER_GRADIENTS[0];
+
+  return (
+    <Link href={href} className={`${styles.listCard} ${isHero ? styles.listCardHero : ""}`}>
+      <div className={styles.listCardImage}>
+        {photoUrl ? (
+          <img
+            ref={imgRef}
+            src={photoUrl}
+            alt={list.title}
+            className={`${styles.listCardPhoto} ${imgLoaded ? styles.listCardPhotoLoaded : ""}`}
+            loading="lazy"
+            onLoad={() => setImgLoaded(true)}
+          />
+        ) : (
+          <div className={styles.listCardBg} style={{ background: gradient }} />
+        )}
+        <div className={styles.listCardOverlay} />
+      </div>
+      <div className={styles.listCardContent}>
+        <h3 className={styles.listCardTitle}>
+          {list.emoji && <span className={styles.listCardEmoji}>{list.emoji} </span>}
+          {list.title}
+        </h3>
+        <span className={styles.listCardCount}>
+          {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
+        </span>
+        {!list.isPublished && (
+          <span className={styles.draftBadge}>Draft</span>
+        )}
+      </div>
+    </Link>
   );
 }

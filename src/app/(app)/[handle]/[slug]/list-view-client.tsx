@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -61,28 +61,25 @@ export function ListViewClient({
   slug,
   isOwner,
 }: ListViewClientProps) {
-  const listRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState<Record<string, boolean>>({});
+  const handleImgLoad = useCallback((id: string) => {
+    setLoaded((prev) => ({ ...prev, [id]: true }));
+  }, []);
 
+  /* Scroll-linked parallax on hero cover photo */
   useEffect(() => {
-    if (!listRef.current) return;
-    const items = listRef.current.querySelectorAll("[data-animate]");
-    if (!items.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const el = entry.target as HTMLElement;
-            el.classList.add(styles.visible);
-            observer.unobserve(el);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
-    );
-
-    items.forEach((item) => observer.observe(item));
-    return () => observer.disconnect();
+    const hero = heroRef.current;
+    if (!hero) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const bg = hero.querySelector(`.${styles.heroBgPhoto}`) as HTMLElement;
+      if (bg) bg.style.transform = `translateY(${scrollY * 0.3}px) scale(1.1)`;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const shareUrl =
@@ -97,7 +94,7 @@ export function ListViewClient({
   return (
     <div className={styles.page}>
       {/* ---- Hero / Cover ---- */}
-      <div className={styles.hero}>
+      <div className={styles.hero} ref={heroRef}>
         <div className={styles.heroBg}>
           {heroPhoto ? (
             <img
@@ -135,50 +132,19 @@ export function ListViewClient({
         </div>
       </div>
 
-      {/* ---- Places as visual moments ---- */}
-      <div className={styles.places} ref={listRef}>
+      {/* ---- Places ---- */}
+      <div className={styles.places}>
         {places.map((place, idx) => {
-          const photo = placePhotoUrl(place.photoRef, 800);
-          const isHero = idx === 0;
+          const photo = placePhotoUrl(place.photoRef, 400);
           return (
-            <div
+            <PlaceCard
               key={place.id}
-              className={`${styles.placeCard} ${isHero ? styles.placeCardHero : ""}`}
-              data-animate
-              style={{
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ["--delay" as any]: `${Math.min(idx * 60, 300)}ms`,
-              }}
-            >
-              {photo && (
-                <div className={styles.placePhoto}>
-                  <img
-                    src={photo}
-                    alt={place.name}
-                    className={styles.placePhotoImg}
-                    loading={idx < 3 ? "eager" : "lazy"}
-                  />
-                </div>
-              )}
-              <div className={styles.placeBody}>
-                <span className={styles.placeNum}>
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <h2 className={styles.placeName}>{place.name}</h2>
-                <div className={styles.placeMeta}>
-                  {place.area.split(",")[0]}
-                  {place.cuisines[0] && (
-                    <>
-                      <span className={styles.metaDot}>·</span>
-                      {place.cuisines[0].replace(/_/g, " ")}
-                    </>
-                  )}
-                </div>
-                {place.note && (
-                  <p className={styles.placeNote}>&ldquo;{place.note}&rdquo;</p>
-                )}
-              </div>
-            </div>
+              place={place}
+              idx={idx}
+              photo={photo}
+              loaded={loaded}
+              onLoad={handleImgLoad}
+            />
           );
         })}
       </div>
@@ -196,7 +162,7 @@ export function ListViewClient({
             <div className={styles.authorCardName}>{author.displayName}</div>
             <div className={styles.authorCardHandle}>@{author.handle}</div>
           </div>
-          <Link href={`/@${author.handle}`}>
+          <Link href={`/${author.handle}`}>
             <Button variant="secondary" size="sm">
               View profile
             </Button>
@@ -218,6 +184,85 @@ export function ListViewClient({
               <Button variant="seal">Create yours on Vouch</Button>
             </Link>
           </div>
+        )}
+      </div>
+
+      {/* ---- Mobile sticky bottom bar ---- */}
+      <div className={styles.stickyBar}>
+        <div className={styles.stickyBarInner}>
+          <div className={styles.stickyBarInfo}>
+            <span className={styles.stickyBarTitle}>{list.title}</span>
+            <span className={styles.stickyBarMeta}>
+              {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <ShareRow
+            url={shareUrl}
+            title={list.title}
+            text={`Check out "${list.title}" by @${author.handle} on Vouch`}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---- PlaceCard helper ---- */
+
+function PlaceCard({
+  place,
+  idx,
+  photo,
+  loaded,
+  onLoad,
+}: {
+  place: PlaceItem;
+  idx: number;
+  photo: string | null;
+  loaded: Record<string, boolean>;
+  onLoad: (id: string) => void;
+}) {
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      onLoad(place.id);
+    }
+  }, [place.id, onLoad]);
+
+  return (
+    <div className={styles.placeCard}>
+      <span className={styles.placeNum}>
+        {String(idx + 1).padStart(2, "0")}
+      </span>
+
+      {photo && (
+        <div className={styles.placePhoto}>
+          <img
+            ref={imgRef}
+            src={photo}
+            alt={place.name}
+            className={`${styles.placePhotoImg} ${loaded[place.id] ? styles.placePhotoLoaded : ""}`}
+            loading={idx < 3 ? "eager" : "lazy"}
+            onLoad={() => onLoad(place.id)}
+          />
+        </div>
+      )}
+
+      <div className={styles.placeBody}>
+        <h2 className={styles.placeName}>{place.name}</h2>
+        <div className={styles.placeArea}>{place.area}</div>
+        {place.cuisines.length > 0 && (
+          <div className={styles.cuisineTags}>
+            {place.cuisines.map((c) => (
+              <span key={c} className={styles.cuisineTag}>
+                {c.replace(/_/g, " ")}
+              </span>
+            ))}
+          </div>
+        )}
+        {place.note && (
+          <p className={styles.placeNote}>&ldquo;{place.note}&rdquo;</p>
         )}
       </div>
     </div>

@@ -1,11 +1,17 @@
 /* ============================================================
-   Landing — Product-forward, show don't describe
+   Landing — Product-forward with section architecture
    ============================================================ */
 
 .page {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  animation: pageEnter 300ms cubic-bezier(0.4, 0, 0, 1) both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ---- Nav ---- */
@@ -48,18 +54,18 @@
 /* ---- Hero ---- */
 .hero {
   text-align: center;
-  padding: var(--v-sp16) var(--v-sp6) var(--v-sp12);
+  padding: var(--v-sp12) var(--v-sp6) var(--v-sp8);
   max-width: 640px;
   margin: 0 auto;
 }
 
 .heroTitle {
   font-family: var(--v-font-serif);
-  font-size: clamp(32px, 7vw, 56px);
+  font-size: clamp(36px, 8vw, 64px);
   font-weight: 400;
   color: var(--v-ink);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
 }
 
 .heroSub {
@@ -89,15 +95,30 @@
   color: var(--v-seal);
 }
 
-/* ---- Featured list ---- */
-.featured {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 var(--v-sp6) var(--v-sp8);
-  width: 100%;
+/* ---- Section architecture ---- */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--v-sp4);
+  margin-bottom: var(--v-sp6);
 }
 
-/* ---- Feed ---- */
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: var(--v-line);
+}
+
+.sectionTitle {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--v-ink3);
+  white-space: nowrap;
+}
+
+/* ---- Feed section ---- */
 .feed {
   max-width: 1080px;
   margin: 0 auto;
@@ -105,19 +126,11 @@
   width: 100%;
 }
 
-.feedHeading {
-  font-family: var(--v-font-serif);
-  font-size: clamp(20px, 3vw, 28px);
-  font-weight: 400;
-  color: var(--v-ink);
-  text-align: center;
-  margin-bottom: var(--v-sp6);
-}
-
 .feedGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--v-sp4);
+  margin-top: var(--v-sp4);
 }
 
 .feedCta {
@@ -125,7 +138,7 @@
   margin-top: var(--v-sp6);
 }
 
-/* ---- Card (shared between hero + feed) ---- */
+/* ---- Card ---- */
 .card {
   display: flex;
   flex-direction: column;
@@ -140,12 +153,17 @@
 }
 
 .card:hover {
-  transform: scale(1.02);
+  transform: translateY(-4px);
   box-shadow: var(--v-shadow-lg);
 }
 
 .card:active {
-  transform: scale(0.98);
+  transform: translateY(-2px);
+}
+
+.cardHero {
+  grid-column: 1 / -1;
+  margin-bottom: var(--v-sp2);
 }
 
 .cardHero .cardImage {
@@ -166,10 +184,17 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 8s linear;
+  transition: transform 8s linear, opacity 300ms ease-out, filter 300ms ease-out;
+  opacity: 0;
+  filter: blur(8px);
 }
 
-.card:hover .cardPhoto {
+.cardPhotoLoaded {
+  opacity: 1;
+  filter: blur(0);
+}
+
+.card:hover .cardPhoto.cardPhotoLoaded {
   transform: scale(1.05);
 }
 
@@ -207,6 +232,22 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+.showcaseAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
 .cardBody {
   padding: var(--v-sp3) var(--v-sp4) var(--v-sp4);
 }
@@ -237,11 +278,17 @@
 }
 
 .cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-family: var(--v-font-sans);
   font-size: 12px;
   color: var(--v-ink3);
   margin-top: var(--v-sp2);
-  display: block;
+}
+
+.dot {
+  color: var(--v-line-strong);
 }
 
 /* ---- Value prop section ---- */
@@ -269,6 +316,37 @@
   max-width: 440px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Creation mockup */
+.createMockup {
+  margin: var(--v-sp6) auto;
+  max-width: 380px;
+  width: 100%;
+}
+
+.createMockupInput {
+  background: var(--v-surface);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-input);
+  padding: var(--v-sp3) var(--v-sp4);
+  text-align: left;
+}
+
+.createMockupPlaceholder {
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--v-ink3);
+}
+
+.createMockupHint {
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  color: var(--v-ink3);
+  margin-top: var(--v-sp1);
+  text-align: right;
+  opacity: 0.6;
 }
 
 /* ---- Footer ---- */
@@ -299,10 +377,6 @@
 @media (max-width: 640px) {
   .hero {
     padding: var(--v-sp10) var(--v-sp4) var(--v-sp8);
-  }
-
-  .featured {
-    padding: 0 var(--v-sp4) var(--v-sp6);
   }
 
   .feed {

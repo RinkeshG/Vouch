@@ -18,7 +18,9 @@ export default async function EditListPage({ params }: EditListPageProps) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/sign-up?next=/list/${id}/edit`);
+    if (process.env.NODE_ENV !== "development") {
+      redirect(`/sign-up?next=/list/${id}/edit`);
+    }
   }
 
   // 2. Fetch the list and verify ownership

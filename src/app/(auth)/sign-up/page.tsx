@@ -22,7 +22,6 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
 
-  // Step state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [magicLinkSent, setMagicLinkSent] = useState(false);
@@ -78,7 +77,6 @@ export default function SignUpPage() {
     setLoading(true);
     setError("");
 
-    // Check email uniqueness before sending magic link
     const emailAvailable = await checkEmailAvailable(email.trim());
     if (!emailAvailable) {
       setLoading(false);
@@ -147,11 +145,13 @@ export default function SignUpPage() {
 
   return (
     <div>
-      <h1 className={styles.title}>Pick your username</h1>
-      <p className={styles.sub}>
-        Your username is your identity on Vouch — it&rsquo;s how friends
-        find you and how your taste profile lives on the web.
-      </p>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Claim your username</h1>
+        <p className={styles.sub}>
+          Your username is your identity on Vouch — how friends find you
+          and how your lists live on the web.
+        </p>
+      </div>
 
       <form onSubmit={handleSignUp} className={styles.form}>
         <Input
@@ -232,19 +232,14 @@ export default function SignUpPage() {
         </Button>
       </div>
 
-      <p className={styles.footer}>
-        Already have an account?{" "}
-        <Link href="/sign-in" className={styles.link}>
-          Sign in
-        </Link>
-      </p>
-
-      <p className={styles.footer} style={{ marginTop: "8px" }}>
-        Just exploring?{" "}
-        <Link href="/explore" className={styles.link}>
-          Browse lists &rarr;
-        </Link>
-      </p>
+      <div className={styles.links}>
+        <p className={styles.footer}>
+          Already have an account?{" "}
+          <Link href="/sign-in" className={styles.link}>
+            Sign in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

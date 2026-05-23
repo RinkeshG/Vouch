@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ExploreClient } from "./explore-client";
+import { DEV_LISTS } from "@/lib/dev-seed";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,13 @@ export default async function ExplorePage() {
     authorName: l.profiles?.display_name || "User",
     authorAvatarUrl: l.profiles?.avatar_url || null,
     heroPhotoRef: heroPhotoMap.get(l.id) || null,
+    isPublished: true,
+    saveCount: 0,
+    isHot: false,
   }));
 
-  return <ExploreClient initialLists={lists} isAuthed={isAuthed} />;
+  // Dev mode: use seed data when database is empty
+  const finalLists = lists.length > 0 ? lists : (process.env.NODE_ENV === "development" ? DEV_LISTS : []);
+
+  return <ExploreClient initialLists={finalLists} isAuthed={isAuthed} />;
 }

@@ -5,6 +5,10 @@ export async function middleware(request: NextRequest) {
   const { response, user } = await updateSession(request);
   const pathname = request.nextUrl.pathname;
 
+  // Dev bypass: skip auth redirects on localhost
+  const isDev = process.env.NODE_ENV === "development";
+  const devBypass = isDev && !user;
+
   // /@handle URLs: rewrite to /[handle] internally (Next.js reserves @ for parallel routes)
   // IMPORTANT: copy session cookies from updateSession so token refresh isn't lost
   if (pathname.startsWith("/@")) {
@@ -28,7 +32,7 @@ export async function middleware(request: NextRequest) {
 
   // Claim-handle: needs auth, but don't redirect away
   if (pathname === "/claim-handle") {
-    if (!user) {
+    if (!user && !devBypass) {
       return NextResponse.redirect(new URL("/sign-up", request.url));
     }
     return response;
@@ -43,7 +47,7 @@ export async function middleware(request: NextRequest) {
   // Protected routes: /home, /new, /list/* require auth
   if (
     (pathname === "/home" || pathname === "/new" || pathname.startsWith("/list")) &&
-    !user
+    !user && !devBypass
   ) {
     return NextResponse.redirect(
       new URL(`/sign-up?next=${encodeURIComponent(pathname)}`, request.url)

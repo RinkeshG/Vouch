@@ -1,16 +1,29 @@
+/* ============================================================
+   Sign Up — warm, centered, product-forward
+   ============================================================ */
+
+.header {
+  text-align: center;
+  margin-bottom: var(--v-sp8);
+}
+
 .title {
   font-family: var(--v-font-serif);
-  font-size: 28px;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: clamp(28px, 5vw, 36px);
   font-weight: 400;
+  color: var(--v-ink);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   margin-bottom: var(--v-sp2);
 }
 
 .sub {
+  font-family: var(--v-font-sans);
   font-size: 15px;
-  color: var(--v-muted);
-  margin-bottom: var(--v-sp8);
+  color: var(--v-ink2);
+  line-height: 1.5;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .form {
@@ -18,12 +31,13 @@
   flex-direction: column;
   gap: var(--v-sp4);
   margin-bottom: var(--v-sp6);
+  width: 100%;
 }
 
 .at {
   font-size: 15px;
   font-weight: 500;
-  color: var(--v-muted);
+  color: var(--v-ink3);
 }
 
 .checkIcon {
@@ -45,9 +59,14 @@
 }
 
 .handlePreview {
+  font-family: var(--v-font-sans);
   font-size: 13px;
   color: var(--v-ink2);
-  margin-top: -8px;
+  text-align: center;
+  margin-top: -4px;
+  padding: var(--v-sp2) var(--v-sp3);
+  background: var(--v-surface);
+  border-radius: var(--v-radius-input);
 }
 
 .handlePreview strong {
@@ -59,32 +78,43 @@
 }
 
 .error {
+  font-family: var(--v-font-sans);
   font-size: 14px;
   color: var(--v-seal);
+  text-align: center;
 }
 
 .social {
   margin-top: var(--v-sp6);
   margin-bottom: var(--v-sp8);
+  width: 100%;
+}
+
+.links {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-sp2);
 }
 
 .footer {
+  font-family: var(--v-font-sans);
   font-size: 14px;
-  color: var(--v-muted);
+  color: var(--v-ink3);
 }
 
 .link {
   color: var(--v-ink);
   font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  transition: color var(--v-duration-fast);
 }
 
 .link:hover {
   color: var(--v-seal);
 }
 
-/* Sent state */
+/* ---- Sent state ---- */
 
 .sent {
   text-align: center;
@@ -95,8 +125,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background-color: var(--v-sage-dim);
   color: var(--v-sage);
@@ -105,17 +135,21 @@
 
 .sentTitle {
   font-family: var(--v-font-serif);
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   margin-bottom: var(--v-sp3);
 }
 
 .sentBody {
+  font-family: var(--v-font-sans);
   font-size: 15px;
   line-height: 1.6;
-  color: var(--v-muted);
+  color: var(--v-ink2);
   margin-bottom: var(--v-sp6);
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sentBody strong {
@@ -124,12 +158,14 @@
 }
 
 .resend {
+  font-family: var(--v-font-sans);
   font-size: 14px;
-  font-weight: 600;
-  color: var(--v-muted);
+  font-weight: 500;
+  color: var(--v-ink3);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
   cursor: pointer;
+  transition: color var(--v-duration-fast);
 }
 
 .resend:hover {

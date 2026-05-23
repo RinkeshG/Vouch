@@ -2,6 +2,7 @@ import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileClient } from "./profile-client";
+import { DEV_PROFILE, DEV_PROFILE_LISTS, DEV_TASTE_SIGNALS } from "@/lib/dev-seed";
 
 interface PageProps {
   params: Promise<{ handle: string }>;
@@ -42,6 +43,16 @@ export default async function ProfilePage({ params }: PageProps) {
     .maybeSingle();
 
   if (!profile) {
+    if (process.env.NODE_ENV === "development") {
+      return (
+        <ProfileClient
+          profile={{ ...DEV_PROFILE, handle }}
+          lists={DEV_PROFILE_LISTS}
+          isOwnProfile={true}
+          tasteSignals={DEV_TASTE_SIGNALS}
+        />
+      );
+    }
     console.error("Profile not found:", handle, profileError?.message);
     notFound();
   }
@@ -72,6 +83,49 @@ export default async function ProfilePage({ params }: PageProps) {
     heroPhotoMap.set(hp.list_id, hp.places?.photo_reference || null);
   });
 
+  // Fetch all places across all lists for taste signals
+  const { data: placesData } = listIds.length > 0
+    ? await supabase
+        .from("list_places")
+        .select("places!list_places_place_id_fkey ( area, cuisines, photo_reference )")
+        .in("list_id", listIds)
+    : { data: [] };
+
+  // Derive taste signals
+  const neighborhoods: Record<string, number> = {};
+  const cuisineMap: Record<string, number> = {};
+  const placePhotos: string[] = [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (placesData || []).forEach((lp: any) => {
+    const place = lp.places;
+    if (!place) return;
+    const area = place.area?.split(",")[0]?.trim();
+    if (area) neighborhoods[area] = (neighborhoods[area] || 0) + 1;
+    if (place.cuisines) {
+      (Array.isArray(place.cuisines) ? place.cuisines : []).forEach((c: string) => {
+        const name = c.replace(/_/g, " ");
+        cuisineMap[name] = (cuisineMap[name] || 0) + 1;
+      });
+    }
+    if (place.photo_reference) placePhotos.push(place.photo_reference);
+  });
+
+  const topNeighborhoods = Object.entries(neighborhoods)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name]) => name);
+
+  const topCuisines = Object.entries(cuisineMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name]) => name);
+
+  const totalPlaceCount = (placesData || []).length;
+
+  // mosaic photos for cover (up to 6)
+  const mosaicPhotos = placePhotos.slice(0, 6);
+
   const lists = (listsData || []).map((l) => ({
     id: l.id,
     title: l.title,
@@ -100,6 +154,12 @@ export default async function ProfilePage({ params }: PageProps) {
       }}
       lists={lists}
       isOwnProfile={isOwnProfile}
+      tasteSignals={{
+        topNeighborhoods,
+        topCuisines,
+        totalPlaceCount,
+        mosaicPhotos,
+      }}
     />
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Lockup } from "@/components/ui/stamp";
 import { Avatar } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
+import { ToastProvider } from "@/components/ui/toast";
 import styles from "./app.module.css";
 
 interface AppShellClientProps {
@@ -22,10 +23,10 @@ export function AppShellClient({
   isAuthed,
   children,
 }: AppShellClientProps) {
-  const profileHref = handle ? `/@${handle}` : "/new";
+  const profileHref = handle ? `/${handle}` : "/new";
 
   return (
-    <>
+    <ToastProvider>
       <header className={styles.topBar}>
         <div className={styles.topBarInner}>
           <div className={styles.leftGroup}>
@@ -74,6 +75,6 @@ export function AppShellClient({
       </header>
 
       <main className={styles.main}>{children}</main>
-    </>
+    </ToastProvider>
   );
 }

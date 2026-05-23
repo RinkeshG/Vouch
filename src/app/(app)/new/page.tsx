@@ -12,6 +12,17 @@ export default async function NewListPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (process.env.NODE_ENV === "development") {
+      return (
+        <Suspense>
+          <NewListClient
+            userId="dev-user-id"
+            handle="dev"
+            city="bangalore"
+          />
+        </Suspense>
+      );
+    }
     redirect("/sign-up?next=/new");
   }
 

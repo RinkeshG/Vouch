@@ -22,6 +22,7 @@ export function placePhotoUrl(
   width: number = 800
 ): string | null {
   if (!photoRef) return null;
+  if (photoRef.startsWith("http")) return photoRef;
   return `/api/places/photo?ref=${encodeURIComponent(photoRef)}&w=${width}`;
 }
 

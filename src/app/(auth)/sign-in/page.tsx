@@ -81,10 +81,12 @@ export default function SignInPage() {
 
   return (
     <div>
-      <h1 className={styles.title}>Welcome back</h1>
-      <p className={styles.sub}>
-        Sign in to your Vouch account.
-      </p>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Welcome back</h1>
+        <p className={styles.sub}>
+          Sign in to your Vouch account.
+        </p>
+      </div>
 
       <form onSubmit={handleMagicLink} className={styles.form}>
         <Input
@@ -99,6 +101,7 @@ export default function SignInPage() {
         />
         <Button
           type="submit"
+          variant="seal"
           size="lg"
           fullWidth
           loading={loading}
@@ -128,19 +131,14 @@ export default function SignInPage() {
         </Button>
       </div>
 
-      <p className={styles.footer}>
-        Don&rsquo;t have an account?{" "}
-        <Link href="/sign-up" className={styles.link}>
-          Sign up
-        </Link>
-      </p>
-
-      <p className={styles.footer} style={{ marginTop: "8px" }}>
-        Just looking?{" "}
-        <Link href="/explore" className={styles.link}>
-          Browse lists &rarr;
-        </Link>
-      </p>
+      <div className={styles.links}>
+        <p className={styles.footer}>
+          Don&rsquo;t have an account?{" "}
+          <Link href="/sign-up" className={styles.link}>
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

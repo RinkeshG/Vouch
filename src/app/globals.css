@@ -6,9 +6,10 @@
 
 :root {
   /* — Canvas & surfaces — */
-  --v-paper: #FFFFFF;
-  --v-surface: #F7F7F7;
-  --v-surface-dim: #F0F0F0;
+  --v-paper: #FAF8F5;
+  --v-surface: #F3F0EB;
+  --v-surface-dim: #EBE7E1;
+  --v-surface-warm: #F7F4EF;
 
   /* — Ink hierarchy — */
   --v-ink: #222222;
@@ -24,8 +25,8 @@
   --v-seal-wash: rgba(184, 65, 44, 0.12);
 
   /* — Borders & dividers — */
-  --v-line: #EBEBEB;
-  --v-line-strong: #D4D4D4;
+  --v-line: #E8E4DE;
+  --v-line-strong: #D4D0C8;
   --v-faint: rgba(0, 0, 0, 0.03);
 
   /* — Legacy accent aliases (mapped to neutral equivalents) — */
@@ -73,17 +74,17 @@
 
   /* — Shadows (two tiers: resting + elevated) — */
   --v-shadow-sm:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.06);
   --v-shadow-md:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.08);
   --v-shadow-lg:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 12px 28px rgba(0, 0, 0, 0.12);
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.1);
   --v-shadow-xl:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 12px 28px rgba(0, 0, 0, 0.12);
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 24px 48px rgba(0, 0, 0, 0.12);
 
   /* — Transitions — */
   --v-ease-out: cubic-bezier(0.2, 0, 0, 1);

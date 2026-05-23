@@ -1,34 +1,76 @@
 /* ============================================================
-   Profile — Centered hero + image-led list gallery
+   Profile — Immersive taste portrait with visual gallery
    ============================================================ */
 
 .page {
   min-height: 60dvh;
 }
 
-/* ---- Hero: centered stack ---- */
+/* ---- Mosaic cover — full bleed ---- */
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  width: calc(100% + var(--v-sp6) * 2);
+  margin: calc(-1 * var(--v-sp8)) calc(-1 * var(--v-sp6)) 0;
+  margin-bottom: 0;
+  max-height: 220px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mosaic::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, var(--v-paper) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.mosaicCell {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.mosaicPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 8s linear;
+}
+
+.mosaicCell:hover .mosaicPhoto {
+  transform: scale(1.05);
+}
+
+/* ---- Hero: centered identity ---- */
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--v-sp8) 0 var(--v-sp6);
-  border-bottom: 1px solid var(--v-line);
-  margin-bottom: var(--v-sp6);
+  padding: 0 0 var(--v-sp8);
+  margin-top: -32px;
+  position: relative;
+  z-index: 1;
 }
 
 .displayName {
   font-family: var(--v-font-serif);
-  font-size: clamp(24px, 5vw, 32px);
+  font-size: clamp(28px, 5vw, 38px);
   font-weight: 400;
   color: var(--v-ink);
   margin-top: var(--v-sp3);
-  line-height: 1.15;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .handle {
   font-family: var(--v-font-sans);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--v-ink3);
   margin-top: var(--v-sp1);
 }
@@ -36,13 +78,63 @@
 .bio {
   font-family: var(--v-font-serif);
   font-style: italic;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--v-ink2);
   margin-top: var(--v-sp3);
-  max-width: 420px;
+  max-width: 440px;
   line-height: 1.5;
 }
 
+/* ---- Taste signals ---- */
+.tasteSignals {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--v-sp2);
+  margin-top: var(--v-sp4);
+}
+
+.tastePills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tastePill {
+  font-family: var(--v-font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--v-ink2);
+  padding: 5px 14px;
+  border-radius: var(--v-radius-pill);
+  background: var(--v-surface);
+  border: 1px solid var(--v-line);
+  transition: all var(--v-duration-fast);
+}
+
+.tastePill:hover {
+  background: var(--v-surface-dim);
+}
+
+.tastePillCuisine {
+  background: var(--v-seal-dim);
+  border-color: rgba(184, 65, 44, 0.15);
+  color: var(--v-seal);
+}
+
+.tastePillCuisine:hover {
+  background: var(--v-seal-wash);
+}
+
+.tasteStat {
+  font-family: var(--v-font-sans);
+  font-size: 13px;
+  color: var(--v-ink3);
+  margin-top: var(--v-sp1);
+}
+
+/* ---- Meta ---- */
 .meta {
   display: flex;
   align-items: center;
@@ -52,27 +144,27 @@
 
 .cityTag {
   font-family: var(--v-font-sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--v-ink3);
-  padding: 4px 10px;
-  border-radius: var(--v-radius-tag);
-  border: 1px solid var(--v-line);
+  padding: 4px 12px;
+  border-radius: var(--v-radius-pill);
+  background: var(--v-surface);
 }
 
 .stat {
   font-family: var(--v-font-sans);
   font-size: 13px;
-  color: var(--v-ink2);
+  color: var(--v-ink3);
 }
 
 .heroActions {
   display: flex;
   align-items: center;
   gap: var(--v-sp2);
-  margin-top: var(--v-sp4);
+  margin-top: var(--v-sp5);
 }
 
 /* Share dropdown */
@@ -120,7 +212,7 @@
   background: var(--v-surface);
 }
 
-/* ---- Section label ---- */
+/* ---- Section divider ---- */
 .sectionLabel {
   font-family: var(--v-font-sans);
   font-size: 11px;
@@ -128,10 +220,12 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--v-ink3);
-  margin-bottom: var(--v-sp3);
+  margin-bottom: var(--v-sp4);
+  padding-top: var(--v-sp6);
+  border-top: 1px solid var(--v-line);
 }
 
-/* ---- List gallery: image-led cards ---- */
+/* ---- List gallery ---- */
 .listGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -152,7 +246,7 @@
 }
 
 .listCard:hover {
-  transform: scale(1.02);
+  transform: translateY(-4px);
   box-shadow: var(--v-shadow-lg);
 }
 
@@ -171,10 +265,17 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 8s linear;
+  opacity: 0;
+  filter: blur(8px);
+  transition: transform 8s linear, opacity 300ms ease-out, filter 300ms ease-out;
 }
 
-.listCard:hover .listCardPhoto {
+.listCardPhotoLoaded {
+  opacity: 1;
+  filter: blur(0);
+}
+
+.listCard:hover .listCardPhotoLoaded {
   transform: scale(1.05);
 }
 
@@ -237,6 +338,19 @@
   margin-top: var(--v-sp2);
 }
 
+/* ---- Hero list card ---- */
+.listCardHero {
+  grid-column: 1 / -1;
+}
+
+.listCardHero .listCardImage {
+  aspect-ratio: 16 / 9;
+}
+
+.listCardHero .listCardTitle {
+  font-size: 22px;
+}
+
 /* ---- Empty state ---- */
 .emptyWrap {
   padding: var(--v-sp12) 0;
@@ -249,7 +363,6 @@
   align-items: center;
   text-align: center;
   padding: var(--v-sp10) 0 var(--v-sp4);
-  border-top: 1px solid var(--v-line);
   margin-top: var(--v-sp8);
 }
 
@@ -262,14 +375,48 @@
   line-height: 1.4;
 }
 
+/* ---- Mobile FAB ---- */
+.fab {
+  display: none;
+}
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
+  .fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: calc(var(--v-sp6) + var(--v-safe-bottom));
+    right: var(--v-sp4);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--v-seal);
+    color: #fff;
+    box-shadow: var(--v-shadow-lg);
+    z-index: 80;
+    transition: transform var(--v-duration-fast) var(--v-ease-out);
+  }
+
+  .fab:active {
+    transform: scale(0.92);
+  }
+
+  .mosaic {
+    grid-template-columns: repeat(2, 1fr);
+    margin: calc(-1 * var(--v-sp6)) calc(-1 * var(--v-sp4)) 0;
+    margin-bottom: 0;
+    max-height: 160px;
+  }
+
   .listGrid {
     grid-template-columns: 1fr;
   }
 
   .hero {
-    padding: var(--v-sp6) 0 var(--v-sp4);
+    margin-top: -24px;
+    padding-bottom: var(--v-sp6);
   }
 
   .heroActions {

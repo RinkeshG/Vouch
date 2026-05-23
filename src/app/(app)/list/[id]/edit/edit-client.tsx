@@ -317,7 +317,7 @@ export function EditListClient({
 
       // Navigate to the list or refresh
       if (isPublished) {
-        router.push(`/@${handle}/${slug}`);
+        router.push(`/${handle}/${slug}`);
       } else {
         router.refresh();
       }
@@ -376,7 +376,7 @@ export function EditListClient({
       setIsPublished(willPublish);
 
       if (willPublish) {
-        router.push(`/@${handle}/${slug}`);
+        router.push(`/${handle}/${slug}`);
       }
     } catch (err) {
       console.error("Toggle publish error:", err);
@@ -403,7 +403,7 @@ export function EditListClient({
         return;
       }
 
-      router.push(`/@${handle}`);
+      router.push(`/${handle}`);
     } catch (err) {
       console.error("Delete error:", err);
       setActionError("Something went wrong. Please try again.");

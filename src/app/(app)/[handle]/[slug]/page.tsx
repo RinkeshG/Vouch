@@ -2,6 +2,7 @@ import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ListViewClient } from "./list-view-client";
+import { DEV_LIST_DETAIL } from "@/lib/dev-seed";
 
 interface PageProps {
   params: Promise<{ handle: string; slug: string }>;
@@ -65,6 +66,17 @@ export default async function ListPage({ params }: PageProps) {
     .maybeSingle();
 
   if (!profile) {
+    if (process.env.NODE_ENV === "development") {
+      return (
+        <ListViewClient
+          list={DEV_LIST_DETAIL.list}
+          places={DEV_LIST_DETAIL.places}
+          author={{ ...DEV_LIST_DETAIL.author, handle }}
+          slug={slug}
+          isOwner={false}
+        />
+      );
+    }
     notFound();
   }
 
