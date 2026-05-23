@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Stamp } from "@/components/ui/stamp";
 import { ShareRow } from "@/components/app/share-row";
 import { parseCSV } from "@/lib/csv-parser";
+import { getOnboardingCategories, type LocalPlace } from "@/lib/local-places";
 import { publishList } from "./actions";
 import styles from "./new-list.module.css";
 
@@ -106,6 +107,21 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
   const canPublish = title.trim().length > 0 && items.length >= 3;
   const placesNeeded = Math.max(0, 3 - items.length);
 
+  // Suggestions: show when search is empty and fewer than 6 items
+  const showSuggestions = query.trim() === "" && items.length < 6 && results.length === 0;
+  const existingPlaceIds = new Set(items.map((i) => i.placeId));
+  const suggestionCategories = showSuggestions
+    ? getOnboardingCategories()
+        .slice(0, 4)
+        .map((cat) => ({
+          ...cat,
+          places: cat.places
+            .filter((p) => !existingPlaceIds.has(p.place_id))
+            .slice(0, 3),
+        }))
+        .filter((cat) => cat.places.length > 0)
+    : [];
+
   /* ---- Search with debounce ---- */
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -189,6 +205,18 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
 
     // Reset the input so the same file can be re-selected
     e.target.value = "";
+  }
+
+  /* ---- Add place (from suggestion) ---- */
+
+  function addSuggestion(place: LocalPlace) {
+    addPlace({
+      place_id: place.place_id,
+      name: place.name,
+      formatted_address: place.formatted_address,
+      geometry: place.geometry,
+      types: place.types,
+    });
   }
 
   /* ---- Add place ---- */
@@ -529,7 +557,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
                 <div className={styles.dropdownInfo}>
                   <div className={styles.dropdownName}>{r.name}</div>
                   <div className={styles.dropdownAddr}>
-                    {r.formatted_address.split(",").slice(0, 2).join(",")}
+                    {(r.formatted_address.split(",")[1] || r.formatted_address.split(",")[0] || "").trim()}
                   </div>
                 </div>
                 <Icon name="plus" size={14} className={styles.dropdownAdd} />
@@ -538,6 +566,40 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
           </div>
         )}
       </div>
+
+      {/* Suggestions (when search empty & fewer than 6 items) */}
+      {suggestionCategories.length > 0 && (
+        <div className={styles.suggestions}>
+          <div className={styles.suggestionsTitle}>Popular in Bangalore</div>
+          {suggestionCategories.map((cat) => (
+            <div key={cat.label} className={styles.suggestCategory}>
+              <div className={styles.suggestCategoryLabel}>
+                {cat.emoji} {cat.label}
+              </div>
+              {cat.places.map((place) => {
+                const hood = (
+                  place.formatted_address.split(",")[1] ||
+                  place.formatted_address.split(",")[0] ||
+                  ""
+                ).trim();
+                return (
+                  <div key={place.place_id} className={styles.suggestItem}>
+                    <span className={styles.suggestName}>{place.name}</span>
+                    <span className={styles.suggestHood}>{hood.toUpperCase()}</span>
+                    <button
+                      className={styles.suggestAdd}
+                      onClick={() => addSuggestion(place)}
+                      aria-label={`Add ${place.name}`}
+                    >
+                      <Icon name="plus" size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Zone 3: Live list preview */}
       {items.length > 0 && (

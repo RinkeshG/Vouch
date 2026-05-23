@@ -57,21 +57,20 @@ export default async function ListPage({ params }: PageProps) {
   const { handle, slug } = await params;
   const supabase = await createClient();
 
-  // Resolve handle → profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, handle, display_name, avatar_url, city")
-    .eq("handle", handle)
-    .maybeSingle();
+  // Resolve handle → profile AND get auth user in parallel
+  const [{ data: profile }, { data: { user } }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, handle, display_name, avatar_url, city")
+      .eq("handle", handle)
+      .maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
 
   if (!profile) {
     notFound();
   }
 
-  // Resolve (user_id, slug) → list
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   const isOwner = user?.id === profile.id;
 
   // Owners can see their own unpublished lists
@@ -91,20 +90,17 @@ export default async function ListPage({ params }: PageProps) {
     notFound();
   }
 
-  // Check if current user saved this list
-  let isSaved = false;
-  if (user) {
-    const { data: saveRow } = await supabase
-      .from("list_saves")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("list_id", list.id)
-      .maybeSingle();
-    isSaved = !!saveRow;
-  }
+  // Fetch save check and places in parallel (both depend on list.id, independent of each other)
+  const saveCheckPromise = user
+    ? supabase
+        .from("list_saves")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("list_id", list.id)
+        .maybeSingle()
+    : Promise.resolve({ data: null });
 
-  // Fetch places in order
-  const { data: listPlaces } = await supabase
+  const placesPromise = supabase
     .from("list_places")
     .select(
       `
@@ -114,6 +110,13 @@ export default async function ListPage({ params }: PageProps) {
     )
     .eq("list_id", list.id)
     .order("position", { ascending: true });
+
+  const [{ data: saveRow }, { data: listPlaces }] = await Promise.all([
+    saveCheckPromise,
+    placesPromise,
+  ]);
+
+  const isSaved = !!saveRow;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const places = (listPlaces || []).map((lp: any) => ({

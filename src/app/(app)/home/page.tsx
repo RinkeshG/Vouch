@@ -18,19 +18,19 @@ export default async function HomePage() {
     redirect("/sign-up");
   }
 
-  // Fetch profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("handle, display_name, avatar_url")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  // Fetch ALL lists (published + drafts) for the owner
-  const { data: listsData } = await supabase
-    .from("lists")
-    .select("id, title, description, slug, emoji, cover_style, place_count, save_count, is_published, updated_at")
-    .eq("user_id", user.id)
-    .order("updated_at", { ascending: false });
+  // Fetch profile and lists in parallel (both depend on user.id, independent of each other)
+  const [{ data: profile }, { data: listsData }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("handle, display_name, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("lists")
+      .select("id, title, description, slug, emoji, cover_style, place_count, save_count, is_published, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+  ]);
 
   // Fetch preview places (first 3 per list)
   const listIds = (listsData || []).map((l) => l.id);

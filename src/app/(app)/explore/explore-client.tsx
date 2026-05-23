@@ -28,11 +28,12 @@ interface ExploreList {
 
 interface ExploreClientProps {
   initialLists: ExploreList[];
+  featured: ExploreList | null;
   isAuthed: boolean;
 }
 
-export function ExploreClient({ initialLists, isAuthed }: ExploreClientProps) {
-  if (initialLists.length === 0) {
+export function ExploreClient({ initialLists, featured, isAuthed }: ExploreClientProps) {
+  if (initialLists.length === 0 && !featured) {
     return (
       <div className={styles.page}>
         <div className={styles.header}>
@@ -62,6 +63,83 @@ export function ExploreClient({ initialLists, isAuthed }: ExploreClientProps) {
           Curated lists from people who know their city
         </p>
       </div>
+
+      {/* Featured list card */}
+      {featured && (() => {
+        const featuredHref = featured.slug
+          ? `/@${featured.authorHandle}/${featured.slug}`
+          : `/@${featured.authorHandle}`;
+        const darkTextFeatured = featured.coverStyle === 3;
+        return (
+          <Link href={featuredHref} className={styles.featured}>
+            <div
+              className={styles.featuredBand}
+              data-style={featured.coverStyle}
+            >
+              <div className={styles.featuredBandTop}>
+                <span
+                  className={styles.cardBandLabel}
+                  style={darkTextFeatured ? { color: "#181210" } : undefined}
+                >
+                  FEATURED LIST
+                </span>
+                <span
+                  className={styles.cardBandLabel}
+                  style={darkTextFeatured ? { color: "#181210" } : undefined}
+                >
+                  EDITOR&apos;S PICK
+                </span>
+              </div>
+              <div
+                className={styles.featuredTitle}
+                style={darkTextFeatured ? { color: "#181210" } : undefined}
+              >
+                {featured.emoji && (
+                  <span className={styles.cardEmoji}>{featured.emoji}</span>
+                )}
+                <span>{featured.title}</span>
+              </div>
+              <div
+                className={styles.featuredAuthor}
+                style={darkTextFeatured ? { color: "rgba(24,18,16,0.6)" } : undefined}
+              >
+                BY @{featured.authorHandle.toUpperCase()} &middot; {featured.placeCount} PLACES
+              </div>
+            </div>
+
+            <div className={styles.featuredBody}>
+              {featured.previewPlaces.length > 0 ? (
+                featured.previewPlaces.map((place, pIdx) => (
+                  <div key={pIdx} className={styles.cardPlace}>
+                    <span className={styles.cardPlaceName}>{place.name}</span>
+                    {place.area && (
+                      <span className={styles.cardPlaceHood}>
+                        {place.area.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className={styles.cardPlaceEmpty}>No places yet</div>
+              )}
+            </div>
+
+            <div className={styles.featuredFoot}>
+              <span className={styles.cardPlaceCount}>
+                {featured.placeCount} PLACE{featured.placeCount !== 1 ? "S" : ""}
+              </span>
+              {featured.saveCount > 0 && (
+                <span className={styles.cardSaveCount}>
+                  <svg viewBox="0 0 24 24" className={styles.heartIcon}>
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  {featured.saveCount}
+                </span>
+              )}
+            </div>
+          </Link>
+        );
+      })()}
 
       <div className={styles.grid}>
         {initialLists.map((list, idx) => {

@@ -150,6 +150,40 @@
   background: var(--v-surface-dim);
 }
 
+/* ---- Tabs ---- */
+.tabs {
+  display: flex;
+  gap: var(--v-sp6);
+  border-bottom: 1px solid var(--v-line);
+  margin-bottom: var(--v-sp5);
+}
+
+.tab {
+  font-family: var(--v-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v-ink3);
+  padding: var(--v-sp3) 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.tab:hover {
+  color: var(--v-ink);
+}
+
+.tabActive {
+  color: var(--v-seal);
+  border-bottom-color: var(--v-seal);
+}
+
 /* ---- Section label ---- */
 .sectionLabel {
   font-family: var(--v-font-mono);

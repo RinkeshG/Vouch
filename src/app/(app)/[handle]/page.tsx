@@ -30,23 +30,22 @@ export default async function ProfilePage({ params }: PageProps) {
   const { handle } = await params;
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Fetch profile
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, avatar_tint, city")
-    .eq("handle", handle)
-    .maybeSingle();
+  // Fetch auth user and profile in parallel
+  const [{ data: { user } }, { data: profile, error: profileError }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("profiles")
+      .select("id, handle, display_name, bio, avatar_url, avatar_tint, city")
+      .eq("handle", handle)
+      .maybeSingle(),
+  ]);
 
   if (!profile) {
     console.error("Profile not found:", handle, profileError?.message);
     notFound();
   }
 
-  // Fetch lists with the V1 columns
+  // Fetch lists with the V1 columns (depends on profile.id)
   const { data: listsData } = await supabase
     .from("lists")
     .select("id, title, description, slug, emoji, cover_style, place_count, save_count, is_published")
@@ -92,6 +91,60 @@ export default async function ProfilePage({ params }: PageProps) {
     previewPlaces: previewMap[l.id] || [],
   }));
 
+  // Fetch saved lists for own profile
+  let savedLists: {
+    id: string;
+    title: string;
+    slug: string;
+    emoji: string | null;
+    coverStyle: number;
+    placeCount: number;
+    saveCount: number;
+    authorHandle: string;
+    authorName: string;
+  }[] = [];
+
+  if (isOwnProfile && user) {
+    const { data: savedData } = await supabase
+      .from("list_saves")
+      .select(`
+        list_id,
+        lists!list_saves_list_id_fkey (
+          id, title, slug, emoji, cover_style, place_count, save_count,
+          profiles!lists_user_id_fkey ( handle, display_name, avatar_url )
+        )
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    savedLists = (savedData || [])
+      .map((row) => {
+        const list = row.lists as unknown as {
+          id: string;
+          title: string;
+          slug: string;
+          emoji: string | null;
+          cover_style: number;
+          place_count: number;
+          save_count: number;
+          profiles: { handle: string; display_name: string; avatar_url: string | null };
+        } | null;
+        if (!list) return null;
+        return {
+          id: list.id,
+          title: list.title,
+          slug: list.slug,
+          emoji: list.emoji,
+          coverStyle: list.cover_style,
+          placeCount: list.place_count,
+          saveCount: list.save_count ?? 0,
+          authorHandle: list.profiles.handle,
+          authorName: list.profiles.display_name,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+  }
+
   return (
     <ProfileClient
       profile={{
@@ -108,6 +161,7 @@ export default async function ProfilePage({ params }: PageProps) {
       }}
       lists={lists}
       isOwnProfile={isOwnProfile}
+      savedLists={savedLists}
     />
   );
 }

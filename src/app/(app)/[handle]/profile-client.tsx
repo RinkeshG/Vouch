@@ -32,10 +32,23 @@ interface ProfileList {
   previewPlaces: { name: string; area: string }[];
 }
 
+interface SavedList {
+  id: string;
+  title: string;
+  slug: string;
+  emoji: string | null;
+  coverStyle: number;
+  placeCount: number;
+  saveCount: number;
+  authorHandle: string;
+  authorName: string;
+}
+
 interface ProfileClientProps {
   profile: ProfileInfo;
   lists: ProfileList[];
   isOwnProfile: boolean;
+  savedLists?: SavedList[];
 }
 
 const BAND_COLORS: Record<number, { bg: string; text: string }> = {
@@ -51,7 +64,9 @@ export function ProfileClient({
   profile,
   lists,
   isOwnProfile,
+  savedLists = [],
 }: ProfileClientProps) {
+  const [activeTab, setActiveTab] = useState<"own" | "saved">("own");
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
@@ -199,10 +214,30 @@ export function ProfileClient({
         </div>
       </div>
 
+      {/* ---- Tabs (own profile with saved lists) ---- */}
+      {isOwnProfile && savedLists.length > 0 && (
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === "own" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("own")}
+          >
+            Your Lists ({visibleLists.length})
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === "saved" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("saved")}
+          >
+            Saved ({savedLists.length})
+          </button>
+        </div>
+      )}
+
       {/* ---- List gallery ---- */}
-      {visibleLists.length > 0 ? (
+      {activeTab === "own" && visibleLists.length > 0 ? (
         <>
-          <div className={styles.sectionLabel}>Lists</div>
+          {!(isOwnProfile && savedLists.length > 0) && (
+            <div className={styles.sectionLabel}>Lists</div>
+          )}
           <div className={styles.listGrid}>
             {visibleLists.map((list, idx) => {
               const href = list.slug
@@ -272,7 +307,60 @@ export function ProfileClient({
             })}
           </div>
         </>
-      ) : (
+      ) : activeTab === "saved" && savedLists.length > 0 ? (
+        <div className={styles.listGrid}>
+          {savedLists.map((list, idx) => {
+            const href = `/@${list.authorHandle}/${list.slug}`;
+            const band = BAND_COLORS[list.coverStyle] ?? BAND_FALLBACK;
+            const listNumber = String(idx + 1).padStart(2, "0");
+
+            return (
+              <Link key={list.id} href={href} className={styles.listCard}>
+                {/* Colored band header */}
+                <div
+                  className={styles.cardBand}
+                  style={{ background: band.bg, color: band.text }}
+                >
+                  <div className={styles.cardBandRow}>
+                    <span>LIST №{listNumber}</span>
+                    <span className={styles.cardBandHandle}>
+                      BY @{list.authorHandle.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className={styles.cardBandTitle}>
+                    {list.emoji && (
+                      <span className={styles.cardBandEmoji}>{list.emoji}</span>
+                    )}
+                    {list.title}
+                  </div>
+                </div>
+
+                {/* Cream body — no preview places for saved lists */}
+                <div className={styles.cardBody}>
+                  <div className={styles.cardPlacesEmpty}>
+                    By {list.authorName}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className={styles.cardFoot}>
+                  <span>
+                    {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
+                  </span>
+                  {list.saveCount > 0 && (
+                    <span className={styles.cardSaveCount}>
+                      <svg viewBox="0 0 24 24" className={styles.heartIcon}>
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                      {list.saveCount}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      ) : activeTab === "own" ? (
         <div className={styles.emptyWrap}>
           <EmptyState
             icon="list"
@@ -291,7 +379,7 @@ export function ProfileClient({
             }
           />
         </div>
-      )}
+      ) : null}
 
       {/* Bottom CTA for visitors */}
       {!isOwnProfile && (

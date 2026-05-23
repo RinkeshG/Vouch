@@ -9,22 +9,23 @@ export const metadata = {
 export default async function ExplorePage() {
   const supabase = await createClient();
 
-  // Check if user is authenticated for CTA logic
-  const { data: { user } } = await supabase.auth.getUser();
-  const isAuthed = !!user;
-
-  const { data: listsData } = await supabase
-    .from("lists")
-    .select(
-      `
+  // Fetch auth status and public lists in parallel (independent queries)
+  const [{ data: { user } }, { data: listsData }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("lists")
+      .select(
+        `
       id, title, description, slug, emoji, cover_style, place_count, save_count, created_at,
       profiles!lists_user_id_fkey ( handle, display_name, avatar_url )
     `
-    )
-    .eq("is_published", true)
-    .eq("is_public", true)
-    .order("created_at", { ascending: false })
-    .limit(12);
+      )
+      .eq("is_published", true)
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(12),
+  ]);
+  const isAuthed = !!user;
 
   // Fetch first 3 places for each list for card preview
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,5 +75,27 @@ export default async function ExplorePage() {
     previewPlaces: placesMap[l.id] || [],
   }));
 
-  return <ExploreClient initialLists={lists} isAuthed={isAuthed} />;
+  // Identify featured list: most places OR highest save_count, at least 5 places
+  const eligibleForFeatured = lists.filter((l) => l.placeCount >= 5);
+  let featured: (typeof lists)[number] | null = null;
+  if (eligibleForFeatured.length > 0) {
+    featured = eligibleForFeatured.reduce((best, curr) => {
+      const bestScore = best.placeCount + best.saveCount * 2;
+      const currScore = curr.placeCount + curr.saveCount * 2;
+      return currScore > bestScore ? curr : best;
+    });
+  }
+
+  // Remove featured from regular list to avoid duplication
+  const regularLists = featured
+    ? lists.filter((l) => l.id !== featured!.id)
+    : lists;
+
+  return (
+    <ExploreClient
+      initialLists={regularLists}
+      featured={featured}
+      isAuthed={isAuthed}
+    />
+  );
 }

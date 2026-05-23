@@ -220,6 +220,94 @@
   stroke: none;
 }
 
+/* ---- Featured list card ---- */
+.featured {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: var(--v-sp6);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(24, 18, 16, 0.06);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.04),
+    0 14px 28px -16px rgba(24, 18, 16, 0.28),
+    0 32px 60px -30px rgba(24, 18, 16, 0.18);
+  transition:
+    transform var(--v-duration-base) var(--v-ease-out),
+    box-shadow var(--v-duration-base) var(--v-ease-out);
+}
+
+.featured:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 1px 0 rgba(24, 18, 16, 0.04),
+    0 20px 36px -16px rgba(24, 18, 16, 0.34),
+    0 44px 72px -30px rgba(24, 18, 16, 0.22);
+}
+
+.featured:active {
+  transform: scale(0.995);
+}
+
+.featuredBand {
+  padding: 28px 32px 24px;
+}
+
+.featuredBand[data-style="0"] { background: #B8412C; }
+.featuredBand[data-style="1"] { background: #7A8472; }
+.featuredBand[data-style="2"] { background: #3D2B3D; }
+.featuredBand[data-style="3"] { background: #C49A4A; }
+.featuredBand[data-style="4"] { background: #8A2E1F; }
+.featuredBand:not([data-style="0"]):not([data-style="1"]):not([data-style="2"]):not([data-style="3"]):not([data-style="4"]) {
+  background: #6E4F3A;
+}
+
+.featuredBandTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--v-sp3);
+}
+
+.featuredTitle {
+  font-family: var(--v-font-serif);
+  font-size: clamp(24px, 4vw, 28px);
+  font-weight: 400;
+  line-height: 1.2;
+  color: #fff;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.featuredAuthor {
+  font-family: var(--v-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: var(--v-sp2);
+}
+
+.featuredBody {
+  background: #FBF6E9;
+  padding: 16px 32px 10px;
+  flex: 1;
+}
+
+.featuredFoot {
+  background: #FBF6E9;
+  padding: 12px 32px 16px;
+  border-top: 1px solid rgba(24, 18, 16, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* ---- Bottom CTA (unauthenticated visitors) ---- */
 .bottomCta {
   display: flex;
@@ -251,6 +339,22 @@
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .featuredBand {
+    padding: 20px 18px 18px;
+  }
+
+  .featuredTitle {
+    font-size: 22px;
+  }
+
+  .featuredBody {
+    padding: 14px 18px 10px;
+  }
+
+  .featuredFoot {
+    padding: 10px 18px 14px;
   }
 
   .bottomCta {
