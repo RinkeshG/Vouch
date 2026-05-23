@@ -104,16 +104,21 @@ export default async function ListPage({ params }: PageProps) {
   }
 
   // Fetch places in order
-  const { data: listPlaces } = await supabase
+  const { data: listPlaces, error: lpError } = await supabase
     .from("list_places")
     .select(
       `
       id, position, note,
-      places!list_places_place_id_fkey ( id, name, area, cuisines, photo_reference )
+      places ( id, name, area, cuisines, photo_reference )
     `
     )
     .eq("list_id", list.id)
     .order("position", { ascending: true });
+
+  if (lpError) {
+    console.error("list_places query error:", lpError.message, lpError.details, lpError.hint);
+  }
+  console.log("list_places result:", { listId: list.id, count: listPlaces?.length ?? 0, hasPlacesJoin: listPlaces?.[0]?.places !== undefined });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const places = (listPlaces || []).map((lp: any) => ({

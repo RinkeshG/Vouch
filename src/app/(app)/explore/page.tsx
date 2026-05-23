@@ -21,7 +21,7 @@ export default async function ExplorePage() {
     .select(
       `
       id, title, description, slug, emoji, cover_style, place_count, created_at,
-      profiles!lists_user_id_fkey ( handle, display_name, avatar_url )
+      profiles ( handle, display_name, avatar_url )
     `
     )
     .eq("is_published", true)
@@ -34,7 +34,7 @@ export default async function ExplorePage() {
   const { data: heroPhotos } = listIds.length > 0
     ? await supabase
         .from("list_places")
-        .select("list_id, places!list_places_place_id_fkey ( photo_reference )")
+        .select("list_id, places ( photo_reference )")
         .in("list_id", listIds)
         .eq("position", 0)
     : { data: [] };

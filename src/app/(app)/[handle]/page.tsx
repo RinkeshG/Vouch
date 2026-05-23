@@ -71,7 +71,7 @@ export default async function ProfilePage({ params }: PageProps) {
   const { data: heroPhotos } = listIds.length > 0
     ? await supabase
         .from("list_places")
-        .select("list_id, places!list_places_place_id_fkey ( photo_reference )")
+        .select("list_id, places ( photo_reference )")
         .in("list_id", listIds)
         .eq("position", 0)
     : { data: [] };
@@ -87,7 +87,7 @@ export default async function ProfilePage({ params }: PageProps) {
   const { data: placesData } = listIds.length > 0
     ? await supabase
         .from("list_places")
-        .select("places!list_places_place_id_fkey ( area, cuisines, photo_reference )")
+        .select("places ( area, cuisines, photo_reference )")
         .in("list_id", listIds)
     : { data: [] };
 

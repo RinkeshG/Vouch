@@ -33,14 +33,19 @@ export default async function EditListPage({ params }: EditListPageProps) {
   }
 
   // 3. Fetch list_places with place data, ordered by position
-  const { data: listPlaces } = await supabase
+  const { data: listPlaces, error: lpError } = await supabase
     .from("list_places")
     .select(`
       id, position, note,
-      places!list_places_place_id_fkey ( id, google_place_id, name, area, cuisines, latitude, longitude, photo_reference )
+      places ( id, google_place_id, name, area, cuisines, latitude, longitude, photo_reference )
     `)
     .eq("list_id", id)
     .order("position", { ascending: true });
+
+  if (lpError) {
+    console.error("edit list_places query error:", lpError.message, lpError.details, lpError.hint);
+  }
+  console.log("edit list_places result:", { listId: id, count: listPlaces?.length ?? 0, firstRow: JSON.stringify(listPlaces?.[0] ?? null) });
 
   // 4. Fetch user profile
   const { data: profile } = await supabase
