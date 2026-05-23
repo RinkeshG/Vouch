@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vouch — List View Layout Prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET + TOKENS
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { background: none; border: none; cursor: pointer; font: inherit; }
+
+:root {
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Instrument Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-hand: 'Caveat', cursive;
+
+  --paper: #F2ECDF;
+  --surface: #FAF7F0;
+  --surface-dim: #EBE6D9;
+  --cream: #FBF6E9;
+  --ink: #181210;
+  --ink2: #564E44;
+  --ink3: #948A7C;
+  --seal: #B8412C;
+  --sage: #7A8472;
+  --ochre: #C49A4A;
+  --aubergine: #3D2B3D;
+  --wine: #8A2E1F;
+  --leather: #6E4F3A;
+  --faint: rgba(24,18,16,0.04);
+  --line: rgba(24,18,16,0.08);
+  --line-strong: rgba(24,18,16,0.14);
+  --dash: 1px dashed rgba(24,18,16,0.12);
+
+  --radius-tag: 6px;
+  --radius-card: 14px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --band-0: #B8412C; /* rust */
+  --band-1: #7A8472; /* sage */
+  --band-2: #3D2B3D; /* aubergine */
+  --band-3: #C49A4A; /* ochre */
+  --band-4: #8A2E1F; /* wine */
+  --band-5: #6E4F3A; /* leather */
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.06'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+.page-header {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+  text-align: center;
+}
+
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 15px;
+  color: var(--ink2);
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
+.page-instruction {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-instruction::before,
+.page-instruction::after {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--ink3);
+  opacity: 0.4;
+}
+
+/* Concept section */
+.concept {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.concept-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--seal);
+  margin-bottom: 6px;
+}
+
+.concept-name {
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.concept-desc {
+  font-size: 14px;
+  color: var(--ink2);
+  max-width: 560px;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.divider {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 64px;
+  padding: 0 24px;
+}
+
+.divider hr {
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+/* ============================================================
+   SHARED: Hero section (same for all concepts)
+   ============================================================ */
+.hero {
+  background: var(--band-1); /* sage for "Goa Must Visits" */
+  padding: 40px 32px 32px;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  margin-bottom: 0;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.hero-eyebrow-dot { opacity: 0.4; }
+
+.hero-emoji {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.hero-desc {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.5;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.hero-meta-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+}
+
+.hero-meta-dot {
+  margin: 0 3px;
+  opacity: 0.4;
+}
+
+/* ============================================================
+   SHARED: Footer (same for all concepts)
+   ============================================================ */
+.list-footer {
+  background: var(--cream);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  border: 1px solid rgba(24,18,16,0.06);
+  border-top: none;
+  overflow: hidden;
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+}
+
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--seal);
+  border: 1px solid rgba(184,65,44,0.2);
+  background: rgba(184,65,44,0.05);
+  transition: all 0.15s ease;
+}
+
+.save-btn:hover {
+  background: rgba(184,65,44,0.1);
+  border-color: var(--seal);
+}
+
+.save-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--seal);
+}
+
+.short-url {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+/* ============================================================
+   CONCEPT A: Card Grid with Editorial Lead
+   ============================================================ */
+.grid-layout {
+  background: var(--cream);
+  padding: 24px;
+  border-left: 1px solid rgba(24,18,16,0.06);
+  border-right: 1px solid rgba(24,18,16,0.06);
+}
+
+/* Hero card — full width */
+.grid-hero-card {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid rgba(24,18,16,0.06);
+  box-shadow: 0 8px 24px -8px rgba(24,18,16,0.18);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+}
+
+.grid-hero-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -8px rgba(24,18,16,0.24);
+}
+
+.grid-hero-band {
+  padding: 28px 28px 24px;
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.grid-hero-num {
+  font-family: var(--font-serif);
+  font-size: 72px;
+  line-height: 1;
+  color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+.grid-hero-content {
+  flex: 1;
+}
+
+.grid-hero-name {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 4px;
+}
+
+.grid-hero-hood {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+}
+
+.grid-hero-note {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.3;
+}
+
+.grid-hero-note .arrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  margin-right: 6px;
+  opacity: 0.6;
+}
+
+.grid-hero-tags {
+  display: flex;
+  gap: 6px;
+  padding: 12px 28px 14px;
+  background: var(--surface);
+}
+
+.grid-hero-tags .tag {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: var(--ink2);
+  background: var(--faint);
+  padding: 3px 10px;
+  border-radius: var(--radius-tag);
+}
+
+/* Card grid — 2 columns */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.grid-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid rgba(24,18,16,0.06);
+  box-shadow: 0 4px 16px -4px rgba(24,18,16,0.12);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+}
+
+.grid-card:hover {
+  transform: translateY(-4px) rotate(-0.3deg);
+  box-shadow: 0 12px 32px -8px rgba(24,18,16,0.22);
+}
+
+.grid-card-band {
+  padding: 20px 20px 18px;
+  position: relative;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.grid-card-num {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  line-height: 1;
+  color: rgba(255,255,255,0.18);
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  font-weight: 300;
+}
+
+.grid-card-name {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+}
+
+.grid-card-body {
+  padding: 14px 20px 16px;
+}
+
+.grid-card-hood {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 6px;
+}
+
+.grid-card-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.grid-card-tags .tag {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: var(--ink2);
+  background: var(--faint);
+  padding: 2px 7px;
+  border-radius: var(--radius-tag);
+}
+
+.grid-card-note {
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--ink2);
+  line-height: 1.35;
+}
+
+.grid-card-note .arrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--seal);
+  margin-right: 4px;
+  font-size: 13px;
+}
+
+/* ============================================================
+   CONCEPT B: Postcard Collection
+   ============================================================ */
+.postcard-layout {
+  background: var(--cream);
+  padding: 24px;
+  border-left: 1px solid rgba(24,18,16,0.06);
+  border-right: 1px solid rgba(24,18,16,0.06);
+}
+
+.postcard-grid {
+  columns: 2;
+  column-gap: 16px;
+}
+
+.postcard {
+  break-inside: avoid;
+  margin-bottom: 16px;
+  background: var(--surface);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(24,18,16,0.06);
+  box-shadow: 0 2px 10px -2px rgba(24,18,16,0.1);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+  position: relative;
+}
+
+.postcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px -6px rgba(24,18,16,0.2);
+}
+
+.postcard:nth-child(3) { transform: rotate(-0.6deg); }
+.postcard:nth-child(3):hover { transform: rotate(-0.6deg) translateY(-3px); }
+.postcard:nth-child(5) { transform: rotate(0.4deg); }
+.postcard:nth-child(5):hover { transform: rotate(0.4deg) translateY(-3px); }
+.postcard:nth-child(7) { transform: rotate(-0.3deg); }
+.postcard:nth-child(7):hover { transform: rotate(-0.3deg) translateY(-3px); }
+
+.postcard-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.postcard-inner {
+  padding: 20px 20px 18px 24px;
+}
+
+.postcard-num {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  line-height: 1;
+  color: var(--seal);
+  opacity: 0.4;
+  margin-bottom: 8px;
+}
+
+.postcard-name {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.postcard-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.postcard-hood {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+.postcard-cuisine {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: var(--ink2);
+  background: var(--faint);
+  padding: 2px 7px;
+  border-radius: var(--radius-tag);
+}
+
+.postcard-note {
+  font-family: var(--font-hand);
+  font-size: 17px;
+  color: var(--ink2);
+  line-height: 1.35;
+  padding-top: 8px;
+  border-top: var(--dash);
+  margin-top: 4px;
+}
+
+.postcard-note .arrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--seal);
+  margin-right: 4px;
+  font-size: 13px;
+}
+
+/* ============================================================
+   CONCEPT C: Stacked Feature Cards
+   ============================================================ */
+.stacked-layout {
+  background: var(--cream);
+  padding: 24px;
+  border-left: 1px solid rgba(24,18,16,0.06);
+  border-right: 1px solid rgba(24,18,16,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Featured row — gradient background */
+.stacked-featured {
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 28px 28px 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  box-shadow: 0 6px 20px -6px rgba(24,18,16,0.18);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.stacked-featured:hover {
+  transform: translateY(-3px);
+}
+
+.stacked-featured-num {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  line-height: 1;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  font-weight: 300;
+  min-width: 48px;
+}
+
+.stacked-featured-content {
+  flex: 1;
+}
+
+.stacked-featured-name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.stacked-featured-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.stacked-featured-hood {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+
+.stacked-featured-tag {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.15);
+  padding: 2px 8px;
+  border-radius: var(--radius-tag);
+}
+
+.stacked-featured-note {
+  font-family: var(--font-hand);
+  font-size: 19px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.3;
+}
+
+.stacked-featured-note .arrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  margin-right: 6px;
+  opacity: 0.6;
+}
+
+/* Compact row — cream background */
+.stacked-compact {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1px solid rgba(24,18,16,0.04);
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s ease;
+}
+
+.stacked-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(24,18,16,0.12);
+}
+
+.stacked-compact-num {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--seal);
+  opacity: 0.4;
+  flex-shrink: 0;
+  min-width: 36px;
+  padding-top: 2px;
+}
+
+.stacked-compact-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stacked-compact-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+.stacked-compact-name {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.stacked-compact-hood {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.stacked-compact-tags {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.stacked-compact-tags .tag {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: var(--ink2);
+  background: var(--faint);
+  padding: 2px 7px;
+  border-radius: var(--radius-tag);
+}
+
+.stacked-compact-note {
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--ink2);
+  line-height: 1.3;
+  margin-top: 6px;
+}
+
+.stacked-compact-note .arrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--seal);
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .grid-cards {
+    grid-template-columns: 1fr;
+  }
+  .postcard-grid {
+    columns: 1;
+  }
+  .grid-hero-band {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .grid-hero-num {
+    font-size: 48px;
+  }
+  .stacked-featured {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PAGE HEADER
+     ============================================================ -->
+<div class="page-header">
+  <h1 class="page-title">List View Layouts</h1>
+  <p class="page-subtitle">Three visual concepts for how places appear on a shared list page. Same data, different feelings. Scroll to compare.</p>
+  <span class="page-instruction">Pick one or mix elements</span>
+</div>
+
+<!-- ============================================================
+     CONCEPT A: Card Grid with Editorial Lead
+     ============================================================ -->
+<div class="concept">
+  <div class="concept-label">Concept A</div>
+  <h2 class="concept-name">Card Grid with Editorial Lead</h2>
+  <p class="concept-desc">The first place gets a full-width hero card. Remaining places in a 2-column grid. Each card has a gradient header with a large decorative number. Feels like a magazine feature or Airbnb Guide.</p>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span>Curated List</span>
+      <span class="hero-eyebrow-dot">&middot;</span>
+      <span>8 Places</span>
+    </div>
+    <div class="hero-emoji">🌴</div>
+    <h1 class="hero-title">Goa Must Visits</h1>
+    <p class="hero-desc">places you should visit in goa</p>
+    <div class="hero-meta">
+      <div class="hero-avatar">R</div>
+      <span class="hero-meta-text">
+        By @rinkesh
+        <span class="hero-meta-dot">&middot;</span>
+        Bangalore
+        <span class="hero-meta-dot">&middot;</span>
+        Updated 3 days ago
+      </span>
+    </div>
+  </div>
+
+  <!-- Place Grid -->
+  <div class="grid-layout">
+    <!-- Hero card (place #1) -->
+    <div class="grid-hero-card">
+      <div class="grid-hero-band" style="background: var(--band-0);">
+        <div class="grid-hero-num">01</div>
+        <div class="grid-hero-content">
+          <div class="grid-hero-name">Cafe Bhonsle - Panjim</div>
+          <div class="grid-hero-hood">Panjim &middot; Goa</div>
+          <div class="grid-hero-note">
+            <span class="arrow">&rarr;</span>
+            the fish thali here is legendary. get there by noon or miss out
+          </div>
+        </div>
+      </div>
+      <div class="grid-hero-tags">
+        <span class="tag">Goan</span>
+        <span class="tag">Seafood</span>
+        <span class="tag">Cafe</span>
+      </div>
+    </div>
+
+    <!-- 2-col grid for remaining places -->
+    <div class="grid-cards">
+      <div class="grid-card">
+        <div class="grid-card-band" style="background: var(--band-1);">
+          <span class="grid-card-num">02</span>
+          <div class="grid-card-name">Cafe Aram</div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-hood">Panjim</div>
+          <div class="grid-card-tags">
+            <span class="tag">Cafe</span>
+            <span class="tag">Breakfast</span>
+          </div>
+          <div class="grid-card-note">
+            <span class="arrow">&rarr;</span>
+            cutting chai and a vada pav to start the day
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-card">
+        <div class="grid-card-band" style="background: var(--band-2);">
+          <span class="grid-card-num">03</span>
+          <div class="grid-card-name">Ceskaz Deli Cafe</div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-hood">Assagao</div>
+          <div class="grid-card-tags">
+            <span class="tag">Bakery</span>
+            <span class="tag">Continental</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-card">
+        <div class="grid-card-band" style="background: var(--band-3);">
+          <span class="grid-card-num">04</span>
+          <div class="grid-card-name">Obrigado by Craftels</div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-hood">Vagator</div>
+          <div class="grid-card-tags">
+            <span class="tag">Bar</span>
+            <span class="tag">Cocktails</span>
+          </div>
+          <div class="grid-card-note">
+            <span class="arrow">&rarr;</span>
+            sunset cocktails. sit outside on the terrace
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-card">
+        <div class="grid-card-band" style="background: var(--band-4);">
+          <span class="grid-card-num">05</span>
+          <div class="grid-card-name">Joe's River Cove</div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-hood">Nerul</div>
+          <div class="grid-card-tags">
+            <span class="tag">Seafood</span>
+            <span class="tag">Goan</span>
+          </div>
+          <div class="grid-card-note">
+            <span class="arrow">&rarr;</span>
+            right on the river. order the prawn curry rice
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-card">
+        <div class="grid-card-band" style="background: var(--band-5);">
+          <span class="grid-card-num">06</span>
+          <div class="grid-card-name">Vinayak Family Restaurant</div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-hood">Margao</div>
+          <div class="grid-card-tags">
+            <span class="tag">Goan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-card">
+        <div class="grid-card-band" style="background: var(--band-0);">
+          <span class="grid-card-num">07</span>
+          <div class="grid-card-name">Fisherman's Wharf</div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-hood">Cavelossim</div>
+          <div class="grid-card-tags">
+            <span class="tag">Seafood</span>
+            <span class="tag">Fine Dining</span>
+          </div>
+          <div class="grid-card-note">
+            <span class="arrow">&rarr;</span>
+            book ahead for dinner. the crab xec xec is unreal
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-card" style="grid-column: 1 / -1;">
+        <div class="grid-card-band" style="background: var(--band-1); display: flex; gap: 20px; align-items: flex-start; padding: 22px;">
+          <span class="grid-card-num" style="font-size: 48px; position: static;">08</span>
+          <div>
+            <div class="grid-card-name" style="margin-bottom: 4px;">Kokni Kanteen</div>
+            <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.6);">Panaji</div>
+          </div>
+        </div>
+        <div class="grid-card-body">
+          <div class="grid-card-tags">
+            <span class="tag">Goan</span>
+            <span class="tag">Konkani</span>
+          </div>
+          <div class="grid-card-note">
+            <span class="arrow">&rarr;</span>
+            local favorite. the sol kadhi is the real deal
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="list-footer">
+    <div class="footer-actions">
+      <button class="save-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>42 Saves</span>
+      </button>
+      <span class="short-url">vouch.in/@rinkesh/goa</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- ============================================================
+     CONCEPT B: Postcard Collection
+     ============================================================ -->
+<div class="concept">
+  <div class="concept-label">Concept B</div>
+  <h2 class="concept-name">Postcard Collection</h2>
+  <p class="concept-desc">A masonry grid where each place is a postcard with a colored accent stripe. Cards vary in height based on content. Subtle tilts make it feel pinned to a board. Screenshottable and playful.</p>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span>Curated List</span>
+      <span class="hero-eyebrow-dot">&middot;</span>
+      <span>8 Places</span>
+    </div>
+    <div class="hero-emoji">🌴</div>
+    <h1 class="hero-title">Goa Must Visits</h1>
+    <p class="hero-desc">places you should visit in goa</p>
+    <div class="hero-meta">
+      <div class="hero-avatar">R</div>
+      <span class="hero-meta-text">
+        By @rinkesh
+        <span class="hero-meta-dot">&middot;</span>
+        Bangalore
+        <span class="hero-meta-dot">&middot;</span>
+        Updated 3 days ago
+      </span>
+    </div>
+  </div>
+
+  <!-- Postcard Grid -->
+  <div class="postcard-layout">
+    <div class="postcard-grid">
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-0);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">01</div>
+          <div class="postcard-name">Cafe Bhonsle - Panjim</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Panjim</span>
+            <span class="postcard-cuisine">Goan</span>
+            <span class="postcard-cuisine">Seafood</span>
+          </div>
+          <div class="postcard-note">
+            <span class="arrow">&rarr;</span>
+            the fish thali here is legendary. get there by noon or miss out
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-1);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">02</div>
+          <div class="postcard-name">Cafe Aram</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Panjim</span>
+            <span class="postcard-cuisine">Cafe</span>
+          </div>
+          <div class="postcard-note">
+            <span class="arrow">&rarr;</span>
+            cutting chai and a vada pav to start the day
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-2);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">03</div>
+          <div class="postcard-name">Ceskaz Deli Cafe</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Assagao</span>
+            <span class="postcard-cuisine">Bakery</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-3);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">04</div>
+          <div class="postcard-name">Obrigado by Craftels</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Vagator</span>
+            <span class="postcard-cuisine">Bar</span>
+            <span class="postcard-cuisine">Cocktails</span>
+          </div>
+          <div class="postcard-note">
+            <span class="arrow">&rarr;</span>
+            sunset cocktails. sit outside on the terrace
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-4);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">05</div>
+          <div class="postcard-name">Joe's River Cove</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Nerul</span>
+            <span class="postcard-cuisine">Seafood</span>
+          </div>
+          <div class="postcard-note">
+            <span class="arrow">&rarr;</span>
+            right on the river. order the prawn curry rice
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-5);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">06</div>
+          <div class="postcard-name">Vinayak Family Restaurant</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Margao</span>
+            <span class="postcard-cuisine">Goan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-0);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">07</div>
+          <div class="postcard-name">Fisherman's Wharf</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Cavelossim</span>
+            <span class="postcard-cuisine">Fine Dining</span>
+          </div>
+          <div class="postcard-note">
+            <span class="arrow">&rarr;</span>
+            book ahead for dinner. the crab xec xec is unreal
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard">
+        <div class="postcard-accent" style="background: var(--band-1);"></div>
+        <div class="postcard-inner">
+          <div class="postcard-num">08</div>
+          <div class="postcard-name">Kokni Kanteen</div>
+          <div class="postcard-meta">
+            <span class="postcard-hood">Panaji</span>
+            <span class="postcard-cuisine">Konkani</span>
+          </div>
+          <div class="postcard-note">
+            <span class="arrow">&rarr;</span>
+            local favorite. the sol kadhi is the real deal
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="list-footer">
+    <div class="footer-actions">
+      <button class="save-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>42 Saves</span>
+      </button>
+      <span class="short-url">vouch.in/@rinkesh/goa</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- ============================================================
+     CONCEPT C: Stacked Feature Cards
+     ============================================================ -->
+<div class="concept">
+  <div class="concept-label">Concept C</div>
+  <h2 class="concept-name">Stacked Feature Cards</h2>
+  <p class="concept-desc">Full-width stacked cards with alternating rhythm. Every 3rd place gets a "featured" treatment with a gradient background. Others are compact cream rows. Creates visual variety without a grid — feels like flipping through a magazine.</p>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span>Curated List</span>
+      <span class="hero-eyebrow-dot">&middot;</span>
+      <span>8 Places</span>
+    </div>
+    <div class="hero-emoji">🌴</div>
+    <h1 class="hero-title">Goa Must Visits</h1>
+    <p class="hero-desc">places you should visit in goa</p>
+    <div class="hero-meta">
+      <div class="hero-avatar">R</div>
+      <span class="hero-meta-text">
+        By @rinkesh
+        <span class="hero-meta-dot">&middot;</span>
+        Bangalore
+        <span class="hero-meta-dot">&middot;</span>
+        Updated 3 days ago
+      </span>
+    </div>
+  </div>
+
+  <!-- Stacked Layout -->
+  <div class="stacked-layout">
+    <!-- FEATURED (place 1) -->
+    <div class="stacked-featured" style="background: var(--band-0);">
+      <div class="stacked-featured-num">01</div>
+      <div class="stacked-featured-content">
+        <div class="stacked-featured-name">Cafe Bhonsle - Panjim</div>
+        <div class="stacked-featured-meta">
+          <span class="stacked-featured-hood">Panjim</span>
+          <span class="stacked-featured-tag">Goan</span>
+          <span class="stacked-featured-tag">Seafood</span>
+        </div>
+        <div class="stacked-featured-note">
+          <span class="arrow">&rarr;</span>
+          the fish thali here is legendary. get there by noon or miss out
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact (place 2) -->
+    <div class="stacked-compact">
+      <div class="stacked-compact-num">02</div>
+      <div class="stacked-compact-content">
+        <div class="stacked-compact-top">
+          <span class="stacked-compact-name">Cafe Aram</span>
+          <span class="stacked-compact-hood">Panjim</span>
+        </div>
+        <div class="stacked-compact-tags">
+          <span class="tag">Cafe</span>
+          <span class="tag">Breakfast</span>
+        </div>
+        <div class="stacked-compact-note">
+          <span class="arrow">&rarr;</span>
+          cutting chai and a vada pav to start the day
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact (place 3) -->
+    <div class="stacked-compact">
+      <div class="stacked-compact-num">03</div>
+      <div class="stacked-compact-content">
+        <div class="stacked-compact-top">
+          <span class="stacked-compact-name">Ceskaz Deli Cafe</span>
+          <span class="stacked-compact-hood">Assagao</span>
+        </div>
+        <div class="stacked-compact-tags">
+          <span class="tag">Bakery</span>
+          <span class="tag">Continental</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURED (place 4) -->
+    <div class="stacked-featured" style="background: var(--band-2);">
+      <div class="stacked-featured-num">04</div>
+      <div class="stacked-featured-content">
+        <div class="stacked-featured-name">Obrigado by Craftels</div>
+        <div class="stacked-featured-meta">
+          <span class="stacked-featured-hood">Vagator</span>
+          <span class="stacked-featured-tag">Bar</span>
+          <span class="stacked-featured-tag">Cocktails</span>
+        </div>
+        <div class="stacked-featured-note">
+          <span class="arrow">&rarr;</span>
+          sunset cocktails. sit outside on the terrace
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact (place 5) -->
+    <div class="stacked-compact">
+      <div class="stacked-compact-num">05</div>
+      <div class="stacked-compact-content">
+        <div class="stacked-compact-top">
+          <span class="stacked-compact-name">Joe's River Cove</span>
+          <span class="stacked-compact-hood">Nerul</span>
+        </div>
+        <div class="stacked-compact-tags">
+          <span class="tag">Seafood</span>
+          <span class="tag">Goan</span>
+        </div>
+        <div class="stacked-compact-note">
+          <span class="arrow">&rarr;</span>
+          right on the river. order the prawn curry rice
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact (place 6) -->
+    <div class="stacked-compact">
+      <div class="stacked-compact-num">06</div>
+      <div class="stacked-compact-content">
+        <div class="stacked-compact-top">
+          <span class="stacked-compact-name">Vinayak Family Restaurant</span>
+          <span class="stacked-compact-hood">Margao</span>
+        </div>
+        <div class="stacked-compact-tags">
+          <span class="tag">Goan</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURED (place 7) -->
+    <div class="stacked-featured" style="background: var(--band-4);">
+      <div class="stacked-featured-num">07</div>
+      <div class="stacked-featured-content">
+        <div class="stacked-featured-name">Fisherman's Wharf</div>
+        <div class="stacked-featured-meta">
+          <span class="stacked-featured-hood">Cavelossim</span>
+          <span class="stacked-featured-tag">Fine Dining</span>
+          <span class="stacked-featured-tag">Seafood</span>
+        </div>
+        <div class="stacked-featured-note">
+          <span class="arrow">&rarr;</span>
+          book ahead for dinner. the crab xec xec is unreal
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact (place 8) -->
+    <div class="stacked-compact">
+      <div class="stacked-compact-num">08</div>
+      <div class="stacked-compact-content">
+        <div class="stacked-compact-top">
+          <span class="stacked-compact-name">Kokni Kanteen</span>
+          <span class="stacked-compact-hood">Panaji</span>
+        </div>
+        <div class="stacked-compact-tags">
+          <span class="tag">Konkani</span>
+          <span class="tag">Goan</span>
+        </div>
+        <div class="stacked-compact-note">
+          <span class="arrow">&rarr;</span>
+          local favorite. the sol kadhi is the real deal
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="list-footer">
+    <div class="footer-actions">
+      <button class="save-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>42 Saves</span>
+      </button>
+      <span class="short-url">vouch.in/@rinkesh/goa</span>
+    </div>
+  </div>
+</div>
+
+<div style="height: 80px;"></div>
+
+</body>
+</html>
