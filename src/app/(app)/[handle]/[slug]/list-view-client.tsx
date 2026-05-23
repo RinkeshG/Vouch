@@ -278,7 +278,7 @@ export function ListViewClient({
 
       {/* ---- Footer ---- */}
       <div className={styles.footer}>
-        {/* Save + Short URL */}
+        {/* Save + Short URL — full width bar */}
         <div className={styles.footerActions}>
           <button
             className={`${styles.saveBtn} ${saved ? styles.saveBtnActive : ""}`}
@@ -295,43 +295,46 @@ export function ListViewClient({
           </span>
         </div>
 
-        {/* Author card */}
-        <div className={styles.authorCard}>
-          <Avatar
-            handle={author.handle}
-            name={author.displayName}
-            imageUrl={author.avatarUrl}
-            size="lg"
-          />
-          <div className={styles.authorCardInfo}>
-            <div className={styles.authorCardName}>{author.displayName}</div>
-            <div className={styles.authorCardHandle}>@{author.handle}</div>
-          </div>
-          <Link href={`/@${author.handle}`}>
-            <Button variant="secondary" size="sm">
-              View profile
-            </Button>
-          </Link>
-        </div>
-
-        {/* Share */}
-        <div className={styles.shareSection}>
-          <ShareRow
-            url={shareUrl}
-            title={list.title}
-            text={`Check out "${list.title}" by @${author.handle} on Vouch`}
-          />
-        </div>
-
-        {/* CTA for visitors */}
-        {!isOwner && (
-          <div className={styles.cta}>
-            <p className={styles.ctaText}>Want to build your own list?</p>
-            <Link href="/sign-up">
-              <Button variant="seal">Create yours on Vouch</Button>
+        {/* Below-the-fold: author, share, CTA */}
+        <div className={styles.footerContent}>
+          {/* Author card */}
+          <div className={styles.authorCard}>
+            <Avatar
+              handle={author.handle}
+              name={author.displayName}
+              imageUrl={author.avatarUrl}
+              size="lg"
+            />
+            <div className={styles.authorCardInfo}>
+              <div className={styles.authorCardName}>{author.displayName}</div>
+              <div className={styles.authorCardHandle}>@{author.handle}</div>
+            </div>
+            <Link href={`/@${author.handle}`}>
+              <Button variant="secondary" size="sm">
+                View profile
+              </Button>
             </Link>
           </div>
-        )}
+
+          {/* Share */}
+          <div className={styles.shareSection}>
+            <ShareRow
+              url={shareUrl}
+              title={list.title}
+              text={`Check out "${list.title}" by @${author.handle} on Vouch`}
+            />
+          </div>
+
+          {/* CTA for visitors */}
+          {!isOwner && (
+            <div className={styles.cta}>
+              <p className={styles.ctaText}>Want to build your own list?</p>
+              <Link href="/sign-up">
+                <Button variant="seal">Create yours on Vouch</Button>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

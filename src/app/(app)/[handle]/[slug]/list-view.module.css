@@ -342,24 +342,25 @@
    ============================================================ */
 
 .footer {
-  padding: var(--v-sp2) var(--v-sp6) var(--v-sp12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--v-sp6);
   background: var(--v-cream, #FBF6E9);
-  border-top: 1px solid rgba(24, 18, 16, 0.06);
 }
 
-/* Save + Short URL row */
+/* Save + Short URL row — full width, like the prototype */
 .footerActions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 400px;
-  padding: var(--v-sp4) 0;
-  border-bottom: 1px solid var(--v-line);
+  padding: var(--v-sp4) var(--v-sp7);
+  border-top: 1px solid rgba(24, 18, 16, 0.06);
+}
+
+/* Below-the-fold content — author, share, CTA */
+.footerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--v-sp5);
+  padding: var(--v-sp6) var(--v-sp6) var(--v-sp10);
 }
 
 .saveBtn {
@@ -421,13 +422,13 @@
   display: flex;
   align-items: center;
   gap: var(--v-sp3);
-  padding: var(--v-sp5);
+  padding: var(--v-sp4);
   background: var(--v-surface);
   border: 1px solid var(--v-line);
-  border-radius: var(--v-radius-card);
-  box-shadow: var(--v-shadow-md);
+  border-radius: var(--v-radius-input);
+  box-shadow: var(--v-shadow-sm);
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
 }
 
 .authorCardInfo {
@@ -451,16 +452,16 @@
 /* Share section */
 .shareSection {
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
 }
 
 /* CTA */
 .cta {
   text-align: center;
-  padding: var(--v-sp6) 0 var(--v-sp4);
+  padding: var(--v-sp4) 0 0;
   border-top: 1px solid var(--v-line);
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
 }
 
 .ctaText {
@@ -511,8 +512,12 @@
     opacity: 0.2;
   }
 
-  .footer {
-    padding: var(--v-sp6) var(--v-sp4) var(--v-sp8);
+  .footerActions {
+    padding: var(--v-sp4) var(--v-sp4);
+  }
+
+  .footerContent {
+    padding: var(--v-sp5) var(--v-sp4) var(--v-sp8);
     padding-bottom: calc(var(--v-sp8) + var(--v-safe-bottom));
   }
 }
