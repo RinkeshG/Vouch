@@ -40,9 +40,26 @@ export default async function HomePage() {
   // Fetch ALL lists (published + drafts) for the owner
   const { data: listsData } = await supabase
     .from("lists")
-    .select("id, title, description, slug, emoji, place_count, is_published, updated_at")
+    .select("id, title, description, slug, emoji, cover_style, place_count, is_published, updated_at")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
+
+  // Fetch hero photo for each list (first place's photo)
+  const listIds = (listsData || []).map((l: { id: string }) => l.id);
+  const { data: heroPhotos } = listIds.length > 0
+    ? await supabase
+        .from("list_places")
+        .select("list_id, places!list_places_place_id_fkey ( photo_reference )")
+        .in("list_id", listIds)
+        .eq("position", 0)
+    : { data: [] };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heroPhotoMap = new Map<string, string | null>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (heroPhotos || []).forEach((hp: any) => {
+    heroPhotoMap.set(hp.list_id, hp.places?.photo_reference || null);
+  });
 
   const lists = (listsData || []).map((l) => ({
     id: l.id,
@@ -51,8 +68,10 @@ export default async function HomePage() {
     emoji: l.emoji,
     description: l.description,
     placeCount: l.place_count,
+    coverStyle: l.cover_style,
     isPublished: l.is_published,
     updatedAt: l.updated_at,
+    heroPhotoRef: heroPhotoMap.get(l.id) || null,
   }));
 
   const totalPlaces = lists.reduce((sum, l) => sum + l.placeCount, 0);

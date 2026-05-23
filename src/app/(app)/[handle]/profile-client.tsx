@@ -312,7 +312,9 @@ function ProfileListCard({
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-  const href = list.slug ? `/${handle}/${list.slug}` : `/${handle}`;
+  const href = list.slug
+    ? `/${handle}/${list.slug}`
+    : `/list/${list.id}/edit`;
   const photoUrl = placePhotoUrl(list.heroPhotoRef, isHero ? 1200 : 800);
 
   useEffect(() => {

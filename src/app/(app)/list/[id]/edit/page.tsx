@@ -35,7 +35,10 @@ export default async function EditListPage({ params }: EditListPageProps) {
   // 3. Fetch list_places with place data, ordered by position
   const { data: listPlaces } = await supabase
     .from("list_places")
-    .select("id, position, note, place_id, places(id, google_place_id, name, area, cuisines, latitude, longitude, photo_reference)")
+    .select(`
+      id, position, note,
+      places!list_places_place_id_fkey ( id, google_place_id, name, area, cuisines, latitude, longitude, photo_reference )
+    `)
     .eq("list_id", id)
     .order("position", { ascending: true });
 
@@ -51,18 +54,12 @@ export default async function EditListPage({ params }: EditListPageProps) {
   }
 
   // Transform list_places into the shape the client expects
-  const items = (listPlaces || []).map((lp) => {
-    const place = lp.places as unknown as {
-      id: string;
-      google_place_id: string | null;
-      name: string;
-      area: string;
-      cuisines: string[];
-      latitude: number | null;
-      longitude: number | null;
-      photo_reference: string | null;
-    };
-    return {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const items: { placeId: string; name: string; area: string; note: string; lat: number | null; lng: number | null; photoRef: string | null }[] = [];
+  for (const lp of (listPlaces || []) as any[]) {
+    const place = lp.places;
+    if (!place) continue;
+    items.push({
       placeId: place.google_place_id || place.id,
       name: place.name,
       area: place.area,
@@ -70,8 +67,8 @@ export default async function EditListPage({ params }: EditListPageProps) {
       lat: place.latitude,
       lng: place.longitude,
       photoRef: place.photo_reference,
-    };
-  });
+    });
+  }
 
   return (
     <EditListClient
