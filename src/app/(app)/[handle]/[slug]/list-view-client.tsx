@@ -144,10 +144,21 @@ export function ListViewClient({
   const city = author.city.charAt(0).toUpperCase() + author.city.slice(1);
   const updatedLabel = timeAgoLabel(list.updatedAt || list.createdAt);
 
-  // Extract neighborhood from area string (first part before comma)
+  // Extract neighborhood from area string
+  // Area is stored as "street, neighborhood" from Google Places formatted_address.
+  // The first segment is often a street number or road name — prefer the second segment
+  // when the first looks like a number/street.
   const getHood = (area: string) => {
     if (!area) return "";
-    return area.split(",")[0].trim();
+    const parts = area.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0];
+    // If the first part is purely numeric or looks like a street/road, use second part
+    const first = parts[0];
+    const isNumeric = /^\d+[\s/-]*\d*$/.test(first);
+    const isStreet = /\b(rd|road|st|street|cross|main|lane|ave|avenue|nagar|block|floor|no\.|plot)\b/i.test(first);
+    if (isNumeric || isStreet) return parts[1];
+    return first;
   };
 
   return (
