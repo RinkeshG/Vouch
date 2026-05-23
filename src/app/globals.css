@@ -19,6 +19,7 @@
   --v-seal-wash: rgba(184, 65, 44, 0.12);
   --v-line: rgba(24, 18, 16, 0.08);
   --v-line-strong: rgba(24, 18, 16, 0.15);
+  --v-dash: 1px dashed rgba(24, 18, 16, 0.12);
   --v-faint: rgba(24, 18, 16, 0.04);
   --v-muted: rgba(24, 18, 16, 0.45);
 
