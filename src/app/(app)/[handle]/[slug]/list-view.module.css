@@ -6,8 +6,13 @@
 
 .page {
   max-width: 780px;
-  margin: calc(-1 * var(--v-sp6)) auto;
+  margin: var(--v-sp6) auto;
   overflow: hidden;
+  border-radius: var(--v-radius-card);
+  border: 1px solid rgba(24, 18, 16, 0.05);
+  box-shadow:
+    0 4px 12px rgba(24, 18, 16, 0.06),
+    0 1px 3px rgba(24, 18, 16, 0.03);
 }
 
 /* ============================================================
@@ -16,7 +21,6 @@
 
 .hero {
   padding: var(--v-sp12) var(--v-sp8) var(--v-sp8);
-  border-radius: var(--v-radius-card) var(--v-radius-card) 0 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -118,8 +122,6 @@
 .places {
   padding: var(--v-sp6);
   background: var(--v-cream, #FBF6E9);
-  border-left: 1px solid rgba(24, 18, 16, 0.05);
-  border-right: 1px solid rgba(24, 18, 16, 0.05);
 }
 
 .placeGrid {
@@ -346,9 +348,7 @@
   align-items: center;
   gap: var(--v-sp6);
   background: var(--v-cream, #FBF6E9);
-  border-radius: 0 0 var(--v-radius-card) var(--v-radius-card);
-  border: 1px solid rgba(24, 18, 16, 0.05);
-  border-top: none;
+  border-top: 1px solid rgba(24, 18, 16, 0.06);
 }
 
 /* Save + Short URL row */
@@ -477,8 +477,11 @@
 
 @media (max-width: 640px) {
   .page {
-    margin: calc(-1 * var(--v-sp4)) auto;
+    margin: 0;
     border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
   }
 
   .hero {
