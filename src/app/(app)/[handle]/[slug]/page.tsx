@@ -97,7 +97,7 @@ export default async function ListPage({ params }: PageProps) {
     .select(
       `
       id, position, note,
-      places!list_places_place_id_fkey ( id, name, area, cuisines )
+      places!list_places_place_id_fkey ( id, name, area, cuisines, photo_reference )
     `
     )
     .eq("list_id", list.id)
@@ -109,6 +109,7 @@ export default async function ListPage({ params }: PageProps) {
     name: lp.places?.name || "Unknown",
     area: lp.places?.area || "",
     cuisines: lp.places?.cuisines || [],
+    photoRef: lp.places?.photo_reference || null,
     note: lp.note,
     position: lp.position,
   }));

@@ -11,6 +11,7 @@ interface UpdateItem {
   note: string;
   lat: number | null;
   lng: number | null;
+  photoRef: string | null;
 }
 
 interface UpdateInput {
@@ -138,6 +139,13 @@ export async function updateList(input: UpdateInput): Promise<{
 
       if (existing) {
         placeUuid = existing.id;
+        if (item.photoRef) {
+          await supabase
+            .from("places")
+            .update({ photo_reference: item.photoRef })
+            .eq("id", existing.id)
+            .is("photo_reference", null);
+        }
       } else {
         const { data: inserted, error: insErr } = await supabase
           .from("places")
@@ -148,6 +156,7 @@ export async function updateList(input: UpdateInput): Promise<{
             city: input.city,
             latitude: item.lat,
             longitude: item.lng,
+            photo_reference: item.photoRef,
           })
           .select("id")
           .single();
@@ -189,6 +198,7 @@ export async function updateList(input: UpdateInput): Promise<{
             city: input.city,
             latitude: item.lat,
             longitude: item.lng,
+            photo_reference: item.photoRef,
           })
           .select("id")
           .single();

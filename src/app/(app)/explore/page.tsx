@@ -28,6 +28,23 @@ export default async function ExplorePage() {
     .order("created_at", { ascending: false })
     .limit(12);
 
+  // Fetch hero photo for each list (first place's photo_reference)
+  const listIds = (listsData || []).map((l: { id: string }) => l.id);
+  const { data: heroPhotos } = listIds.length > 0
+    ? await supabase
+        .from("list_places")
+        .select("list_id, places!list_places_place_id_fkey ( photo_reference )")
+        .in("list_id", listIds)
+        .eq("position", 0)
+    : { data: [] };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heroPhotoMap = new Map<string, string | null>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (heroPhotos || []).forEach((hp: any) => {
+    heroPhotoMap.set(hp.list_id, hp.places?.photo_reference || null);
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lists = (listsData || []).map((l: any) => ({
     id: l.id,
@@ -41,6 +58,7 @@ export default async function ExplorePage() {
     authorHandle: l.profiles?.handle || "user",
     authorName: l.profiles?.display_name || "User",
     authorAvatarUrl: l.profiles?.avatar_url || null,
+    heroPhotoRef: heroPhotoMap.get(l.id) || null,
   }));
 
   return <ExploreClient initialLists={lists} isAuthed={isAuthed} />;

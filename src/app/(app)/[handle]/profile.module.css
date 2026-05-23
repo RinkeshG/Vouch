@@ -1,5 +1,5 @@
 /* ============================================================
-   Profile — V1: Centered hero + list gallery
+   Profile — Centered hero + image-led list gallery
    ============================================================ */
 
 .page {
@@ -27,9 +27,9 @@
 }
 
 .handle {
-  font-family: var(--v-font-mono);
+  font-family: var(--v-font-sans);
   font-size: 13px;
-  color: var(--v-ink2);
+  color: var(--v-ink3);
   margin-top: var(--v-sp1);
 }
 
@@ -117,7 +117,7 @@
 }
 
 .shareMenuItem:hover {
-  background: var(--v-surface-dim);
+  background: var(--v-surface);
 }
 
 /* ---- Section label ---- */
@@ -131,7 +131,7 @@
   margin-bottom: var(--v-sp3);
 }
 
-/* ---- List gallery ---- */
+/* ---- List gallery: image-led cards ---- */
 .listGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -139,81 +139,86 @@
 }
 
 .listCard {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--v-radius-card);
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  aspect-ratio: 4 / 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  background: var(--v-surface);
   transition:
-    transform var(--v-duration-base) var(--v-ease-out),
-    box-shadow var(--v-duration-base) var(--v-ease-out);
+    transform var(--v-duration-normal) var(--v-ease-out),
+    box-shadow var(--v-duration-normal) var(--v-ease-out);
 }
 
 .listCard:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--v-shadow-xl);
+  transform: scale(1.02);
+  box-shadow: var(--v-shadow-lg);
 }
 
 .listCard:active {
-  transform: scale(0.99);
+  transform: scale(0.98);
 }
 
-/* Cover gradient background — 5 palette presets */
+/* Image area */
+.listCardImage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.listCardPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 8s linear;
+}
+
+.listCard:hover .listCardPhoto {
+  transform: scale(1.05);
+}
+
 .listCardBg {
+  width: 100%;
+  height: 100%;
+}
+
+.listCardOverlay {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+  pointer-events: none;
 }
 
-.listCardBg[data-style="0"] {
-  background: linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%);
-}
-
-.listCardBg[data-style="1"] {
-  background: linear-gradient(135deg, #1B4332 0%, #40916C 100%);
-}
-
-.listCardBg[data-style="2"] {
-  background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%);
-}
-
-.listCardBg[data-style="3"] {
-  background: linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%);
-}
-
-.listCardBg[data-style="4"] {
-  background: linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%);
-}
-
+/* Card body */
 .listCardContent {
-  position: relative;
-  z-index: 1;
-  padding: var(--v-sp4);
+  padding: var(--v-sp3) var(--v-sp4) var(--v-sp4);
 }
 
 .listCardEmoji {
-  font-size: 28px;
-  line-height: 1;
-  display: block;
-  margin-bottom: var(--v-sp2);
+  margin-right: 4px;
 }
 
 .listCardTitle {
   font-family: var(--v-font-serif);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 400;
-  color: #fff;
-  line-height: 1.25;
+  color: var(--v-ink);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .listCardCount {
-  font-family: var(--v-font-mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--v-font-sans);
+  font-size: 12px;
+  color: var(--v-ink3);
   margin-top: var(--v-sp1);
   display: block;
 }
@@ -225,8 +230,8 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(24, 18, 16, 0.3);
+  color: var(--v-ink3);
+  background: var(--v-surface-dim);
   padding: 2px 8px;
   border-radius: var(--v-radius-tag);
   margin-top: var(--v-sp2);

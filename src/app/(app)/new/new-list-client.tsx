@@ -24,6 +24,7 @@ interface SearchResult {
   formatted_address: string;
   geometry?: { location: { lat: number; lng: number } };
   types?: string[];
+  photo_reference?: string | null;
 }
 
 interface ListItem {
@@ -34,6 +35,7 @@ interface ListItem {
   note: string;
   lat: number | null;
   lng: number | null;
+  photoRef: string | null;
 }
 
 interface NewListClientProps {
@@ -171,6 +173,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
         note: p.note || "",
         lat: null,
         lng: null,
+        photoRef: null,
       }));
 
       setItems(newItems);
@@ -203,6 +206,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
       note: "",
       lat: result.geometry?.location.lat ?? null,
       lng: result.geometry?.location.lng ?? null,
+      photoRef: result.photo_reference || null,
     };
     setItems((prev) => [...prev, newItem]);
     setQuery("");
@@ -323,6 +327,7 @@ export function NewListClient({ userId, handle, city }: NewListClientProps) {
           note: item.note,
           lat: item.lat,
           lng: item.lng,
+          photoRef: item.photoRef,
         })),
       });
 

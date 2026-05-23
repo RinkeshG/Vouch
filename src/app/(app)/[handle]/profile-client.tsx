@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { placePhotoUrl } from "@/types";
 import styles from "./profile.module.css";
 
 interface ProfileInfo {
@@ -28,7 +29,16 @@ interface ProfileList {
   placeCount: number;
   coverStyle: number;
   isPublished: boolean;
+  heroPhotoRef: string | null;
 }
+
+const COVER_GRADIENTS = [
+  "linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%)",
+  "linear-gradient(135deg, #1B4332 0%, #40916C 100%)",
+  "linear-gradient(135deg, #1D3557 0%, #457B9D 100%)",
+  "linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%)",
+  "linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%)",
+];
 
 interface ProfileClientProps {
   profile: ProfileInfo;
@@ -196,17 +206,28 @@ export function ProfileClient({
               const href = list.slug
                 ? `/@${profile.handle}/${list.slug}`
                 : `/@${profile.handle}`;
+              const photoUrl = placePhotoUrl(list.heroPhotoRef, 800);
+              const gradient = COVER_GRADIENTS[list.coverStyle] || COVER_GRADIENTS[0];
               return (
                 <Link key={list.id} href={href} className={styles.listCard}>
-                  <div
-                    className={styles.listCardBg}
-                    data-style={list.coverStyle}
-                  />
-                  <div className={styles.listCardContent}>
-                    {list.emoji && (
-                      <span className={styles.listCardEmoji}>{list.emoji}</span>
+                  <div className={styles.listCardImage}>
+                    {photoUrl ? (
+                      <img
+                        src={photoUrl}
+                        alt={list.title}
+                        className={styles.listCardPhoto}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className={styles.listCardBg} style={{ background: gradient }} />
                     )}
-                    <h3 className={styles.listCardTitle}>{list.title}</h3>
+                    <div className={styles.listCardOverlay} />
+                  </div>
+                  <div className={styles.listCardContent}>
+                    <h3 className={styles.listCardTitle}>
+                      {list.emoji && <span className={styles.listCardEmoji}>{list.emoji} </span>}
+                      {list.title}
+                    </h3>
                     <span className={styles.listCardCount}>
                       {list.placeCount} place{list.placeCount !== 1 ? "s" : ""}
                     </span>

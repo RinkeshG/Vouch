@@ -55,6 +55,23 @@ export default async function ProfilePage({ params }: PageProps) {
 
   const isOwnProfile = user?.id === profile.id;
 
+  // Fetch hero photo for each list
+  const listIds = (listsData || []).map((l: { id: string }) => l.id);
+  const { data: heroPhotos } = listIds.length > 0
+    ? await supabase
+        .from("list_places")
+        .select("list_id, places!list_places_place_id_fkey ( photo_reference )")
+        .in("list_id", listIds)
+        .eq("position", 0)
+    : { data: [] };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heroPhotoMap = new Map<string, string | null>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (heroPhotos || []).forEach((hp: any) => {
+    heroPhotoMap.set(hp.list_id, hp.places?.photo_reference || null);
+  });
+
   const lists = (listsData || []).map((l) => ({
     id: l.id,
     title: l.title,
@@ -64,6 +81,7 @@ export default async function ProfilePage({ params }: PageProps) {
     placeCount: l.place_count,
     coverStyle: l.cover_style,
     isPublished: l.is_published,
+    heroPhotoRef: heroPhotoMap.get(l.id) || null,
   }));
 
   return (

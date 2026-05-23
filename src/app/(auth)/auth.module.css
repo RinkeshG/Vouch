@@ -31,7 +31,7 @@
 .editorialSide {
   display: none;
   width: 45%;
-  background: linear-gradient(160deg, #1C1814 0%, var(--v-dark-paper) 100%);
+  background: linear-gradient(160deg, #1A1A1A 0%, var(--v-dark-paper) 100%);
   color: var(--v-dark-ink);
   padding: var(--v-sp16);
   align-items: flex-end;

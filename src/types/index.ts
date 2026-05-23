@@ -9,11 +9,20 @@ export interface Place {
   cuisines: string[];
   price_tier: 1 | 2 | 3 | 4;
   cover_image_url: string | null;
+  photo_reference: string | null;
   latitude: number | null;
   longitude: number | null;
   phone: string | null;
   is_closed: boolean;
   created_at: string;
+}
+
+export function placePhotoUrl(
+  photoRef: string | null | undefined,
+  width: number = 800
+): string | null {
+  if (!photoRef) return null;
+  return `/api/places/photo?ref=${encodeURIComponent(photoRef)}&w=${width}`;
 }
 
 export interface Profile {

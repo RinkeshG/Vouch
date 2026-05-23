@@ -1,51 +1,57 @@
 /* ============================================================
    Vouch Design Tokens
-   Warm paper-and-ink aesthetic. Editorial magazine feel.
-   4px grid. Fraunces + Instrument Sans. One accent (rust).
+   Photography-first visual product. White canvas, single accent.
+   8px grid. Fraunces + Instrument Sans. Seal rust accent.
    ============================================================ */
 
 :root {
-  /* — Colors (warm paper palette) — */
-  --v-paper: #F2ECDF;
-  --v-surface: #FAF7F0;
-  --v-surface-dim: #EBE6D9;
-  --v-ink: #181210;
-  --v-ink2: #564E44;
-  --v-ink3: #948A7C;
+  /* — Canvas & surfaces — */
+  --v-paper: #FFFFFF;
+  --v-surface: #F7F7F7;
+  --v-surface-dim: #F0F0F0;
+
+  /* — Ink hierarchy — */
+  --v-ink: #222222;
+  --v-ink2: #3F3F3F;
+  --v-ink3: #767676;
+  --v-muted: rgba(0, 0, 0, 0.45);
+
+  /* — Accent: seal rust (the only color) — */
   --v-seal: #B8412C;
   --v-seal-hover: #A33824;
   --v-seal-pressed: #8F3120;
   --v-seal-dim: rgba(184, 65, 44, 0.07);
   --v-seal-wash: rgba(184, 65, 44, 0.12);
-  --v-line: rgba(24, 18, 16, 0.08);
-  --v-line-strong: rgba(24, 18, 16, 0.15);
-  --v-faint: rgba(24, 18, 16, 0.04);
-  --v-muted: rgba(24, 18, 16, 0.45);
 
-  /* — Accent palette (sage, ochre for badges/highlights) — */
-  --v-sage: #7A8472;
-  --v-sage-dim: rgba(122, 132, 114, 0.10);
-  --v-ochre: #C49A4A;
-  --v-ochre-dim: rgba(196, 154, 74, 0.10);
-  --v-cream: #FBF6E9;
+  /* — Borders & dividers — */
+  --v-line: #EBEBEB;
+  --v-line-strong: #D4D4D4;
+  --v-faint: rgba(0, 0, 0, 0.03);
 
-  /* — Dark surfaces (share cards, OG images, footer) — */
-  --v-dark-paper: #121110;
-  --v-dark-surface: #1C1A18;
-  --v-dark-ink: #EDE8DF;
-  --v-dark-ink2: #948A7C;
+  /* — Legacy accent aliases (mapped to neutral equivalents) — */
+  --v-sage: #767676;
+  --v-sage-dim: rgba(0, 0, 0, 0.05);
+  --v-ochre: #B8412C;
+  --v-ochre-dim: rgba(184, 65, 44, 0.07);
+  --v-cream: #F7F7F7;
+
+  /* — Dark mode surfaces (share cards, OG images, footer) — */
+  --v-dark-paper: #111111;
+  --v-dark-surface: #1A1A1A;
+  --v-dark-ink: #F0F0F0;
+  --v-dark-ink2: #999999;
   --v-dark-seal: #D95640;
-  --v-dark-line: rgba(237, 232, 223, 0.08);
-  --v-dark-line-strong: rgba(237, 232, 223, 0.16);
-  --v-dark-muted: rgba(242, 236, 223, 0.50);
+  --v-dark-line: rgba(255, 255, 255, 0.08);
+  --v-dark-line-strong: rgba(255, 255, 255, 0.16);
+  --v-dark-muted: rgba(255, 255, 255, 0.50);
 
   /* — Typography — */
   --v-font-serif: 'Fraunces', serif;
   --v-font-sans: 'Instrument Sans', sans-serif;
-  --v-font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --v-font-hand: 'Caveat', cursive;
+  --v-font-mono: 'Instrument Sans', sans-serif;
+  --v-font-hand: 'Fraunces', serif;
 
-  /* — Spacing (4px grid) — */
+  /* — Spacing (8px base grid) — */
   --v-sp1: 4px;
   --v-sp2: 8px;
   --v-sp3: 12px;
@@ -60,29 +66,32 @@
 
   /* — Radii — */
   --v-radius-tag: 6px;
-  --v-radius-input: 10px;
-  --v-radius-card: 14px;
+  --v-radius-input: 8px;
+  --v-radius-card: 16px;
+  --v-radius-image: 12px;
   --v-radius-pill: 9999px;
 
-  /* — Shadows (layered, warm) — */
-  --v-shadow-sm: 0 1px 3px rgba(24, 18, 16, 0.06);
+  /* — Shadows (two tiers: resting + elevated) — */
+  --v-shadow-sm:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.06);
   --v-shadow-md:
-    0 4px 12px rgba(24, 18, 16, 0.08),
-    0 1px 3px rgba(24, 18, 16, 0.04);
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.06);
   --v-shadow-lg:
-    0 8px 24px rgba(24, 18, 16, 0.10),
-    0 2px 6px rgba(24, 18, 16, 0.05);
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.12);
   --v-shadow-xl:
-    0 12px 40px rgba(24, 18, 16, 0.12),
-    0 4px 12px rgba(24, 18, 16, 0.06);
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.12);
 
   /* — Transitions — */
-  --v-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --v-ease-out: cubic-bezier(0.2, 0, 0, 1);
   --v-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --v-duration-fast: 120ms;
   --v-duration-base: 200ms;
-  --v-duration-normal: 200ms;
-  --v-duration-sheet: 320ms;
+  --v-duration-normal: 250ms;
+  --v-duration-sheet: 300ms;
   --v-duration-spring: 400ms;
 
   /* — Safe areas (notched phones) — */
@@ -91,16 +100,16 @@
   --v-safe-left: env(safe-area-inset-left, 0px);
   --v-safe-right: env(safe-area-inset-right, 0px);
 
-  /* — Avatar tints (warmed) — */
-  --v-tint-0: #E4CEBC;
-  --v-tint-1: #C2D0BC;
-  --v-tint-2: #C0C9D4;
-  --v-tint-3: #D4C0AC;
-  --v-tint-4: #B4C4BC;
-  --v-tint-5: #CCBCD0;
-  --v-tint-6: #C4CCB4;
-  --v-tint-7: #D8C4B0;
-  --v-tint-8: #B0C0C8;
+  /* — Avatar tints (cool neutral) — */
+  --v-tint-0: #E8E0D8;
+  --v-tint-1: #D4DCD0;
+  --v-tint-2: #D0D8E0;
+  --v-tint-3: #E0D4C8;
+  --v-tint-4: #C8D8D0;
+  --v-tint-5: #D8D0DC;
+  --v-tint-6: #D4DCC8;
+  --v-tint-7: #E0D4C4;
+  --v-tint-8: #C4D4DC;
 }
 
 
@@ -165,7 +174,7 @@ ol {
 
 ::selection {
   background-color: var(--v-seal);
-  color: var(--v-dark-ink);
+  color: #FFFFFF;
 }
 
 

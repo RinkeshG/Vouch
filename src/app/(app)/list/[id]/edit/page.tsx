@@ -35,7 +35,7 @@ export default async function EditListPage({ params }: EditListPageProps) {
   // 3. Fetch list_places with place data, ordered by position
   const { data: listPlaces } = await supabase
     .from("list_places")
-    .select("id, position, note, place_id, places(id, google_place_id, name, area, cuisines, latitude, longitude)")
+    .select("id, position, note, place_id, places(id, google_place_id, name, area, cuisines, latitude, longitude, photo_reference)")
     .eq("list_id", id)
     .order("position", { ascending: true });
 
@@ -60,6 +60,7 @@ export default async function EditListPage({ params }: EditListPageProps) {
       cuisines: string[];
       latitude: number | null;
       longitude: number | null;
+      photo_reference: string | null;
     };
     return {
       placeId: place.google_place_id || place.id,
@@ -68,6 +69,7 @@ export default async function EditListPage({ params }: EditListPageProps) {
       note: lp.note || "",
       lat: place.latitude,
       lng: place.longitude,
+      photoRef: place.photo_reference,
     };
   });
 

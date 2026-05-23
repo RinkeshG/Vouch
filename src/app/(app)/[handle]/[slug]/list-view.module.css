@@ -1,6 +1,6 @@
 /* ============================================================
-   List View — editorial, magazine-feel shareable page
-   Gradient hero + numbered places + staggered animations
+   List View — Photo-led visual narrative
+   Full-bleed hero, image moment cards, staggered reveal
    ============================================================ */
 
 .page {
@@ -9,23 +9,50 @@
 }
 
 /* ============================================================
-   Hero / Cover
+   Hero / Cover — full-bleed with photo or gradient
    ============================================================ */
 
 .hero {
-  padding: var(--v-sp12) var(--v-sp6) var(--v-sp8);
-  border-radius: 0 0 var(--v-radius-card) var(--v-radius-card);
+  position: relative;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  justify-content: flex-end;
 }
 
-/* 5 gradient palettes */
-.hero[data-style="0"] { background: linear-gradient(135deg, #BF3A2B 0%, #E8614A 100%); }
-.hero[data-style="1"] { background: linear-gradient(135deg, #1B4332 0%, #40916C 100%); }
-.hero[data-style="2"] { background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%); }
-.hero[data-style="3"] { background: linear-gradient(135deg, #7B2D8E 0%, #B56BC8 100%); }
-.hero[data-style="4"] { background: linear-gradient(135deg, #C97B1A 0%, #E8B44A 100%); }
+.heroBg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.heroBgPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroBgGradient {
+  width: 100%;
+  height: 100%;
+}
+
+.heroBgOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.2) 40%,
+    rgba(0, 0, 0, 0) 70%
+  );
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  padding: var(--v-sp12) var(--v-sp6) var(--v-sp8);
+}
 
 .heroEmoji {
   font-size: 48px;
@@ -35,11 +62,12 @@
 
 .heroTitle {
   font-family: var(--v-font-serif);
-  font-size: clamp(28px, 6vw, 44px);
+  font-size: clamp(28px, 6vw, 48px);
   font-weight: 400;
   color: #fff;
   line-height: 1.1;
   letter-spacing: -0.02em;
+  max-width: 600px;
 }
 
 .heroDesc {
@@ -85,67 +113,90 @@
 }
 
 .heroPlaceCount {
-  font-family: var(--v-font-mono);
+  font-family: var(--v-font-sans);
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
   padding: 3px 10px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--v-radius-pill);
 }
 
 /* ============================================================
-   Numbered places
+   Place cards — visual moments
    ============================================================ */
 
 .places {
   padding: var(--v-sp6) var(--v-sp6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-sp6);
 }
 
-.placeRow {
+.placeCard {
   display: flex;
-  align-items: flex-start;
-  gap: var(--v-sp4);
-  padding: var(--v-sp5) 0;
-  border-bottom: 1px solid var(--v-line);
+  flex-direction: column;
+  border-radius: var(--v-radius-card);
+  overflow: hidden;
+  background: var(--v-surface);
 
-  /* Stagger animation — starts hidden */
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(20px);
   transition:
     opacity 500ms var(--v-ease-out),
     transform 500ms var(--v-ease-out);
   transition-delay: var(--delay, 0ms);
 }
 
-.placeRow.visible {
+.placeCard.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.placeRow:last-child {
-  border-bottom: none;
+/* Hero place gets extra size */
+.placeCardHero .placePhoto {
+  aspect-ratio: 16 / 9;
+}
+
+.placeCardHero .placeName {
+  font-size: clamp(22px, 4vw, 28px);
+}
+
+/* ---- Photo area ---- */
+.placePhoto {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+
+.placePhotoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 8s linear;
+}
+
+.placeCard:hover .placePhotoImg {
+  transform: scale(1.05);
+}
+
+/* ---- Body ---- */
+.placeBody {
+  padding: var(--v-sp4) var(--v-sp5) var(--v-sp5);
 }
 
 .placeNum {
-  font-family: var(--v-font-serif);
-  font-size: 48px;
-  line-height: 1;
+  font-family: var(--v-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--v-ink3);
-  min-width: 56px;
-  flex-shrink: 0;
-  user-select: none;
-  opacity: 0.3;
-}
-
-.placeInfo {
-  flex: 1;
-  min-width: 0;
-  padding-top: 8px;
+  display: block;
+  margin-bottom: var(--v-sp1);
 }
 
 .placeName {
   font-family: var(--v-font-serif);
-  font-size: clamp(20px, 3vw, 24px);
+  font-size: clamp(18px, 3vw, 22px);
   font-weight: 400;
   color: var(--v-ink);
   line-height: 1.2;
@@ -153,16 +204,14 @@
 
 .placeMeta {
   font-family: var(--v-font-sans);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 12px;
   color: var(--v-ink3);
   margin-top: 4px;
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  text-transform: capitalize;
 }
 
 .metaDot {
@@ -170,12 +219,14 @@
 }
 
 .placeNote {
-  font-family: var(--v-font-hand);
-  font-style: normal;
-  font-size: 17px;
+  font-family: var(--v-font-serif);
+  font-style: italic;
+  font-size: 15px;
   color: var(--v-ink2);
-  margin-top: var(--v-sp2);
-  line-height: 1.4;
+  margin-top: var(--v-sp3);
+  line-height: 1.5;
+  padding-left: var(--v-sp4);
+  border-left: 2px solid var(--v-seal);
 }
 
 /* ============================================================
@@ -190,7 +241,6 @@
   gap: var(--v-sp6);
 }
 
-/* Author card */
 .authorCard {
   display: flex;
   align-items: center;
@@ -199,7 +249,7 @@
   background: var(--v-surface);
   border: 1px solid var(--v-line);
   border-radius: var(--v-radius-card);
-  box-shadow: var(--v-shadow-md);
+  box-shadow: var(--v-shadow-sm);
   width: 100%;
   max-width: 400px;
 }
@@ -217,18 +267,16 @@
 }
 
 .authorCardHandle {
-  font-family: var(--v-font-mono);
+  font-family: var(--v-font-sans);
   font-size: 12px;
-  color: var(--v-ink2);
+  color: var(--v-ink3);
 }
 
-/* Share section */
 .shareSection {
   width: 100%;
   max-width: 400px;
 }
 
-/* CTA */
 .cta {
   text-align: center;
   padding: var(--v-sp6) 0 var(--v-sp4);
@@ -246,7 +294,23 @@
 }
 
 /* ============================================================
-   Responsive
+   Two-column layout for places on wider screens
+   ============================================================ */
+
+@media (min-width: 700px) {
+  .places {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--v-sp5);
+  }
+
+  .placeCardHero {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ============================================================
+   Mobile
    ============================================================ */
 
 @media (max-width: 640px) {
@@ -255,6 +319,10 @@
   }
 
   .hero {
+    min-height: 260px;
+  }
+
+  .heroContent {
     padding: var(--v-sp8) var(--v-sp4) var(--v-sp6);
   }
 
@@ -264,19 +332,11 @@
 
   .places {
     padding: var(--v-sp4) var(--v-sp4) 0;
+    gap: var(--v-sp4);
   }
 
-  .placeRow {
-    gap: var(--v-sp3);
-  }
-
-  .placeNum {
-    font-size: 32px;
-    min-width: 40px;
-  }
-
-  .placeInfo {
-    padding-top: 4px;
+  .placeBody {
+    padding: var(--v-sp3) var(--v-sp4) var(--v-sp4);
   }
 
   .footer {
@@ -289,7 +349,6 @@
     gap: var(--v-sp3);
   }
 
-  /* Stack View profile button below name on very small screens */
   @media (max-width: 380px) {
     .authorCard {
       flex-direction: column;
