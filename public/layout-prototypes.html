@@ -223,11 +223,11 @@ body::before {
 }
 
 .card-inner {
-  padding: 20px 22px 18px;
+  padding: 24px;
 }
 
 .card--hero .card-inner {
-  padding: 28px 32px 24px;
+  padding: 28px 32px;
   display: flex;
   gap: 24px;
   align-items: flex-start;
@@ -235,14 +235,14 @@ body::before {
 
 .card--hero .card-main { flex: 1; }
 
-/* ---- Level 5 — Number: decorative whisper ---- */
+/* ---- Number — decorative, faint ---- */
 .card-num {
   font-family: var(--font-serif);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
   color: var(--ink3);
-  opacity: 0.22;
-  margin-bottom: 8px;
+  opacity: 0.25;
+  margin-bottom: 6px;
   font-weight: 300;
   user-select: none;
 }
@@ -256,86 +256,79 @@ body::before {
   padding-top: 4px;
 }
 
-/* ---- Level 1 — Name: dominant, the thing your eye finds first ---- */
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 2px;
-}
-
+/* ---- Name — v-title: Fraunces 400, 20-24px ---- */
 .card-name {
   font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 500;
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 400;
   color: var(--ink);
-  line-height: 1.18;
+  line-height: 1.25;
   letter-spacing: -0.01em;
+  margin-bottom: 8px;
 }
 
 .card--hero .card-name {
-  font-size: 26px;
+  font-size: clamp(24px, 4vw, 28px);
   letter-spacing: -0.015em;
+  margin-bottom: 10px;
 }
 
-/* ---- Level 3 — Neighborhood: small spatial anchor ---- */
+/* ---- Meta row — hood + cuisine side by side, distinct treatments ---- */
+.card-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+/* ---- Neighborhood — v-label: Sans 600, 10px, uppercase ---- */
 .card-hood {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink3);
-  opacity: 0.7;
-  flex-shrink: 0;
-  white-space: nowrap;
+  color: var(--ink);
+  line-height: 1.2;
 }
 
-/* ---- Level 4 — Cuisine: quietest text, supplementary ---- */
+/* ---- Cuisine — v-take: Fraunces italic, 13px ---- */
 .card-cuisine {
-  font-family: var(--font-sans);
-  font-size: 11px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
   font-weight: 400;
   color: var(--ink3);
-  opacity: 0.6;
   line-height: 1.3;
-  letter-spacing: 0.01em;
 }
 
-.card--hero .card-cuisine {
-  font-size: 12px;
-}
-
-/* ---- Level 2 — Note: personal voice, warm, distinct ---- */
+/* ---- Note — Caveat handwriting, personal voice ---- */
 .card-note {
   font-family: var(--font-hand);
   font-size: 17px;
   font-weight: 500;
   color: var(--ink2);
   line-height: 1.4;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px dashed rgba(24,18,16,0.08);
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(24,18,16,0.1);
 }
 
 .card--hero .card-note {
   font-size: 20px;
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 20px;
+  padding-top: 16px;
 }
 
 .card-note .arrow {
   font-family: var(--font-sans);
   font-weight: 600;
   color: var(--seal);
-  margin-right: 4px;
-  font-size: 13px;
-  opacity: 0.8;
+  margin-right: 5px;
+  font-size: 14px;
 }
 
 .card--hero .card-note .arrow {
-  font-size: 15px;
+  font-size: 16px;
 }
 
 /* Cards without notes — no dashed border */
@@ -579,11 +572,11 @@ body::before {
         <div class="card-inner">
           <div class="card-num">01</div>
           <div class="card-main">
-            <div class="card-top">
-              <div class="card-name">Cafe Bhonsle - Panjim</div>
+            <div class="card-name">Cafe Bhonsle - Panjim</div>
+            <div class="card-meta">
               <span class="card-hood">Panjim</span>
+              <span class="card-cuisine">Goan, Seafood</span>
             </div>
-            <div class="card-cuisine">Goan, Seafood</div>
             <div class="card-note">
               <span class="arrow">&rarr;</span>
               the fish thali here is legendary. get there by noon or miss out
@@ -596,11 +589,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">02</div>
-          <div class="card-top">
-            <div class="card-name">Cafe Aram</div>
+          <div class="card-name">Cafe Aram</div>
+          <div class="card-meta">
             <span class="card-hood">Panjim</span>
+            <span class="card-cuisine">Cafe, Breakfast</span>
           </div>
-          <div class="card-cuisine">Cafe, Breakfast</div>
           <div class="card-note">
             <span class="arrow">&rarr;</span>
             cutting chai and a vada pav to start the day
@@ -612,11 +605,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">03</div>
-          <div class="card-top">
-            <div class="card-name">Ceskaz Deli Cafe</div>
+          <div class="card-name">Ceskaz Deli Cafe</div>
+          <div class="card-meta">
             <span class="card-hood">Assagao</span>
+            <span class="card-cuisine">Bakery, Continental</span>
           </div>
-          <div class="card-cuisine">Bakery, Continental</div>
         </div>
       </div>
 
@@ -624,11 +617,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">04</div>
-          <div class="card-top">
-            <div class="card-name">Obrigado by Craftels</div>
+          <div class="card-name">Obrigado by Craftels</div>
+          <div class="card-meta">
             <span class="card-hood">Vagator</span>
+            <span class="card-cuisine">Bar, Cocktails</span>
           </div>
-          <div class="card-cuisine">Bar, Cocktails</div>
           <div class="card-note">
             <span class="arrow">&rarr;</span>
             sunset cocktails. sit outside on the terrace
@@ -640,11 +633,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">05</div>
-          <div class="card-top">
-            <div class="card-name">Joe's River Cove</div>
+          <div class="card-name">Joe's River Cove</div>
+          <div class="card-meta">
             <span class="card-hood">Nerul</span>
+            <span class="card-cuisine">Seafood, Goan</span>
           </div>
-          <div class="card-cuisine">Seafood, Goan</div>
           <div class="card-note">
             <span class="arrow">&rarr;</span>
             right on the river. order the prawn curry rice
@@ -656,11 +649,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">06</div>
-          <div class="card-top">
-            <div class="card-name">Vinayak Family Restaurant</div>
+          <div class="card-name">Vinayak Family Restaurant</div>
+          <div class="card-meta">
             <span class="card-hood">Margao</span>
+            <span class="card-cuisine">Goan</span>
           </div>
-          <div class="card-cuisine">Goan</div>
         </div>
       </div>
 
@@ -668,11 +661,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">07</div>
-          <div class="card-top">
-            <div class="card-name">Fisherman's Wharf</div>
+          <div class="card-name">Fisherman's Wharf</div>
+          <div class="card-meta">
             <span class="card-hood">Cavelossim</span>
+            <span class="card-cuisine">Fine Dining, Seafood</span>
           </div>
-          <div class="card-cuisine">Fine Dining, Seafood</div>
           <div class="card-note">
             <span class="arrow">&rarr;</span>
             book ahead for dinner. the crab xec xec is unreal
@@ -684,11 +677,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">08</div>
-          <div class="card-top">
-            <div class="card-name">Kokni Kanteen</div>
+          <div class="card-name">Kokni Kanteen</div>
+          <div class="card-meta">
             <span class="card-hood">Panaji</span>
+            <span class="card-cuisine">Konkani, Goan</span>
           </div>
-          <div class="card-cuisine">Konkani, Goan</div>
           <div class="card-note">
             <span class="arrow">&rarr;</span>
             local favorite. the sol kadhi is the real deal
@@ -700,11 +693,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">09</div>
-          <div class="card-top">
-            <div class="card-name">Gunpowder</div>
+          <div class="card-name">Gunpowder</div>
+          <div class="card-meta">
             <span class="card-hood">Assagao</span>
+            <span class="card-cuisine">South Indian</span>
           </div>
-          <div class="card-cuisine">South Indian</div>
           <div class="card-note">
             <span class="arrow">&rarr;</span>
             the appam with stew is incredible. go early
@@ -716,11 +709,11 @@ body::before {
       <div class="card">
         <div class="card-inner">
           <div class="card-num">10</div>
-          <div class="card-top">
-            <div class="card-name">Bomra's</div>
+          <div class="card-name">Bomra's</div>
+          <div class="card-meta">
             <span class="card-hood">Candolim</span>
+            <span class="card-cuisine">Burmese</span>
           </div>
-          <div class="card-cuisine">Burmese</div>
         </div>
       </div>
 
