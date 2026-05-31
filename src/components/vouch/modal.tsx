@@ -15,10 +15,12 @@ export function Modal({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { onClose(); return; }
+      if (e.key === "Escape") { onCloseRef.current(); return; }
       if (e.key === "Tab" && ref.current) {
         const f = ref.current.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input, [tabindex]:not([tabindex="-1"])');
         if (!f.length) return;
@@ -31,14 +33,16 @@ export function Modal({
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const prevFocus = document.activeElement as HTMLElement | null;
-    const t = window.setTimeout(() => ref.current?.querySelector<HTMLElement>("button, input, a[href]")?.focus(), 40);
+    // focus the first real field (textarea/input), not the ✕ close button
+    const t = window.setTimeout(() => ref.current?.querySelector<HTMLElement>("textarea, input, button, a[href]")?.focus(), 40);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
       window.clearTimeout(t);
       prevFocus?.focus?.();
     };
-  }, [open, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
   if (!open) return null;
   return (
     <div className={styles.scrim} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>

@@ -1,5 +1,5 @@
 .sheet { display: flex; flex-direction: column; gap: 12px; }
-.title { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--text); margin: 0 0 2px; line-height: 1.1; }
+.title { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--text); margin: 0 0 2px; line-height: 1.1; padding-right: 40px; }
 
 .results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow-y: auto; }
 .result { width: 100%; display: flex; flex-direction: column; gap: 3px; text-align: left; background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 12px 14px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease); }
@@ -8,7 +8,7 @@
 .resultMeta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
 .none { font-family: var(--sans); font-size: 0.9rem; color: var(--muted); padding: 8px 2px; }
 
-.head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-right: 40px; }
 .place { font-family: var(--display); font-weight: 700; font-size: 1.4rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.05; }
 .change { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--saffron); background: transparent; border: 1px solid rgba(246, 168, 43, 0.4); border-radius: var(--r-pill); padding: 6px 11px; cursor: pointer; white-space: nowrap; transition: background 0.16s var(--ease); }
 .change:hover { background: var(--saffron-dim); }
