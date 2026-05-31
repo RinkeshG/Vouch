@@ -1,0 +1,170 @@
+/* ============================================================================
+   VOUCH · DESIGN TOKENS  ·  v1.0  ·  "After Dark"
+   ----------------------------------------------------------------------------
+   The single source of truth for the Vouch visual system. Every screen in the
+   product reads from these variables — never hard-code a colour, size, or
+   easing. If a value isn't here, it probably shouldn't exist yet; add it here
+   first, with intent, then use it.
+
+   How to use
+   ----------
+   1. Import once at the app root (e.g. in globals.css):  @import "./tokens.css";
+   2. Reference semantic tokens in components:  color: var(--text);
+   3. Prefer SEMANTIC tokens (--text, --surface) over RAW (--c-saffron-500) in
+      components — semantics let us re-theme without touching every file.
+
+   The values below are lifted verbatim from the v2 landing system and then
+   formalised into scales (space, radius, z) so the rest of the product is
+   consistent, not ad hoc.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------- COLOUR */
+  /* Raw ramp — the only place literal hex lives. Name = role, not appearance. */
+  --c-ink-900: #0c0b09;   /* deepest — footer, overlays                       */
+  --c-ink-800: #100f0d;   /* app background                                   */
+  --c-ink-700: #16140f;   /* alt section / sunken bands                       */
+  --c-ink-600: #1a1712;   /* surface — cards, sheets                          */
+  --c-ink-500: #221d16;   /* surface raised — chips on cards, stacked faces   */
+
+  --c-paper-100: #f3eee3; /* primary text (warm off-white)                    */
+  --c-paper-300: #a79e90; /* secondary text                                   */
+  --c-paper-500: #756c5f; /* tertiary / hints                                 */
+
+  --c-saffron-400: #ffc658; /* highlight / gradient top                       */
+  --c-saffron-500: #f6a82b; /* PRIMARY accent — the brand colour              */
+  --c-ember-500:   #ff5b33; /* heat / energy / error                          */
+  --c-jade-500:    #76d29b; /* live / success / "go"                          */
+
+  --c-on-accent: #1c1408;   /* ink that sits on saffron (AA on the gradient)  */
+
+  /* Hairlines & rules — paper at low alpha, so they glow on dark, not muddy. */
+  --c-line-1: rgba(244, 238, 227, 0.12); /* default divider                   */
+  --c-line-2: rgba(244, 238, 227, 0.20); /* stronger border (inputs, cards)   */
+  --c-rule:   rgba(244, 238, 227, 0.28); /* dotted leader lines               */
+
+  /* ---- SEMANTIC (use these in components) ---- */
+  --bg:        var(--c-ink-800);
+  --bg-alt:    var(--c-ink-700);
+  --surface:   var(--c-ink-600);
+  --surface-2: var(--c-ink-500);
+  --footer-bg: var(--c-ink-900);
+
+  --text:   var(--c-paper-100);
+  --muted:  var(--c-paper-300);
+  --faint:  var(--c-paper-500);
+
+  --accent:      var(--c-saffron-500);
+  --accent-hi:   var(--c-saffron-400);
+  --accent-ink:  var(--c-on-accent);
+  --danger:      var(--c-ember-500);
+  --success:     var(--c-jade-500);
+
+  --line:   var(--c-line-1);
+  --line-2: var(--c-line-2);
+  --rule:   var(--c-rule);
+
+  --accent-gradient: linear-gradient(135deg, var(--accent-hi), var(--accent));
+  --accent-glow:     0 0 24px -8px rgba(246, 168, 43, 0.55);
+
+  /* ---------------------------------------------------------- TYPOGRAPHY */
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-sans:    "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-mono:    "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+  --weight-black:   800;  /* Bricolage only — display headlines & numerals    */
+
+  /* Fluid display sizes (clamp = min, preferred-vw, max) */
+  --type-display-xl: clamp(2.5rem, 5.6vw, 4.7rem); /* hero h1                  */
+  --type-display-l:  clamp(2rem, 4.2vw, 3.2rem);   /* section h2              */
+  --type-display-m:  clamp(1.7rem, 2.6vw, 2rem);   /* sub-headers, quiz Q     */
+  --type-display-s:  1.32rem;                       /* card titles            */
+
+  --type-body-l: clamp(1.04rem, 1.4vw, 1.2rem);     /* lede / intro           */
+  --type-body-m: 1rem;                              /* base (root 17px)       */
+  --type-body-s: 0.9rem;                            /* dense rows             */
+
+  --type-label:   0.66rem;  /* mono UI labels, uppercase                       */
+  --type-caption: 0.6rem;   /* mono micro-meta                                 */
+
+  --leading-tight:  1.0;    /* display                                         */
+  --leading-snug:   1.2;    /* sub-headers                                     */
+  --leading-normal: 1.5;    /* body                                            */
+  --leading-relaxed:1.62;   /* long body / root                                */
+
+  --track-display: -0.03em; /* tighten the big grotesque                       */
+  --track-body:    -0.006em;
+  --track-label:   0.1em;   /* open the mono labels                            */
+  --track-label-wide: 0.16em;
+
+  /* --------------------------------------------------------------- SPACE */
+  /* 4px base grid. Compose layouts from these; avoid one-off pixel values.   */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 104px;
+  --space-13: 128px;
+
+  /* Section vertical rhythm — fluid so mobile breathes without feeling empty. */
+  --section-y: clamp(56px, 8vw, 112px);
+
+  /* -------------------------------------------------------------- RADIUS */
+  --radius-xs: 4px;   /* tags, tiny chips                                      */
+  --radius-sm: 6px;   /* inline chips, small controls                         */
+  --radius-md: 8px;   /* buttons, inputs, list rows                           */
+  --radius-lg: 11px;  /* nested panels                                        */
+  --radius-xl: 14px;  /* cards                                                */
+  --radius-2xl: 18px; /* feature cards, sheets                                */
+  --radius-pill: 999px;
+
+  /* ------------------------------------------------------------ ELEVATION */
+  /* Dark UI: elevation reads through soft, warm-black shadow + a hairline.    */
+  --shadow-card: 0 24px 60px -38px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 44px 90px -44px rgba(0, 0, 0, 0.95);
+  --shadow-pop:  0 12px 26px -12px rgba(246, 168, 43, 0.8); /* saffron buttons */
+
+  /* --------------------------------------------------------------- MOTION */
+  /* One signature curve does ~90% of the work. Use it; don't invent new ones. */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);          /* the "Vouch ease"        */
+  --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);   /* overlays landing        */
+
+  --dur-tap:    120ms;  /* :active, chip selection                            */
+  --dur-quick:  200ms;  /* hover, colour/border state                        */
+  --dur-base:   340ms;  /* modal in/out, content swap                        */
+  --dur-reveal: 650ms;  /* scroll-in reveals                                 */
+  /* Ambient loops (glow drift, float, ticker) live at 7s–44s — see motion.md */
+
+  /* --------------------------------------------------------------- LAYOUT */
+  --container: 1160px;       /* max content width                            */
+  --container-pad: 28px;     /* gutter (desktop)                             */
+  --container-pad-sm: 18px;  /* gutter (mobile)                             */
+
+  --bp-sm: 560px;   /* phone → small                                         */
+  --bp-md: 900px;   /* tablet — multi-col grids collapse                     */
+  --bp-lg: 960px;   /* hero/2-col split collapses                           */
+
+  /* ------------------------------------------------------------- Z-INDEX */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 50;   /* nav                                                   */
+  --z-overlay: 200; /* modals / sheets / scrim                              */
+  --z-toast: 300;   /* secret/status toasts                                 */
+  --z-confetti: 9999;
+}
+
+/* Respect the user. Motion is a garnish, never a gate. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-tap: 1ms; --dur-quick: 1ms; --dur-base: 1ms; --dur-reveal: 1ms; }
+}
