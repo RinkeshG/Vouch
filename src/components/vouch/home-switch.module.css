@@ -1,0 +1,11 @@
+.bar {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 90;
+  display: inline-flex; align-items: center; gap: 4px; padding: 5px 6px 5px 12px;
+  background: rgba(16, 15, 13, 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid var(--line-2); border-radius: var(--r-pill); box-shadow: var(--shadow-pop);
+}
+.tag { font-family: var(--mono); font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); margin-right: 4px; }
+.link, .on { font-family: var(--sans); font-size: 0.8rem; font-weight: 500; text-decoration: none; padding: 5px 12px; border-radius: var(--r-pill); transition: color 0.15s ease, background 0.15s ease; }
+.link { color: var(--muted); }
+.link:hover { color: var(--text); background: rgba(244, 238, 227, 0.05); }
+.on { color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); font-weight: 600; }

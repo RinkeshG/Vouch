@@ -25,6 +25,10 @@
   justify-self: center; display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
   width: 50px; height: 50px; border-radius: var(--r-pill); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron));
   color: var(--accent-ink); box-shadow: var(--shadow-pop); justify-content: center; margin-top: -10px;
+  border: none; cursor: pointer; appearance: none; transition: transform 0.15s var(--ease);
 }
+button.plus:hover { transform: translateY(-1px) scale(1.02); }
+button.plus:active { transform: translateY(0) scale(0.97); }
+button.plus:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
 .plus span { font-size: 1.25rem; line-height: 1; font-weight: 700; }
 .plus b { font-family: var(--mono); font-size: 0.42rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }

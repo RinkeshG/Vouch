@@ -1,4 +1,8 @@
-.wrap { position: relative; width: 100%; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); box-shadow: var(--shadow-lift); background: #0e0c08; }
+/* isolate so Leaflet's high pane/control z-indexes can't escape and paint over
+   modals/sheets layered above the map. */
+.wrap { position: relative; isolation: isolate; z-index: 0; width: 100%; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); box-shadow: var(--shadow-lift); background: #0e0c08; }
+/* full-pane map (web canvas): no card chrome */
+.bleed { border-radius: 0; border: none; box-shadow: none; }
 .map { position: absolute; inset: 0; }
 .tag { position: absolute; top: 14px; left: 16px; z-index: 500; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text); background: rgba(12, 10, 7, 0.6); padding: 5px 10px; border-radius: var(--r-pill); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); pointer-events: none; }
 .empty { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); z-index: 500; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); pointer-events: none; }
@@ -10,7 +14,12 @@
 .pin, .pinP { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; animation: drop 0.45s var(--ease) both; cursor: pointer; }
 .dot { width: 14px; height: 14px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: var(--saffron); box-shadow: 0 0 14px 2px rgba(246, 168, 43, 0.85); }
 .ava { width: 24px; height: 24px; flex: none; border-radius: 7px 7px 7px 2px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 0.56rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron), var(--ember)); box-shadow: 0 0 12px 1px rgba(246, 168, 43, 0.6); border: 1.5px solid var(--bg); }
-.label { font-family: var(--sans); font-weight: 600; font-size: 0.74rem; color: var(--text); background: rgba(12, 10, 7, 0.88); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 3px 9px; }
+.label { font-family: var(--sans); font-weight: 600; font-size: 0.74rem; color: var(--text); background: rgba(12, 10, 7, 0.88); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 3px 9px; transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
+/* crowded surfaces (Home): keep pins clean, reveal the name on hover/focus — tap
+   still opens the full who/why popup. */
+.hover .label { opacity: 0; transform: translateX(-4px) scale(0.96); pointer-events: none; }
+.hover:hover, .pinP.hover:hover { z-index: 5; }
+.hover:hover .label, .hover:focus-within .label { opacity: 1; transform: none; }
 @keyframes drop { 0% { opacity: 0; transform: translateY(-16px) scale(0.4); } 60% { opacity: 1; transform: translateY(2px) scale(1.1); } 100% { opacity: 1; transform: none; } }
 
 /* the vouch popup (who + why) */

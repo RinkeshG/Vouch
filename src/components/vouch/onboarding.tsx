@@ -1,70 +1,25 @@
 "use client";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Wordmark } from "./wordmark";
 import { Avatar } from "./avatar";
 import { Button } from "./button";
 import { OccasionChip, Tag } from "./chip";
 import { SearchField } from "./input";
 import { MapReal, type MapPin } from "./map-real";
+import { SEED, OCCASIONS, FOUNDING, archetypeFor, matchPct, saveSession, type Spot, type Vouch } from "./_taste";
 import styles from "./onboarding.module.css";
 
 /* J1 — first run (web). The map is the persistent companion on the left; it fills
-   as you vouch. The right pane guides you: build → reveal your palate → borrow
-   people who match your taste. Composed bespoke from the kit. Mobile is designed
+   as you vouch. The right pane guides you: build → reveal your palate → follow
+   people who match your taste. Composed bespoke from the kit; the taste data and
+   the archetype/match rules are shared with Home (./_taste). Mobile is designed
    separately, later. */
-
-type Spot = { name: string; area: string; cuisine: string; price: string; occasions: string[]; lat: number; lng: number };
-type Vouch = { spot: Spot; line: string; occ: string[] };
-
-const SEED: Spot[] = [
-  { name: "Naru Noodle Bar", area: "Indiranagar", cuisine: "Ramen", price: "₹₹₹", occasions: ["date", "rainy day"], lat: 12.9748, lng: 77.6402 },
-  { name: "Empire", area: "Indiranagar", cuisine: "Kebabs", price: "₹₹", occasions: ["late night"], lat: 12.9707, lng: 77.6400 },
-  { name: "Brahmin’s Coffee Bar", area: "Shankarpuram", cuisine: "Filter coffee", price: "₹", occasions: ["coffee", "solo lunch"], lat: 12.9544, lng: 77.5650 },
-  { name: "Vidyarthi Bhavan", area: "Basavanagudi", cuisine: "Dosa", price: "₹", occasions: ["parents", "coffee"], lat: 12.9419, lng: 77.5732 },
-  { name: "Karavalli", area: "Residency Rd", cuisine: "Coastal", price: "₹₹₹₹", occasions: ["parents", "group dinner"], lat: 12.9618, lng: 77.6006 },
-  { name: "Toit", area: "Indiranagar", cuisine: "Brewpub", price: "₹₹₹", occasions: ["group dinner", "date"], lat: 12.9785, lng: 77.6403 },
-  { name: "CTR · Shri Sagar", area: "Malleshwaram", cuisine: "Benne dosa", price: "₹", occasions: ["coffee", "parents"], lat: 13.0028, lng: 77.5687 },
-  { name: "Shivaji Military Hotel", area: "Jayanagar", cuisine: "Donne biryani", price: "₹₹", occasions: ["worth the drive"], lat: 12.9266, lng: 77.5836 },
-  { name: "Corner House", area: "Koramangala", cuisine: "Ice cream", price: "₹", occasions: ["late night", "date"], lat: 12.9346, lng: 77.6270 },
-  { name: "Soka", area: "Indiranagar", cuisine: "Small plates", price: "₹₹₹", occasions: ["date", "group dinner"], lat: 12.9761, lng: 77.6406 },
-];
-const coord = (n: string) => { const s = SEED.find((x) => x.name === n); return { lat: s ? s.lat : 12.9716, lng: s ? s.lng : 77.5946 }; };
-const OCCASIONS = ["parents", "late night", "date", "solo lunch", "coffee", "group dinner", "worth the drive", "rainy day"];
-
-const ARCH: Record<string, { name: string; glyph: string; line: string }> = {
-  "late night": { name: "The Midnight Forager", glyph: "🌙", line: "Your best meals start after 11 and never had a menu." },
-  coffee: { name: "The Filter-Coffee Fundamentalist", glyph: "☕", line: "A degree filter by 8am. You’d argue dosa crispness in court." },
-  date: { name: "The Small-Plates Romantic", glyph: "🍷", line: "It’s the room, the bottle, the person across the table." },
-  parents: { name: "The Safe-Hands Host", glyph: "🍛", line: "You never gamble when it actually matters." },
-  "group dinner": { name: "The Table-for-Eight", glyph: "🍕", line: "The more chairs you pull up, the better the night." },
-  "worth the drive": { name: "The Pilgrim", glyph: "🛵", line: "Distance is a rounding error for the right meal." },
-  "solo lunch": { name: "The Quiet Regular", glyph: "📖", line: "A good solo lunch is a sacred, selfish pleasure." },
-  "rainy day": { name: "The Comfort Seeker", glyph: "🌧️", line: "You eat by the weather, and the weather says broth." },
-};
-const DEFAULT_ARCH = { name: "The All-Rounder", glyph: "✦", line: "A palate with a spot for every occasion." };
-
-type PSpot = { name: string; lat: number; lng: number; line: string };
-const FOUNDING: { name: string; ini: string; occasions: string[]; blurb: string; spots: PSpot[] }[] = [
-  { name: "Aditi", ini: "AS", occasions: ["parents", "coffee", "solo lunch"], blurb: "Old-school South Indian and the filter-coffee canon.", spots: [
-    { name: "Karavalli", ...coord("Karavalli"), line: "Take your parents. They’ll talk for months." },
-    { name: "Brahmin’s Coffee Bar", ...coord("Brahmin’s Coffee Bar"), line: "Idli + that chutney. Peak." },
-    { name: "Vidyarthi Bhavan", ...coord("Vidyarthi Bhavan"), line: "Go before 9am, beat the queue." },
-  ] },
-  { name: "Rinkesh", ini: "RG", occasions: ["late night", "date", "group dinner"], blurb: "Late-night, brewpubs, and where to take a date.", spots: [
-    { name: "Empire", ...coord("Empire"), line: "Chicken ghee roast at 1am." },
-    { name: "Toit", ...coord("Toit"), line: "Go early, it fills up." },
-    { name: "Corner House", ...coord("Corner House"), line: "Death by Chocolate, always." },
-  ] },
-  { name: "Meera", ini: "MK", occasions: ["coffee", "date", "worth the drive"], blurb: "Coffee obsessive who’ll drive 40km for a dosa.", spots: [
-    { name: "Soka", ...coord("Soka"), line: "Negroni, then stay for the plates." },
-    { name: "CTR · Shri Sagar", ...coord("CTR · Shri Sagar"), line: "Benne dosa. Settled." },
-    { name: "Naru Noodle Bar", ...coord("Naru Noodle Bar"), line: "Wine + ramen. Yes." },
-  ] },
-];
 
 type Phase = "add" | "reveal" | "borrow";
 
 export function Onboarding() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("add");
   const [mine, setMine] = useState<Vouch[]>([]);
   const [sel, setSel] = useState<Spot | null>(null);
@@ -77,12 +32,7 @@ export function Onboarding() {
   const remaining = SEED.filter((s) => !picked.has(s.name));
   const results = q ? remaining.filter((s) => (s.name + s.area + s.cuisine).toLowerCase().includes(q.toLowerCase())) : remaining;
 
-  const archetype = useMemo(() => {
-    const tally: Record<string, number> = {};
-    mine.forEach((v) => v.occ.forEach((o) => { tally[o] = (tally[o] || 0) + 1; }));
-    const top = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0];
-    return (top && ARCH[top]) || DEFAULT_ARCH;
-  }, [mine]);
+  const archetype = useMemo(() => archetypeFor(mine), [mine]);
   const areas = useMemo(() => new Set(mine.map((v) => v.spot.area)).size, [mine]);
   const borrowedSpots = FOUNDING.filter((f) => followed.includes(f.name)).reduce((n, f) => n + f.spots.length, 0);
   const GOAL = 3;
@@ -104,11 +54,9 @@ export function Onboarding() {
   }
   const toggleOcc = (o: string) => setOcc((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
   const toggleFollow = (n: string) => setFollowed((p) => (p.includes(n) ? p.filter((x) => x !== n) : [...p, n]));
-  function matchPct(f: (typeof FOUNDING)[number]) {
-    const a = new Set(mine.flatMap((v) => v.spot.occasions.concat(v.occ)));
-    const inter = f.occasions.filter((o) => a.has(o)).length;
-    const union = new Set([...a, ...f.occasions]).size || 1;
-    return Math.max(58, Math.min(96, Math.round((inter / union) * 100) + 48));
+  function enterVouch() {
+    saveSession({ mine, followed });
+    router.push("/map");
   }
 
   return (
@@ -233,7 +181,7 @@ export function Onboarding() {
                     <div key={f.name} className={`${styles.palate} ${on ? styles.palateOn : ""}`}>
                       <Avatar initials={f.ini} size={40} />
                       <div className={styles.palateInfo}>
-                        <span className={styles.palateRow}><span className={styles.palatePName}>{f.name}</span><span className={styles.match}>{matchPct(f)}% match</span></span>
+                        <span className={styles.palateRow}><span className={styles.palatePName}>{f.name}</span><span className={styles.match}>{matchPct(f, mine)}% match</span></span>
                         <span className={styles.palateBlurb}>{f.blurb}</span>
                       </div>
                       <Button variant={on ? "ghost" : "primary"} onClick={() => toggleFollow(f.name)}>{on ? "Following ✓" : "Follow"}</Button>
@@ -242,7 +190,7 @@ export function Onboarding() {
                 })}
               </div>
               <div className={styles.borrowFoot}>
-                <Button variant="primary" disabled={followed.length === 0}>Enter Vouch →</Button>
+                <Button variant="primary" disabled={followed.length === 0} onClick={enterVouch}>Enter Vouch →</Button>
                 {followed.length === 0 && <span className={styles.hint}>Follow at least one to fill your map.</span>}
               </div>
             </div>

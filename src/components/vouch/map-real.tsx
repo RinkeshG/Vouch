@@ -15,7 +15,7 @@ export type MapPin = {
   kind?: "mine" | "palate"; by?: { name: string; ini: string };
 };
 
-export function MapReal({ pins, height = 460 }: { pins: MapPin[]; height?: number }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -41,9 +41,10 @@ export function MapReal({ pins, height = 460 }: { pins: MapPin[]; height?: numbe
     // add only the new pins
     pins.forEach((p) => {
       if (markers.current[p.id]) return;
+      const hov = labelMode === "hover" ? ` ${styles.hover}` : "";
       const html = p.kind === "palate" && p.by
-        ? `<div class="${styles.pinP}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`
-        : `<div class="${styles.pin}"><span class="${styles.dot}"></span><span class="${styles.label}">${p.name}</span></div>`;
+        ? `<div class="${styles.pinP}${hov}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`
+        : `<div class="${styles.pin}${hov}"><span class="${styles.dot}"></span><span class="${styles.label}">${p.name}</span></div>`;
       const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [8, 8], popupAnchor: [40, -6] });
       markers.current[p.id] = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m).bindPopup(popupHTML(p), { className: styles.popup, closeButton: true });
       changed = true;
@@ -79,6 +80,14 @@ export function MapReal({ pins, height = 460 }: { pins: MapPin[]; height?: numbe
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { sync(); }, [sig]);
 
+  // the ledger drives the map: focus a pin → fly to it & open its who/why
+  useEffect(() => {
+    const m = map.current, mk = focusId ? markers.current[focusId] : null;
+    if (!m || !mk) return;
+    m.flyTo(mk.getLatLng(), 15, { duration: 0.6 });
+    mk.openPopup();
+  }, [focusId]);
+
   function fit() {
     const m = map.current;
     if (!m || !pins.length) return;
@@ -87,7 +96,7 @@ export function MapReal({ pins, height = 460 }: { pins: MapPin[]; height?: numbe
   }
 
   return (
-    <div className={styles.wrap} style={{ height }}>
+    <div className={`${styles.wrap} ${bleed ? styles.bleed : ""}`} style={{ height }}>
       <div ref={ref} className={styles.map} />
       <span className={styles.tag}>Your map · Bengaluru</span>
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}

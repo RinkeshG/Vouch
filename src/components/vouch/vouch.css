@@ -84,7 +84,7 @@
   text-rendering: optimizeLegibility;
 }
 
-.vouchRoot { min-height: 100dvh; }
+.vouchRoot { min-height: 100dvh; background: var(--bg); }
 .vouch *, .vouch *::before, .vouch *::after { box-sizing: border-box; }
 .vouch ::selection { background: var(--saffron); color: var(--accent-ink); }
 

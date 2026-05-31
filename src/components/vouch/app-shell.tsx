@@ -11,11 +11,13 @@ export function AppShell({
   active,
   location = "Indiranagar",
   topRight,
+  onNewVouch,
   children,
 }: {
   active: Tab;
   location?: string;
   topRight?: ReactNode;
+  onNewVouch?: () => void;
   children: ReactNode;
 }) {
   return (
@@ -31,7 +33,11 @@ export function AppShell({
       <nav className={styles.tabs} aria-label="Vouch">
         <TabItem glyph="◍" label="Map" on={active === "map"} />
         <TabItem glyph="⌕" label="Search" on={active === "search"} />
-        <span className={styles.plus} aria-label="New vouch"><span>＋</span><b>Vouch</b></span>
+        {onNewVouch ? (
+          <button type="button" className={styles.plus} aria-label="New vouch" onClick={onNewVouch}><span>＋</span><b>Vouch</b></button>
+        ) : (
+          <span className={styles.plus} aria-label="New vouch"><span>＋</span><b>Vouch</b></span>
+        )}
         <TabItem glyph="❑" label="Guides" on={active === "guides"} />
         <TabItem glyph="◆" label="You" on={active === "you"} />
       </nav>
