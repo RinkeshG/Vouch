@@ -37,7 +37,7 @@ export const FOUNDING: FoundingPalate[] = [
     { name: "Brahmin’s Coffee Bar", ...coord("Brahmin’s Coffee Bar"), line: "Idli + that chutney. Peak." },
     { name: "Vidyarthi Bhavan", ...coord("Vidyarthi Bhavan"), line: "Go before 9am, beat the queue." },
   ] },
-  { name: "Rinkesh", ini: "RG", occasions: ["late night", "date", "group dinner"], blurb: "Late-night, brewpubs, and where to take a date.", spots: [
+  { name: "Rohan", ini: "RK", occasions: ["late night", "date", "group dinner"], blurb: "Late-night, brewpubs, and where to take a date.", spots: [
     { name: "Empire", ...coord("Empire"), line: "Chicken ghee roast at 1am." },
     { name: "Toit", ...coord("Toit"), line: "Go early, it fills up." },
     { name: "Corner House", ...coord("Corner House"), line: "Death by Chocolate, always." },

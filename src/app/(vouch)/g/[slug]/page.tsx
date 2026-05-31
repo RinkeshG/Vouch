@@ -37,10 +37,10 @@ export default function SharedGuidePage() {
   return (
     <div className={styles.shareStage}>
       <GuideArtifact
-        guide={{ title: guide.title, by: "Rinkesh", ini: "RG", count: guide.items.length, note: guide.note, anchor: guide.anchor, items: guide.items }}
+        guide={{ title: guide.title, by: "Rohan", ini: "RK", count: guide.items.length, note: guide.note, anchor: guide.anchor, items: guide.items }}
         whenToTrust="Trust him for late-night, date, and the city after 11."
         share
-        palateHref="/p/rinkesh"
+        palateHref="/p/rohan"
         linkSpots
       />
       <p className={styles.shareHint}>shared with you · borrowing requires an invite</p>

@@ -20,10 +20,10 @@ type Act =
 const FEED: Act[] = [
   { kind: "vouched", by: "Aditi", ini: "AS", place: "Karavalli", line: "Take your parents. They’ll talk for months.", occ: "parents", time: "2h" },
   { kind: "saved", by: "Meera", ini: "MK", place: "Soka", time: "4h" },
-  { kind: "vouched", by: "Rinkesh", ini: "RG", place: "Empire", line: "Chicken ghee roast at 1am. Undefeated.", occ: "late night", time: "6h" },
+  { kind: "vouched", by: "Rohan", ini: "RK", place: "Empire", line: "Chicken ghee roast at 1am. Undefeated.", occ: "late night", time: "6h" },
   { kind: "guide", by: "Aditi", ini: "AS", place: "Vidyarthi Bhavan", guide: "the morning ritual", time: "1d" },
   { kind: "vouched", by: "Meera", ini: "MK", place: "CTR · Shri Sagar", line: "Benne dosa. Don’t even debate it.", occ: "coffee", time: "1d" },
-  { kind: "saved", by: "Rinkesh", ini: "RG", place: "Toit", time: "2d" },
+  { kind: "saved", by: "Rohan", ini: "RK", place: "Toit", time: "2d" },
 ];
 
 export function HomePulse() {

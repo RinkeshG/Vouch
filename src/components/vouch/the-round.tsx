@@ -16,11 +16,11 @@ import styles from "./the-round.module.css";
 type Pick = { spot: string; by: string; ini: string; line: string; reactions: { who: string; verb: string }[] };
 
 const SEED_PICKS: Pick[] = [
-  { spot: "Soka", by: "Meera", ini: "MK", line: "Negroni first, then stay for the plates.", reactions: [{ who: "Rinkesh", verb: "been — go" }] },
+  { spot: "Soka", by: "Meera", ini: "MK", line: "Negroni first, then stay for the plates.", reactions: [{ who: "Rohan", verb: "been — go" }] },
 ];
 const CANDIDATES: Omit<Pick, "reactions">[] = [
   { spot: "Toit", by: "You", ini: "RG", line: "Tintin Toit + the patio. Get there early." },
-  { spot: "Empire", by: "Rinkesh", ini: "RG", line: "Chicken ghee roast at 1am." },
+  { spot: "Empire", by: "Rohan", ini: "RK", line: "Chicken ghee roast at 1am." },
 ];
 
 export function TheRound() {

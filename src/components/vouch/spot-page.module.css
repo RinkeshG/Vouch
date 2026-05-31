@@ -8,7 +8,7 @@
 .occ { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* THE RECEIPT — the loud thing */
-.receipt { padding: 22px 24px; border: 1px solid rgba(246, 168, 43, 0.28); background: var(--saffron-dim); border-radius: var(--r-xl); }
+.receipt { padding: 22px 24px; border: 1px solid rgba(246, 168, 43, 0.28); background: var(--saffron-dim); border-radius: var(--r-xl); animation: vouchRise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .receiptLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); }
 .receiptLine { font-family: var(--sans); font-size: 1.05rem; color: var(--text); margin: 8px 0 0; }
 .receiptEmpty { font-family: var(--sans); font-size: 1.05rem; color: var(--muted); line-height: 1.5; margin: 8px 0 0; max-width: 46ch; }
@@ -38,6 +38,6 @@ a.vWho:hover { color: var(--text); }
 .mapWrap { border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); }
 
 .toastWrap { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 80; pointer-events: none; }
-.toast { display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-radius: var(--r-pill); padding: 11px 20px; box-shadow: var(--shadow-pop); }
+.toast { display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-radius: var(--r-pill); padding: 11px 20px; box-shadow: var(--shadow-pop); animation: vouchStampIn 0.34s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 
 @media (max-width: 880px) { .split { grid-template-columns: 1fr; gap: 24px; } .mapCol { position: static; } }

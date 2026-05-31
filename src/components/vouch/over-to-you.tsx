@@ -18,7 +18,7 @@ import styles from "./over-to-you.module.css";
 // Each palate's voiced hand-off (their voice, second person, place-in-hand).
 const HANDOFF: Record<string, { occasion: string; pick: string; line: string }> = {
   Aditi: { occasion: "parents", pick: "Karavalli", line: "Folks in town? Karavalli. Take them — they’ll talk about it for months." },
-  Rinkesh: { occasion: "late night", pick: "Empire", line: "It’s late and you’re starving. Empire — chicken ghee roast, don’t overthink it." },
+  Rohan: { occasion: "late night", pick: "Empire", line: "It’s late and you’re starving. Empire — chicken ghee roast, don’t overthink it." },
   Meera: { occasion: "date", pick: "Soka", line: "Date tonight? Soka — negroni first, then stay for the plates." },
 };
 

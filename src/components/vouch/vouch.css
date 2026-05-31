@@ -102,3 +102,12 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Signature motions (delight from meaning; reduced-motion safe via the guard above).
+   The stamp lands when you put your name on a place; content rises in as it arrives. */
+@keyframes vouchStampIn {
+  0% { opacity: 0; transform: scale(0.84) translateY(8px); }
+  60% { opacity: 1; transform: scale(1.04) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes vouchRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

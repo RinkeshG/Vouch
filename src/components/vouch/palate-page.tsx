@@ -19,10 +19,10 @@ import styles from "./palate-page.module.css";
 type PalateMeta = { slug: string; handle: string; whenToTrust: string; guides: { title: string; slug: string; spots: string[] }[] };
 const META: Record<string, PalateMeta> = {
   Aditi: { slug: "aditi", handle: "@aditi", whenToTrust: "When it has to go right — your parents, a first impression, the filter-coffee canon.", guides: [{ title: "Where I take my parents", slug: "parents", spots: ["Karavalli", "Vidyarthi Bhavan", "Koshy’s"] }] },
-  Rinkesh: { slug: "rinkesh", handle: "@rinkesh", whenToTrust: "After 11, on a date, or when the table’s big and the night’s long.", guides: [{ title: "Open past midnight — actually worth it", slug: "midnight", spots: ["Empire", "Corner House", "Naru Noodle Bar"] }] },
+  Rohan: { slug: "rohan", handle: "@rohan", whenToTrust: "After 11, on a date, or when the table’s big and the night’s long.", guides: [{ title: "Open past midnight — actually worth it", slug: "midnight", spots: ["Empire", "Corner House", "Naru Noodle Bar"] }] },
   Meera: { slug: "meera", handle: "@meera", whenToTrust: "Coffee that matters, a proper negroni, and anywhere she’ll drive 40km for.", guides: [{ title: "Worth crossing town for", slug: "drive", spots: ["Soka", "CTR · Shri Sagar"] }] },
 };
-const SLUG_TO_NAME: Record<string, string> = { aditi: "Aditi", rinkesh: "Rinkesh", meera: "Meera" };
+const SLUG_TO_NAME: Record<string, string> = { aditi: "Aditi", rohan: "Rohan", meera: "Meera" };
 
 function pins(spots: { name: string; lat: number; lng: number; line?: string }[], by?: { name: string; ini: string }): MapPin[] {
   return spots.map((s) => ({ id: `${by?.name ?? "me"}:${s.name}`, lat: s.lat, lng: s.lng, name: s.name, line: s.line, kind: by ? "palate" : "mine", by }));
