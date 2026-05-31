@@ -16,7 +16,7 @@ export type MapPin = {
   stamp?: "want" | "been" | "vouched";
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -116,7 +116,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     <div className={`${styles.wrap} ${bleed ? styles.bleed : ""} ${recede ? styles.recede : ""}`} style={{ height }}>
       <div ref={ref} className={styles.map} />
       {recede && <div className={styles.vignette} aria-hidden="true" />}
-      <span className={styles.tag}>Your map · Bengaluru</span>
+      <span className={styles.tag}>{tag}</span>
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}
       {pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>}
     </div>

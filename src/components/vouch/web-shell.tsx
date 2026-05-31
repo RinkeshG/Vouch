@@ -13,7 +13,7 @@ const NAV: { key: NavKey; glyph: string; label: string; href?: string }[] = [
   { key: "map", glyph: "◍", label: "Your map", href: "/producers-home" },
   { key: "search", glyph: "⌕", label: "Search" },
   { key: "guides", glyph: "❑", label: "Guides", href: "/guides" },
-  { key: "palate", glyph: "◆", label: "Your palate" },
+  { key: "palate", glyph: "◆", label: "Your palate", href: "/palate" },
 ];
 
 export function WebShell({

@@ -16,6 +16,7 @@ export default function ParentsGuidePage() {
         guide={GUIDE_PARENTS}
         whenToTrust="Trust her for parents, coffee, and the old-school South Indian canon."
         share
+        palateHref="/p/aditi"
       />
       <p className={styles.shareHint}>shared with you · borrowing requires an invite</p>
     </div>

@@ -12,10 +12,12 @@ export function GuideArtifact({
   guide,
   whenToTrust,
   share = false,
+  palateHref,
 }: {
   guide: GuideData;
   whenToTrust?: string;
   share?: boolean;
+  palateHref?: string;
 }) {
   return (
     <article className={styles.guide}>
@@ -49,7 +51,9 @@ export function GuideArtifact({
       {share && (
         <footer className={styles.foot}>
           <Button variant="primary">Borrow this guide →</Button>
-          <button type="button" className={styles.ghost}>See {guide.by}’s palate</button>
+          {palateHref
+            ? <a className={styles.ghost} href={palateHref}>See {guide.by}’s palate →</a>
+            : <button type="button" className={styles.ghost}>See {guide.by}’s palate</button>}
           <p className={styles.gate}>Vouch is invite-only · Bengaluru. Borrowing drops these on your map — each one with {guide.by}’s name on it, not a star.</p>
         </footer>
       )}

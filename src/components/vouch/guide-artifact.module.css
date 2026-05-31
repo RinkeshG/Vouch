@@ -17,7 +17,7 @@
 
 .foot { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 22px 28px 26px; border-top: 1px solid var(--line); }
 .foot > button:first-child { width: 100%; }
-.ghost { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); background: none; border: none; cursor: pointer; transition: color 0.15s ease; }
+.ghost { display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: none; transition: color 0.15s ease; }
 .ghost:hover { color: var(--text); }
 .gate { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.6; color: var(--faint); margin: 4px 0 0; text-align: center; }
 
