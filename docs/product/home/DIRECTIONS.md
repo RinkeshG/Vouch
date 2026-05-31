@@ -1,5 +1,7 @@
 # The Logged-In Home — Directions
 
+> ⚠️ **SUPERSEDED (v1).** See **`DIRECTIONS-v2.md`** + **`SPINE.md`** for the product-first rethink (spine resolved; references-grounded; un-anchored). Kept for the record.
+
 > The only review that matters has a name on it. This document decides what the
 > logged-in home screen **is** — the job someone hires it to do, what dominates
 > the screen, and why.

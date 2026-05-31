@@ -1,5 +1,7 @@
 # Vouch — The Logged-In Home: Deliberation Record
 
+> ⚠️ **SUPERSEDED (v1).** This pass was anchored to prior prototypes, reasoned the home in isolation, and used no external references. See **`DELIBERATION-v2.md`**, **`SPINE.md`**, **`REFERENCES.md`**, and **`DIRECTIONS-v2.md`** for the product-first, reference-grounded rethink. Kept for the record.
+
 > The documented thinking behind what the Vouch home screen should *be*. This is not a spec. It is the argument — four independent points of view, the debate between them, the directions that survived, and the adversarial critique that forced a revision. Read it to understand *why* the home is what it is, and what we deliberately refused.
 
 ---
