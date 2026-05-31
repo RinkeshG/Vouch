@@ -3,6 +3,17 @@
 .wrap { position: relative; isolation: isolate; z-index: 0; width: 100%; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); box-shadow: var(--shadow-lift); background: #0e0c08; }
 /* full-pane map (web canvas): no card chrome */
 .bleed { border-radius: 0; border: none; box-shadow: none; }
+
+/* RECEDE — the city drops back to a quiet dark stage so only trust glows. */
+.recede :global(.leaflet-tile-pane) { filter: brightness(0.5) contrast(0.92) saturate(0.4) sepia(0.18) hue-rotate(-6deg); }
+.recede :global(.leaflet-container) { background: #0b0a07; }
+.vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse 70% 60% at 50% 48%, rgba(11,10,7,0) 35%, rgba(11,10,7,0.55) 78%, rgba(11,10,7,0.92) 100%); }
+
+/* SPOTLIGHT — the decision-moment focus: dim the rest, halo the one. */
+.dimmed { opacity: 0.22; filter: grayscale(0.5); }
+.lit { z-index: 1000 !important; }
+.lit .dot, .lit .dotBeen, .lit .dotWant { box-shadow: 0 0 0 7px rgba(246, 168, 43, 0.16), 0 0 26px 7px rgba(246, 168, 43, 0.95); animation: halo 1.8s ease-in-out infinite; }
+@keyframes halo { 0%, 100% { box-shadow: 0 0 0 6px rgba(246, 168, 43, 0.14), 0 0 22px 6px rgba(246, 168, 43, 0.8); } 50% { box-shadow: 0 0 0 10px rgba(246, 168, 43, 0.2), 0 0 30px 9px rgba(246, 168, 43, 1); } }
 .map { position: absolute; inset: 0; }
 .tag { position: absolute; top: 14px; left: 16px; z-index: 500; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text); background: rgba(12, 10, 7, 0.6); padding: 5px 10px; border-radius: var(--r-pill); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); pointer-events: none; }
 .empty { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); z-index: 500; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); pointer-events: none; }
@@ -11,8 +22,11 @@
 
 /* pins (divIcon content) */
 .icon { background: transparent; border: none; }
-.pin, .pinP { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; animation: drop 0.45s var(--ease) both; cursor: pointer; }
-.dot { width: 14px; height: 14px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: var(--saffron); box-shadow: 0 0 14px 2px rgba(246, 168, 43, 0.85); }
+.pin, .pinP { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; animation: drop 0.45s var(--ease) both; cursor: pointer; transition: opacity 0.3s var(--ease), filter 0.3s var(--ease); }
+/* stamp-state pins — the map reads as your relationship to each place */
+.dot { width: 14px; height: 14px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: var(--saffron); box-shadow: 0 0 14px 2px rgba(246, 168, 43, 0.85); }   /* Vouched — the currency, glows */
+.dotBeen { width: 11px; height: 11px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: rgba(244, 238, 227, 0.5); box-shadow: 0 0 6px 0 rgba(244, 238, 227, 0.18); }   /* Been — quiet diary mark */
+.dotWant { width: 11px; height: 11px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: transparent; border: 1.5px solid rgba(246, 168, 43, 0.65); }   /* Want to go — a ghost */
 .ava { width: 24px; height: 24px; flex: none; border-radius: 7px 7px 7px 2px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 0.56rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron), var(--ember)); box-shadow: 0 0 12px 1px rgba(246, 168, 43, 0.6); border: 1.5px solid var(--bg); }
 .label { font-family: var(--sans); font-weight: 600; font-size: 0.74rem; color: var(--text); background: rgba(12, 10, 7, 0.88); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 3px 9px; transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
 /* crowded surfaces (Home): keep pins clean, reveal the name on hover/focus — tap

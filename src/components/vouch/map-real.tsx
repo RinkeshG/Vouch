@@ -13,9 +13,10 @@ export type MapPin = {
   id: string; lat: number; lng: number; name: string;
   line?: string; occasion?: string;
   kind?: "mine" | "palate"; by?: { name: string; ini: string };
+  stamp?: "want" | "been" | "vouched";
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -42,9 +43,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     pins.forEach((p) => {
       if (markers.current[p.id]) return;
       const hov = labelMode === "hover" ? ` ${styles.hover}` : "";
+      const dotClass = p.stamp === "been" ? styles.dotBeen : p.stamp === "want" ? styles.dotWant : styles.dot;
       const html = p.kind === "palate" && p.by
         ? `<div class="${styles.pinP}${hov}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`
-        : `<div class="${styles.pin}${hov}"><span class="${styles.dot}"></span><span class="${styles.label}">${p.name}</span></div>`;
+        : `<div class="${styles.pin}${hov}"><span class="${dotClass}"></span><span class="${styles.label}">${p.name}</span></div>`;
       const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [8, 8], popupAnchor: [40, -6] });
       markers.current[p.id] = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m).bindPopup(popupHTML(p), { className: styles.popup, closeButton: true });
       changed = true;
@@ -65,7 +67,8 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
         zoomControl: false, attributionControl: false,
         minZoom: 11, maxZoom: 18, maxBounds: BLR, maxBoundsViscosity: 1.0,
       }).setView([12.9716, 77.5946], 11.5);
-      leaflet.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
+      const tiles = recede ? "dark_nolabels" : "dark_all";
+      leaflet.tileLayer(`https://{s}.basemaps.cartocdn.com/${tiles}/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
       leaflet.control.zoom({ position: "bottomright" }).addTo(m);
       map.current = m;
       setTimeout(() => m.invalidateSize(), 60);
@@ -88,6 +91,20 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     mk.openPopup();
   }, [focusId]);
 
+  // spotlight: dim everything but one pin (the decision-moment focus)
+  useEffect(() => {
+    Object.entries(markers.current).forEach(([id, mk]) => {
+      const el = (mk.getElement?.() as HTMLElement | undefined);
+      if (!el) return;
+      el.classList.toggle(styles.dimmed, !!spotlightId && id !== spotlightId);
+      el.classList.toggle(styles.lit, !!spotlightId && id === spotlightId);
+    });
+    if (spotlightId && map.current && markers.current[spotlightId]) {
+      map.current.flyTo(markers.current[spotlightId].getLatLng(), 14, { duration: 0.6 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spotlightId, sig]);
+
   function fit() {
     const m = map.current;
     if (!m || !pins.length) return;
@@ -96,8 +113,9 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   }
 
   return (
-    <div className={`${styles.wrap} ${bleed ? styles.bleed : ""}`} style={{ height }}>
+    <div className={`${styles.wrap} ${bleed ? styles.bleed : ""} ${recede ? styles.recede : ""}`} style={{ height }}>
       <div ref={ref} className={styles.map} />
+      {recede && <div className={styles.vignette} aria-hidden="true" />}
       <span className={styles.tag}>Your map · Bengaluru</span>
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}
       {pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>}
