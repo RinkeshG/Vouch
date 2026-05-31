@@ -1,0 +1,103 @@
+/* ============================================================================
+   VOUCH — Design System 2.0 runtime tokens  ("After Dark / The Ledger")
+   Scoped to .vouch so it never clobbers the legacy globals.css. Apply the
+   .vouch class to the product/showcase root; every kit component reads these.
+   Mirrors docs/design-system/tokens.css. Identity is settled — systematize it.
+   Breakpoints (use literal px in component CSS): sm 560 · md 900 · lg 1160.
+   ========================================================================== */
+
+.vouch {
+  /* — surfaces — */
+  --bg: #100f0d;
+  --bg-2: #16140f;
+  --surface: #1a1712;
+  --surface-2: #221d16;
+  --line: rgba(244, 238, 227, 0.12);
+  --line-2: rgba(244, 238, 227, 0.20);
+  --rule: rgba(244, 238, 227, 0.28);
+
+  /* — ink — */
+  --text: #f3eee3;
+  --muted: #bcb3a4;   /* AA+ body-secondary on --bg */
+  --faint: #756c5f;   /* large / UI / meta only */
+
+  /* — accent — */
+  --saffron: #f6a82b;
+  --saffron-hi: #ffc658;
+  --accent-ink: #1c1408;   /* text on saffron fills — never white */
+  --ember: #ff5b33;
+  --jade: #76d29b;
+  --saffron-dim: rgba(246, 168, 43, 0.10);
+  --saffron-line: rgba(246, 168, 43, 0.30);
+  --jade-dim: rgba(118, 210, 155, 0.12);
+
+  /* — stamp colours (the three states) — */
+  --stamp-want: #cdb595;
+  --stamp-been: var(--jade);
+  --stamp-vouched: var(--saffron);
+
+  /* — type families — */
+  --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --sans: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* — type ramp (product) — */
+  --t-display: clamp(2.4rem, 5vw, 4rem);
+  --t-h1: clamp(1.9rem, 3.6vw, 2.8rem);
+  --t-h2: clamp(1.5rem, 2.6vw, 2rem);
+  --t-h3: 1.25rem;
+  --t-body: 1rem;
+  --t-body-sm: 0.9rem;
+  --t-label: 0.62rem;     /* mono uppercase */
+  --t-caption: 0.56rem;
+
+  /* — spacing (4px grid) — */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px;
+  --s6: 24px; --s8: 32px; --s10: 40px; --s12: 48px; --s16: 64px;
+
+  /* — radii — */
+  --r-xs: 6px; --r-sm: 8px; --r-md: 11px; --r-lg: 14px; --r-xl: 18px; --r-pill: 999px;
+
+  /* — elevation — */
+  --shadow: 0 24px 60px -38px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 44px 90px -44px rgba(0, 0, 0, 0.95);
+  --shadow-pop: 0 14px 32px -14px rgba(246, 168, 43, 0.8);
+
+  /* — motion — */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-quick: 0.16s;
+  --dur: 0.25s;
+  --dur-slow: 0.45s;
+
+  /* — layout — */
+  --wrap: 1160px;
+  --tap: 44px;
+
+  /* base */
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.vouch *, .vouch *::before, .vouch *::after { box-sizing: border-box; }
+.vouch ::selection { background: var(--saffron); color: var(--accent-ink); }
+
+/* shared focus ring — every interactive kit element inherits this */
+.vouch :focus-visible {
+  outline: 2.5px solid var(--saffron);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vouch *, .vouch *::before, .vouch *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

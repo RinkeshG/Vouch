@@ -1,0 +1,36 @@
+/* shared curator line + rows (inside == outside) */
+.curator { display: inline-flex; align-items: center; gap: 10px; font-family: var(--sans); font-size: 0.9rem; color: var(--muted); min-width: 0; }
+.curator b { color: var(--text); font-weight: 600; }
+.curatorText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.anchor { display: inline-block; align-self: flex-start; margin: 13px 0 11px; font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--saffron); background: var(--saffron-dim); border: 1px solid var(--saffron-line); border-radius: var(--r-pill); padding: 4px 10px; }
+
+.title { font-family: var(--display); font-weight: 700; font-size: 1.32rem; line-height: 1.04; letter-spacing: -0.015em; margin: 0 0 6px; color: var(--text); }
+.meta { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
+
+.rows { list-style: none; margin: 16px 0 0; padding: 4px 0 0; border-top: 1px solid var(--line); }
+.row { display: flex; align-items: flex-start; gap: 13px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: none; }
+.num { font-family: var(--display); font-style: italic; font-size: 1.05rem; color: var(--saffron); flex: none; width: 1.55em; line-height: 1.4; }
+.body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.name { font-family: var(--sans); font-weight: 600; font-size: 0.98rem; color: var(--text); letter-spacing: -0.01em; line-height: 1.25; }
+.tags { margin-top: 1px; }
+.note { font-family: var(--sans); font-size: 0.85rem; color: var(--faint); font-style: italic; line-height: 1.32; }
+.save { flex: none; width: 30px; height: 30px; border-radius: var(--r-sm); border: 1px solid var(--line-2); color: var(--faint); display: grid; place-items: center; font-size: 0.95rem; align-self: center; }
+
+/* preview card */
+.card { width: 100%; text-align: left; cursor: pointer; color: inherit; font: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px 20px 18px; display: flex; flex-direction: column; transition: transform var(--dur) var(--ease), border-color var(--dur) ease, box-shadow var(--dur) ease; }
+.card:hover { transform: translateY(-6px); border-color: var(--saffron-line); box-shadow: 0 30px 56px -30px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(246, 168, 43, 0.14); }
+.cardHead { margin-bottom: 16px; }
+.foot { font-family: var(--mono); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.view { color: var(--faint); transition: color var(--dur) ease; }
+.card:hover .view { color: var(--saffron); }
+
+/* opened full view */
+.view { }
+.viewHead { display: flex; flex-direction: column; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.viewHead .curator { margin-bottom: 4px; }
+.viewTitle { font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.025em; line-height: 1.02; color: var(--text); margin: 8px 0; }
+.viewMeta { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); }
+.viewRows { border-top: none; margin-top: 4px; }
+.viewFoot { padding-top: 18px; margin-top: 6px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }

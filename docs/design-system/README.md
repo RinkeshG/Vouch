@@ -1,9 +1,19 @@
 # Vouch — Brand Book & Design System
 
-> **v1.0 · "After Dark"** — distilled from the v2 landing (`/v2`), this is the
-> reference we build the rest of the product from. It is opinionated on
-> purpose. A design system isn't a paint set; it's a set of decisions already
-> made so the team can move fast *and* stay coherent.
+> **v2.0 · "After Dark · the product OS."** What began as the language distilled
+> from the `/v2` landing is now a **coded component kit** you build screens from.
+> A design system isn't a paint set; it's decisions already made so the team moves
+> fast *and* stays coherent.
+
+**Read first:** the product is governed by **[`../product/CONSTITUTION.md`](../product/CONSTITUTION.md)**
+— what a vouch is, what Vouch never does, the six objects, the loop, the metric,
+and the four anti-drift gates. This design system *serves* that document.
+
+**The kit is real code.** Components live in **`src/components/vouch/`** and are
+provable in the **living showcase at `/system`** (with the five surface stubs at
+`/system/{home,spot,palate,guide,add}`). The object↔component map is
+**[`objects.md`](./objects.md)**. Tokens are the `.vouch` scope in
+`src/components/vouch/vouch.css` (mirrored by [`tokens.css`](./tokens.css)).
 
 ---
 
@@ -60,9 +70,10 @@ honours these wins.
   intent, then use it.
 - **Semantic over raw.** Components reference `--text`, `--surface`, `--accent`
   — not `--c-saffron-500`. This lets us re-theme without a find-and-replace.
-- **Compose from the kit.** Build screens out of documented
-  [components](./components.md) and [patterns](./patterns.md). If you need
-  something new, design it *as a reusable component* and add it here.
+- **Compose from the coded kit.** Build screens from the components in
+  `src/components/vouch/` (mapped in [`objects.md`](./objects.md), shown at
+  `/system`). If you need something new, build it *as a reusable component* there
+  and document it — never a one-off in a screen.
 - **Copy is design.** Run microcopy past [the voice guide](./brand.md#voice--tone).
   The words carry as much brand as the type.
 
@@ -72,19 +83,23 @@ honours these wins.
 
 | Doc | What's inside |
 |---|---|
+| [`../product/CONSTITUTION.md`](../product/CONSTITUTION.md) | **The north star** — what a vouch is, the six objects, what Vouch never does, the loop, cold-start, data model, the metric, the anti-drift gates |
+| [`objects.md`](./objects.md) | **The six objects → coded components** (`src/components/vouch/`), their rules + states; the supporting kit; the surface stubs |
 | [`brand.md`](./brand.md) | Positioning, audience, personality, **voice & tone**, the **lexicon** (our words), logo & wordmark |
-| [`foundations.md`](./foundations.md) | **Colour**, **typography**, space & layout, radius, **elevation & glow**, texture, **motion**, iconography, a11y |
-| [`components.md`](./components.md) | The kit — buttons, inputs, chips/stamps, avatars, rows, cards, the **slot machine**, modals & sheets, ticker, **live pulse**, the trust trail |
-| [`patterns.md`](./patterns.md) | Compositions — the **vouch**, the **guide**, the **palate** profile, the recommendation, the feed, quiz, waitlist, **states** (empty/loading/error), the invite flow |
-| [`tokens.css`](./tokens.css) | The single source of truth — import once, reference everywhere |
+| [`foundations.md`](./foundations.md) | **Colour**, **typography** (the product type ramp), space & layout, radius, **elevation & glow**, **motion**, **imagery** (people + type), a11y |
+| [`components.md`](./components.md) | The kit specs — buttons, inputs, chips/stamps, avatars, rows, cards, modals & sheets, the trust trail |
+| [`patterns.md`](./patterns.md) | Compositions — the **vouch**, **guide**, **palate**, **spot**, the home, the add ritual, **states**, the app shell, share artifacts |
+| [`tokens.css`](./tokens.css) | Token reference — mirrors the runtime `.vouch` scope in `src/components/vouch/vouch.css` |
 
 ---
 
 ## Status & governance
 
-- **v1.0** documents what shipped in the v2 landing, formalised for product use.
+- **v2.0** is the product OS: a coded kit (`src/components/vouch/`) + the
+  Constitution + the `/system` showcase. v1.0 documented the landing language.
 - Treat this as a **living** document. A pattern used in 3+ places becomes a
   component here. A value used twice becomes a token.
+- **Imagery is people + type — no food photos** (`foundations.md §8b`).
 - **Changelog** lives at the bottom of each doc. Date and initial every change —
   a design system you can't trust is just decoration.
 

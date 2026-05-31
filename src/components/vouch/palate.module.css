@@ -1,0 +1,18 @@
+.head { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-xl); padding: var(--s6); box-shadow: var(--shadow); }
+.top { display: flex; align-items: center; gap: var(--s4); }
+.id { flex: 1; min-width: 0; }
+.name { font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.3rem); letter-spacing: -0.03em; line-height: 1; color: var(--text); margin: 0; }
+.handle { display: block; margin-top: 6px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.actions { flex: none; }
+
+.trust { font-family: var(--sans); font-size: 1rem; color: var(--muted); line-height: 1.5; margin: 20px 0 0; max-width: 52ch; }
+.trustLabel { display: block; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); margin-bottom: 7px; }
+
+.occasions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 20px; }
+.occLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-right: 4px; }
+
+@media (max-width: 560px) {
+  .top { flex-wrap: wrap; }
+  .actions { width: 100%; }
+  .actions > * { width: 100%; }
+}

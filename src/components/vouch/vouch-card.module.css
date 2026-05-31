@@ -1,0 +1,22 @@
+.card {
+  background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-xl);
+  padding: var(--s5); box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 50% at 92% 0%, rgba(246, 168, 43, 0.07), transparent 60%); }
+.compact { padding: var(--s4); border-radius: var(--r-lg); }
+
+.head { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s3); position: relative; }
+.by { display: inline-flex; align-items: center; gap: 9px; min-width: 0; }
+.byName { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.byName b { color: var(--text); font-weight: 600; }
+
+.place { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.025em; line-height: 1.0; color: var(--text); margin: 0; position: relative; }
+.compact .place { font-size: 1.3rem; }
+.tags { margin-top: 8px; position: relative; }
+
+.line { font-family: var(--sans); font-size: 1.08rem; color: var(--text); line-height: 1.4; margin: 14px 0 0; position: relative; }
+.compact .line { font-size: 0.98rem; margin-top: 10px; }
+
+.occasions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; position: relative; }
+.receipt { margin-top: 16px; position: relative; }
+.actions { display: flex; gap: 9px; margin-top: 16px; position: relative; flex-wrap: wrap; }

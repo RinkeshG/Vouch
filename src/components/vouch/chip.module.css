@@ -1,0 +1,21 @@
+.occasion {
+  font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--muted); background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2);
+  border-radius: var(--r-pill); padding: 7px 13px; cursor: default; transition: color var(--dur-quick) ease, background var(--dur-quick) ease, border-color var(--dur-quick) ease;
+}
+button.occasion { cursor: pointer; }
+button.occasion:hover { color: var(--text); border-color: var(--rule); }
+.on, .on:hover { color: var(--accent-ink); background: var(--saffron); border-color: var(--saffron); font-weight: 700; }
+
+.tag {
+  font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);
+}
+
+.status {
+  display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--jade);
+}
+.status i { width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--jade); box-shadow: 0 0 9px 0 var(--jade); animation: pulse 2s ease-in-out infinite; }
+.statusSaffron { color: var(--saffron); }
+.statusSaffron i { background: var(--saffron); box-shadow: 0 0 9px 0 var(--saffron); }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.82); } }

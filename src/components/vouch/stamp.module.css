@@ -1,0 +1,21 @@
+.stamp {
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  font-family: var(--mono); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  border-radius: var(--r-pill); border: 1px solid var(--line-2); color: var(--text);
+  background: rgba(244, 238, 227, 0.04);
+}
+.md { font-size: 0.58rem; padding: 5px 11px; }
+.sm { font-size: 0.52rem; padding: 4px 9px; gap: 5px; }
+.dot { width: 8px; height: 8px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); }
+
+.want .dot { background: var(--stamp-want); }
+.been .dot { background: var(--stamp-been); }
+.vouched { border-color: var(--saffron-line); color: var(--saffron); background: var(--saffron-dim); }
+.vouched .dot { background: var(--stamp-vouched); box-shadow: 0 0 12px 0 rgba(246, 168, 43, 0.8); }
+
+.land { animation: stampLand 0.42s var(--ease) both; }
+@keyframes stampLand {
+  0% { opacity: 0; transform: scale(1.5) rotate(-8deg); }
+  60% { opacity: 1; transform: scale(0.94) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}

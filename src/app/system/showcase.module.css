@@ -1,0 +1,47 @@
+.page { min-height: 100vh; padding-bottom: 120px; }
+.wrap { width: 100%; max-width: 960px; margin-inline: auto; padding-inline: 24px; }
+
+.masthead { padding: 40px 0 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.mastTitle { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--faint); }
+
+.section { padding: 40px 0; border-bottom: 1px solid var(--line); }
+.sectionHead { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--saffron); margin: 0 0 4px; }
+.sectionDesc { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); margin: 0 0 24px; max-width: 60ch; }
+
+.cell { margin-bottom: 26px; }
+.cellLabel { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 12px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.rowTight { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.stage { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 22px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.col { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+
+/* object component layouts */
+.objGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.viewStage { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-xl); padding: 22px; box-shadow: var(--shadow); }
+.spotStage { display: flex; flex-direction: column; gap: 16px; max-width: 560px; }
+.footNote { font-family: var(--sans); font-size: 0.86rem; color: var(--muted); }
+.footNote b { color: var(--text); font-weight: 600; }
+@media (max-width: 760px) { .objGrid { grid-template-columns: 1fr; } }
+
+.surfaceNav { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.surfaceLink { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); color: var(--text); text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.015em; transition: transform var(--dur) var(--ease), border-color var(--dur) ease, color var(--dur) ease; }
+.surfaceLink:hover { transform: translateY(-3px); border-color: var(--saffron-line); }
+.surfaceLink span { color: var(--saffron); }
+
+/* token swatches */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+.swatch { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.swatchChip { height: 56px; }
+.swatchMeta { padding: 8px 10px; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
+.swatchMeta b { color: var(--text); font-weight: 600; }
+
+/* type ramp */
+.typeRow { display: flex; align-items: baseline; gap: 18px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.typeRow:last-child { border-bottom: none; }
+.typeTag { font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); width: 92px; flex: none; }
+.tDisplay { font-family: var(--display); font-weight: 800; font-size: var(--t-display); letter-spacing: -0.035em; line-height: 1; color: var(--text); }
+.tH1 { font-family: var(--display); font-weight: 800; font-size: var(--t-h1); letter-spacing: -0.03em; color: var(--text); }
+.tH2 { font-family: var(--display); font-weight: 700; font-size: var(--t-h2); letter-spacing: -0.025em; color: var(--text); }
+.tH3 { font-family: var(--display); font-weight: 700; font-size: var(--t-h3); color: var(--text); }
+.tBody { font-family: var(--sans); font-size: var(--t-body); color: var(--muted); }
+.tLabel { font-family: var(--mono); font-size: var(--t-label); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
