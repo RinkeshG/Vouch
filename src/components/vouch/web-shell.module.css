@@ -24,8 +24,9 @@
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .navItem {
   display: flex; align-items: center; gap: 12px; font-family: var(--sans); font-size: 0.96rem; font-weight: 500;
-  color: var(--muted); padding: 10px 12px; border-radius: var(--r-md); cursor: default; transition: color 0.15s ease, background 0.15s ease;
+  color: var(--muted); padding: 10px 12px; border-radius: var(--r-md); cursor: pointer; text-decoration: none; transition: color 0.15s ease, background 0.15s ease;
 }
+.navItem[aria-disabled="true"] { cursor: default; }
 .navItem:hover { color: var(--text); background: rgba(244, 238, 227, 0.04); }
 .navOn { color: var(--text); background: rgba(244, 238, 227, 0.06); font-weight: 600; }
 .navGlyph { font-size: 1.05rem; width: 18px; text-align: center; }

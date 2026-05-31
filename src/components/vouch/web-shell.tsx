@@ -9,10 +9,10 @@ export type NavKey = "map" | "search" | "guides" | "palate";
    nav, and the privileged ＋Vouch — the web idiom, not a phone's bottom tab bar.
    The main area is free to be a full-height, multi-pane canvas. Mobile gets its
    own shell (app-shell.tsx) and its own layout, designed separately. */
-const NAV: { key: NavKey; glyph: string; label: string }[] = [
-  { key: "map", glyph: "◍", label: "Your map" },
+const NAV: { key: NavKey; glyph: string; label: string; href?: string }[] = [
+  { key: "map", glyph: "◍", label: "Your map", href: "/producers-home" },
   { key: "search", glyph: "⌕", label: "Search" },
-  { key: "guides", glyph: "❑", label: "Guides" },
+  { key: "guides", glyph: "❑", label: "Guides", href: "/guides" },
   { key: "palate", glyph: "◆", label: "Your palate" },
 ];
 
@@ -40,12 +40,13 @@ export function WebShell({
         </button>
 
         <nav className={styles.nav} aria-label="Vouch">
-          {NAV.map((n) => (
-            <span key={n.key} className={`${styles.navItem} ${active === n.key ? styles.navOn : ""}`} aria-current={active === n.key ? "page" : undefined}>
-              <span className={styles.navGlyph} aria-hidden="true">{n.glyph}</span>
-              {n.label}
-            </span>
-          ))}
+          {NAV.map((n) => {
+            const cls = `${styles.navItem} ${active === n.key ? styles.navOn : ""}`;
+            const inner = <><span className={styles.navGlyph} aria-hidden="true">{n.glyph}</span>{n.label}</>;
+            return n.href
+              ? <a key={n.key} href={n.href} className={cls} aria-current={active === n.key ? "page" : undefined}>{inner}</a>
+              : <span key={n.key} className={cls} aria-disabled="true">{inner}</span>;
+          })}
         </nav>
 
         <div className={styles.you}>

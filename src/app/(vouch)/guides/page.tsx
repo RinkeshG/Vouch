@@ -1,7 +1,7 @@
-import { GuideBuild } from "../../../components/vouch/guide-build";
+import { GuidesApp } from "../../../components/vouch/guides-app";
 
-export const metadata = { title: "Vouch — Build a guide" };
+export const metadata = { title: "Vouch — Your guides" };
 
 export default function GuidesPage() {
-  return <GuideBuild />;
+  return <GuidesApp />;
 }
