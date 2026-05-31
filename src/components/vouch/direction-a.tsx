@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
+import { AddVouchModal } from "./add-vouch";
 import { archetypeFor, type Vouch } from "./_taste";
 import { loadMe } from "./_me";
 import styles from "./direction-a.module.css";
@@ -16,8 +17,11 @@ export function ProducersHome() {
   const [vouches, setVouches] = useState<Vouch[]>([]);
   const [ready, setReady] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => { setVouches(loadMe().vouches); setReady(true); }, []);
+  useEffect(() => { if (!toast) return; const t = window.setTimeout(() => setToast(null), 3000); return () => window.clearTimeout(t); }, [toast]);
 
   const arch = archetypeFor(vouches);
   const areas = new Set(vouches.map((v) => v.spot.area)).size;
@@ -25,7 +29,7 @@ export function ProducersHome() {
   const empty = ready && vouches.length === 0;
 
   return (
-    <WebShell active="map" you={{ ini: "RG", name: "You", line: vouches.length ? `${arch.glyph} ${arch.name}` : "Build your map" }}>
+    <WebShell active="map" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: vouches.length ? `${arch.glyph} ${arch.name}` : "Build your map" }}>
       <div className={styles.stage}>
         <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede spotlightId={focused} /></div>
         <div className={styles.scrim} aria-hidden="true" />
@@ -55,12 +59,13 @@ export function ProducersHome() {
         </header>
 
         <div className={styles.addWrap}>
-          {empty
-            ? <a href="/start"><Button variant="primary">Start your map →</Button></a>
-            : <a href="/start"><Button variant="primary">＋ Put a name down</Button></a>}
+          <Button variant="primary" onClick={() => setAdding(true)}>{empty ? "Put your first name down →" : "＋ Put a name down"}</Button>
           <span className={styles.stamps}>Want to go · Been · <b>Vouched</b></span>
         </div>
       </div>
+
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} onAdded={(v) => { setVouches(loadMe().vouches); setFocused(`me:${v.spot.name}`); setToast(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
+      {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );
 }

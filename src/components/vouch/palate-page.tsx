@@ -8,6 +8,7 @@ import { MapReal, type MapPin } from "./map-real";
 import { FOUNDING, findSpot, archetypeFor, type FoundingPalate, type Vouch } from "./_taste";
 import { listGuides, slugify, type Guide } from "./_guides";
 import { loadMe, toggleFollow, type Me } from "./_me";
+import { AddVouchModal } from "./add-vouch";
 import styles from "./palate-page.module.css";
 
 /* The Palate (§4) — a taste map, not a profile. Reads REAL data: your own palate
@@ -36,6 +37,7 @@ export function PalatePage({ slug }: { slug?: string }) {
   const [ownGuides, setOwnGuides] = useState<Guide[]>([]);
   const [following, setFollowing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     const m = loadMe();
@@ -79,7 +81,7 @@ export function PalatePage({ slug }: { slug?: string }) {
   const whenToTrust = own ? (hasTaste ? myArch.line : "Vouch a few places you love and your taste becomes legible right here.") : meta!.whenToTrust;
 
   return (
-    <WebShell active="palate" you={{ ini: "RG", name: "You", line: hasTaste ? `${myArch.glyph} ${myArch.name}` : "Your palate" }}>
+    <WebShell active="palate" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: hasTaste ? `${myArch.glyph} ${myArch.name}` : "Your palate" }}>
       <div className={styles.page}>
         <p className={styles.eyebrow}>{own ? "Your palate" : "A palate"}</p>
 
@@ -179,6 +181,7 @@ export function PalatePage({ slug }: { slug?: string }) {
         {!own && <p className={styles.gate}>Vouch is invite-only · Bengaluru. Follow {display} to borrow their map — every spot with their name on it.</p>}
       </div>
 
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} onAdded={(v) => { setMe(loadMe()); setToast(`Your name’s on it. ${v.spot.name} is on your map.`); window.setTimeout(() => setToast(null), 2800); }} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );

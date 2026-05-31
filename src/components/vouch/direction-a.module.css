@@ -25,4 +25,7 @@
 .stamps { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
 .stamps b { color: var(--saffron); }
 
+.toastWrap { position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 5; pointer-events: none; }
+.toast { display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-radius: var(--r-pill); padding: 11px 20px; box-shadow: var(--shadow-pop); }
+
 @media (max-width: 880px) { .header { padding: 56px 20px 0; } }

@@ -8,6 +8,7 @@ import { MapReal } from "./map-real";
 import { SEED, FOUNDING, archetypeFor } from "./_taste";
 import { listGuides, slugify } from "./_guides";
 import { loadMe, type Me } from "./_me";
+import { AddVouchModal } from "./add-vouch";
 import styles from "./spot-page.module.css";
 
 /* The Spot page (Constitution §7.2) — leads with the RECEIPT (who vouched, why it
@@ -43,10 +44,12 @@ export function SpotPage({ slug }: { slug: string }) {
   const spot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
   const [stamp, setStamp] = useState<Stamp | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  function flash(t: string) { setToast(t); window.setTimeout(() => setToast(null), 2800); }
   function setMy(s: Stamp) {
+    if (s === "vouched") { setAdding(true); return; } // open the real ritual
     setStamp(s);
-    setToast(s === "want" ? "Saved for the night you’re nearby." : s === "been" ? "Logged — it’s in your diary." : "Your name’s on it. Add why in a vouch.");
-    window.setTimeout(() => setToast(null), 2800);
+    flash(s === "want" ? "Saved for the night you’re nearby." : "Logged — it’s in your diary.");
   }
 
   if (!spot) {
@@ -67,7 +70,7 @@ export function SpotPage({ slug }: { slug: string }) {
   ];
 
   return (
-    <WebShell active="search" you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
+    <WebShell active="search" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
       <div className={styles.page}>
         <header className={styles.head}>
           <p className={styles.eyebrow}>Spot · Bengaluru</p>
@@ -136,6 +139,7 @@ export function SpotPage({ slug }: { slug: string }) {
         </div>
       </div>
 
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} presetSpot={spot.name} onAdded={(v) => { setMe(loadMe()); setStamp("vouched"); flash(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );

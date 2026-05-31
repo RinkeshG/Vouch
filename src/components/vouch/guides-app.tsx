@@ -4,11 +4,13 @@ import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { type GuideData } from "./guide";
 import { GuideArtifact } from "./guide-artifact";
-import { archetypeFor, DEMO_SESSION } from "./_taste";
+import { archetypeFor } from "./_taste";
 import {
-  listGuides, getGuide, upsertGuide, deleteGuide, myVouches, slugify, uid,
+  listGuides, getGuide, upsertGuide, deleteGuide, slugify, uid,
   type Guide, type GuideItem,
 } from "./_guides";
+import { loadMe } from "./_me";
+import { AddVouchModal } from "./add-vouch";
 import styles from "./guides-app.module.css";
 
 /* The Guides workspace — a real, persisted feature (CRUD). One client surface with
@@ -22,12 +24,13 @@ const toData = (g: { title: string; note?: string; anchor?: string; items: Guide
 });
 
 export function GuidesApp() {
-  const arch = archetypeFor(DEMO_SESSION.mine);
   const [view, setView] = useState<View>({ kind: "list" });
   const [guides, setGuides] = useState<Guide[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [arch, setArch] = useState(() => archetypeFor([]));
 
-  useEffect(() => { setGuides(listGuides()); }, []);
+  useEffect(() => { setGuides(listGuides()); setArch(archetypeFor(loadMe().vouches)); }, []);
   const refresh = () => setGuides(listGuides());
   useEffect(() => { if (!toast) return; const t = window.setTimeout(() => setToast(null), 2600); return () => window.clearTimeout(t); }, [toast]);
 
@@ -40,7 +43,7 @@ export function GuidesApp() {
   }
 
   return (
-    <WebShell active="guides" onNewVouch={() => setView({ kind: "build" })} you={{ ini: "RG", name: "You", line: `${arch.glyph} ${arch.name}` }}>
+    <WebShell active="guides" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: `${arch.glyph} ${arch.name}` }}>
       {view.kind === "list" && (
         <GuideList guides={guides} onNew={() => setView({ kind: "build" })} onOpen={(id) => setView({ kind: "view", id })} />
       )}
@@ -64,6 +67,7 @@ export function GuidesApp() {
         );
       })()}
 
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} onAdded={(v) => setToast(`Your name’s on it. ${v.spot.name} is on your map.`)} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );
@@ -155,8 +159,9 @@ function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (
   const [items, setItems] = useState<GuideItem[]>(initial?.items ?? []);
   const [q, setQ] = useState("");
 
+  const myVouches: GuideItem[] = useMemo(() => loadMe().vouches.map((v) => ({ name: v.spot.name, tags: `${v.spot.cuisine} · ${v.spot.area} · ${v.spot.price}`, note: v.line })), []);
   const have = useMemo(() => new Set(items.map((i) => i.name)), [items]);
-  const pool = useMemo(() => myVouches().filter((v) => !have.has(v.name) && (q ? v.name.toLowerCase().includes(q.toLowerCase()) || v.tags.toLowerCase().includes(q.toLowerCase()) : true)), [have, q]);
+  const pool = useMemo(() => myVouches.filter((v) => !have.has(v.name) && (q ? v.name.toLowerCase().includes(q.toLowerCase()) || v.tags.toLowerCase().includes(q.toLowerCase()) : true)), [myVouches, have, q]);
 
   const add = (it: GuideItem) => setItems((p) => [...p, { ...it }]);
   const remove = (name: string) => setItems((p) => p.filter((i) => i.name !== name));
@@ -227,7 +232,7 @@ function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (
               </button>
             </li>
           ))}
-          {pool.length === 0 && <li className={styles.poolNone}>{q ? "No match in your vouches." : "Every spot is in this guide."}</li>}
+          {pool.length === 0 && <li className={styles.poolNone}>{myVouches.length === 0 ? "Vouch a few places first — then build a guide from them." : q ? "No match in your vouches." : "Every spot is already in this guide."}</li>}
         </ul>
 
         <div className={styles.actions}>
