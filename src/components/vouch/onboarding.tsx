@@ -76,7 +76,7 @@ export function Onboarding() {
 
       <div className={styles.split}>
         <div className={styles.mapPane}>
-          <MapReal pins={pins} height={560} />
+          <MapReal pins={pins} height={560} recede labelMode="hover" />
         </div>
 
         <div className={styles.pane}>

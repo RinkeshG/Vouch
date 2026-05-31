@@ -19,6 +19,10 @@ export const SEED: Spot[] = [
   { name: "Shivaji Military Hotel", area: "Jayanagar", cuisine: "Donne biryani", price: "₹₹", occasions: ["worth the drive"], lat: 12.9266, lng: 77.5836 },
   { name: "Corner House", area: "Koramangala", cuisine: "Ice cream", price: "₹", occasions: ["late night", "date"], lat: 12.9346, lng: 77.6270 },
   { name: "Soka", area: "Indiranagar", cuisine: "Small plates", price: "₹₹₹", occasions: ["date", "group dinner"], lat: 12.9761, lng: 77.6406 },
+  { name: "Koshy’s", area: "St Marks Rd", cuisine: "Old-school", price: "₹₹", occasions: ["parents", "group dinner"], lat: 12.9736, lng: 77.6010 },
+  { name: "MTR", area: "Lalbagh", cuisine: "Tiffin", price: "₹", occasions: ["parents", "coffee"], lat: 12.9520, lng: 77.5848 },
+  { name: "Sodabottleopenerwala", area: "Lavelle Rd", cuisine: "Parsi", price: "₹₹₹", occasions: ["group dinner", "date"], lat: 12.9719, lng: 77.5970 },
+  { name: "Nagarjuna", area: "Residency Rd", cuisine: "Andhra", price: "₹₹", occasions: ["group dinner", "parents"], lat: 12.9707, lng: 77.6010 },
 ];
 
 export const OCCASIONS = ["parents", "late night", "date", "solo lunch", "coffee", "group dinner", "worth the drive", "rainy day"];
