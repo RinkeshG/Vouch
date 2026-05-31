@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { WebShell } from "./web-shell";
-import { ConceptSwitch } from "./concept-switch";
 import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
 import { archetypeFor, findSpot, DEMO_SESSION } from "./_taste";
@@ -32,7 +31,6 @@ export function ProducersHome() {
 
   return (
     <WebShell active="map" you={{ ini: "RG", name: "You", line: `${arch.glyph} ${arch.name}` }}>
-      <ConceptSwitch current="Producer's Home" />
       <div className={styles.stage}>
         <div className={styles.mapLayer}>
           <MapReal pins={pins} height="100%" labelMode="hover" bleed recede spotlightId={focused} />
