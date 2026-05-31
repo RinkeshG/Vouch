@@ -3,17 +3,26 @@
 .eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 8px; }
 .h1 { font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 3vw, 2.5rem); line-height: 1.04; letter-spacing: -0.028em; color: var(--text); margin: 0; }
 
-.listHead { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+.listHead { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
+.listSub { font-family: var(--sans); font-size: 1rem; color: var(--muted); margin: 12px 0 0; max-width: 46ch; line-height: 1.5; }
 
-/* empty state — never a dead end */
-.empty { max-width: 560px; margin: 40px auto 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px; }
-.emptyLine { font-family: var(--sans); font-size: 1.15rem; line-height: 1.55; color: var(--muted); margin: 0; }
-.emptyLine i { color: var(--text); font-style: italic; }
+/* empty state — never a dead end, sets the motivation */
+.empty { max-width: 540px; margin: 48px auto 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.emptyH1 { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.03em; color: var(--text); line-height: 1.02; margin: 8px 0 0; }
+.emptyLine { font-family: var(--sans); font-size: 1.12rem; line-height: 1.55; color: var(--muted); margin: 0; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
-.newCard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 200px; border: 1px dashed var(--rule); border-radius: var(--r-xl); background: transparent; color: var(--muted); font-family: var(--sans); font-size: 0.95rem; cursor: pointer; transition: all 0.15s var(--ease); }
-.newCard:hover { border-color: var(--saffron); color: var(--saffron); }
-.newPlus { font-size: 1.6rem; line-height: 1; }
+/* the contents page — guides as numbered editorial entries, not cards */
+.contents { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.entry { width: 100%; display: flex; align-items: baseline; gap: 22px; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--line); padding: 26px 8px; cursor: pointer; transition: background 0.16s var(--ease), padding 0.16s var(--ease); }
+.entry:hover { background: rgba(244, 238, 227, 0.03); padding-left: 16px; padding-right: 16px; }
+.entryIdx { font-family: var(--mono); font-size: 0.8rem; color: var(--faint); padding-top: 6px; flex: none; width: 28px; }
+.entry:hover .entryIdx { color: var(--saffron); }
+.entryBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.entryTitle { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 2.8vw, 2.2rem); line-height: 1.05; letter-spacing: -0.028em; color: var(--text); }
+.entryTease { font-family: var(--sans); font-size: 1rem; color: var(--muted); }
+.entryMeta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+.entryOpen { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); flex: none; align-self: center; opacity: 0; transform: translateX(-6px); transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
+.entry:hover .entryOpen { opacity: 1; transform: none; color: var(--saffron); }
 
 /* owner view */
 .viewPage { max-width: 720px; margin: 0 auto; padding: 32px 24px 56px; }

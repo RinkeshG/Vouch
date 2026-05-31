@@ -11,6 +11,7 @@ export type Guide = {
   note?: string;
   anchor?: string;
   items: GuideItem[];
+  borrows: number; // how many people have borrowed it — the life-signal (utility, not vanity)
   createdAt: number;
   updatedAt: number;
 };
@@ -83,9 +84,8 @@ export function seedOnce(): void {
     id: uid(),
     slug: "open-past-midnight",
     title: "Open past midnight — actually worth it",
-    note: "your call",
-    anchor: "Bengaluru · after 11",
     items: [pick("Empire"), pick("Corner House"), pick("Naru Noodle Bar")],
+    borrows: 4,
     createdAt: now,
     updatedAt: now,
   });

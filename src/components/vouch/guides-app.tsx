@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { WebShell } from "./web-shell";
 import { Button } from "./button";
-import { GuideCard, type GuideData } from "./guide";
+import { type GuideData } from "./guide";
 import { GuideArtifact } from "./guide-artifact";
 import { archetypeFor, DEMO_SESSION } from "./_taste";
 import {
@@ -31,12 +31,12 @@ export function GuidesApp() {
   const refresh = () => setGuides(listGuides());
   useEffect(() => { if (!toast) return; const t = window.setTimeout(() => setToast(null), 2600); return () => window.clearTimeout(t); }, [toast]);
 
-  function handleSave(g: Guide) { upsertGuide(g); refresh(); setView({ kind: "view", id: g.id }); setToast(`“${g.title}” saved`); }
+  function handleSave(g: Guide) { upsertGuide(g); refresh(); setView({ kind: "view", id: g.id }); setToast(`“${g.title}” is ready to send`); }
   function handleDelete(id: string) { deleteGuide(id); refresh(); setView({ kind: "list" }); setToast("Guide deleted"); }
   function share(g: Guide) {
     const url = `${window.location.origin}/g/${g.slug}`;
     if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
-    setToast("Share link copied — paste it in the group chat");
+    setToast("Link copied — drop it in the group chat");
   }
 
   return (
@@ -69,32 +69,52 @@ export function GuidesApp() {
   );
 }
 
-/* ── list / empty ─────────────────────────────────────────────────────────── */
+/* ── list / empty — a field-guide contents page, not a card grid ──────────── */
+function lifeSignal(g: Guide): string {
+  const spots = `${g.items.length} ${g.items.length === 1 ? "spot" : "spots"}`;
+  return g.borrows > 0 ? `${spots} · borrowed ${g.borrows}×` : `${spots} · not sent yet`;
+}
+
 function GuideList({ guides, onNew, onOpen }: { guides: Guide[]; onNew: () => void; onOpen: (id: string) => void }) {
+  if (guides.length === 0) {
+    return (
+      <div className={styles.page}>
+        <p className={styles.eyebrow}>Your guides</p>
+        <div className={styles.empty}>
+          <h1 className={styles.emptyH1}>Be the friend with the spots.</h1>
+          <p className={styles.emptyLine}>A guide is the answer you hand over when someone asks where to go — a few places you’d put your name on, titled like you’d text it. Make the one people keep asking you for.</p>
+          <Button variant="primary" onClick={onNew}>Start a guide →</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.listHead}>
         <div>
           <p className={styles.eyebrow}>Your guides</p>
-          <h1 className={styles.h1}>{guides.length ? "Taste, set in type." : "Make your first guide."}</h1>
+          <h1 className={styles.h1}>The answers you’re known for.</h1>
+          <p className={styles.listSub}>Group the spots you’d vouch for. Send the one people keep asking you for.</p>
         </div>
-        {guides.length > 0 && <Button variant="primary" onClick={onNew}>＋ New guide</Button>}
+        <Button variant="primary" onClick={onNew}>Start a guide</Button>
       </header>
 
-      {guides.length === 0 ? (
-        <div className={styles.empty}>
-          <p className={styles.emptyLine}>A guide is your point of view — <i>“where I take my parents”</i>, <i>“midnight runs”</i>. Group a few of your vouches, name it like you’d text it, and it becomes the thing your friends screenshot.</p>
-          <Button variant="primary" onClick={onNew}>Make your first guide →</Button>
-        </div>
-      ) : (
-        <div className={styles.grid}>
-          {guides.map((g) => <GuideCard key={g.id} guide={toData(g)} onOpen={() => onOpen(g.id)} />)}
-          <button type="button" className={styles.newCard} onClick={onNew}>
-            <span className={styles.newPlus} aria-hidden="true">＋</span>
-            <span>New guide</span>
-          </button>
-        </div>
-      )}
+      <ol className={styles.contents}>
+        {guides.map((g, i) => (
+          <li key={g.id}>
+            <button type="button" className={styles.entry} onClick={() => onOpen(g.id)}>
+              <span className={styles.entryIdx}>{String(i + 1).padStart(2, "0")}</span>
+              <span className={styles.entryBody}>
+                <span className={styles.entryTitle}>{g.title}</span>
+                <span className={styles.entryTease}>{g.items.slice(0, 3).map((it) => it.name).join("  ·  ")}{g.items.length > 3 ? `  +${g.items.length - 3}` : ""}</span>
+                <span className={styles.entryMeta}>by you · {lifeSignal(g)}</span>
+              </span>
+              <span className={styles.entryOpen} aria-hidden="true">open →</span>
+            </button>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
@@ -121,7 +141,7 @@ function OwnerView({ guide, onBack, onEdit, onShare, onDelete }: { guide: Guide;
         </div>
       </div>
       <div className={styles.viewBody}>
-        <GuideArtifact guide={toData(guide)} whenToTrust="Your point of view, signed." />
+        <GuideArtifact guide={toData(guide)} />
       </div>
     </div>
   );
@@ -153,8 +173,9 @@ function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (
     onSave({
       id: initial?.id ?? uid(),
       slug: initial?.slug ?? `${slugify(title)}-${uid().slice(0, 4)}`,
-      title: title.trim(), note: "your call", anchor: initial?.anchor ?? "Bengaluru · your names",
-      items, createdAt: initial?.createdAt ?? now, updatedAt: now,
+      title: title.trim(), items,
+      borrows: initial?.borrows ?? 0,
+      createdAt: initial?.createdAt ?? now, updatedAt: now,
     });
   }
 
@@ -183,7 +204,7 @@ function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (
                 <span className={styles.inNum}>{String(i + 1).padStart(2, "0")}</span>
                 <span className={styles.inBody}>
                   <span className={styles.inName}>{it.name}</span>
-                  <input className={styles.noteInput} value={it.note} maxLength={120} placeholder="why you’d send them here…" onChange={(e) => setNote(it.name, e.target.value)} />
+                  <input className={styles.noteInput} value={it.note} maxLength={120} placeholder="why you’d send them — one line" onChange={(e) => setNote(it.name, e.target.value)} />
                 </span>
                 <span className={styles.inMove}>
                   <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">↑</button>
@@ -196,7 +217,7 @@ function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (
         )}
 
         <label className={styles.fieldLabel}>Add from your vouches</label>
-        <input className={styles.search} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search your spots…" />
+        <input className={styles.search} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find one of your vouches…" />
         <ul className={styles.pool}>
           {pool.slice(0, 6).map((v) => (
             <li key={v.name}>
@@ -216,8 +237,8 @@ function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (
       </section>
 
       <aside className={styles.previewPane}>
-        <span className={styles.previewLabel}>What your friends will get</span>
-        <GuideArtifact guide={toData({ title, note: "your call", anchor: "Bengaluru · your names", items })} whenToTrust="Your point of view, signed." />
+        <span className={styles.previewLabel}>What lands in the group chat</span>
+        <GuideArtifact guide={toData({ title, items })} />
       </aside>
     </div>
   );
