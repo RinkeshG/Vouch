@@ -17,7 +17,8 @@ Three button roles. There are only three. Resist inventing a fourth.
 The single most important action on a view. Saffron gradient, ink text, glows.
 - **Spec:** `background: var(--accent-gradient)` · `color: var(--accent-ink)` ·
   `--radius-md` · padding `13–14px 20px` · `box-shadow: var(--shadow-pop)` ·
-  weight 600 (sans) or 700 (mono, for compact CTAs).
+  weight **600, Space Grotesk, sentence case** (`~0.9–0.98rem`). Buttons are
+  never mono UPPERCASE — that reads as a label, not an action.
 - **States:** hover → `translateY(-1px)` + stronger glow (`--dur-quick`);
   active → `translateY(1px) scale(.99)` (`--dur-tap`); focus → saffron outline.
 - **Do:** one per view. **Don't:** white text on saffron; two primaries competing.
@@ -30,10 +31,11 @@ Secondary action. Transparent with a hairline.
 - ⚠️ **Buttons must set `background: transparent`** — a bare `<button>` inherits
   the UA grey. (We shipped this bug once; don't repeat it.)
 
-### 1.3 Mono control — nav / footer / compact
-Small, label-style action. Mono, uppercase.
-- **Spec:** `font: var(--font-mono) 700 0.68rem` · `track 0.06em` · UPPERCASE ·
-  `--radius-sm` · border `--line-2`. Hover → fills saffron with ink text.
+### 1.3 Compact control — nav / footer
+Small action, still a real button — **sans, sentence case**, not a mono label.
+- **Spec:** `font: var(--font-sans) 600 ~0.92rem` · `track -0.005em` ·
+  `--radius-md` · border `--line-2`. Hover → fills saffron with ink text.
+- Mono UPPERCASE is reserved for **labels/tags/stamps/meta**, never for a button.
 
 **All buttons:** real `<button>`/`<a>`, `cursor: pointer`, visible focus ring,
 ≥44px touch target.
@@ -80,9 +82,36 @@ A vouch's state. Pill, mono, with a glowing dot. Colour = meaning.
 Tiny metadata pill (cuisine, ₹₹, neighbourhood): mono `0.62rem` uppercase,
 `--surface-2` bg, `--radius-xs`, `--muted`. Used in clusters under a place name.
 
+### 3.2b Use-case tag (warmth)
+A rounded mono pill that names an *occasion or need*, not just metadata —
+`date night · open past midnight · filter coffee · parent-safe · solo lunch ·
+worth the drive`. Same mono as the tag, but `--radius-pill`. **Neighbourhood**
+variants tint saffron (`--accent` text + faint saffron border/bg). These make a
+dark page feel like food and answer "a vouch for *what*?" — use them near the
+unit definition and guide intros, not as filters-that-do-nothing.
+
 ### 3.3 Status / live chip
 "● live", "● near you", category labels in the live pulse. Mono caption, the
 relevant state colour, optional pulsing dot.
+
+### 3.4 Imagery — people & type (food photos are OFF)
+The brand is **type-led** and **never anonymous**. Food photography was tried and
+**cut**: an anonymous dish photo has no owner, no provenance, and imitates the
+black-box enemy from brand.md — it adds zero trust and reads like every other food
+app. **Current rule: no food/place photos anywhere.** Imagery is:
+
+- **People.** Monogram avatars and face stacks (§4) — they carry *who*, which is
+  the whole product. Reach for these first, everywhere.
+- **Type.** The place lives as a **name in display type**; the guide as its
+  **curator + ranked names + the one-line notes**. That is the "image" of a place.
+- **Motion, when a process needs showing** — e.g. the landing's *vouch journey*
+  (made → through people you follow → onto your map), built from people + type, no
+  pictures (patterns.md).
+
+**If photos ever return** they must be **owned proof** — a real visit shot credited
+to a palate ("Aditi's shot"), one curated hero per object, never outranking the
+name, one warm grade, with a type/monogram fallback. Until that's real, **don't
+ship placeholder/stock imagery** — uniform people + type is the product look.
 
 ---
 

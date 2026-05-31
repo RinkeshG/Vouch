@@ -117,7 +117,7 @@
 .btnPrimary:hover { transform: translateY(-1px); }
 .btnGhost { font-family: var(--sans); font-weight: 600; font-size: 0.95rem; color: var(--text); background: transparent; border: 1px solid var(--line-2); border-radius: 8px; padding: 13px 20px; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease; }
 .btnGhost:hover { background: rgba(244, 238, 227, 0.06); border-color: var(--text); }
-.btnMono { font-family: var(--mono); font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text); background: transparent; border: 1px solid var(--line-2); border-radius: 6px; padding: 10px 14px; cursor: pointer; }
+.btnMono { font-family: var(--sans); font-weight: 600; font-size: 0.92rem; letter-spacing: -0.005em; color: var(--text); background: transparent; border: 1px solid var(--line-2); border-radius: 9px; padding: 10px 16px; cursor: pointer; transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
 .btnMono:hover { background: var(--saffron); color: var(--accent-ink); border-color: var(--saffron); }
 
 /* ---- demo: stamps ---- */

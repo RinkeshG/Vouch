@@ -28,7 +28,7 @@
   --c-ink-500: #221d16;   /* surface raised — chips on cards, stacked faces   */
 
   --c-paper-100: #f3eee3; /* primary text (warm off-white)                    */
-  --c-paper-300: #a79e90; /* secondary text                                   */
+  --c-paper-300: #bcb3a4; /* secondary text — lifted ~15% for body legibility  */
   --c-paper-500: #756c5f; /* tertiary / hints                                 */
 
   --c-saffron-400: #ffc658; /* highlight / gradient top                       */

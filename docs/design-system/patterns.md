@@ -9,6 +9,25 @@ pattern: **the job**, **the composition**, **rules**, and **states**.
 
 ---
 
+## 0. Rules the landing earned
+
+- **Show the unit working, don't enumerate it.** "What a vouch is" and "how it
+  reaches you" are **one idea**, not two sections — a vouch *is* the thing that
+  travels the chain. Teach it with a single **motion demo** (the *vouch journey*:
+  a vouch is made → through people you follow → onto your map), built from people +
+  type, **no photos**. Avoid the dead "three labelled boxes" translation of the
+  copy — that's mechanical, not design.
+- **Canonical landing order:** Hero → Problem → **How a vouch reaches you**
+  (what it is + the chain, animated) → The vouch (three states + composer) →
+  Guides → Who → Quiz / Waitlist. Earn belief in the chain of people *before* the
+  create tool. Spine = **understand → crave → act**, fast.
+- **Inside == outside.** A guide's preview card uses the *same* row language as the
+  opened guide — curator header, italic ranked number, place name, the curator's
+  one-line note (see §2). Don't ship a thinner "teaser" that feels unrelated to the
+  real thing.
+
+---
+
 ## 1. The Vouch (creating one) — the Composer
 
 The atomic create action. Putting your name on a place. Keep it **one line, one

@@ -34,7 +34,7 @@ for type and for the one colour that means *appetite*: **saffron**.
 | Token | Hex | Role | Contrast on `--bg` |
 |---|---|---|---|
 | `--text` | `#f3eee3` | Primary text, headlines | ~15:1 — AAA |
-| `--muted` | `#a79e90` | Secondary / body-secondary | ~7:1 — AA+ |
+| `--muted` | `#bcb3a4` | Secondary / body-secondary | ~9:1 — AA+ (lifted ~15% for reading comfort on dark) |
 | `--faint` | `#756c5f` | Tertiary, meta, hints | ~3.4:1 — **large/UI only** |
 
 **Accents** — used sparingly, with intent.
@@ -116,6 +116,10 @@ Root is **17px**, line-height **1.6**, tracking **-0.006em**, antialiased.
 - **Mono microcopy gets `//`.** Helper/finely-printed notes read like a code
   comment: `// invite-only · no spam · a seat at the table`.
 - **Never** set body in mono (tiring) or labels in the sans (loses the texture).
+- **Buttons are sans, sentence-case.** Mono is for labels, tags, prices,
+  timestamps and `//` helpers — *not* CTAs. A button set in tiny mono UPPERCASE
+  reads as a label, not an action; it makes the page admirable but slow to act on.
+  Primary/ghost/compact CTAs all use Space Grotesk 600, ~0.9–0.98rem, sentence case.
 
 ### Emphasis devices
 - **Highlight box** — a saffron-gradient inline mark behind one hero word
@@ -269,6 +273,24 @@ work (reveals, hovers, swaps). Overlays landing use `--ease-settle`
   decoration sprinkled into headers.
 - If/when a real icon set is needed, it must be **thin (1.5px), rounded-cap,
   monoline** to sit with the type — never filled, never duotone.
+
+---
+
+## 8b. Imagery
+
+The brand is **type-led**, and **food photos are currently OFF** — anonymous stock
+dishes broke the #1 trait *"never anonymous"* and looked like every other food app.
+Imagery in Vouch is:
+
+- **People** — monogram avatars and face stacks (components.md §4) and the
+  **receipts** trail. This is the real imagery; reach for it first, everywhere.
+- **Type** — the place *is* its name in display type; the guide *is* its curator +
+  ranked names + one-line notes.
+- **Motion** when a process needs showing (the landing's vouch journey), built from
+  people + type — no pictures.
+
+Photos may return only as **owned proof** (one curated, credited hero per object,
+never outranking the name). Until that's real, ship none. Full rule: components.md §3.4.
 
 ---
 

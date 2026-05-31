@@ -301,10 +301,10 @@ const STATES = [
 ];
 
 type ListItem = { name: string; tags: string; note?: string };
-type VList = { title: string; by: string; ini: string; note: string; items: ListItem[] };
+type VList = { title: string; by: string; ini: string; note: string; anchor?: string; items: ListItem[] };
 const LISTS: Record<string, VList> = {
   parents: {
-    title: "Where I take my parents", by: "Aditi", ini: "AS", note: "no surprises, all delight",
+    title: "Where I take my parents", by: "Aditi", ini: "AS", note: "no surprises, all delight", anchor: "Safe bets · no surprises",
     items: [
       { name: "Karavalli", tags: "Coastal · Residency Rd · ₹₹₹₹", note: "They’ll talk about it for months." },
       { name: "Vidyarthi Bhavan", tags: "Dosa · Basavanagudi · ₹", note: "Go before 9am, beat the queue." },
@@ -315,7 +315,7 @@ const LISTS: Record<string, VList> = {
     ],
   },
   midnight: {
-    title: "Open past midnight", by: "Rinkesh", ini: "RG", note: "for when the night isn’t done",
+    title: "Open past midnight", by: "Rinkesh", ini: "RG", note: "for when the night isn’t done", anchor: "After 11pm · still worth it",
     items: [
       { name: "Empire", tags: "Kebabs · Indiranagar · ₹₹", note: "Chicken ghee roast at 1am." },
       { name: "Shawarma Center", tags: "Rolls · Frazer Town · ₹", note: "The original. Accept no copies." },
@@ -326,12 +326,12 @@ const LISTS: Record<string, VList> = {
     ],
   },
   filter: {
-    title: "Filter coffee, ranked", by: "Meera", ini: "MK", note: "a genuinely serious investigation",
+    title: "Filter coffee, ranked", by: "Meera", ini: "MK", note: "a genuinely serious investigation", anchor: "Serious only · no chains",
     items: [
       { name: "Brahmin’s Coffee Bar", tags: "Filter · Shankarpuram · ₹", note: "Idli + that chutney. Peak." },
       { name: "Airlines Hotel", tags: "Filter · Lavelle Rd · ₹", note: "Coffee under the trees." },
-      { name: "Vidyarthi Bhavan", tags: "Filter · Basavanagudi · ₹" },
-      { name: "Asha Tiffins", tags: "Filter · Malleshwaram · ₹" },
+      { name: "Vidyarthi Bhavan", tags: "Filter · Basavanagudi · ₹", note: "Order the coffee after the benne dosa." },
+      { name: "Asha Tiffins", tags: "Filter · Malleshwaram · ₹", note: "Tiny, perfect. Get there when it rains." },
       { name: "CTR · Shri Sagar", tags: "Filter · Malleshwaram · ₹", note: "Benne dosa on the side." },
       { name: "Veena Stores", tags: "Filter · Malleshwaram · ₹" },
       { name: "Maddur Tiffanys", tags: "Filter · worth the drive · ₹" },
@@ -369,6 +369,57 @@ const LISTS: Record<string, VList> = {
   },
 };
 const HOME_LISTS = ["parents", "midnight", "filter"];
+
+/* ---------- the journey: how one vouch travels to your map (motion demo) ----
+   One looping diagram that teaches BOTH "what a vouch is" (node 1 = the unit:
+   place + line + name) AND "how it reaches you" (the chain → your map). Imagery
+   here is PEOPLE (monograms/faces) + type — no photos. Pure CSS so it's
+   reduced-motion safe: the base state is the full, legible diagram; the motion
+   only sweeps the eye through it. Decorative — meaning also lives in the copy. */
+function VouchJourney() {
+  return (
+    <div className={styles.journey} aria-hidden="true">
+      <div className={`${styles.jNode} ${styles.jBeat1}`}>
+        <span className={styles.jTag}>A vouch is made</span>
+        <div className={styles.jVouch}>
+          <div className={styles.jVouchTop}>
+            <span className={styles.jAvatar}>AS</span>
+            <span className={styles.jWho}><b>Aditi</b> vouches for</span>
+            <span className={styles.jStamp}>◆ Vouched</span>
+          </div>
+          <div className={styles.jPlace}>Naru Noodle Bar</div>
+          <div className={styles.jLine}>&ldquo;Best bowl in the city. Go at 6.&rdquo;</div>
+        </div>
+      </div>
+
+      <div className={styles.jConn}><span className={styles.jConnFill} /></div>
+
+      <div className={`${styles.jNode} ${styles.jBeat2}`}>
+        <span className={styles.jTag}>Through people you follow</span>
+        <div className={styles.jFaces}>
+          <i>RG</i><i>MK</i><i>SD</i><i>TA</i><b>+3</b>
+        </div>
+      </div>
+
+      <div className={styles.jConn}><span className={`${styles.jConnFill} ${styles.jConnFill2}`} /></div>
+
+      <div className={`${styles.jNode} ${styles.jBeat3}`}>
+        <span className={styles.jTag}>Onto your map, tonight</span>
+        <div className={styles.jRec}>
+          <div className={styles.jRecTop}>
+            <span className={styles.jRecLabel}>On your map · tonight</span>
+            <span className={styles.jRecDist}><i />1.2 km</span>
+          </div>
+          <div className={styles.jPlace}>Naru Noodle Bar</div>
+          <div className={styles.jWhy}>
+            <span className={styles.jWhyFaces}><i>AS</i><i>RG</i></span>
+            <span><b>Aditi</b> vouched · <b>Rinkesh</b> saved it</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Wordmark() {
   return (
@@ -832,6 +883,7 @@ export default function VouchLanding() {
 
       <div className={styles.page}>
         <span className={styles.grain} aria-hidden="true" />
+
         <ListModal
           list={openList ? LISTS[openList] : null}
           onClose={() => setOpenList(null)}
@@ -940,7 +992,35 @@ export default function VouchLanding() {
             </div>
           </section>
 
-          {/* ---------- 02 — THE VOUCH (composer + stamps) ---------- */}
+          {/* ---------- HOW A VOUCH REACHES YOU (what it is + the chain, animated) ---------- */}
+          <section className={styles.trust} id="what">
+            <div className={styles.wrap}>
+              <div className={styles.trustGrid}>
+                <div className={styles.trustText}>
+                  <Reveal as="p" className={styles.trustKicker}>
+                    <i /> How a vouch reaches you
+                  </Reveal>
+                  <Reveal as="h2" className={styles.trustTitle} delay={40}>
+                    Not an algorithm. A name that travels to you.
+                  </Reveal>
+                  <Reveal as="p" className={styles.trustBody} delay={80}>
+                    A vouch is the opposite of a star rating: <b>one place, one line, one real
+                    name.</b> When someone you follow puts their name down, it travels straight
+                    to your map — you see exactly who vouched, and who else you trust saved it.
+                  </Reveal>
+                  <Reveal as="p" className={styles.trustNote} delay={120}>
+                    Tap a name, see their whole map. No black box, no 4.1★ average.
+                  </Reveal>
+                </div>
+
+                <Reveal className={styles.trustVisual} delay={120}>
+                  <VouchJourney />
+                </Reveal>
+              </div>
+            </div>
+          </section>
+
+          {/* ---------- 02 — THE VOUCH (composer + stamps, the depth) ---------- */}
           <section className={styles.section} id="vouch">
             <div className={styles.wrap}>
               <div className={styles.block}>
@@ -985,65 +1065,6 @@ export default function VouchLanding() {
             </div>
           </section>
 
-          {/* ---------- HOW A VOUCH REACHES YOU (one annotated rec) ---------- */}
-          <section className={styles.trust}>
-            <div className={styles.wrap}>
-              <div className={styles.trustGrid}>
-                <div className={styles.trustText}>
-                  <Reveal as="p" className={styles.trustKicker}>
-                    <i /> How a vouch reaches you
-                  </Reveal>
-                  <Reveal as="h2" className={styles.trustTitle} delay={40}>
-                    Not an algorithm. A chain of people you trust.
-                  </Reveal>
-                  <Reveal as="p" className={styles.trustBody} delay={80}>
-                    Most apps hand you a place and hope you trust it. Vouch hands you the
-                    receipts — every recommendation shows <b>exactly who put their name on
-                    it</b>, and which of your people already saved it.
-                  </Reveal>
-                  <Reveal as="p" className={styles.trustNote} delay={120}>
-                    Tap a name, see their whole map. No black box.
-                  </Reveal>
-                </div>
-
-                <Reveal className={styles.trustCardWrap} delay={120}>
-                  <div className={styles.recCard}>
-                    <div className={styles.recTop}>
-                      <span className={styles.recLabel}>On your map · tonight</span>
-                      <span className={styles.recDist}><i /> 1.2 km</span>
-                    </div>
-                    <h3 className={styles.recPlace}>Karavalli</h3>
-                    <span className={styles.recTags}>Coastal · Residency Rd · ₹₹₹₹</span>
-
-                    <div className={styles.recWhy}>
-                      <span className={styles.recWhyLabel}>Why you’re seeing this</span>
-                      <div className={styles.recTrailRow}>
-                        <span className={styles.recAvatar} style={{ background: "linear-gradient(135deg,#f6a82b,#ff5b33)" }}>AS</span>
-                        <span className={styles.recTrailText}>
-                          <b>Aditi</b> vouched it
-                          <span className={styles.recTrailNote}>“Take your parents…”</span>
-                        </span>
-                        <span className={styles.recTrailTime}>2h</span>
-                      </div>
-                      <div className={styles.recTrailRow}>
-                        <span className={styles.recFaces} aria-hidden="true"><i>RG</i><i>MK</i></span>
-                        <span className={styles.recTrailText}>
-                          <b>Rinkesh, Meera</b> +1 you follow saved it
-                        </span>
-                        <span className={styles.recTrailTime}>now</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.recActions}>
-                      <span className={styles.recSave}>＋ Save</span>
-                      <span className={styles.recList}>Add to a guide</span>
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
-            </div>
-          </section>
-
           {/* ---------- 03 — LISTS ---------- */}
           <section className={styles.section} id="lists">
             <div className={styles.wrap}>
@@ -1062,20 +1083,28 @@ export default function VouchLanding() {
                       return (
                         <Reveal key={id} delay={i * 70}>
                           <button type="button" className={styles.menu} onClick={() => setOpenList(id)}>
+                            <div className={styles.menuCurator}>
+                              <span className={styles.menuCuratorAvatar}>{m.ini}</span>
+                              <span className={styles.menuCuratorText}>a guide by <b>{m.by}</b></span>
+                            </div>
                             <div className={styles.menuHead}>
+                              {m.anchor && <span className={styles.menuAnchor}>{m.anchor}</span>}
                               <h3 className={styles.menuTitle}>{m.title}</h3>
                               <span className={styles.menuMeta}>{m.items.length} places · {m.note}</span>
                             </div>
                             <ol className={styles.menuRows}>
-                              {m.items.slice(0, 4).map((it, j) => (
+                              {m.items.slice(0, 3).map((it, j) => (
                                 <li className={styles.menuRow} key={it.name}>
                                   <span className={styles.menuRowNum}>{String(j + 1).padStart(2, "0")}</span>
-                                  <span className={styles.menuRowName}>{it.name}</span>
+                                  <span className={styles.menuRowBody}>
+                                    <span className={styles.menuRowName}>{it.name}</span>
+                                    {it.note && <span className={styles.menuRowNote}>&ldquo;{it.note}&rdquo;</span>}
+                                  </span>
                                 </li>
                               ))}
                             </ol>
                             <div className={styles.menuFoot}>
-                              <span>by <b>{m.by}</b></span>
+                              <span className={styles.menuViewCount}>{m.items.length} places</span>
                               <span className={styles.menuView}>Open all {m.items.length} →</span>
                             </div>
                           </button>
@@ -1098,7 +1127,7 @@ export default function VouchLanding() {
                 </Reveal>
                 <div className={styles.blockBody}>
                   <Reveal as="h2" className={styles.h2}>
-                    You’re the friend with the spots. <span className={styles.u}>Or you’re texting them.</span>
+                    For the friend who always knows. <span className={styles.u}>And the friend who always asks.</span>
                   </Reveal>
                   <div className={styles.who}>
                     <Reveal><BorrowPalate onOpenList={setOpenList} /></Reveal>
