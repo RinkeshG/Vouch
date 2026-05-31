@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
+import { slugify } from "./_guides";
 import styles from "./map-real.module.css";
 
 /* The Vouch map — a REAL dark Bengaluru (Leaflet + Carto dark raster tiles, no
@@ -27,7 +28,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
 
   function popupHTML(p: MapPin) {
     const who = p.kind === "palate" && p.by ? `Vouched by ${p.by.name}` : "Your vouch";
-    return `<div class="${styles.pop}"><span class="${styles.popWho}">${who}</span><span class="${styles.popPlace}">${p.name}</span>${p.line ? `<p class="${styles.popLine}">&ldquo;${p.line}&rdquo;</p>` : ""}${p.occasion ? `<span class="${styles.popOcc}">${p.occasion}</span>` : ""}</div>`;
+    return `<div class="${styles.pop}"><span class="${styles.popWho}">${who}</span><span class="${styles.popPlace}">${p.name}</span>${p.line ? `<p class="${styles.popLine}">&ldquo;${p.line}&rdquo;</p>` : ""}${p.occasion ? `<span class="${styles.popOcc}">${p.occasion}</span>` : ""}<a class="${styles.popLink}" href="/spot/${slugify(p.name)}">see the receipt &rarr;</a></div>`;
   }
 
   function sync() {

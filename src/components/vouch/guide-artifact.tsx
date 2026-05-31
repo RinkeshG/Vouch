@@ -2,6 +2,7 @@ import { GuideRow, type GuideData } from "./guide";
 import { Avatar } from "./avatar";
 import { Wordmark } from "./wordmark";
 import { Button } from "./button";
+import { slugify } from "./_guides";
 import styles from "./guide-artifact.module.css";
 
 /* The Guide as a shareable ARTIFACT (J3) — the most shareable object: an authored,
@@ -13,11 +14,13 @@ export function GuideArtifact({
   whenToTrust,
   share = false,
   palateHref,
+  linkSpots = false,
 }: {
   guide: GuideData;
   whenToTrust?: string;
   share?: boolean;
   palateHref?: string;
+  linkSpots?: boolean;
 }) {
   return (
     <article className={styles.guide}>
@@ -42,7 +45,7 @@ export function GuideArtifact({
 
       {guide.items.length > 0 ? (
         <ol className={styles.rows}>
-          {guide.items.map((it, i) => <GuideRow key={it.name} rank={i + 1} item={it} showTags save />)}
+          {guide.items.map((it, i) => <GuideRow key={it.name} rank={i + 1} item={it} showTags save href={linkSpots ? `/spot/${slugify(it.name)}` : undefined} />)}
         </ol>
       ) : (
         <p className={styles.empty}>Add a few of your spots — they’ll line up here, each with your name on it.</p>

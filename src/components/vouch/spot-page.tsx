@@ -119,7 +119,7 @@ export function SpotPage({ slug }: { slug: string }) {
                     {s === "want" ? "Want to go" : s === "been" ? "Been" : "Vouch it"}
                   </button>
                 ))}
-                <a className={styles.addGuide} href="/guides">＋ Add to a guide</a>
+                <a className={styles.addGuide} href="/guides" onClick={() => { try { window.sessionStorage.setItem("vouch:guide-seed", JSON.stringify({ name: spot.name, tags: `${spot.cuisine} · ${spot.area} · ${spot.price}`, note: mine?.line ?? order ?? "" })); } catch { /* ignore */ } }}>＋ Add to a guide</a>
               </div>
             </section>
 

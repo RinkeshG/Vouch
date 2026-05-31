@@ -42,6 +42,8 @@
 .popPlace { font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.015em; color: var(--text); }
 .popLine { font-family: var(--sans); font-size: 0.86rem; color: var(--muted); line-height: 1.35; margin: 7px 0 0; font-style: italic; }
 .popOcc { display: inline-block; margin-top: 9px; font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 3px 9px; }
+.popLink { display: block; margin-top: 11px; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; color: var(--saffron); text-decoration: none; }
+.popLink:hover { color: var(--saffron-hi); }
 
 /* Leaflet chrome → brand */
 .wrap :global(.leaflet-container) { background: #0e0c08; font: inherit; }

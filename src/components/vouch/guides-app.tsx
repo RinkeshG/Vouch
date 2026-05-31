@@ -29,8 +29,17 @@ export function GuidesApp() {
   const [toast, setToast] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [arch, setArch] = useState(() => archetypeFor([]));
+  const [seed, setSeed] = useState<GuideItem[]>([]);
 
-  useEffect(() => { setGuides(listGuides()); setArch(archetypeFor(loadMe().vouches)); }, []);
+  useEffect(() => {
+    setGuides(listGuides());
+    setArch(archetypeFor(loadMe().vouches));
+    // a Spot's "Add to a guide" hands off the place here
+    try {
+      const raw = window.sessionStorage.getItem("vouch:guide-seed");
+      if (raw) { setSeed([JSON.parse(raw) as GuideItem]); setView({ kind: "build" }); window.sessionStorage.removeItem("vouch:guide-seed"); }
+    } catch { /* ignore */ }
+  }, []);
   const refresh = () => setGuides(listGuides());
   useEffect(() => { if (!toast) return; const t = window.setTimeout(() => setToast(null), 2600); return () => window.clearTimeout(t); }, [toast]);
 
@@ -48,7 +57,7 @@ export function GuidesApp() {
         <GuideList guides={guides} onNew={() => setView({ kind: "build" })} onOpen={(id) => setView({ kind: "view", id })} />
       )}
       {view.kind === "build" && (
-        <GuideEditor onCancel={() => setView({ kind: "list" })} onSave={handleSave} />
+        <GuideEditor seedItems={seed} onCancel={() => setView({ kind: "list" })} onSave={handleSave} />
       )}
       {view.kind === "edit" && (
         <GuideEditor initial={getGuide(view.id) ?? undefined} onCancel={() => setView({ kind: "view", id: view.id })} onSave={handleSave} />
@@ -145,7 +154,7 @@ function OwnerView({ guide, onBack, onEdit, onShare, onDelete }: { guide: Guide;
         </div>
       </div>
       <div className={styles.viewBody}>
-        <GuideArtifact guide={toData(guide)} />
+        <GuideArtifact guide={toData(guide)} linkSpots />
       </div>
     </div>
   );
@@ -154,9 +163,9 @@ function OwnerView({ guide, onBack, onEdit, onShare, onDelete }: { guide: Guide;
 /* ── editor (build + edit) ────────────────────────────────────────────────── */
 const PROMPTS = ["Open past midnight — actually worth it", "Where I take my parents", "First date, no cringe", "Worth crossing town for"];
 
-function GuideEditor({ initial, onSave, onCancel }: { initial?: Guide; onSave: (g: Guide) => void; onCancel: () => void }) {
+function GuideEditor({ initial, seedItems, onSave, onCancel }: { initial?: Guide; seedItems?: GuideItem[]; onSave: (g: Guide) => void; onCancel: () => void }) {
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [items, setItems] = useState<GuideItem[]>(initial?.items ?? []);
+  const [items, setItems] = useState<GuideItem[]>(initial?.items ?? seedItems ?? []);
   const [q, setQ] = useState("");
 
   const myVouches: GuideItem[] = useMemo(() => loadMe().vouches.map((v) => ({ name: v.spot.name, tags: `${v.spot.cuisine} · ${v.spot.area} · ${v.spot.price}`, note: v.line })), []);

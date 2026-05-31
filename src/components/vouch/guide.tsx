@@ -27,14 +27,14 @@ function CuratorLine({ ini, by }: { ini: string; by: string }) {
   );
 }
 
-export function GuideRow({ rank, item, showTags = false, save = false }: {
-  rank: number; item: GuideItem; showTags?: boolean; save?: boolean;
+export function GuideRow({ rank, item, showTags = false, save = false, href }: {
+  rank: number; item: GuideItem; showTags?: boolean; save?: boolean; href?: string;
 }) {
   return (
     <li className={styles.row}>
       <span className={styles.num}>{String(rank).padStart(2, "0")}</span>
       <span className={styles.body}>
-        <span className={styles.name}>{item.name}</span>
+        {href ? <a className={styles.name} href={href}>{item.name}</a> : <span className={styles.name}>{item.name}</span>}
         {showTags && item.tags && <span className={styles.tags}><Tag>{item.tags}</Tag></span>}
         {item.note && <span className={styles.note}>“{item.note}”</span>}
       </span>

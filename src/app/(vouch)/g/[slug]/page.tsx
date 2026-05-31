@@ -41,6 +41,7 @@ export default function SharedGuidePage() {
         whenToTrust="Trust him for late-night, date, and the city after 11."
         share
         palateHref="/p/rinkesh"
+        linkSpots
       />
       <p className={styles.shareHint}>shared with you · borrowing requires an invite</p>
     </div>
