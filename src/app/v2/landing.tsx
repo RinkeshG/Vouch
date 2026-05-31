@@ -575,6 +575,7 @@ function WaitlistStatus() {
           <span className={styles.wlActionMeta}>{referred ? "−40 · jumped ahead" : "skip 40 spots ↗"}</span>
         </button>
       </div>
+      <a className={styles.wlEnter} href="/start">You’re in — start your map <span aria-hidden="true">→</span></a>
     </div>
   );
 }

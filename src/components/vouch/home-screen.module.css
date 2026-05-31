@@ -1,0 +1,51 @@
+.screen { display: flex; flex-direction: column; }
+
+.context { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); margin: 0; }
+.lede { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 6vw, 1.9rem); letter-spacing: -0.025em; line-height: 1.05; color: var(--text); margin: 12px 0 18px; max-width: 16ch; }
+
+/* THE DECISION HERO — the dominant element. One confident answer. */
+.hero {
+  position: relative; background: var(--surface); border: 1px solid var(--saffron-line); border-radius: var(--r-xl);
+  padding: 22px; box-shadow: var(--shadow-lift), 0 0 0 1px rgba(246, 168, 43, 0.08); overflow: hidden;
+  animation: heroIn 0.45s var(--ease) both;
+}
+.hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 60% at 88% -5%, rgba(246, 168, 43, 0.16), transparent 60%); }
+.heroTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: relative; }
+.open { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--jade); }
+.open i { width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--jade); box-shadow: 0 0 8px 0 var(--jade); }
+.dist { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); }
+.place { font-family: var(--display); font-weight: 800; font-size: clamp(1.9rem, 8vw, 2.4rem); letter-spacing: -0.03em; line-height: 1; color: var(--text); margin: 12px 0 0; position: relative; }
+.tags { margin-top: 9px; position: relative; }
+.line { font-family: var(--sans); font-size: 1.12rem; color: var(--text); line-height: 1.42; margin: 16px 0 0; position: relative; }
+
+.why { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; position: relative; }
+.whyText { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); }
+.whyText b { color: var(--text); font-weight: 600; }
+.whyDot { color: var(--faint); }
+
+.actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.actionsRow { display: flex; align-items: center; gap: 10px; }
+.actionsRow > :first-child { flex: 1; }
+.another { font-family: var(--sans); font-weight: 600; font-size: 0.9rem; color: var(--muted); background: transparent; border: none; cursor: pointer; padding: 10px 6px; white-space: nowrap; transition: color var(--dur) ease; }
+.another:hover { color: var(--saffron); }
+
+.stampFloat { position: absolute; top: 18px; right: 18px; z-index: 2; opacity: 0; } /* the open-till already carries status; keep stamp subtle */
+
+/* OCCASION PIVOT — reframes the answer */
+.pivot { margin: 26px 0 0; }
+.pivotLabel { display: block; font-family: var(--sans); font-size: 0.92rem; color: var(--muted); margin-bottom: 12px; }
+.pivotChips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* SECONDARY — subordinate, denser, scannable */
+.also { margin-top: 30px; }
+.alsoLabel { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin: 0 0 8px; }
+.alsoList { list-style: none; margin: 0; padding: 0; }
+.alsoRow { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.alsoRow:last-child { border-bottom: none; }
+.alsoBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.alsoName { font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.015em; color: var(--text); }
+.alsoWhy { font-family: var(--sans); font-size: 0.8rem; color: var(--muted); }
+.alsoWhy b { color: var(--text); font-weight: 600; }
+.alsoGo { flex: none; color: var(--faint); font-family: var(--mono); }
+
+@keyframes heroIn { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }

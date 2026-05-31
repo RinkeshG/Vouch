@@ -9,6 +9,12 @@
 .stampOn { border-color: var(--saffron); background: var(--saffron-dim); }
 
 .ritual { display: flex; flex-direction: column; gap: 9px; animation: rise 0.3s var(--ease) both; }
+.lineWrap { position: relative; }
+.reason { width: 100%; display: block; background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.4; padding: 12px 14px 22px; min-height: 54px; resize: none; overflow: hidden; }
+.reason::placeholder { color: var(--faint); }
+.reason:focus-visible { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 4px rgba(246, 168, 43, 0.13); }
+.reason[aria-invalid="true"] { border-color: var(--ember); }
+.reasonCount { position: absolute; right: 11px; bottom: 8px; font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.04em; color: var(--faint); pointer-events: none; }
 .fieldLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); margin-top: 6px; }
 .occasions { display: flex; flex-wrap: wrap; gap: 7px; }
 

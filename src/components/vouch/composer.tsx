@@ -4,7 +4,6 @@ import { Avatar } from "./avatar";
 import { Stamp, type StampState } from "./stamp";
 import { OccasionChip, Tag } from "./chip";
 import { Button } from "./button";
-import { Input } from "./input";
 import { Toast } from "./misc";
 import styles from "./composer.module.css";
 
@@ -75,12 +74,19 @@ export function AddVouchComposer({
       {needsReason && (
         <div className={styles.ritual}>
           <label className={styles.fieldLabel}>One line — the whole review</label>
-          <Input
-            value={reason}
-            placeholder="Why you’d send a friend here…"
-            onChange={(e) => { setReason(e.target.value); setNudge(false); }}
-            aria-invalid={nudge && !reason.trim()}
-          />
+          <div className={styles.lineWrap}>
+            <textarea
+              className={styles.reason}
+              value={reason}
+              maxLength={120}
+              rows={2}
+              placeholder="Why you’d send a friend here…"
+              aria-invalid={nudge && !reason.trim()}
+              onChange={(e) => { setReason(e.target.value.replace(/\n/g, " ")); setNudge(false); }}
+              onInput={(e) => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
+            />
+            <span className={styles.reasonCount}>{reason.length}/120</span>
+          </div>
           <label className={styles.fieldLabel}>Best for</label>
           <div className={styles.occasions}>
             {OCCASIONS.map((o) => (

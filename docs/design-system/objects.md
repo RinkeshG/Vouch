@@ -38,7 +38,8 @@ from going generic. **Present on every surfaced place**, derived from the graph,
 ## 4. Palate — `palate.tsx` (`PalateHeader`)
 A person **and** their taste; the follow target. A **taste map, not a profile**:
 name + handle, **when to trust them**, strongest **occasions**, guides/vouches
-counts, **Borrow palate**. No bio/followers-as-hero chrome.
+counts, a **Follow** action (the in-app verb — "borrow" is marketing only; see
+brand.md). No bio/followers-as-hero chrome.
 
 ## 5. Guide — `guide.tsx` (`GuideCard`, `GuideView`, `GuideRow`)
 An **authored, occasion-titled** collection by one palate. The preview card and
@@ -70,7 +71,7 @@ Canonical set in the Constitution §4.
 | Inputs | `input.tsx` (`Input`, `SearchField`, `ComposerField`) |
 | Overlay | `modal.tsx` (`Modal` — dialog ↔ bottom-sheet, focus-trap) |
 | States | `misc.tsx` (`LeaderRow`, `SkeletonRow`, `SkeletonCard`, `EmptyState`, `Toast`) |
-| Create | `composer.tsx` (`AddVouchComposer` — the sacred ritual + integrity nudge) |
+| Create | `composer.tsx` (`AddVouchComposer` — the sacred ritual; the one-line reason is a **wrapping textarea, ≤120 chars** with a live counter; integrity nudge) |
 | Shell | `app-shell.tsx` (`AppShell` — top bar + mobile bottom tab; ＋Vouch is the only saffron item) |
 | Home | `home.tsx` (`HomeHeader`, `ModeBar`, `SectionLabel`) |
 | Tokens | `vouch.css` (the `.vouch` runtime token scope — After-Dark identity) |

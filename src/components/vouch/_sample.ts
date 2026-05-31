@@ -33,4 +33,13 @@ export const GUIDE_PARENTS: GuideData = {
   ],
 };
 
-export const HOME_MODES = ["Tonight", "Near you", "Parents", "Late night", "Coffee", "Date", "Worth the drive", "Borrow a palate"];
+export const HOME_MODES = ["Tonight", "Near you", "Parents", "Late night", "Coffee", "Date", "Worth the drive", "From people you follow"];
+
+import type { Pick } from "./home-screen";
+export const PICKS: Pick[] = [
+  { place: "Naru Noodle Bar", area: "Indiranagar", tags: "Ramen · Indiranagar · ₹₹₹", dist: "1.2 km", openTill: "11pm", line: "Best bowl in the city. Get there at 6 sharp.", by: { name: "Aditi", ini: "AS" }, savedFaces: ["RG", "MK"], savedCount: 2, occasions: ["date", "rainy day"] },
+  { place: "Empire", area: "Indiranagar", tags: "Kebabs · Indiranagar · ₹₹", dist: "0.8 km", openTill: "1am", line: "Midnight hunger, fully solved. Get the chicken ghee roast.", by: { name: "Rinkesh", ini: "RG" }, savedFaces: ["AS"], savedCount: 1, occasions: ["late night"] },
+  { place: "Karavalli", area: "Residency Rd", tags: "Coastal · Residency Rd · ₹₹₹₹", dist: "3.4 km", openTill: "11pm", line: "Take your parents. They’ll talk about it for months.", by: { name: "Meera", ini: "MK" }, savedFaces: ["AS", "RG"], savedCount: 2, occasions: ["parents", "group dinner"] },
+  { place: "Toit", area: "Indiranagar", tags: "Brewpub · Indiranagar · ₹₹₹", dist: "1.1 km", openTill: "11:30pm", line: "Wood-fired pizzas and the Tintin Toit. Go early, it fills up.", by: { name: "Rinkesh", ini: "RG" }, savedFaces: ["MK"], savedCount: 1, occasions: ["group dinner", "date"] },
+  { place: "Brahmin’s Coffee Bar", area: "Shankarpuram", tags: "Filter · Shankarpuram · ₹", dist: "5.0 km", openTill: "noon", line: "Idli, kara bath, one-by-two filter. A morning religion.", by: { name: "Aditi", ini: "AS" }, savedFaces: ["MK"], savedCount: 1, occasions: ["coffee"] },
+];

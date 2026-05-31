@@ -133,6 +133,13 @@ precisely and consistently across product, marketing, and code (UI strings).
 *(Aside: the phrase "no black **box**" in trust copy is fine — that's about
 algorithm opacity, a different word from the dropped "black book.")*
 
+**Follow vs Borrow — the resolved rule.** The in-product **action is always
+"Follow"** (a clear, universal verb; you *follow* a palate, their spots land on
+your map). **"Borrow a palate"** is a **benefit/marketing phrase** for the landing
+and copy — *not* a button or status label in the app. Never show both as actions
+on one surface; it confuses new users. (We tried "Borrowing 2" as a status and cut
+it.)
+
 ---
 
 ## 6. Logo & Wordmark

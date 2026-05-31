@@ -30,7 +30,7 @@ export function PalateHeader({
           <span className={styles.handle}>{handle} · {stats.guides} guides · {stats.vouches} vouches · {stats.followers} follow</span>
         </div>
         <div className={styles.actions}>
-          <Button variant="primary">Borrow palate</Button>
+          <Button variant="primary">Follow</Button>
         </div>
       </div>
 

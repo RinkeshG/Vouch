@@ -340,6 +340,9 @@
 .wlInput:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(246, 168, 43, 0.14); }
 .wlAddBtn { font-family: var(--sans); font-weight: 600; font-size: 0.95rem; letter-spacing: -0.005em; color: #1c1408; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border: none; border-radius: 11px; padding: 0 20px; cursor: pointer; }
 .wlPos .wlNum { animation: pop 0.34s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.wlEnter { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; width: 100%; font-family: var(--sans); font-weight: 600; font-size: 1rem; letter-spacing: -0.01em; color: #1c1408; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-radius: 12px; padding: 15px 18px; text-decoration: none; box-shadow: 0 16px 36px -16px rgba(246, 168, 43, 0.85); transition: transform 0.16s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.2s ease; }
+.wlEnter:hover { transform: translateY(-1px); box-shadow: 0 20px 44px -16px rgba(246, 168, 43, 0.95); }
+.wlEnter:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
 
 /* ============================ CTA STUB =============================== */
 .cta { border-top: 1px solid var(--line); background: var(--bg-2); padding-block: clamp(48px, 6vw, 94px); }
