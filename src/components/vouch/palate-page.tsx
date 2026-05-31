@@ -6,7 +6,7 @@ import { Button } from "./button";
 import { OccasionChip } from "./chip";
 import { MapReal, type MapPin } from "./map-real";
 import { FOUNDING, findSpot, archetypeFor, DEMO_SESSION, type FoundingPalate } from "./_taste";
-import { listGuides } from "./_guides";
+import { listGuides, slugify } from "./_guides";
 import styles from "./palate-page.module.css";
 
 /* J4 — the Palate. A person AND their taste; the follow target (Constitution §4).
@@ -126,11 +126,11 @@ export function PalatePage({ slug }: { slug?: string }) {
                   return (
                     <li key={s.name} className={styles.sigRow}>
                       <span className={styles.sigNum}>{String(i + 1).padStart(2, "0")}</span>
-                      <span className={styles.sigBody}>
+                      <a className={styles.sigBody} href={`/spot/${slugify(s.name)}`}>
                         <span className={styles.sigName}>{s.name}</span>
                         {s.line && <span className={styles.sigLine}>“{s.line}”</span>}
                         {spot && <span className={styles.sigTags}>{spot.cuisine} · {spot.area}</span>}
-                      </span>
+                      </a>
                     </li>
                   );
                 })}

@@ -1,0 +1,43 @@
+/* The Spot — the Receipt is the hero; practical chrome sits quiet. */
+.page { max-width: 920px; margin: 0 auto; padding: 40px 32px 56px; }
+.eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 14px; }
+.notFound { font-family: var(--display); font-weight: 800; font-size: 2rem; color: var(--text); }
+
+.head { margin-bottom: 24px; }
+.name { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 4.5vw, 3.4rem); line-height: 1; letter-spacing: -0.035em; color: var(--text); margin: 0 0 16px; }
+.occ { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* THE RECEIPT — the loud thing */
+.receipt { padding: 22px 24px; border: 1px solid rgba(246, 168, 43, 0.28); background: var(--saffron-dim); border-radius: var(--r-xl); }
+.receiptLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); }
+.receiptLine { font-family: var(--sans); font-size: 1.05rem; color: var(--text); margin: 8px 0 0; }
+.receiptEmpty { font-family: var(--sans); font-size: 1.05rem; color: var(--muted); line-height: 1.5; margin: 8px 0 0; max-width: 46ch; }
+.verdicts { list-style: none; margin: 18px 0 0; padding: 16px 0 0; border-top: 1px solid rgba(246, 168, 43, 0.2); display: flex; flex-direction: column; gap: 16px; }
+.verdict { display: flex; align-items: flex-start; gap: 12px; }
+.verdict > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vWho { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); text-decoration: none; }
+a.vWho:hover { color: var(--text); }
+.vLine { font-family: var(--sans); font-size: 1.1rem; color: var(--text); line-height: 1.4; }
+
+.split { display: grid; grid-template-columns: 1fr 320px; gap: 36px; margin-top: 30px; align-items: start; }
+.section { margin-bottom: 28px; }
+.label { display: block; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 12px; }
+.order { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--text); margin: 0; line-height: 1.25; }
+
+.stamps { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+.stamp { font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
+.stamp:hover { border-color: var(--rule); }
+.stampOn { color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-color: transparent; font-weight: 600; }
+.addGuide { font-family: var(--sans); font-size: 0.88rem; color: var(--muted); text-decoration: none; margin-left: 4px; transition: color 0.15s ease; }
+.addGuide:hover { color: var(--saffron); }
+
+.practical { margin-top: 8px; padding-top: 22px; border-top: 1px solid var(--line); }
+.practicalLine { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); margin: 0 0 6px; }
+
+.mapCol { position: sticky; top: 24px; }
+.mapWrap { border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); }
+
+.toastWrap { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 80; pointer-events: none; }
+.toast { display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-radius: var(--r-pill); padding: 11px 20px; box-shadow: var(--shadow-pop); }
+
+@media (max-width: 880px) { .split { grid-template-columns: 1fr; gap: 24px; } .mapCol { position: static; } }

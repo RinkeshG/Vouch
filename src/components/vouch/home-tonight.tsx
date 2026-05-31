@@ -5,7 +5,7 @@ import { HomeSwitch } from "./home-switch";
 import { Avatar } from "./avatar";
 import { Button } from "./button";
 import { MapReal } from "./map-real";
-import { FOUNDING, findSpot, archetypeFor, matchPct, occasionsOf, DEMO_SESSION } from "./_taste";
+import { FOUNDING, findSpot, archetypeFor, sharedOccasions, occasionsOf, DEMO_SESSION } from "./_taste";
 import styles from "./home-tonight.module.css";
 
 /* HOME · concept A — "Tonight". The home answers Vouch's one question: where do I
@@ -16,7 +16,7 @@ import styles from "./home-tonight.module.css";
 
 const MOMENTS = ["anything", "late night", "date", "parents", "coffee", "group dinner"];
 
-type Answer = { id: string; name: string; line: string; by: { name: string; ini: string }; match: number; meta: string; occasions: string[]; lat: number; lng: number };
+type Answer = { id: string; name: string; line: string; by: { name: string; ini: string }; match: string; meta: string; occasions: string[]; lat: number; lng: number };
 
 export function HomeTonight() {
   const { mine, followed } = DEMO_SESSION;
@@ -29,7 +29,7 @@ export function HomeTonight() {
         const s = findSpot(sp.name);
         return {
           id: `${f.name}:${sp.name}`, name: sp.name, line: sp.line,
-          by: { name: f.name, ini: f.ini }, match: matchPct(f, mine),
+          by: { name: f.name, ini: f.ini }, match: sharedOccasions(f, mine).slice(0, 2).join(", ") || f.occasions[0],
           meta: [s?.cuisine, s?.area, s?.price].filter(Boolean).join(" · "),
           occasions: occasionsOf(sp.name), lat: sp.lat, lng: sp.lng,
         };
@@ -63,7 +63,7 @@ export function HomeTonight() {
             <div className={styles.answerText}>
               <span className={styles.receipt}>
                 <Avatar initials={hero.by.ini} size={22} />
-                Vouched by {hero.by.name} · {hero.match}% your taste
+                Vouched by {hero.by.name} · you both back {hero.match}
               </span>
               <h2 className={styles.place}>{hero.name}</h2>
               <p className={styles.line}>“{hero.line}”</p>

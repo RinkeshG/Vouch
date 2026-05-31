@@ -4,7 +4,7 @@ import { HomeSwitch } from "./home-switch";
 import { Avatar } from "./avatar";
 import { Button } from "./button";
 import { Tag } from "./chip";
-import { FOUNDING, findSpot, archetypeFor, matchPct, DEMO_SESSION } from "./_taste";
+import { FOUNDING, findSpot, archetypeFor, sharedOccasions, DEMO_SESSION } from "./_taste";
 import styles from "./home-pulse.module.css";
 
 /* HOME · concept B — "Pulse". The home is the living word-of-mouth of the people
@@ -82,7 +82,7 @@ export function HomePulse() {
             {palates.map((p) => (
               <div key={p.name} className={styles.palate}>
                 <Avatar initials={p.ini} size={32} />
-                <span className={styles.palateText}><b>{p.name}</b><span className={styles.palateMeta}>{matchPct(p, mine)}% your taste</span></span>
+                <span className={styles.palateText}><b>{p.name}</b><span className={styles.palateMeta}>both back {sharedOccasions(p, mine).slice(0, 2).join(", ") || p.occasions[0]}</span></span>
               </div>
             ))}
             <a className={styles.railLink} href="/map">Your map · {mine.length} spots →</a>

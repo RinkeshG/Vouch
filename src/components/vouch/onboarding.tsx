@@ -7,7 +7,7 @@ import { Button } from "./button";
 import { OccasionChip, Tag } from "./chip";
 import { SearchField } from "./input";
 import { MapReal, type MapPin } from "./map-real";
-import { SEED, OCCASIONS, FOUNDING, archetypeFor, matchPct, saveSession, type Spot, type Vouch } from "./_taste";
+import { SEED, OCCASIONS, FOUNDING, archetypeFor, saveSession, type Spot, type Vouch } from "./_taste";
 import styles from "./onboarding.module.css";
 
 /* J1 — first run (web). The map is the persistent companion on the left; it fills
@@ -54,9 +54,10 @@ export function Onboarding() {
   }
   const toggleOcc = (o: string) => setOcc((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
   const toggleFollow = (n: string) => setFollowed((p) => (p.includes(n) ? p.filter((x) => x !== n) : [...p, n]));
+  const myOcc = useMemo(() => new Set(mine.flatMap((v) => v.spot.occasions.concat(v.occ))), [mine]);
   function enterVouch() {
     saveSession({ mine, followed });
-    router.push("/map");
+    router.push("/producers-home");
   }
 
   return (
@@ -177,11 +178,13 @@ export function Onboarding() {
               <div className={styles.palateList}>
                 {FOUNDING.map((f) => {
                   const on = followed.includes(f.name);
+                  const shared = f.occasions.filter((o) => myOcc.has(o));
+                  const reason = shared.length ? `you both back ${shared.slice(0, 2).join(", ")}` : `covers your ${f.occasions[0]}`;
                   return (
                     <div key={f.name} className={`${styles.palate} ${on ? styles.palateOn : ""}`}>
                       <Avatar initials={f.ini} size={40} />
                       <div className={styles.palateInfo}>
-                        <span className={styles.palateRow}><span className={styles.palatePName}>{f.name}</span><span className={styles.match}>{matchPct(f, mine)}% match</span></span>
+                        <span className={styles.palateRow}><span className={styles.palatePName}>{f.name}</span><span className={styles.match}>{reason}</span></span>
                         <span className={styles.palateBlurb}>{f.blurb}</span>
                       </div>
                       <Button variant={on ? "ghost" : "primary"} onClick={() => toggleFollow(f.name)}>{on ? "Following ✓" : "Follow"}</Button>

@@ -66,13 +66,13 @@ export function archetypeFor(vouches: { occ: string[] }[]) {
   return (top && ARCH[top]) || DEFAULT_ARCH;
 }
 
-/* taste-match % — the one allowed number, and it's about PEOPLE not places: how
-   much your occasions overlap a palate's. Always shown with the human why. */
-export function matchPct(palate: FoundingPalate, mine: Vouch[]) {
+/* Shared occasions between you and a palate — the HONEST overlap (a reason, named,
+   countable), surfaced as "you both back X". Prefer this to any synthetic %.
+   (The old fabricated matchPct — a 58% floor + 48 offset — has been removed; a
+   trust brand cannot ship invented social proof.) */
+export function sharedOccasions(palate: FoundingPalate, mine: Vouch[]): string[] {
   const a = new Set(mine.flatMap((v) => v.spot.occasions.concat(v.occ)));
-  const inter = palate.occasions.filter((o) => a.has(o)).length;
-  const union = new Set([...a, ...palate.occasions]).size || 1;
-  return Math.max(58, Math.min(96, Math.round((inter / union) * 100) + 48));
+  return palate.occasions.filter((o) => a.has(o));
 }
 
 /* Carry what you built in onboarding into Home. Prototype-only (sessionStorage);

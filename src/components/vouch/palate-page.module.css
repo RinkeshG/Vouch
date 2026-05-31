@@ -30,7 +30,8 @@
 .sigRow { display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
 .sigRow:first-child { border-top: none; }
 .sigNum { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); padding-top: 5px; }
-.sigBody { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sigBody { display: flex; flex-direction: column; gap: 4px; min-width: 0; text-decoration: none; }
+.sigBody:hover .sigName { color: var(--saffron); }
 .sigName { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.1; }
 .sigLine { font-family: var(--sans); font-size: 0.96rem; color: var(--muted); line-height: 1.4; }
 .sigTags { font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
