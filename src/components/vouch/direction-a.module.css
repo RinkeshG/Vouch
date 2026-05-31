@@ -1,0 +1,17 @@
+/* Direction A — The Producer's Home. The map IS the territory; type sits over it. */
+.stage { position: relative; height: 100dvh; overflow: hidden; }
+.mapLayer { position: absolute; inset: 0; }
+.scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(16,15,13,0.92) 0%, rgba(16,15,13,0.5) 30%, rgba(16,15,13,0) 52%, rgba(16,15,13,0.4) 78%, rgba(16,15,13,0.92) 100%); }
+
+.header { position: relative; z-index: 2; padding: 60px 48px 0; max-width: 720px; }
+.eyebrow { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--saffron); }
+.state { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--text); margin: 14px 0 0; }
+.arch { color: var(--saffron); white-space: nowrap; }
+.sub { font-family: var(--sans); font-size: 1.1rem; color: var(--muted); line-height: 1.45; margin: 16px 0 0; max-width: 42ch; }
+.meta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 16px 0 0; }
+
+.addWrap { position: absolute; z-index: 2; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.stamps { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+.stamps b { color: var(--saffron); }
+
+@media (max-width: 880px) { .header { padding: 56px 20px 0; } }

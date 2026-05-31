@@ -1,0 +1,41 @@
+/* Over To You — editorial, dark, one human speaking. No map, no grid. */
+.stage { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 84px 24px 56px; text-align: center; position: relative; }
+
+.phaseToggle { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.phase, .phaseOn { font-family: var(--sans); font-size: 0.78rem; font-weight: 500; border-radius: var(--r-pill); padding: 6px 13px; cursor: pointer; transition: all 0.15s var(--ease); }
+.phase { color: var(--muted); background: transparent; border: 1px solid var(--line-2); }
+.phase:hover { color: var(--text); border-color: var(--rule); }
+.phaseOn { color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border: 1px solid transparent; font-weight: 600; }
+.phaseHint { width: 100%; font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
+
+.context { font-family: var(--mono); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); margin: 0 0 26px; }
+
+.handoff { display: flex; flex-direction: column; align-items: center; max-width: 600px; animation: rise 0.4s var(--ease) both; }
+.receipt { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 16px 0 0; }
+.receipt b { color: var(--saffron); }
+.overlap { color: var(--muted); }
+.spoken { font-family: var(--display); font-weight: 700; font-size: clamp(1.8rem, 3.6vw, 2.9rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--text); margin: 18px 0 0; }
+
+.pick { display: inline-flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 26px; padding: 18px 26px; border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--surface); }
+.pickName { font-family: var(--display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; color: var(--text); }
+.pickTags { display: block; }
+.pickWhy { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--saffron); }
+
+.actions { display: flex; align-items: center; gap: 18px; margin-top: 28px; }
+.askElse { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); background: none; border: none; cursor: pointer; transition: color 0.15s ease; }
+.askElse:hover { color: var(--text); }
+.countdown { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); margin: 22px 0 0; }
+.countdown b { color: var(--saffron); }
+
+.faces { margin-top: 52px; }
+.facesLabel { display: block; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 14px; }
+.faceRow { display: flex; align-items: flex-start; justify-content: center; gap: 22px; }
+.face { display: flex; flex-direction: column; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; opacity: 0.55; transition: opacity 0.15s ease, transform 0.15s ease; }
+.face:hover { opacity: 1; transform: translateY(-2px); }
+.faceOn { opacity: 1; }
+.faceName { font-family: var(--sans); font-size: 0.82rem; color: var(--text); }
+.faceOn .faceName { color: var(--saffron); font-weight: 600; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 880px) { .stage { padding: 96px 18px 40px; } }
