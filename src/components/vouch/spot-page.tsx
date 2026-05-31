@@ -1,12 +1,13 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { WebShell } from "./web-shell";
 import { Avatar } from "./avatar";
 import { Button } from "./button";
 import { OccasionChip } from "./chip";
 import { MapReal } from "./map-real";
-import { SEED, FOUNDING, archetypeFor, DEMO_SESSION } from "./_taste";
+import { SEED, FOUNDING, archetypeFor } from "./_taste";
 import { listGuides, slugify } from "./_guides";
+import { loadMe, type Me } from "./_me";
 import styles from "./spot-page.module.css";
 
 /* The Spot page (Constitution §7.2) — leads with the RECEIPT (who vouched, why it
@@ -36,7 +37,9 @@ const HOURS: Record<string, string> = {
 type Stamp = "want" | "been" | "vouched";
 
 export function SpotPage({ slug }: { slug: string }) {
-  const myArch = archetypeFor(DEMO_SESSION.mine);
+  const [me, setMe] = useState<Me>({ vouches: [], follows: [] });
+  useEffect(() => { setMe(loadMe()); }, []);
+  const myArch = archetypeFor(me.vouches);
   const spot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
   const [stamp, setStamp] = useState<Stamp | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -53,7 +56,7 @@ export function SpotPage({ slug }: { slug: string }) {
   }
 
   const vouchedBy = FOUNDING.flatMap((f) => f.spots.filter((s) => s.name === spot.name).map((s) => ({ name: f.name, ini: f.ini, line: s.line, slug: f.name.toLowerCase() })));
-  const mine = DEMO_SESSION.mine.find((v) => v.spot.name === spot.name);
+  const mine = me.vouches.find((v) => v.spot.name === spot.name);
   const inGuides = listGuides().filter((g) => g.items.some((i) => i.name === spot.name)).map((g) => g.title);
   const order = ORDERS[spot.name];
 

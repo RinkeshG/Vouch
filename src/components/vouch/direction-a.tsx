@@ -1,59 +1,63 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
-import { archetypeFor, findSpot, DEMO_SESSION } from "./_taste";
+import { archetypeFor, type Vouch } from "./_taste";
+import { loadMe } from "./_me";
 import styles from "./direction-a.module.css";
 
-/* v1 roundtable — DIRECTION A: "The Producer's Home", now showing the Tier-1 map
-   direction: the city RECEDES so only trust glows; pins encode your RELATIONSHIP
-   (Vouched glows · Been quiet · Want-to-go ghost); a FOCUS toggle spotlights one
-   pin (the decision-moment narrowing). Honesty: names not numbers, no synthetic %.
-   Prototype: design-direction only. */
-
-// Stamp variety so the pin encoding is legible (real flow derives this per vouch).
-const STAMPS: Record<string, MapPin["stamp"]> = { Empire: "vouched", "Corner House": "vouched", Toit: "been", Soka: "want" };
+/* Home — "The Producer's Home". Your taste as a territory you build. Reads your
+   REAL vouches (from onboarding + adds), never demo data. The city recedes so only
+   your trust glows; pins encode your relationship; a focus toggle narrows to one.
+   Honest empty state for a cold user. */
 
 export function ProducersHome() {
-  const { mine } = DEMO_SESSION;
-  const arch = archetypeFor(mine);
-  const areas = new Set(mine.map((v) => v.spot.area)).size;
+  const [vouches, setVouches] = useState<Vouch[]>([]);
+  const [ready, setReady] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
 
-  // a couple extra spots so all three stamp states show
-  const extra = ["Soka"].map((n) => findSpot(n)!).filter(Boolean);
-  const pins: MapPin[] = [
-    ...mine.map((v) => ({ id: `me:${v.spot.name}`, lat: v.spot.lat, lng: v.spot.lng, name: v.spot.name, line: v.line, occasion: v.occ[0], kind: "mine" as const, stamp: STAMPS[v.spot.name] ?? "vouched", by: { name: "You", ini: "RG" } })),
-    ...extra.map((s) => ({ id: `me:${s.name}`, lat: s.lat, lng: s.lng, name: s.name, occasion: s.occasions[0], kind: "mine" as const, stamp: STAMPS[s.name] ?? "want", by: { name: "You", ini: "RG" } })),
-  ];
-  const vouched = pins.filter((p) => p.stamp === "vouched").length;
+  useEffect(() => { setVouches(loadMe().vouches); setReady(true); }, []);
+
+  const arch = archetypeFor(vouches);
+  const areas = new Set(vouches.map((v) => v.spot.area)).size;
+  const pins: MapPin[] = vouches.map((v) => ({ id: `me:${v.spot.name}`, lat: v.spot.lat, lng: v.spot.lng, name: v.spot.name, line: v.line, occasion: v.occ[0], kind: "mine", stamp: "vouched", by: { name: "You", ini: "RG" } }));
+  const empty = ready && vouches.length === 0;
 
   return (
-    <WebShell active="map" you={{ ini: "RG", name: "You", line: `${arch.glyph} ${arch.name}` }}>
+    <WebShell active="map" you={{ ini: "RG", name: "You", line: vouches.length ? `${arch.glyph} ${arch.name}` : "Build your map" }}>
       <div className={styles.stage}>
-        <div className={styles.mapLayer}>
-          <MapReal pins={pins} height="100%" labelMode="hover" bleed recede spotlightId={focused} />
-        </div>
+        <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede spotlightId={focused} /></div>
         <div className={styles.scrim} aria-hidden="true" />
 
         <header className={styles.header}>
           <span className={styles.eyebrow}>admit one</span>
-          <h1 className={styles.state}>{pins.length} spots. You’re becoming <span className={styles.arch}>{arch.glyph} {arch.name}</span>.</h1>
-          <p className={styles.sub}>{arch.line}</p>
-          <div className={styles.legend}>
-            <span><i className={styles.lgVouched} /> {vouched} vouched</span>
-            <span><i className={styles.lgBeen} /> been</span>
-            <span><i className={styles.lgWant} /> want to go</span>
-            <span className={styles.legendNote}>· names, never numbers</span>
-          </div>
-          <button type="button" className={styles.focusBtn} onClick={() => setFocused((f) => (f ? null : "me:Empire"))}>
-            {focused ? "← Back to my whole map" : "◎ Focus tonight’s call"}
-          </button>
+          {empty ? (
+            <>
+              <h1 className={styles.state}>Your map’s empty. <span className={styles.arch}>Put your first name down.</span></h1>
+              <p className={styles.sub}>Vouch for a place you’d send a friend to, no hesitation. It lands here, with your name on it.</p>
+            </>
+          ) : (
+            <>
+              <h1 className={styles.state}>{vouches.length} {vouches.length === 1 ? "spot" : "spots"}. You’re becoming <span className={styles.arch}>{arch.glyph} {arch.name}</span>.</h1>
+              <p className={styles.sub}>{arch.line}</p>
+              <div className={styles.legend}>
+                <span><i className={styles.lgVouched} /> {vouches.length} vouched</span>
+                <span className={styles.legendNote}>· {areas} {areas === 1 ? "area" : "areas"} · names, never numbers</span>
+              </div>
+              {pins.length > 1 && (
+                <button type="button" className={styles.focusBtn} onClick={() => setFocused((f) => (f ? null : pins[0].id))}>
+                  {focused ? "← Back to my whole map" : "◎ Focus tonight’s call"}
+                </button>
+              )}
+            </>
+          )}
         </header>
 
         <div className={styles.addWrap}>
-          <Button variant="primary">＋ Put a name down</Button>
+          {empty
+            ? <a href="/start"><Button variant="primary">Start your map →</Button></a>
+            : <a href="/start"><Button variant="primary">＋ Put a name down</Button></a>}
           <span className={styles.stamps}>Want to go · Been · <b>Vouched</b></span>
         </div>
       </div>

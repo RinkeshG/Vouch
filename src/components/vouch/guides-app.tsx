@@ -6,7 +6,7 @@ import { type GuideData } from "./guide";
 import { GuideArtifact } from "./guide-artifact";
 import { archetypeFor, DEMO_SESSION } from "./_taste";
 import {
-  listGuides, getGuide, upsertGuide, deleteGuide, myVouches, slugify, uid, seedOnce,
+  listGuides, getGuide, upsertGuide, deleteGuide, myVouches, slugify, uid,
   type Guide, type GuideItem,
 } from "./_guides";
 import styles from "./guides-app.module.css";
@@ -27,7 +27,7 @@ export function GuidesApp() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [toast, setToast] = useState<string | null>(null);
 
-  useEffect(() => { seedOnce(); setGuides(listGuides()); }, []);
+  useEffect(() => { setGuides(listGuides()); }, []);
   const refresh = () => setGuides(listGuides());
   useEffect(() => { if (!toast) return; const t = window.setTimeout(() => setToast(null), 2600); return () => window.clearTimeout(t); }, [toast]);
 

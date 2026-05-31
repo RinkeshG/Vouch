@@ -7,7 +7,8 @@ import { Button } from "./button";
 import { OccasionChip, Tag } from "./chip";
 import { SearchField } from "./input";
 import { MapReal, type MapPin } from "./map-real";
-import { SEED, OCCASIONS, FOUNDING, archetypeFor, saveSession, type Spot, type Vouch } from "./_taste";
+import { SEED, OCCASIONS, FOUNDING, archetypeFor, type Spot, type Vouch } from "./_taste";
+import { saveMe } from "./_me";
 import styles from "./onboarding.module.css";
 
 /* J1 — first run (web). The map is the persistent companion on the left; it fills
@@ -56,7 +57,7 @@ export function Onboarding() {
   const toggleFollow = (n: string) => setFollowed((p) => (p.includes(n) ? p.filter((x) => x !== n) : [...p, n]));
   const myOcc = useMemo(() => new Set(mine.flatMap((v) => v.spot.occasions.concat(v.occ))), [mine]);
   function enterVouch() {
-    saveSession({ mine, followed });
+    saveMe({ vouches: mine, follows: followed });
     router.push("/producers-home");
   }
 
