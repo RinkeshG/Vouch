@@ -11,7 +11,7 @@ export type NavKey = "map" | "search" | "guides" | "palate";
    own shell (app-shell.tsx) and its own layout, designed separately. */
 const NAV: { key: NavKey; glyph: string; label: string; href?: string }[] = [
   { key: "map", glyph: "◍", label: "Your map", href: "/producers-home" },
-  { key: "search", glyph: "⌕", label: "Search" },
+  { key: "search", glyph: "⌕", label: "Search", href: "/search" },
   { key: "guides", glyph: "❑", label: "Guides", href: "/guides" },
   { key: "palate", glyph: "◆", label: "Your palate", href: "/palate" },
 ];

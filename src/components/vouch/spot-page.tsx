@@ -9,6 +9,7 @@ import { SEED, FOUNDING, archetypeFor } from "./_taste";
 import { listGuides, slugify } from "./_guides";
 import { loadMe, type Me } from "./_me";
 import { AddVouchModal } from "./add-vouch";
+import { getCatalogSpot, type CatalogSpot } from "./_catalog";
 import styles from "./spot-page.module.css";
 
 /* The Spot page (Constitution §7.2) — leads with the RECEIPT (who vouched, why it
@@ -41,7 +42,9 @@ export function SpotPage({ slug }: { slug: string }) {
   const [me, setMe] = useState<Me>({ vouches: [], follows: [] });
   useEffect(() => { setMe(loadMe()); }, []);
   const myArch = archetypeFor(me.vouches);
-  const spot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
+  const seedSpot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
+  const [cat, setCat] = useState<CatalogSpot | null | undefined>(undefined);
+  useEffect(() => { if (seedSpot) { setCat(null); return; } getCatalogSpot(slug).then(setCat); }, [slug, seedSpot]);
   const [stamp, setStamp] = useState<Stamp | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -52,6 +55,16 @@ export function SpotPage({ slug }: { slug: string }) {
     flash(s === "want" ? "Saved for the night you’re nearby." : "Logged — it’s in your diary.");
   }
 
+  // unify a founding SEED spot (has occasions) or a catalog place (from Supabase)
+  const spot = seedSpot
+    ? { name: seedSpot.name, area: seedSpot.area, cuisine: seedSpot.cuisine, price: seedSpot.price, lat: seedSpot.lat as number | null, lng: seedSpot.lng as number | null, occasions: seedSpot.occasions }
+    : cat ? { name: cat.name, area: cat.area, cuisine: cat.cuisine, price: cat.price, lat: cat.lat, lng: cat.lng, occasions: [] as string[] } : null;
+
+  if (!seedSpot && cat === undefined) {
+    return <WebShell active="search" you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
+      <div className={styles.page}><p className={styles.eyebrow}>Spot</p><p className={styles.notFound}>Finding it…</p></div>
+    </WebShell>;
+  }
   if (!spot) {
     return <WebShell active="search" you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
       <div className={styles.page}><p className={styles.eyebrow}>Spot</p><h1 className={styles.notFound}>No spot here.</h1></div>
@@ -130,12 +143,14 @@ export function SpotPage({ slug }: { slug: string }) {
             </section>
           </div>
 
-          <aside className={styles.mapCol}>
-            <span className={styles.label}>Where</span>
-            <div className={styles.mapWrap}>
-              <MapReal pins={[{ id: spot.name, lat: spot.lat, lng: spot.lng, name: spot.name, kind: "mine" }]} height={260} recede tag={`${spot.area} · Bengaluru`} />
-            </div>
-          </aside>
+          {spot.lat != null && spot.lng != null && (
+            <aside className={styles.mapCol}>
+              <span className={styles.label}>Where</span>
+              <div className={styles.mapWrap}>
+                <MapReal pins={[{ id: spot.name, lat: spot.lat, lng: spot.lng, name: spot.name, kind: "mine" }]} height={260} recede tag={`${spot.area} · Bengaluru`} />
+              </div>
+            </aside>
+          )}
         </div>
       </div>
 
