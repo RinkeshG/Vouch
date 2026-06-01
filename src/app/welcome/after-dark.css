@@ -1,0 +1,90 @@
+/* ============================================================================
+   VOUCH — "After Dark / The Ledger" design tokens (scoped to .vouch).
+   Ported from the product design-system so /welcome can stand alone on this
+   branch without touching the legacy globals. Dark + saffron. Bricolage
+   Grotesque (display) · Space Grotesk (sans) · Space Mono (mono labels).
+   ========================================================================== */
+
+.vouch {
+  /* surfaces */
+  --bg: #100f0d;
+  --bg-2: #16140f;
+  --surface: #1a1712;
+  --surface-2: #221d16;
+  --line: rgba(244, 238, 227, 0.12);
+  --line-2: rgba(244, 238, 227, 0.20);
+  --rule: rgba(244, 238, 227, 0.28);
+
+  /* ink */
+  --text: #f3eee3;
+  --muted: #bcb3a4;
+  --faint: #756c5f;
+
+  /* accent */
+  --saffron: #f6a82b;
+  --saffron-hi: #ffc658;
+  --accent-ink: #1c1408;
+  --ember: #ff5b33;
+  --jade: #76d29b;
+  --saffron-dim: rgba(246, 168, 43, 0.10);
+  --saffron-line: rgba(246, 168, 43, 0.30);
+  --jade-dim: rgba(118, 210, 155, 0.12);
+
+  /* stamp colours (the three states) */
+  --stamp-want: #cdb595;
+  --stamp-been: var(--jade);
+  --stamp-vouched: var(--saffron);
+
+  /* type families */
+  --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --sans: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* spacing (4px grid) */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px;
+  --s6: 24px; --s8: 32px; --s10: 40px; --s12: 48px; --s16: 64px;
+
+  /* radii */
+  --r-xs: 6px; --r-sm: 8px; --r-md: 11px; --r-lg: 14px; --r-xl: 18px; --r-pill: 999px;
+
+  /* elevation */
+  --shadow: 0 24px 60px -38px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 44px 90px -44px rgba(0, 0, 0, 0.95);
+  --shadow-pop: 0 14px 32px -14px rgba(246, 168, 43, 0.8);
+
+  /* motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-quick: 0.16s;
+  --dur: 0.25s;
+  --dur-slow: 0.45s;
+
+  /* layout */
+  --tap: 44px;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.vouchRoot { min-height: 100dvh; background: var(--bg); }
+.vouch *, .vouch *::before, .vouch *::after { box-sizing: border-box; }
+.vouch ::selection { background: var(--saffron); color: var(--accent-ink); }
+
+.vouch :focus-visible {
+  outline: 2.5px solid var(--saffron);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vouch *, .vouch *::before, .vouch *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
