@@ -154,7 +154,7 @@ export function SpotPage({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <AddVouchModal open={adding} onClose={() => setAdding(false)} presetSpot={spot.name} onAdded={(v) => { setMe(loadMe()); setStamp("vouched"); flash(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} presetSpot={{ name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, lat: spot.lat, lng: spot.lng }} onAdded={(v) => { setMe(loadMe()); setStamp("vouched"); flash(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );

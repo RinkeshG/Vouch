@@ -1,17 +1,22 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Modal } from "./modal";
 import { Button } from "./button";
 import { Tag, OccasionChip } from "./chip";
 import { SearchField } from "./input";
-import { SEED, OCCASIONS, type Spot, type Vouch } from "./_taste";
+import { OCCASIONS, type Spot, type Vouch } from "./_taste";
+import { searchCatalog, type CatalogSpot } from "./_catalog";
 import { addVouch, loadMe } from "./_me";
 import styles from "./add-vouch.module.css";
 
-/* The add-vouch ritual, available from anywhere (the spine action). Pick a place →
-   one line (required, ≤120, wraps) → occasion(s) → it lands in your real store
-   (_me) and the caller refreshes. Optionally preset to a specific spot (Spot page
-   "Vouch it"). This is what makes ＋Vouch real instead of a dead button. */
+/* The add-vouch ritual, available from anywhere (the spine action). Now searches the
+   REAL Bengaluru catalog (Supabase `places`) — you can vouch for any place, not the
+   ~14 seed spots. Pick → one line (≤120) → occasion(s) → it lands in your store
+   (_me). Optionally preset to a specific place (Spot page "Vouch it"). */
+
+type Pick = { name: string; area: string; cuisine: string; price: string; lat: number | null; lng: number | null };
+const BLR = { lat: 12.9716, lng: 77.5946 };
+
 export function AddVouchModal({
   open,
   onClose,
@@ -21,27 +26,37 @@ export function AddVouchModal({
   open: boolean;
   onClose: () => void;
   onAdded?: (v: Vouch) => void;
-  presetSpot?: string;
+  presetSpot?: Pick;
 }) {
-  const preset = presetSpot ? SEED.find((s) => s.name === presetSpot) ?? null : null;
   const [q, setQ] = useState("");
-  const [sel, setSel] = useState<Spot | null>(preset);
+  const [results, setResults] = useState<CatalogSpot[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sel, setSel] = useState<Pick | null>(presetSpot ?? null);
   const [line, setLine] = useState("");
   const [occ, setOcc] = useState<string[]>([]);
 
   const taken = useMemo(() => new Set(loadMe().vouches.map((v) => v.spot.name)), [open]);
-  const remaining = SEED.filter((s) => !taken.has(s.name));
-  const results = q ? remaining.filter((s) => (s.name + s.area + s.cuisine).toLowerCase().includes(q.toLowerCase())) : remaining;
-  const toggle = (o: string) => setOcc((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
 
-  function reset() { setQ(""); setSel(preset); setLine(""); setOcc([]); }
-  function close() { reset(); onClose(); }
+  // reset to the preset (or blank) whenever the modal opens
+  useEffect(() => { if (open) { setSel(presetSpot ?? null); setQ(""); setLine(""); setOcc([]); } }, [open, presetSpot]);
+
+  // live search the real catalog
+  useEffect(() => {
+    if (!open || sel) return;
+    let dead = false;
+    setLoading(true);
+    searchCatalog(q).then((r) => { if (!dead) { setResults(r.filter((s) => !taken.has(s.name)).slice(0, 8)); setLoading(false); } });
+    return () => { dead = true; };
+  }, [q, open, sel, taken]);
+
+  const toggle = (o: string) => setOcc((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
+  function close() { onClose(); }
   function commit() {
     if (!sel || !line.trim() || occ.length === 0) return;
-    const v: Vouch = { spot: sel, line: line.trim(), occ };
+    const spot: Spot = { name: sel.name, area: sel.area, cuisine: sel.cuisine, price: sel.price, occasions: occ, lat: sel.lat ?? BLR.lat, lng: sel.lng ?? BLR.lng };
+    const v: Vouch = { spot, line: line.trim(), occ };
     addVouch(v);
     onAdded?.(v);
-    reset();
     onClose();
   }
 
@@ -51,24 +66,27 @@ export function AddVouchModal({
         {!sel ? (
           <>
             <p className={styles.title}>A place you’d send a friend to — no hesitation.</p>
-            <SearchField placeholder="Search a place you love…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <SearchField placeholder="Search Bengaluru — any place you love…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
             <ul className={styles.results}>
-              {results.slice(0, 6).map((s) => (
-                <li key={s.name}>
+              {loading && results.length === 0 ? (
+                <li className={styles.none}>Searching the city…</li>
+              ) : results.length === 0 ? (
+                <li className={styles.none}>{q ? `Nothing matching “${q}”.` : "Start typing a place."}</li>
+              ) : results.map((s) => (
+                <li key={s.slug}>
                   <button type="button" className={styles.result} onClick={() => setSel(s)}>
                     <span className={styles.resultName}>{s.name}</span>
                     <span className={styles.resultMeta}>{s.cuisine} · {s.area} · {s.price}</span>
                   </button>
                 </li>
               ))}
-              {results.length === 0 && <li className={styles.none}>Everything on the demo set is already on your map.</li>}
             </ul>
           </>
         ) : (
           <>
             <div className={styles.head}>
               <span className={styles.place}>{sel.name}</span>
-              {!preset && <button type="button" className={styles.change} onClick={() => setSel(null)}>↺ Change place</button>}
+              {!presetSpot && <button type="button" className={styles.change} onClick={() => setSel(null)}>↺ Change place</button>}
             </div>
             <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area} · {sel.price}</Tag></span>
             <label className={styles.fieldLabel}>One line — why you’d send them</label>
