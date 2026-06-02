@@ -11,6 +11,7 @@ import {
 } from "./_guides";
 import { loadMe } from "./_me";
 import { AddVouchModal } from "./add-vouch";
+import { publishGuide } from "./_share";
 import styles from "./guides-app.module.css";
 
 /* The Guides workspace — a real, persisted feature (CRUD). One client surface with
@@ -45,10 +46,12 @@ export function GuidesApp() {
 
   function handleSave(g: Guide) { upsertGuide(g); refresh(); setView({ kind: "view", id: g.id }); setToast(`“${g.title}” is ready to send`); }
   function handleDelete(id: string) { deleteGuide(id); refresh(); setView({ kind: "list" }); setToast("Guide deleted"); }
-  function share(g: Guide) {
+  async function share(g: Guide) {
     const url = `${window.location.origin}/g/${g.slug}`;
+    setToast("Publishing your guide…");
+    const ok = await publishGuide({ slug: g.slug, title: g.title, by: "You", note: g.note, anchor: g.anchor, items: g.items });
     if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
-    setToast("Link copied — drop it in the group chat");
+    setToast(ok ? "Link copied — it opens on any device now." : "Link copied (offline — same device only).");
   }
 
   return (

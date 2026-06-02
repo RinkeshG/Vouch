@@ -11,6 +11,12 @@ anon — public by design) live in `.env.local` (gitignored).
   longer a dead end. Results open the Spot page.
 - **Spot page** falls back to the catalog for any place not in the founding SEED set
   (renders with the honest "be the first" receipt — no one you follow has vouched).
+- **Vouch from the catalog.** The add ritual searches the real `places` catalog, so
+  you can vouch for any place (not just the seed set).
+- **Cross-device guide share.** A `shared_guides` table (public read/insert by slug,
+  no auth) — "Share" publishes the guide; `/g/[slug]` reads it server-side so the
+  link opens on ANY device. (Maker identity stored as "You" until auth — a known
+  prototype gap; anon insert/update is loose by design for now.)
 
 ## What stays LOCAL for now (auth-correlated, deferred)
 The signed-in user is local (`_me` in localStorage): your vouches, follows, and

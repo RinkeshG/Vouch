@@ -4,18 +4,28 @@ import { useParams } from "next/navigation";
 import { Wordmark } from "../../../../components/vouch/wordmark";
 import { Button } from "../../../../components/vouch/button";
 import { GuideArtifact } from "../../../../components/vouch/guide-artifact";
-import { getGuideBySlug, type Guide } from "../../../../components/vouch/_guides";
+import { getGuideBySlug } from "../../../../components/vouch/_guides";
+import { getSharedGuide, type SharedGuide } from "../../../../components/vouch/_share";
 import styles from "../../../../components/vouch/guide-artifact.module.css";
 
-/* The public share page for a user's own guide — what a friend opens from a link.
-   Reads the persisted guide by slug (prototype: localStorage, same-device only;
-   real share is a server page later). Graceful loading + not-found states. */
+/* The public share page — what a friend opens from a link, on ANY device. Reads the
+   published guide from Supabase (`shared_guides`) first; falls back to localStorage
+   for a guide you made but haven't shared yet. Graceful loading + not-found. */
 export default function SharedGuidePage() {
   const params = useParams();
   const slug = String(params?.slug ?? "");
-  const [guide, setGuide] = useState<Guide | null | undefined>(undefined);
+  const [guide, setGuide] = useState<SharedGuide | null | undefined>(undefined);
 
-  useEffect(() => { setGuide(getGuideBySlug(slug)); }, [slug]);
+  useEffect(() => {
+    let dead = false;
+    getSharedGuide(slug).then((s) => {
+      if (dead) return;
+      if (s) { setGuide(s); return; }
+      const local = getGuideBySlug(slug);
+      setGuide(local ? { slug, title: local.title, by: "You", note: local.note, anchor: local.anchor, items: local.items } : null);
+    });
+    return () => { dead = true; };
+  }, [slug]);
 
   if (guide === undefined) {
     return <div className={styles.shareStage}><p className={styles.shareHint}>opening guide…</p></div>;
@@ -25,25 +35,24 @@ export default function SharedGuidePage() {
     return (
       <div className={styles.shareStage}>
         <Wordmark size={1.4} />
-        <p className={styles.shareHint}>this guide isn’t on this device</p>
+        <p className={styles.shareHint}>this guide isn’t available</p>
         <p style={{ fontFamily: "var(--sans)", color: "var(--muted)", maxWidth: "34ch", textAlign: "center", lineHeight: 1.5 }}>
-          Share links resolve from the maker’s device in this prototype. Make your own to see how it travels.
+          The link may be mistyped, or the guide hasn’t been shared yet. Make your own and send it.
         </p>
         <a href="/guides"><Button variant="primary">Open your guides →</Button></a>
       </div>
     );
   }
 
+  const ini = guide.by === "You" ? "RG" : guide.by.slice(0, 2).toUpperCase();
   return (
     <div className={styles.shareStage}>
       <GuideArtifact
-        guide={{ title: guide.title, by: "Rohan", ini: "RK", count: guide.items.length, note: guide.note, anchor: guide.anchor, items: guide.items }}
-        whenToTrust="Trust him for late-night, date, and the city after 11."
+        guide={{ title: guide.title, by: guide.by, ini, count: guide.items.length, note: guide.note, anchor: guide.anchor, items: guide.items }}
         share
-        palateHref="/p/rohan"
         linkSpots
       />
-      <p className={styles.shareHint}>shared with you · borrowing requires an invite</p>
+      <p className={styles.shareHint}>shared with you · invite-only · Bengaluru</p>
     </div>
   );
 }
