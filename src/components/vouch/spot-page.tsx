@@ -5,9 +5,9 @@ import { Avatar } from "./avatar";
 import { Button } from "./button";
 import { OccasionChip } from "./chip";
 import { MapReal } from "./map-real";
-import { SEED, FOUNDING, archetypeFor } from "./_taste";
+import { SEED, FOUNDING, archetypeFor, type Spot } from "./_taste";
 import { listGuides, slugify } from "./_guides";
-import { loadMe, type Me } from "./_me";
+import { loadMe, setStamp as recordStamp, type Me } from "./_me";
 import { AddVouchModal } from "./add-vouch";
 import { getCatalogSpot, type CatalogSpot } from "./_catalog";
 import styles from "./spot-page.module.css";
@@ -39,23 +39,19 @@ const HOURS: Record<string, string> = {
 type Stamp = "want" | "been" | "vouched";
 
 export function SpotPage({ slug }: { slug: string }) {
-  const [me, setMe] = useState<Me>({ vouches: [], follows: [] });
-  useEffect(() => { setMe(loadMe()); }, []);
-  const myArch = archetypeFor(me.vouches);
-  const seedSpot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
+  const [me, setMe] = useState<Me>({ entries: [], follows: [] });
   const [cat, setCat] = useState<CatalogSpot | null | undefined>(undefined);
-  useEffect(() => { if (seedSpot) { setCat(null); return; } getCatalogSpot(slug).then(setCat); }, [slug, seedSpot]);
-  const [stamp, setStamp] = useState<Stamp | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  function flash(t: string) { setToast(t); window.setTimeout(() => setToast(null), 2800); }
-  function setMy(s: Stamp) {
-    if (s === "vouched") { setAdding(true); return; } // open the real ritual
-    setStamp(s);
-    flash(s === "want" ? "Saved for the night you’re nearby." : "Logged — it’s in your diary.");
-  }
+  const seedSpot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
+  useEffect(() => { setMe(loadMe()); }, []);
+  useEffect(() => { if (seedSpot) { setCat(null); return; } getCatalogSpot(slug).then(setCat); }, [slug, seedSpot]);
 
-  // unify a founding SEED spot (has occasions) or a catalog place (from Supabase)
+  const myV = me.entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => ({ spot: e.spot, line: e.line as string, occ: e.occ ?? [] }));
+  const myArch = archetypeFor(myV);
+  function flash(t: string) { setToast(t); window.setTimeout(() => setToast(null), 2800); }
+
+  // unify a founding SEED spot (has occasions) or a catalog place (Supabase)
   const spot = seedSpot
     ? { name: seedSpot.name, area: seedSpot.area, cuisine: seedSpot.cuisine, price: seedSpot.price, lat: seedSpot.lat as number | null, lng: seedSpot.lng as number | null, occasions: seedSpot.occasions }
     : cat ? { name: cat.name, area: cat.area, cuisine: cat.cuisine, price: cat.price, lat: cat.lat, lng: cat.lng, occasions: [] as string[] } : null;
@@ -71,8 +67,17 @@ export function SpotPage({ slug }: { slug: string }) {
     </WebShell>;
   }
 
+  const fullSpot: Spot = { name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, occasions: spot.occasions, lat: spot.lat ?? 12.9716, lng: spot.lng ?? 77.5946 };
+  const cur = me.entries.find((e) => e.spot.name === spot.name)?.stamp ?? null;
+  function setMy(s: Stamp) {
+    if (s === "vouched") { setAdding(true); return; } // the sacred ritual
+    recordStamp(fullSpot, s);
+    setMe(loadMe());
+    flash(s === "want" ? "On your radar — saved for the night you’re nearby." : "Logged. Loved it? Put your name on it.");
+  }
+
   const vouchedBy = FOUNDING.flatMap((f) => f.spots.filter((s) => s.name === spot.name).map((s) => ({ name: f.name, ini: f.ini, line: s.line, slug: f.name.toLowerCase() })));
-  const mine = me.vouches.find((v) => v.spot.name === spot.name);
+  const mine = myV.find((v) => v.spot.name === spot.name);
   const inGuides = listGuides().filter((g) => g.items.some((i) => i.name === spot.name)).map((g) => g.title);
   const order = ORDERS[spot.name];
 
@@ -128,12 +133,16 @@ export function SpotPage({ slug }: { slug: string }) {
               <span className={styles.label}>Your move</span>
               <div className={styles.stamps}>
                 {(["want", "been", "vouched"] as Stamp[]).map((s) => (
-                  <button key={s} type="button" className={`${styles.stamp} ${stamp === s ? styles.stampOn : ""}`} onClick={() => setMy(s)}>
-                    {s === "want" ? "Want to go" : s === "been" ? "Been" : "Vouch it"}
+                  <button key={s} type="button" className={`${styles.stamp} ${cur === s ? styles.stampOn : ""}`} onClick={() => setMy(s)}>
+                    {s === "want" ? (cur === "want" ? "Want to go ✓" : "Want to go") : s === "been" ? (cur === "been" ? "Been ✓" : "Been") : cur === "vouched" ? "Vouched ✓" : "Vouch it"}
                   </button>
                 ))}
                 <a className={styles.addGuide} href="/guides" onClick={() => { try { window.sessionStorage.setItem("vouch:guide-seed", JSON.stringify({ name: spot.name, tags: `${spot.cuisine} · ${spot.area} · ${spot.price}`, note: mine?.line ?? order ?? "" })); } catch { /* ignore */ } }}>＋ Add to a guide</a>
               </div>
+              {cur === "been" && (
+                <button type="button" className={styles.nudge} onClick={() => setMy("vouched")}>Loved it? <b>Put your name on it →</b></button>
+              )}
+              {cur === "want" && <p className={styles.stampHint}>On your radar. When you’ve been, mark it — then vouch if it earns your name.</p>}
             </section>
 
             <section className={styles.practical}>
@@ -154,7 +163,7 @@ export function SpotPage({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <AddVouchModal open={adding} onClose={() => setAdding(false)} presetSpot={{ name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, lat: spot.lat, lng: spot.lng }} onAdded={(v) => { setMe(loadMe()); setStamp("vouched"); flash(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} presetSpot={{ name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, lat: spot.lat, lng: spot.lng }} onAdded={(v) => { setMe(loadMe()); flash(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );

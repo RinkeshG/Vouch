@@ -57,7 +57,7 @@ export function Onboarding() {
   const toggleFollow = (n: string) => setFollowed((p) => (p.includes(n) ? p.filter((x) => x !== n) : [...p, n]));
   const myOcc = useMemo(() => new Set(mine.flatMap((v) => v.spot.occasions.concat(v.occ))), [mine]);
   function enterVouch() {
-    saveMe({ vouches: mine, follows: followed });
+    saveMe({ entries: mine.map((v) => ({ spot: v.spot, stamp: "vouched" as const, line: v.line, occ: v.occ, at: Date.now() })), follows: followed });
     router.push("/producers-home");
   }
 

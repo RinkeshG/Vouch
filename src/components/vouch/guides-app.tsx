@@ -9,7 +9,7 @@ import {
   listGuides, getGuide, upsertGuide, deleteGuide, slugify, uid,
   type Guide, type GuideItem,
 } from "./_guides";
-import { loadMe } from "./_me";
+import { vouches } from "./_me";
 import { AddVouchModal } from "./add-vouch";
 import { publishGuide } from "./_share";
 import styles from "./guides-app.module.css";
@@ -34,7 +34,7 @@ export function GuidesApp() {
 
   useEffect(() => {
     setGuides(listGuides());
-    setArch(archetypeFor(loadMe().vouches));
+    setArch(archetypeFor(vouches()));
     // a Spot's "Add to a guide" hands off the place here
     try {
       const raw = window.sessionStorage.getItem("vouch:guide-seed");
@@ -171,7 +171,7 @@ function GuideEditor({ initial, seedItems, onSave, onCancel }: { initial?: Guide
   const [items, setItems] = useState<GuideItem[]>(initial?.items ?? seedItems ?? []);
   const [q, setQ] = useState("");
 
-  const myVouches: GuideItem[] = useMemo(() => loadMe().vouches.map((v) => ({ name: v.spot.name, tags: `${v.spot.cuisine} · ${v.spot.area} · ${v.spot.price}`, note: v.line })), []);
+  const myVouches: GuideItem[] = useMemo(() => vouches().map((v) => ({ name: v.spot.name, tags: `${v.spot.cuisine} · ${v.spot.area} · ${v.spot.price}`, note: v.line })), []);
   const have = useMemo(() => new Set(items.map((i) => i.name)), [items]);
   const pool = useMemo(() => myVouches.filter((v) => !have.has(v.name) && (q ? v.name.toLowerCase().includes(q.toLowerCase()) || v.tags.toLowerCase().includes(q.toLowerCase()) : true)), [myVouches, have, q]);
 

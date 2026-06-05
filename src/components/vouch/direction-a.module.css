@@ -18,7 +18,15 @@
 .lgBeen { background: rgba(244, 238, 227, 0.5); }
 .lgWant { background: transparent; border: 1.5px solid rgba(246, 168, 43, 0.65); }
 
-.focusBtn { margin-top: 22px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
+.lens { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+.lensChip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 7px 13px; cursor: pointer; transition: all 0.15s var(--ease); }
+.lensChip:hover { border-color: rgba(244, 238, 227, 0.22); color: var(--text); }
+.lensChip i { width: 10px; height: 10px; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); flex: none; }
+.lensChip b { color: var(--text); font-weight: 700; }
+.lensOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }
+.lensOn b { color: var(--saffron); }
+
+.focusBtn { margin-top: 18px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
 .focusBtn:hover { border-color: var(--saffron); color: var(--saffron); }
 
 .addWrap { position: absolute; z-index: 2; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; }

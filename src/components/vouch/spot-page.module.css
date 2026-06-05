@@ -31,6 +31,11 @@ a.vWho:hover { color: var(--text); }
 .addGuide { font-family: var(--sans); font-size: 0.88rem; color: var(--muted); text-decoration: none; margin-left: 4px; transition: color 0.15s ease; }
 .addGuide:hover { color: var(--saffron); }
 
+.nudge { margin-top: 14px; display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--text); background: var(--saffron-dim); border: 1px solid rgba(246, 168, 43, 0.3); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
+.nudge:hover { border-color: var(--saffron); }
+.nudge b { color: var(--saffron); font-weight: 600; }
+.stampHint { margin-top: 12px; font-family: var(--sans); font-size: 0.88rem; color: var(--muted); line-height: 1.4; }
+
 .practical { margin-top: 8px; padding-top: 22px; border-top: 1px solid var(--line); }
 .practicalLine { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); margin: 0 0 6px; }
 

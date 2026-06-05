@@ -33,7 +33,7 @@ export function PalatePage({ slug }: { slug?: string }) {
   const founding: FoundingPalate | undefined = name ? FOUNDING.find((f) => f.name === name) : undefined;
   const own = !slug;
 
-  const [me, setMe] = useState<Me>({ vouches: [], follows: [] });
+  const [me, setMe] = useState<Me>({ entries: [], follows: [] });
   const [ownGuides, setOwnGuides] = useState<Guide[]>([]);
   const [following, setFollowing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -46,8 +46,9 @@ export function PalatePage({ slug }: { slug?: string }) {
     if (name) setFollowing(m.follows.includes(name));
   }, [name, own]);
 
-  const myOcc = useMemo(() => new Set(me.vouches.flatMap((v) => v.spot.occasions.concat(v.occ))), [me]);
-  const myArch = archetypeFor(me.vouches);
+  const myV = useMemo(() => me.entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => ({ spot: e.spot, line: e.line as string, occ: e.occ ?? [] })), [me]);
+  const myOcc = useMemo(() => new Set(myV.flatMap((v) => v.spot.occasions.concat(v.occ))), [myV]);
+  const myArch = archetypeFor(myV);
 
   function follow() {
     if (!name) return;
@@ -68,16 +69,16 @@ export function PalatePage({ slug }: { slug?: string }) {
   const meta = founding ? META[founding.name] : null;
   const occasions = own ? Array.from(myOcc) : founding!.occasions;
   const overlap = own ? [] : founding!.occasions.filter((o) => myOcc.has(o));
-  const signature = own ? me.vouches.map((v) => ({ name: v.spot.name, line: v.line })) : founding!.spots.map((s) => ({ name: s.name, line: s.line }));
+  const signature = own ? myV.map((v) => ({ name: v.spot.name, line: v.line })) : founding!.spots.map((s) => ({ name: s.name, line: s.line }));
   const mapPins = own
-    ? pins(me.vouches.map((v) => ({ name: v.spot.name, lat: v.spot.lat, lng: v.spot.lng, line: v.line })))
+    ? pins(myV.map((v) => ({ name: v.spot.name, lat: v.spot.lat, lng: v.spot.lng, line: v.line })))
     : pins(founding!.spots, { name: founding!.name, ini: founding!.ini });
   const otherGuides = meta?.guides ?? [];
 
   const display = own ? "You" : founding!.name;
   const ini = own ? "RG" : founding!.ini;
   const handle = own ? "@you" : meta!.handle;
-  const hasTaste = me.vouches.length > 0;
+  const hasTaste = myV.length > 0;
   const whenToTrust = own ? (hasTaste ? myArch.line : "Vouch a few places you love and your taste becomes legible right here.") : meta!.whenToTrust;
 
   return (
@@ -113,7 +114,7 @@ export function PalatePage({ slug }: { slug?: string }) {
 
           <div className={styles.signals}>
             {own
-              ? <><span><b>{me.vouches.length}</b> {me.vouches.length === 1 ? "vouch" : "vouches"}</span><i>·</i><span><b>{ownGuides.length}</b> {ownGuides.length === 1 ? "guide" : "guides"}</span><i>·</i><span>following <b>{me.follows.length}</b></span></>
+              ? <><span><b>{myV.length}</b> {myV.length === 1 ? "vouch" : "vouches"}</span><i>·</i><span><b>{ownGuides.length}</b> {ownGuides.length === 1 ? "guide" : "guides"}</span><i>·</i><span>following <b>{me.follows.length}</b></span></>
               : <><span><b>{otherGuides.length}</b> {otherGuides.length === 1 ? "guide" : "guides"}</span><i>·</i><span><b>{signature.length}</b> vouches</span></>}
           </div>
         </header>

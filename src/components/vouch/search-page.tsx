@@ -4,7 +4,7 @@ import { WebShell } from "./web-shell";
 import { SearchField } from "./input";
 import { AddVouchModal } from "./add-vouch";
 import { archetypeFor } from "./_taste";
-import { loadMe } from "./_me";
+import { vouches } from "./_me";
 import { searchCatalog, type CatalogSpot } from "./_catalog";
 import styles from "./search-page.module.css";
 
@@ -16,7 +16,7 @@ export function SearchPage() {
   const [results, setResults] = useState<CatalogSpot[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const arch = archetypeFor(loadMe().vouches);
+  const arch = archetypeFor(vouches());
 
   useEffect(() => {
     let dead = false;
@@ -26,7 +26,7 @@ export function SearchPage() {
   }, [q]);
 
   return (
-    <WebShell active="search" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: loadMe().vouches.length ? `${arch.glyph} ${arch.name}` : "Your palate" }}>
+    <WebShell active="search" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: vouches().length ? `${arch.glyph} ${arch.name}` : "Your palate" }}>
       <div className={styles.page}>
         <header className={styles.head}>
           <p className={styles.eyebrow}>Search · Bengaluru</p>

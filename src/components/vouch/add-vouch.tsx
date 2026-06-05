@@ -6,7 +6,7 @@ import { Tag, OccasionChip } from "./chip";
 import { SearchField } from "./input";
 import { OCCASIONS, type Spot, type Vouch } from "./_taste";
 import { searchCatalog, type CatalogSpot } from "./_catalog";
-import { addVouch, loadMe } from "./_me";
+import { addVouch, vouches } from "./_me";
 import styles from "./add-vouch.module.css";
 
 /* The add-vouch ritual, available from anywhere (the spine action). Now searches the
@@ -35,7 +35,7 @@ export function AddVouchModal({
   const [line, setLine] = useState("");
   const [occ, setOcc] = useState<string[]>([]);
 
-  const taken = useMemo(() => new Set(loadMe().vouches.map((v) => v.spot.name)), [open]);
+  const taken = useMemo(() => new Set(vouches().map((v) => v.spot.name)), [open]);
 
   // reset to the preset (or blank) whenever the modal opens
   useEffect(() => { if (open) { setSel(presetSpot ?? null); setQ(""); setLine(""); setOcc([]); } }, [open, presetSpot]);
