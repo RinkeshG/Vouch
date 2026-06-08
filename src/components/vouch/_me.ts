@@ -48,8 +48,11 @@ export function setStamp(spot: Spot, stamp: Stamp, opts?: { line?: string; occ?:
   const rest = m.entries.filter((e) => e.spot.name !== spot.name);
   const entry: Entry = {
     spot, stamp, at: now(),
-    line: stamp === "vouched" ? (opts?.line ?? prev?.line) : undefined,
-    occ: stamp === "vouched" ? (opts?.occ ?? prev?.occ) : (opts?.occ ?? undefined),
+    // Keep the vouch reason as a latent draft through demotions — never destroy the
+    // user's words. vouches() gates on stamp === "vouched", so a demoted line never
+    // leaks into the currency; it simply returns if they re-vouch (no retyping).
+    line: opts?.line ?? prev?.line,
+    occ: opts?.occ ?? prev?.occ,
   };
   const next = { ...m, entries: [...rest, entry] };
   write(next);

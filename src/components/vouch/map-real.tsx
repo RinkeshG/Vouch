@@ -25,6 +25,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   const L = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markers = useRef<Record<string, any>>({});
+  // always hold the latest pins so sync() is never stale — the map can finish
+  // initializing AFTER the parent's data lands (or vice versa); either order works.
+  const pinsRef = useRef<MapPin[]>(pins);
+  pinsRef.current = pins;
 
   function popupHTML(p: MapPin) {
     const who = p.kind === "palate" && p.by ? `Vouched by ${p.by.name}` : "Your vouch";
@@ -34,6 +38,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   function sync() {
     const m = map.current, leaflet = L.current;
     if (!m || !leaflet) return;
+    const pins = pinsRef.current; // latest, never the stale mount-time closure
     const want = new Set(pins.map((p) => p.id));
     let changed = false;
     // remove pins that are gone (never touches existing markers → no blink)
