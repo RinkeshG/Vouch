@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import VouchLanding from "./v2/landing";
+import VouchLanding from "./_landing/landing";
 
 export const metadata: Metadata = {
   title: "Vouch — The only review that matters has a name on it",
