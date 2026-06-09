@@ -1,12 +1,14 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
 import { AddVouchModal } from "./add-vouch";
-import { loadMe, type Entry, type Stamp } from "./_me";
+import { type Stamp } from "./_me";
+import { useMyMap } from "./_map-context";
 import { slugify } from "./_guides";
-import { findSpot, placeTint, monogram } from "./_taste";
+import { findSpot, placeTint, monogram, FOUNDING } from "./_taste";
+import { cleanArea } from "./_catalog";
 import { RelChip } from "./rel-chip";
 import styles from "./direction-a.module.css";
 
@@ -25,13 +27,10 @@ function readMap(total: number): { accent: string; tail: string } {
 type Lens = "all" | Stamp;
 
 export function ProducersHome() {
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [ready, setReady] = useState(false);
+  const { entries, follows, ready } = useMyMap();
   const [focused, setFocused] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [lens, setLens] = useState<Lens>("all");
-
-  useEffect(() => { setEntries(loadMe().entries); setReady(true); }, []);
 
   const vouched = entries.filter((e) => e.stamp === "vouched");
   const counts = {
@@ -43,8 +42,17 @@ export function ProducersHome() {
   const lead = readMap(counts.all);
 
   const shown = lens === "all" ? entries : entries.filter((e) => e.stamp === lens);
-  const pins: MapPin[] = shown.map((e) => ({ id: `me:${e.spot.name}`, lat: e.spot.lat, lng: e.spot.lng, name: e.spot.name, line: e.line, occasion: e.occ?.[0], kind: "mine", stamp: e.stamp, gut: e.gut, by: { name: "You", ini: "RG" } }));
-  const empty = ready && entries.length === 0;
+  const minePins: MapPin[] = shown.map((e) => ({ id: `me:${e.spot.name}`, lat: e.spot.lat, lng: e.spot.lng, name: e.spot.name, line: e.line, occasion: e.occ?.[0], kind: "mine", stamp: e.stamp, gut: e.gut, by: { name: "You", ini: "RG" } }));
+  // Following is REAL now: a palate you follow drops their vouched spots onto YOUR map
+  // (their monogram, their take), so their trust actually reaches you — the whole thesis.
+  const followedPalates = FOUNDING.filter((f) => follows.includes(f.name));
+  const palatePins: MapPin[] = lens === "all"
+    ? followedPalates.flatMap((f) => f.spots
+        .filter((s) => !entries.some((e) => e.spot.name === s.name))
+        .map((s) => ({ id: `${f.name}:${s.name}`, lat: s.lat, lng: s.lng, name: s.name, line: s.line, kind: "palate" as const, by: { name: f.name, ini: f.ini } })))
+    : [];
+  const pins: MapPin[] = [...minePins, ...palatePins];
+  const empty = ready && entries.length === 0 && palatePins.length === 0;
   const focusedEntry = focused ? entries.find((e) => `me:${e.spot.name}` === focused) ?? null : null;
   // enrich the focused place with vibe / the-move / hero, looked up from the curated
   // set when the stored entry doesn't carry them (capture only keeps the basics).
@@ -91,6 +99,9 @@ export function ProducersHome() {
               <p className={styles.sub}>{counts.vouched > 0
                 ? "The glowing pins are the ones you’d put your name on. The rest you’re still weighing."
                 : "Want and Been are your scouting list. Your name only lands when you vouch."}</p>
+              {palatePins.length > 0 && (
+                <p className={styles.palateNote}>+ {palatePins.length} {palatePins.length === 1 ? "spot" : "spots"} from {followedPalates.map((f) => f.name).join(" & ")}, on loan to your map</p>
+              )}
             </>
           )}
 
@@ -113,20 +124,22 @@ export function ProducersHome() {
 
         {card && (
           <div className={styles.placeCard} role="dialog" aria-label={card.sp.name}>
-            <div className={styles.cardHero} style={card.cover ? { backgroundImage: `url(${card.cover})`, backgroundSize: "cover", backgroundPosition: "center" } : { background: placeTint(card.sp.cuisine) }}>
-              {!card.cover && <span className={styles.cardMono} aria-hidden="true">{monogram(card.sp.name)}</span>}
-              <button type="button" className={styles.cardClose} onClick={() => setFocused(null)} aria-label="Back to map">✕</button>
-            </div>
-            <div className={styles.cardBody}>
-              <div className={styles.cardChip}><RelChip stamp={card.e.stamp} gut={card.e.gut} /></div>
-              <h2 className={styles.cardName}>{card.sp.name}</h2>
-              {card.vibe && <p className={styles.cardVibe}>{card.vibe}</p>}
-              <div className={styles.cardMeta}>{card.sp.cuisine} · {card.sp.area} · {card.sp.price}</div>
-              {card.e.stamp === "vouched" && card.e.line && <p className={styles.cardTake}>“{card.e.line}”</p>}
-              <div className={styles.cardActions}>
-                <a className={styles.cardReceipt} href={`/spot/${slugify(card.sp.name)}`}>see the full place →</a>
-                {decidePool.length > 1 && <button type="button" className={styles.cardAnother} onClick={pickForMe}>↻ Pick another</button>}
+            <button type="button" className={styles.cardClose} onClick={() => setFocused(null)} aria-label="Back to map">✕</button>
+            <div className={styles.cardHead}>
+              <div className={styles.cardThumb} style={card.cover ? { backgroundImage: `url(${card.cover})`, backgroundSize: "cover", backgroundPosition: "center" } : { background: placeTint(card.sp.cuisine) }}>
+                {!card.cover && <span className={styles.cardThumbMono} aria-hidden="true">{monogram(card.sp.name)}</span>}
               </div>
+              <div className={styles.cardHeadText}>
+                <RelChip stamp={card.e.stamp} gut={card.e.gut} />
+                <h2 className={styles.cardName}>{card.sp.name}</h2>
+                <div className={styles.cardMeta}>{card.sp.cuisine} · {cleanArea(card.sp.area)} · {card.sp.price}</div>
+              </div>
+            </div>
+            {card.vibe && <p className={styles.cardVibe}>{card.vibe}</p>}
+            {card.e.stamp === "vouched" && card.e.line && <p className={styles.cardTake}>“{card.e.line}”</p>}
+            <div className={styles.cardActions}>
+              <a className={styles.cardReceipt} href={`/spot/${slugify(card.sp.name)}`}>see the full place →</a>
+              {decidePool.length > 1 && <button type="button" className={styles.cardAnother} onClick={pickForMe}>↻ Pick another</button>}
             </div>
           </div>
         )}
@@ -138,8 +151,8 @@ export function ProducersHome() {
       </div>
 
       <AddVouchModal open={adding} onClose={() => setAdding(false)} onCaptured={(r) => {
-        // the place-card sliding up IS the confirmation (no toast needed)
-        setEntries(loadMe().entries); setLens("all"); setFocused(`me:${r.spot.name}`);
+        // entries update reactively via the seam; we just frame the new pin
+        setLens("all"); setFocused(`me:${r.spot.name}`);
       }} />
     </WebShell>
   );

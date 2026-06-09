@@ -64,7 +64,9 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
         : `<div class="${styles.pin}${hov}"><span class="${dotClass}"></span><span class="${styles.label}">${p.name}</span></div>`;
       const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [8, 8], popupAnchor: [40, -6] });
       const mk = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m);
-      if (onTap.current) mk.on("click", () => onTap.current?.(p.id));
+      // your own pins open the designed place-card (onPinTap); a palate's borrowed pins
+      // open the receipt popup (who vouched + why).
+      if (onTap.current && p.kind !== "palate") mk.on("click", () => onTap.current?.(p.id));
       else mk.bindPopup(popupHTML(p), { className: styles.popup, closeButton: true });
       markers.current[p.id] = mk;
       changed = true;

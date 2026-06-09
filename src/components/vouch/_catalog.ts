@@ -21,13 +21,34 @@ function seedCatalog(): CatalogSpot[] {
   return SEED.map((s) => ({ slug: slugify(s.name), name: s.name, area: s.area, cuisine: s.cuisine, price: s.price, lat: s.lat, lng: s.lng, cuisines: [s.cuisine.toLowerCase()] }));
 }
 
+/* The catalog is partly dirty (bulk Google-Maps import): ~88% of rows have a Maps URL
+   in `area` and no `cuisines`. The UI must never trust those columns raw — a URL is
+   not a neighbourhood. Sanitise at the boundary so the rest of the app is clean. */
+export function cleanArea(a: unknown): string {
+  if (typeof a !== "string") return "Bengaluru";
+  const s = a.trim();
+  if (!s || /^https?:\/\//i.test(s) || s.includes("/") || s.length > 42) return "Bengaluru";
+  return s;
+}
+function cuisineFor(cuisines: string[], name: string): string {
+  if (cuisines[0]) return cuisines[0].replace(/\b\w/g, (c) => c.toUpperCase());
+  const n = (name || "").toLowerCase();
+  if (/coffee|roastery|espresso|caf[eé]|barista/.test(n)) return "Coffee";
+  if (/cocktail|\bbar\b|brew|pub|taproom|distill/.test(n)) return "Bar & drinks";
+  if (/bakery|patisserie|boulangerie|bake/.test(n)) return "Bakery";
+  if (/pizza|pizzeria|trattoria|pasta/.test(n)) return "Italian";
+  if (/biryani|darshini|military hotel|tiffin|mess|udupi|sagar/.test(n)) return "South Indian";
+  if (/ramen|sushi|izakaya|noodle|asian|thai|wok/.test(n)) return "Asian";
+  if (/dessert|ice cream|gelato|patiss/.test(n)) return "Dessert";
+  return "Restaurant";
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapRow(r: any): CatalogSpot {
   const cuisines: string[] = Array.isArray(r.cuisines) ? r.cuisines : [];
-  const cuisine = cuisines[0] ? cuisines[0].replace(/\b\w/g, (c: string) => c.toUpperCase()) : "Restaurant";
   return {
-    slug: slugify(r.name), name: r.name, area: r.area ?? "Bengaluru",
-    cuisine, price: PRICE[r.price_tier] ?? "₹₹",
+    slug: slugify(r.name), name: r.name, area: cleanArea(r.area),
+    cuisine: cuisineFor(cuisines, r.name), price: PRICE[r.price_tier] ?? "₹₹",
     lat: r.latitude ?? null, lng: r.longitude ?? null, cuisines,
   };
 }

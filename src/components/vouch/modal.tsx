@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./modal.module.css";
 
 /* Dialog on desktop, bottom-sheet on mobile. Scroll-lock · Esc · focus-trap. */
@@ -17,6 +17,20 @@ export function Modal({
   const ref = useRef<HTMLDivElement | null>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+
+  // Keyboard-aware: iOS shrinks only the VISUAL viewport when the keyboard opens, so a
+  // bottom sheet on `position: fixed` stays buried underneath. Track visualViewport and
+  // lift the sheet above the keyboard, capping its height to the space that's left.
+  const [vp, setVp] = useState({ kb: 0, vh: 0 });
+  useEffect(() => {
+    if (!open || typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const update = () => setVp({ kb: Math.max(0, window.innerHeight - vv.height - vv.offsetTop), vh: vv.height });
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => { vv.removeEventListener("resize", update); vv.removeEventListener("scroll", update); };
+  }, [open]);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -45,8 +59,8 @@ export function Modal({
   }, [open]);
   if (!open) return null;
   return (
-    <div className={styles.scrim} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div ref={ref} className={styles.sheet} role="dialog" aria-modal="true" aria-label={label}>
+    <div className={styles.scrim} style={vp.kb ? { paddingBottom: vp.kb } : undefined} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div ref={ref} className={styles.sheet} role="dialog" aria-modal="true" aria-label={label} style={vp.kb ? { maxHeight: `${vp.vh - 16}px` } : undefined}>
         <button type="button" className={styles.close} onClick={onClose} aria-label="Close">✕</button>
         {children}
       </div>

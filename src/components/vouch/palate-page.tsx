@@ -7,7 +7,7 @@ import { OccasionChip } from "./chip";
 import { MapReal, type MapPin } from "./map-real";
 import { FOUNDING, findSpot, type FoundingPalate, type Vouch } from "./_taste";
 import { listGuides, slugify, type Guide } from "./_guides";
-import { loadMe, toggleFollow, type Me, type Gut } from "./_me";
+import { useMyMap } from "./_map-context";
 import { AddVouchModal } from "./add-vouch";
 import styles from "./palate-page.module.css";
 
@@ -33,21 +33,15 @@ export function PalatePage({ slug }: { slug?: string }) {
   const founding: FoundingPalate | undefined = name ? FOUNDING.find((f) => f.name === name) : undefined;
   const own = !slug;
 
-  const [me, setMe] = useState<Me>({ entries: [], follows: [] });
+  const { entries, follows, toggleFollow } = useMyMap();
   const [ownGuides, setOwnGuides] = useState<Guide[]>([]);
-  const [following, setFollowing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [gutFilter, setGutFilter] = useState<"all" | Gut>("all");
 
-  useEffect(() => {
-    const m = loadMe();
-    setMe(m);
-    if (own) setOwnGuides(listGuides());
-    if (name) setFollowing(m.follows.includes(name));
-  }, [name, own]);
+  useEffect(() => { if (own) setOwnGuides(listGuides()); }, [own]);
+  const following = name ? follows.includes(name) : false;
 
-  const myV = useMemo(() => me.entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => ({ spot: e.spot, line: e.line as string, occ: e.occ ?? [] })), [me]);
+  const myV = useMemo(() => entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => ({ spot: e.spot, line: e.line as string, occ: e.occ ?? [] })), [entries]);
   const myOcc = useMemo(() => new Set(myV.flatMap((v) => v.spot.occasions.concat(v.occ))), [myV]);
   // EVIDENCE OVER ASSERTION — your "known for" is read from what you actually vouch
   // for (your top cuisines), never an assigned persona.
@@ -57,20 +51,17 @@ export function PalatePage({ slug }: { slug?: string }) {
     const top = Object.entries(tally).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([c]) => c);
     return top.length ? `${top.join(" and ")} — that’s what gets your name.` : "";
   }, [myV]);
-  const beenEntries = useMemo(() => me.entries.filter((e) => e.stamp === "been"), [me]);
 
   function follow() {
     if (!name) return;
     const m = toggleFollow(name);
-    setMe(m);
-    const now = m.follows.includes(name);
-    setFollowing(now);
-    setToast(now ? `Following ${name} — their vouches now reach your map.` : `Unfollowed ${name}`);
+    const nowF = m.follows.includes(name);
+    setToast(nowF ? `Following ${name} — their vouches now reach your map.` : `Unfollowed ${name}`);
     window.setTimeout(() => setToast(null), 2800);
   }
 
   if (slug && !founding) {
-    return <WebShell active="palate" you={{ ini: "RG", name: "You", line: "Your palate" }}>
+    return <WebShell active="you" you={{ ini: "RG", name: "You", line: "Your palate" }}>
       <div className={styles.page}><p className={styles.eyebrow}>Palate</p><h1 className={styles.notFound}>No palate here.</h1></div>
     </WebShell>;
   }
@@ -91,9 +82,12 @@ export function PalatePage({ slug }: { slug?: string }) {
   const whenToTrust = own ? (hasTaste ? knownForLine : "Vouch a few places you love and your taste becomes legible right here.") : meta!.whenToTrust;
 
   return (
-    <WebShell active="palate" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: myV.length ? `${myV.length} ${myV.length === 1 ? "vouch" : "vouches"} · Bengaluru` : "Your palate" }}>
+    <WebShell active="you" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: myV.length ? `${myV.length} ${myV.length === 1 ? "vouch" : "vouches"} · Bengaluru` : "Your palate" }}>
       <div className={styles.page}>
-        <p className={styles.eyebrow}>{own ? "Your palate" : "A palate"}</p>
+        <p className={styles.eyebrow}>{own ? "How your palate reads" : "A palate"}</p>
+        {own && (
+          <p className={styles.previewNote}>The outward view — what someone sees when they’re weighing whether to trust your taste. <a href="/you">← Back to your ledger</a></p>
+        )}
 
         <header className={styles.hero}>
           <div className={styles.heroTop}>
@@ -123,7 +117,7 @@ export function PalatePage({ slug }: { slug?: string }) {
 
           <div className={styles.signals}>
             {own
-              ? <><span><b>{myV.length}</b> {myV.length === 1 ? "vouch" : "vouches"}</span><i>·</i><span><b>{ownGuides.length}</b> {ownGuides.length === 1 ? "guide" : "guides"}</span><i>·</i><span>following <b>{me.follows.length}</b></span></>
+              ? <><span><b>{myV.length}</b> {myV.length === 1 ? "vouch" : "vouches"}</span><i>·</i><span><b>{ownGuides.length}</b> {ownGuides.length === 1 ? "guide" : "guides"}</span><i>·</i><span>following <b>{follows.length}</b></span></>
               : <><span><b>{otherGuides.length}</b> {otherGuides.length === 1 ? "guide" : "guides"}</span><i>·</i><span><b>{signature.length}</b> vouches</span></>}
           </div>
         </header>
@@ -160,31 +154,6 @@ export function PalatePage({ slug }: { slug?: string }) {
               )}
             </section>
 
-            {own && beenEntries.length > 0 && (
-              <section className={styles.section}>
-                <span className={styles.label}>Your diary — everywhere you’ve been</span>
-                <div className={styles.diaryFilter}>
-                  {(["all", "loved", "fine", "no"] as const).map((k) => (
-                    <button key={k} type="button" className={`${styles.diaryChip} ${gutFilter === k ? styles.diaryOn : ""}`} onClick={() => setGutFilter(k)}>
-                      {k === "all" ? "All" : k === "loved" ? "Loved" : k === "fine" ? "Fine" : "Not for me"}
-                    </button>
-                  ))}
-                </div>
-                <ul className={styles.diary}>
-                  {beenEntries.filter((e) => gutFilter === "all" || e.gut === gutFilter).map((e) => (
-                    <li key={e.spot.name} className={styles.diaryRow}>
-                      <span className={`${styles.diaryDot} ${e.gut === "loved" ? styles.dLoved : e.gut === "no" ? styles.dNo : styles.dFine}`} aria-hidden="true" />
-                      <a className={styles.diaryBody} href={`/spot/${slugify(e.spot.name)}`}>
-                        <span className={styles.diaryName}>{e.spot.name}</span>
-                        <span className={styles.diaryTags}>{e.spot.cuisine} · {e.spot.area}</span>
-                      </a>
-                      <span className={styles.diaryGut}>{e.gut === "loved" ? "Loved it" : e.gut === "no" ? "Not for me" : "Fine"}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
             <section className={styles.section}>
               <span className={styles.label}>{own ? "Your guides" : `${display}’s guides`}</span>
               {own ? (
@@ -216,7 +185,7 @@ export function PalatePage({ slug }: { slug?: string }) {
         {!own && <p className={styles.gate}>Vouch is invite-only · Bengaluru. Follow {display} to borrow their map — every spot with their name on it.</p>}
       </div>
 
-      <AddVouchModal open={adding} onClose={() => setAdding(false)} onCaptured={(r) => { setMe(loadMe()); setToast(r.stamp === "vouched" ? `Your name’s on it. ${r.spot.name} is on your map.` : r.stamp === "want" ? `Saved. ${r.spot.name}’s on your want-to-go.` : `Logged. ${r.spot.name}’s in your diary.`); window.setTimeout(() => setToast(null), 2800); }} />
+      <AddVouchModal open={adding} onClose={() => setAdding(false)} onCaptured={(r) => { setToast(r.stamp === "vouched" ? `Your name’s on it. ${r.spot.name} is on your map.` : r.stamp === "want" ? `Saved. ${r.spot.name}’s on your want-to-go.` : `Logged. ${r.spot.name}’s in your diary.`); window.setTimeout(() => setToast(null), 2800); }} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );

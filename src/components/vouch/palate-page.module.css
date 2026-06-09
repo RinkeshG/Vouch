@@ -1,6 +1,9 @@
 /* The Palate — a taste map, editorial. */
 .page { max-width: 980px; margin: 0 auto; padding: 40px 32px 56px; }
-.eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 18px; }
+.eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 10px; }
+.previewNote { font-family: var(--sans); font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0 0 22px; max-width: 56ch; }
+.previewNote a { color: var(--text); text-decoration: none; white-space: nowrap; font-weight: 500; }
+.previewNote a:hover { color: var(--saffron); }
 .notFound { font-family: var(--display); font-weight: 800; font-size: 2rem; color: var(--text); }
 
 /* hero — leads with WHEN to trust, never a bio */

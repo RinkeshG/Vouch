@@ -4,7 +4,7 @@ import { Wordmark } from "./wordmark";
 import { Avatar } from "./avatar";
 import styles from "./web-shell.module.css";
 
-export type NavKey = "map" | "search" | "guides" | "palate";
+export type NavKey = "map" | "search" | "guides" | "you";
 
 /* The product shell, MOBILE-FIRST. The phone is the real surface: a slim top bar
    for identity/place, the canvas, and a thumb-reachable bottom tab bar with a
@@ -15,7 +15,7 @@ const NAV: { key: NavKey; glyph: string; label: string; href: string }[] = [
   { key: "map", glyph: "◍", label: "Your map", href: "/home" },
   { key: "search", glyph: "⌕", label: "Search", href: "/search" },
   { key: "guides", glyph: "❑", label: "Guides", href: "/guides" },
-  { key: "palate", glyph: "◆", label: "You", href: "/palate" },
+  { key: "you", glyph: "◆", label: "You", href: "/you" },
 ];
 
 export function WebShell({
@@ -81,7 +81,7 @@ export function WebShell({
         <Link href="/guides" className={`${styles.tab} ${active === "guides" ? styles.tabOn : ""}`} aria-current={active === "guides" ? "page" : undefined}>
           <span className={styles.tabGlyph} aria-hidden="true">❑</span><span className={styles.tabLabel}>Guides</span>
         </Link>
-        <Link href="/palate" className={`${styles.tab} ${active === "palate" ? styles.tabOn : ""}`} aria-current={active === "palate" ? "page" : undefined}>
+        <Link href="/you" className={`${styles.tab} ${active === "you" ? styles.tabOn : ""}`} aria-current={active === "you" ? "page" : undefined}>
           <span className={styles.tabGlyph} aria-hidden="true">◆</span><span className={styles.tabLabel}>You</span>
         </Link>
       </nav>

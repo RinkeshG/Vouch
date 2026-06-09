@@ -5,7 +5,8 @@ import { Tag, OccasionChip } from "./chip";
 import { SearchField } from "./input";
 import { OCCASIONS, type Spot, type Vouch } from "./_taste";
 import { searchCatalog, type CatalogSpot } from "./_catalog";
-import { addVouch, setStamp, vouches, getEntry, type Stamp, type Gut } from "./_me";
+import { type Stamp, type Gut } from "./_me";
+import { useMyMap } from "./_map-context";
 import { RelChip } from "./rel-chip";
 import styles from "./add-vouch.module.css";
 
@@ -67,6 +68,7 @@ export function AddVouchModal({
   presetSpot?: Pick;
   presetStamp?: "been" | "vouched";
 }) {
+  const { setStamp, addVouch, getEntry, entries } = useMyMap();
   const initialStep = (p?: Pick): Step => (p ? (presetStamp === "been" ? "been" : "vouch") : "choose");
   const [q, setQ] = useState("");
   const [results, setResults] = useState<CatalogSpot[]>([]);
@@ -77,7 +79,10 @@ export function AddVouchModal({
   const [occ, setOcc] = useState<string[]>([]);
   const [done, setDone] = useState<{ stamp: Stamp; gut?: Gut; name: string; count: number } | null>(null);
 
-  const taken = useMemo(() => new Set(vouches().map((v) => v.spot.name)), [open]);
+  // snapshot of places already vouched, taken when the sheet opens (so it doesn't
+  // churn the result list mid-session); used to hide them from search.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const taken = useMemo(() => new Set(entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => e.spot.name)), [open]);
 
   // reset to the preset (or blank) whenever the modal opens
   useEffect(() => {
@@ -109,29 +114,31 @@ export function AddVouchModal({
   function changePlace() { setSel(null); setStep("choose"); setQ(""); }
 
   // record fired the capture; the success moment confirms it landed, then closes.
-  function finish(spot: Spot, stamp: Stamp, gut?: Gut) {
+  // `count` is read from the mutator's returned Me (context state hasn't flushed yet).
+  const vouchCount = (m: { entries: typeof entries }) => m.entries.filter((e) => e.stamp === "vouched" && e.line).length;
+  function finish(spot: Spot, stamp: Stamp, count: number, gut?: Gut) {
     onCaptured?.({ spot, stamp, gut });
-    setDone({ stamp, gut, name: spot.name, count: vouches().length });
+    setDone({ stamp, gut, name: spot.name, count });
   }
   function chooseWant() {
     if (!sel) return;
     const spot = spotFrom(sel);
-    setStamp(spot, "want");
-    finish(spot, "want");
+    const next = setStamp(spot, "want");
+    finish(spot, "want", vouchCount(next));
   }
   function chooseGut(gut: Gut) {
     if (!sel) return;
     const spot = spotFrom(sel);
-    setStamp(spot, "been", { gut });
-    finish(spot, "been", gut); // just log it — no pushy "turn this into a vouch" interstitial
+    const next = setStamp(spot, "been", { gut });
+    finish(spot, "been", vouchCount(next), gut); // just log it — no pushy "turn this into a vouch" interstitial
   }
   function commitVouch() {
     if (!sel || !line.trim() || occ.length === 0) return;
     const spot = spotFrom(sel, occ);
     const v: Vouch = { spot, line: line.trim(), occ };
-    addVouch(v);
+    const next = addVouch(v);
     onAdded?.(v);
-    finish(spot, "vouched");
+    finish(spot, "vouched", vouchCount(next));
   }
 
   const existing = sel ? getEntry(sel.name) : undefined; // already on your map?
