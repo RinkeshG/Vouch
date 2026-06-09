@@ -8,38 +8,19 @@
 .state { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--text); margin: 14px 0 0; }
 .arch { color: var(--saffron); white-space: nowrap; }
 .sub { font-family: var(--sans); font-size: 1.1rem; color: var(--muted); line-height: 1.45; margin: 16px 0 0; max-width: 42ch; }
-.palateNote { display: inline-flex; align-items: center; gap: 7px; font-family: var(--sans); font-size: 0.9rem; color: var(--text); margin: 12px 0 0; padding: 6px 12px; border: 1px solid var(--saffron-line); background: var(--saffron-dim); border-radius: var(--r-pill); }
-.meta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 16px 0 0; }
 
-.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 18px 0 0; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+/* a quiet key — what the pin colours mean, with your counts. Reads the map; never a
+   filter farm. Stamp/occasion browsing lives on /you, where lists want lenses. */
+.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 18px 0 0; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 7px; }
-.legendNote { color: var(--faint); }
 .lgVouched, .lgBeen, .lgWant { width: 11px; height: 11px; border-radius: 50%; flex: none; }
 .lgVouched { background: var(--saffron); box-shadow: 0 0 8px 1px rgba(246, 168, 43, 0.8); }
 .lgBeen { background: rgba(244, 238, 227, 0.5); }
 .lgWant { background: transparent; border: 1.5px solid rgba(246, 168, 43, 0.65); }
 
-.lens { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
-.lensChip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 7px 13px; cursor: pointer; transition: all 0.15s var(--ease); }
-.lensChip:hover { border-color: rgba(244, 238, 227, 0.22); color: var(--text); }
-.lensChip i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-.lensChip b { color: var(--text); font-weight: 700; }
-.lensOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }
-.lensOn b { color: var(--saffron); }
-
-/* the decision filter — "going out for…" — derived from your own places */
-.occRow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
-.occLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); margin-right: 2px; }
-.occChip { font-family: var(--sans); font-size: 0.86rem; font-weight: 500; text-transform: capitalize; color: var(--muted); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 6px 13px; cursor: pointer; transition: all 0.15s var(--ease); }
-.occChip:hover { border-color: rgba(244, 238, 227, 0.22); color: var(--text); }
-.occOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }
-
-.focusBtn { margin-top: 18px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
+.focusBtn { margin-top: 20px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
 .focusBtn:hover { border-color: var(--saffron); color: var(--saffron); }
-.focusBtn:disabled { opacity: 0.55; cursor: default; }
 .focusBtn b { font-weight: 700; color: var(--saffron); }
-.decideRow { display: inline-flex; gap: 10px; flex-wrap: wrap; }
-.decideRow .focusBtn { margin-top: 18px; }
 
 .addWrap { position: absolute; z-index: 2; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .stamps { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
@@ -81,12 +62,8 @@
   .eyebrow { font-size: 0.56rem; letter-spacing: 0.16em; }
   .state { font-size: clamp(1.7rem, 7.6vw, 2.3rem); margin-top: 8px; }
   .sub { display: none; }
-  .lens { gap: 7px; margin-top: 14px; }
-  .lensChip { font-size: 0.56rem; padding: 6px 11px; }
-  .occRow { gap: 6px; margin-top: 10px; }
-  .occLabel { display: none; }
-  .occChip { font-size: 0.8rem; padding: 5px 11px; }
-  .focusBtn, .decideRow .focusBtn { margin-top: 12px; font-size: 0.86rem; padding: 8px 14px; }
+  .legend { gap: 13px; margin-top: 13px; font-size: 0.56rem; }
+  .focusBtn { margin-top: 14px; font-size: 0.86rem; padding: 8px 14px; }
   .addWrap { display: none; }
   .toastWrap { bottom: 92px; }
 }
