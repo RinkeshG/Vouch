@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { Modal } from "./modal";
 import { Tag, OccasionChip } from "./chip";
 import { SearchField } from "./input";
@@ -165,9 +166,9 @@ export function AddVouchModal({
             ) : (
               <>
                 <div className={`${styles.seal} ${styles.sealBeen}`} aria-hidden="true"><span className={styles.sealMark} aria-hidden="true">✓</span></div>
-                <p className={styles.doneTitle}>{done.gut === "loved" ? "Loved it — logged." : done.gut === "no" ? "Logged. Not for you." : "Logged."}</p>
+                <p className={styles.doneTitle}>{done.gut === "loved" ? "Loved it — logged." : done.gut === "no" ? "Logged. Not for me." : "Logged."}</p>
                 <p className={styles.donePlace}>{done.name}</p>
-                <p className={styles.doneMeta}>It’s in your diary now.</p>
+                <Link href="/you" className={styles.doneLink}>It’s in your diary now →</Link>
               </>
             )}
           </div>

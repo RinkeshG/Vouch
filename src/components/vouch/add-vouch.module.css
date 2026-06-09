@@ -76,6 +76,8 @@
 .doneTitle { font-family: var(--display); font-weight: 800; font-size: 1.65rem; letter-spacing: -0.02em; color: var(--text); margin: 5px 0 0; line-height: 1.1; }
 .donePlace { font-family: var(--sans); font-size: 1.08rem; color: var(--text); margin: 7px 0 0; }
 .doneMeta { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); margin: 9px 0 0; }
+.doneLink { display: inline-block; font-family: var(--sans); font-size: 0.92rem; font-weight: 500; color: var(--saffron); text-decoration: none; margin: 9px 0 0; transition: color 0.15s var(--ease); }
+.doneLink:hover { color: var(--saffron-hi); }
 @keyframes sealIn { 0% { opacity: 0; transform: scale(0.7); } 60% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
 .back { align-self: flex-start; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: transparent; border: none; cursor: pointer; padding: 2px 0; }
 .back:hover { color: var(--text); }
