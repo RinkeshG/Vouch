@@ -1,19 +1,21 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Wordmark } from "./wordmark";
 import { Avatar } from "./avatar";
 import styles from "./web-shell.module.css";
 
 export type NavKey = "map" | "search" | "guides" | "palate";
 
-/* The WEB product shell (desktop-first). A persistent left rail carries the brand,
-   nav, and the privileged ＋Vouch — the web idiom, not a phone's bottom tab bar.
-   The main area is free to be a full-height, multi-pane canvas. Mobile gets its
-   own shell (app-shell.tsx) and its own layout, designed separately. */
-const NAV: { key: NavKey; glyph: string; label: string; href?: string }[] = [
-  { key: "map", glyph: "◍", label: "Your map", href: "/producers-home" },
+/* The product shell, MOBILE-FIRST. The phone is the real surface: a slim top bar
+   for identity/place, the canvas, and a thumb-reachable bottom tab bar with a
+   privileged centre ＋ capture. The desktop rail (≥1000px) is the enhancement, not
+   the source of truth — it is rendered alongside and revealed by width, never the
+   mobile bar stretched. */
+const NAV: { key: NavKey; glyph: string; label: string; href: string }[] = [
+  { key: "map", glyph: "◍", label: "Your map", href: "/home" },
   { key: "search", glyph: "⌕", label: "Search", href: "/search" },
   { key: "guides", glyph: "❑", label: "Guides", href: "/guides" },
-  { key: "palate", glyph: "◆", label: "Your palate", href: "/palate" },
+  { key: "palate", glyph: "◆", label: "You", href: "/palate" },
 ];
 
 export function WebShell({
@@ -29,6 +31,7 @@ export function WebShell({
 }) {
   return (
     <div className={styles.shell}>
+      {/* DESKTOP — persistent left rail (≥1000px) */}
       <aside className={styles.side}>
         <div className={styles.brand}>
           <Wordmark size={1.3} />
@@ -36,17 +39,15 @@ export function WebShell({
         </div>
 
         <button type="button" className={styles.new} onClick={onNewVouch}>
-          <span className={styles.newPlus} aria-hidden="true">＋</span> Vouch a place
+          <span className={styles.newPlus} aria-hidden="true">＋</span> Add a place
         </button>
 
         <nav className={styles.nav} aria-label="Vouch">
-          {NAV.map((n) => {
-            const cls = `${styles.navItem} ${active === n.key ? styles.navOn : ""}`;
-            const inner = <><span className={styles.navGlyph} aria-hidden="true">{n.glyph}</span>{n.label}</>;
-            return n.href
-              ? <a key={n.key} href={n.href} className={cls} aria-current={active === n.key ? "page" : undefined}>{inner}</a>
-              : <span key={n.key} className={cls} aria-disabled="true">{inner}</span>;
-          })}
+          {NAV.map((n) => (
+            <Link key={n.key} href={n.href} className={`${styles.navItem} ${active === n.key ? styles.navOn : ""}`} aria-current={active === n.key ? "page" : undefined}>
+              <span className={styles.navGlyph} aria-hidden="true">{n.glyph}</span>{n.label}
+            </Link>
+          ))}
         </nav>
 
         <div className={styles.you}>
@@ -58,7 +59,32 @@ export function WebShell({
         </div>
       </aside>
 
-      <div className={styles.main}>{children}</div>
+      {/* MOBILE — slim top bar (<1000px) */}
+      <header className={styles.topbar}>
+        <Wordmark size={1.05} />
+        <span className={styles.topLoc}><i /> Bengaluru</span>
+      </header>
+
+      <main className={styles.main}>{children}</main>
+
+      {/* MOBILE — bottom tab bar with centre ＋ capture (<1000px) */}
+      <nav className={styles.tabs} aria-label="Vouch">
+        <Link href="/home" className={`${styles.tab} ${active === "map" ? styles.tabOn : ""}`} aria-current={active === "map" ? "page" : undefined}>
+          <span className={styles.tabGlyph} aria-hidden="true">◍</span><span className={styles.tabLabel}>Map</span>
+        </Link>
+        <Link href="/search" className={`${styles.tab} ${active === "search" ? styles.tabOn : ""}`} aria-current={active === "search" ? "page" : undefined}>
+          <span className={styles.tabGlyph} aria-hidden="true">⌕</span><span className={styles.tabLabel}>Search</span>
+        </Link>
+        <button type="button" className={styles.tabAdd} onClick={onNewVouch} aria-label="Add a place">
+          <span className={styles.tabAddPlus} aria-hidden="true">＋</span>
+        </button>
+        <Link href="/guides" className={`${styles.tab} ${active === "guides" ? styles.tabOn : ""}`} aria-current={active === "guides" ? "page" : undefined}>
+          <span className={styles.tabGlyph} aria-hidden="true">❑</span><span className={styles.tabLabel}>Guides</span>
+        </Link>
+        <Link href="/palate" className={`${styles.tab} ${active === "palate" ? styles.tabOn : ""}`} aria-current={active === "palate" ? "page" : undefined}>
+          <span className={styles.tabGlyph} aria-hidden="true">◆</span><span className={styles.tabLabel}>You</span>
+        </Link>
+      </nav>
     </div>
   );
 }

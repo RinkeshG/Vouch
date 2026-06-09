@@ -1,18 +1,21 @@
 /* isolate so Leaflet's high pane/control z-indexes can't escape and paint over
    modals/sheets layered above the map. */
-.wrap { position: relative; isolation: isolate; z-index: 0; width: 100%; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); box-shadow: var(--shadow-lift); background: #0e0c08; }
+.wrap { position: relative; isolation: isolate; z-index: 0; width: 100%; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line-2); box-shadow: var(--shadow-lift); background: #221a10; }
 /* full-pane map (web canvas): no card chrome */
 .bleed { border-radius: 0; border: none; box-shadow: none; }
 
-/* RECEDE — the city drops back to a quiet dark stage so only trust glows. */
-.recede :global(.leaflet-tile-pane) { filter: brightness(0.5) contrast(0.92) saturate(0.4) sepia(0.18) hue-rotate(-6deg); }
-.recede :global(.leaflet-container) { background: #0b0a07; }
-.vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse 70% 60% at 50% 48%, rgba(11,10,7,0) 35%, rgba(11,10,7,0.55) 78%, rgba(11,10,7,0.92) 100%); }
+/* THE MAP LOOK — applied to every map surface. Carto's dark tiles are near-black
+   monochrome, so we lift them hard off black and warm them into an amber night-map:
+   the road network, lakes and neighbourhood names read clearly, the whole thing
+   feels like the city at dusk, and trust (saffron) still glows on top. */
+.wrap :global(.leaflet-tile-pane) { filter: brightness(2.05) contrast(1.05) saturate(0.9) sepia(0.42) hue-rotate(-8deg); }
+.recede :global(.leaflet-container) { background: #221a10; }
+.vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse 92% 82% at 50% 44%, rgba(20,16,10,0) 62%, rgba(20,16,10,0.20) 86%, rgba(20,16,10,0.48) 100%); }
 
 /* SPOTLIGHT — the decision-moment focus: dim the rest, halo the one. */
 .dimmed { opacity: 0.22; filter: grayscale(0.5); }
 .lit { z-index: 1000 !important; }
-.lit .dot, .lit .dotBeen, .lit .dotWant { box-shadow: 0 0 0 7px rgba(246, 168, 43, 0.16), 0 0 26px 7px rgba(246, 168, 43, 0.95); animation: halo 1.8s ease-in-out infinite; }
+.lit .dot, .lit .dotBeen, .lit .dotBeenLoved, .lit .dotBeenNo, .lit .dotWant { box-shadow: 0 0 0 7px rgba(246, 168, 43, 0.16), 0 0 26px 7px rgba(246, 168, 43, 0.95); animation: halo 1.8s ease-in-out infinite; }
 @keyframes halo { 0%, 100% { box-shadow: 0 0 0 6px rgba(246, 168, 43, 0.14), 0 0 22px 6px rgba(246, 168, 43, 0.8); } 50% { box-shadow: 0 0 0 10px rgba(246, 168, 43, 0.2), 0 0 30px 9px rgba(246, 168, 43, 1); } }
 .map { position: absolute; inset: 0; }
 .tag { position: absolute; top: 14px; left: 16px; z-index: 500; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text); background: rgba(12, 10, 7, 0.6); padding: 5px 10px; border-radius: var(--r-pill); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); pointer-events: none; }
@@ -23,10 +26,14 @@
 /* pins (divIcon content) */
 .icon { background: transparent; border: none; }
 .pin, .pinP { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; animation: drop 0.45s var(--ease) both; cursor: pointer; transition: opacity 0.3s var(--ease), filter 0.3s var(--ease); }
-/* stamp-state pins — the map reads as your relationship to each place */
-.dot { width: 14px; height: 14px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: var(--saffron); box-shadow: 0 0 14px 2px rgba(246, 168, 43, 0.85); }   /* Vouched — the currency, glows */
-.dotBeen { width: 11px; height: 11px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: rgba(244, 238, 227, 0.5); box-shadow: 0 0 6px 0 rgba(244, 238, 227, 0.18); }   /* Been — quiet diary mark */
-.dotWant { width: 11px; height: 11px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); background: transparent; border: 1.5px solid rgba(246, 168, 43, 0.65); }   /* Want to go — a ghost */
+/* stamp-state pins — the map reads as your relationship to each place. A dark halo
+   ring (the 0 0 0 2px shadow) separates every pin from the tiles underneath, so they
+   stay legible whatever's behind them. */
+.dot { width: 15px; height: 15px; flex: none; border-radius: 50%; background: var(--saffron); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 16px 3px rgba(246, 168, 43, 0.9); }   /* Vouched — the currency, glows brightest */
+.dotBeen { width: 12px; height: 12px; flex: none; border-radius: 50%; background: rgba(244, 238, 227, 0.88); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 7px 1px rgba(244, 238, 227, 0.28); }   /* Been (fine) — quiet ink mark, legible */
+.dotBeenLoved { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--jade); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 11px 2px rgba(118, 210, 155, 0.6); }   /* Been · loved — warm jade */
+.dotBeenNo { width: 11px; height: 11px; flex: none; border-radius: 50%; background: rgba(138, 130, 120, 0.7); box-shadow: 0 0 0 2px rgba(16,15,13,0.55); }   /* Been · not for me — muted, no glow */
+.dotWant { width: 13px; height: 13px; flex: none; border-radius: 50%; background: transparent; border: 1.75px solid rgba(246, 168, 43, 0.88); box-shadow: 0 0 0 2px rgba(16,15,13,0.4); }   /* Want to go — a clear ghost ring */
 .ava { width: 24px; height: 24px; flex: none; border-radius: 7px 7px 7px 2px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 0.56rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron), var(--ember)); box-shadow: 0 0 12px 1px rgba(246, 168, 43, 0.6); border: 1.5px solid var(--bg); }
 .label { font-family: var(--sans); font-weight: 600; font-size: 0.74rem; color: var(--text); background: rgba(12, 10, 7, 0.88); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 3px 9px; transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
 /* crowded surfaces (Home): keep pins clean, reveal the name on hover/focus — tap
@@ -35,6 +42,13 @@
 .hover:hover, .pinP.hover:hover { z-index: 5; }
 .hover:hover .label, .hover:focus-within .label { opacity: 1; transform: none; }
 @keyframes drop { 0% { opacity: 0; transform: translateY(-16px) scale(0.4); } 60% { opacity: 1; transform: translateY(2px) scale(1.1); } 100% { opacity: 1; transform: none; } }
+
+/* "you are here" — a cool device-blue pulse, deliberately NOT saffron so it never
+   competes with a vouch. Shown only after the user grants location. */
+.you { position: relative; width: 18px; height: 18px; display: grid; place-items: center; }
+.youDot { position: relative; width: 12px; height: 12px; border-radius: 50%; background: #cfe6ff; border: 2px solid #ffffff; box-shadow: 0 0 0 3px rgba(120, 170, 255, 0.3), 0 0 14px 2px rgba(120, 170, 255, 0.6); }
+.youDot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(150, 195, 255, 0.55); animation: youPulse 2.4s var(--ease) infinite; }
+@keyframes youPulse { 0% { transform: scale(0.7); opacity: 0.85; } 100% { transform: scale(2.6); opacity: 0; } }
 
 /* the vouch popup (who + why) */
 .pop { padding: 14px 16px 15px; min-width: 184px; }
@@ -46,7 +60,7 @@
 .popLink:hover { color: var(--saffron-hi); }
 
 /* Leaflet chrome → brand */
-.wrap :global(.leaflet-container) { background: #0e0c08; font: inherit; }
+.wrap :global(.leaflet-container) { background: #221a10; font: inherit; }
 .wrap :global(.leaflet-div-icon) { background: transparent; border: none; }
 .wrap :global(.leaflet-popup-content-wrapper) { background: var(--surface); color: var(--text); border: 1px solid var(--line-2); border-radius: var(--r-md); box-shadow: var(--shadow-lift); }
 .wrap :global(.leaflet-popup-content) { margin: 0; }

@@ -2,33 +2,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { WebShell } from "./web-shell";
 import { Avatar } from "./avatar";
-import { Button } from "./button";
-import { OccasionChip } from "./chip";
 import { MapReal } from "./map-real";
-import { SEED, FOUNDING, archetypeFor, type Spot } from "./_taste";
-import { listGuides, slugify } from "./_guides";
-import { loadMe, setStamp as recordStamp, type Me } from "./_me";
+import { SEED, FOUNDING, placeTint, monogram, type Spot } from "./_taste";
+import { listGuides, slugify, type GuideItem } from "./_guides";
+import { loadMe, setStamp as recordStamp, relationship, type Me, type Stamp } from "./_me";
 import { AddVouchModal } from "./add-vouch";
+import { GuidePicker } from "./guide-picker";
 import { getCatalogSpot, type CatalogSpot } from "./_catalog";
 import styles from "./spot-page.module.css";
 
-/* The Spot page (Constitution §7.2) — leads with the RECEIPT (who vouched, why it
-   reached you), then the named one-line verdicts (the only "review" here), best
-   occasion, what to order. Practical chrome (price/area/hours) sits quiet at the
-   bottom — never the hero. No stars. Answers "can I trust this for THIS occasion?" */
+/* The place page (PRD §5.4) — answers "is this for me, and why do people I trust
+   rate it?", not logistics. Order: hero (identity in one glance) → the receipt (who
+   you trust vouched + their lines) → the move (what to get) → demoted practical bits
+   + Open in Maps → a sticky Want/Been/Vouch bar. No stars, no persona. */
 
-const ORDERS: Record<string, string> = {
-  "Naru Noodle Bar": "The shoyu ramen, a counter seat.",
-  Empire: "Chicken ghee roast + rumali roti.",
-  Karavalli: "Kane fry, appam, the prawn curry.",
-  "Vidyarthi Bhavan": "Masala dosa, one-by-two filter coffee.",
-  "Brahmin’s Coffee Bar": "Idli, kara bath, filter coffee.",
-  "CTR · Shri Sagar": "Benne masala dosa. That’s the order.",
-  "Corner House": "Death by Chocolate. Non-negotiable.",
-  Toit: "Tintin Toit + a wood-fired pizza.",
-  Soka: "Small plates and a negroni.",
-  "Shivaji Military Hotel": "Mutton donne biryani, kheema.",
-};
 const HOURS: Record<string, string> = {
   "Naru Noodle Bar": "Tue–Sun · 12–3, 7–11", Empire: "Daily · 11am–1am", Karavalli: "Daily · 12.30–3, 7–11",
   "Vidyarthi Bhavan": "Tue–Sun · 6.30am–12, 2–8", "Brahmin’s Coffee Bar": "Daily · 6.30–11.30am, 3.30–7",
@@ -36,134 +23,195 @@ const HOURS: Record<string, string> = {
   Toit: "Daily · 12pm–11.30pm", Soka: "Tue–Sun · 12–3, 6.30–11", "Shivaji Military Hotel": "Daily · 12.30–3.30 (till it’s gone)",
 };
 
-type Stamp = "want" | "been" | "vouched";
-
 export function SpotPage({ slug }: { slug: string }) {
   const [me, setMe] = useState<Me>({ entries: [], follows: [] });
   const [cat, setCat] = useState<CatalogSpot | null | undefined>(undefined);
-  const [toast, setToast] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [intent, setIntent] = useState<"been" | "vouched">("vouched");
+  const [pending, setPending] = useState<Stamp | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const seedSpot = useMemo(() => SEED.find((s) => slugify(s.name) === slug), [slug]);
   useEffect(() => { setMe(loadMe()); }, []);
+  useEffect(() => { if (!toast) return; const t = window.setTimeout(() => setToast(null), 2600); return () => window.clearTimeout(t); }, [toast]);
   useEffect(() => { if (seedSpot) { setCat(null); return; } getCatalogSpot(slug).then(setCat); }, [slug, seedSpot]);
 
   const myV = me.entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => ({ spot: e.spot, line: e.line as string, occ: e.occ ?? [] }));
-  const myArch = archetypeFor(myV);
-  function flash(t: string) { setToast(t); window.setTimeout(() => setToast(null), 2800); }
+  const youLine = myV.length ? `${myV.length} ${myV.length === 1 ? "vouch" : "vouches"} · Bengaluru` : "Your map";
 
-  // unify a founding SEED spot (has occasions) or a catalog place (Supabase)
   const spot = seedSpot
-    ? { name: seedSpot.name, area: seedSpot.area, cuisine: seedSpot.cuisine, price: seedSpot.price, lat: seedSpot.lat as number | null, lng: seedSpot.lng as number | null, occasions: seedSpot.occasions }
-    : cat ? { name: cat.name, area: cat.area, cuisine: cat.cuisine, price: cat.price, lat: cat.lat, lng: cat.lng, occasions: [] as string[] } : null;
+    ? { name: seedSpot.name, area: seedSpot.area, cuisine: seedSpot.cuisine, price: seedSpot.price, lat: seedSpot.lat as number | null, lng: seedSpot.lng as number | null, occasions: seedSpot.occasions, vibe: seedSpot.vibe, move: seedSpot.move, cover: seedSpot.cover }
+    : cat ? { name: cat.name, area: cat.area, cuisine: cat.cuisine, price: cat.price, lat: cat.lat, lng: cat.lng, occasions: [] as string[], vibe: undefined as string | undefined, move: undefined as string | undefined, cover: undefined as string | undefined } : null;
 
   if (!seedSpot && cat === undefined) {
-    return <WebShell active="search" you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
-      <div className={styles.page}><p className={styles.eyebrow}>Spot</p><p className={styles.notFound}>Finding it…</p></div>
+    return <WebShell active="search" you={{ ini: "RG", name: "You", line: youLine }}>
+      <div className={styles.page}><p className={styles.loadingMsg}>Finding it…</p></div>
     </WebShell>;
   }
   if (!spot) {
-    return <WebShell active="search" you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
-      <div className={styles.page}><p className={styles.eyebrow}>Spot</p><h1 className={styles.notFound}>No spot here.</h1></div>
+    return <WebShell active="search" you={{ ini: "RG", name: "You", line: youLine }}>
+      <div className={styles.page}><p className={styles.loadingMsg}>No place here.</p></div>
     </WebShell>;
   }
 
   const fullSpot: Spot = { name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, occasions: spot.occasions, lat: spot.lat ?? 12.9716, lng: spot.lng ?? 77.5946 };
-  const cur = me.entries.find((e) => e.spot.name === spot.name)?.stamp ?? null;
+  const entry = me.entries.find((e) => e.spot.name === spot.name);
+  const cur = entry?.stamp ?? null;
+
+  const RANK: Record<Stamp, number> = { want: 1, been: 2, vouched: 3 };
+  function applyStamp(s: Stamp) {
+    setEditing(false);
+    if (s === "want") { recordStamp(fullSpot, "want"); setMe(loadMe()); return; }
+    setIntent(s === "been" ? "been" : "vouched");
+    setAdding(true); // been → gut step; vouch → the worded composer (reuses the capture flows)
+  }
   function setMy(s: Stamp) {
-    if (s === "vouched") { setAdding(true); return; } // the sacred ritual
-    recordStamp(fullSpot, s);
+    if (cur === s) { setEditing(false); return; } // already your relationship
+    if (cur && RANK[s] < RANK[cur]) { setPending(s); return; } // moving BACKWARD is lossy — confirm first
+    applyStamp(s);
+  }
+  function confirmDemote() {
+    if (!pending) return;
+    recordStamp(fullSpot, pending); // demotion keeps the note/gut latent — never re-asks
     setMe(loadMe());
-    flash(s === "want" ? "On your radar — saved for the night you’re nearby." : "Logged. Loved it? Put your name on it.");
+    setPending(null);
+    setEditing(false);
   }
 
   const vouchedBy = FOUNDING.flatMap((f) => f.spots.filter((s) => s.name === spot.name).map((s) => ({ name: f.name, ini: f.ini, line: s.line, slug: f.name.toLowerCase() })));
   const mine = myV.find((v) => v.spot.name === spot.name);
   const inGuides = listGuides().filter((g) => g.items.some((i) => i.name === spot.name)).map((g) => g.title);
-  const order = ORDERS[spot.name];
-
-  // the receipt sentence — derived, never stored
   const reachedBy = [
     ...(mine ? ["you vouched it"] : []),
     ...(vouchedBy.length ? [`${vouchedBy.map((v) => v.name).join(" & ")} vouched`] : []),
   ];
+  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${spot.name} ${spot.area} Bengaluru`)}`;
+  // honest standing — only what we actually know (founding palates + you). Never invented.
+  const vouchTotal = vouchedBy.length + (mine ? 1 : 0);
+  const rel = relationship(entry);
+  const guideItem: GuideItem = { name: spot.name, tags: `${spot.cuisine} · ${spot.area} · ${spot.price}`, note: mine?.line ?? spot.move ?? "" };
 
   return (
-    <WebShell active="search" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: `${myArch.glyph} ${myArch.name}` }}>
-      <div className={styles.page}>
-        <header className={styles.head}>
-          <p className={styles.eyebrow}>Spot · Bengaluru</p>
-          <h1 className={styles.name}>{spot.name}</h1>
-          <div className={styles.occ}>{spot.occasions.map((o) => <OccasionChip key={o}>{o}</OccasionChip>)}</div>
-        </header>
+    <WebShell active="search" onNewVouch={() => { setIntent("vouched"); setAdding(true); }} you={{ ini: "RG", name: "You", line: youLine }}>
+      <article className={styles.page}>
+        {/* HERO — identity in one glance */}
+        <div className={styles.hero} style={spot.cover ? { backgroundImage: `url(${spot.cover})`, backgroundSize: "cover", backgroundPosition: "center" } : { background: placeTint(spot.cuisine) }}>
+          {!spot.cover && <span className={styles.heroMono} aria-hidden="true">{monogram(spot.name)}</span>}
+          <a className={styles.back} href="/home" aria-label="Back to your map">←</a>
+          <div className={styles.heroScrim} aria-hidden="true" />
+          <div className={styles.heroText}>
+            <span className={styles.heroEyebrow}>{spot.area} · Bengaluru</span>
+            <h1 className={styles.name}>{spot.name}</h1>
+            {spot.vibe && <p className={styles.vibe}>{spot.vibe}</p>}
+          </div>
+        </div>
 
-        {/* THE RECEIPT — the hero */}
-        <section className={styles.receipt}>
-          {reachedBy.length ? (
+        <div className={styles.body}>
+          {(vouchTotal > 0 || inGuides.length > 0) && (
+            <div className={styles.standing}>
+              {vouchTotal > 0 && <span><b>{vouchTotal}</b> {vouchTotal === 1 ? "vouch" : "vouches"}</span>}
+              {inGuides.length > 0 && <span>in <b>{inGuides.length}</b> of your lists</span>}
+            </div>
+          )}
+
+          {/* THE RECEIPT — the people you trust */}
+          <section className={styles.receipt}>
+            <span className={styles.receiptLabel}>Why it reached you</span>
+            {reachedBy.length ? (
+              <>
+                <p className={styles.receiptLine}>{reachedBy.join(" · ")}{inGuides.length ? ` · in your “${inGuides[0]}”` : ""}</p>
+                <ul className={styles.verdicts}>
+                  {mine && <li className={styles.verdict}><Avatar initials="RG" size={32} /><div><span className={styles.vWho}>You vouched</span><span className={styles.vLine}>“{mine.line}”</span></div></li>}
+                  {vouchedBy.map((v) => (
+                    <li key={v.name} className={styles.verdict}>
+                      <Avatar initials={v.ini} size={32} />
+                      <div><a className={styles.vWho} href={`/p/${v.slug}`}>{v.name} vouched →</a><span className={styles.vLine}>“{v.line}”</span></div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className={styles.receiptEmpty}>No one you follow has put their name here yet. If you’d send a friend, be the first.</p>
+            )}
+          </section>
+
+          {/* WHAT TO GET */}
+          {spot.move && (
+            <section className={styles.section}>
+              <span className={styles.label}>What to get</span>
+              <p className={styles.move}>{spot.move}</p>
+            </section>
+          )}
+
+          {/* GOOD TO KNOW — readable; logistics link out */}
+          <section className={styles.details}>
+            <span className={styles.label}>Good to know</span>
+            <dl className={styles.detailGrid}>
+              <div className={styles.detailRow}><dt className={styles.dt}>Cuisine</dt><dd className={styles.dd}>{spot.cuisine}</dd></div>
+              <div className={styles.detailRow}><dt className={styles.dt}>Area</dt><dd className={styles.dd}>{spot.area}</dd></div>
+              <div className={styles.detailRow}><dt className={styles.dt}>Price</dt><dd className={styles.dd}>{spot.price}</dd></div>
+              <div className={styles.detailRow}><dt className={styles.dt}>Hours</dt><dd className={styles.dd}>{HOURS[spot.name] ?? "See Google"}</dd></div>
+            </dl>
+            {spot.lat != null && spot.lng != null && (
+              <div className={styles.mapWrap}>
+                <MapReal pins={[{ id: spot.name, lat: spot.lat, lng: spot.lng, name: spot.name, kind: "mine", stamp: cur ?? "want" }]} height={184} tag={`${spot.area} · Bengaluru`} />
+              </div>
+            )}
+            <a className={styles.maps} href={mapsHref} target="_blank" rel="noreferrer">Open in Google Maps →</a>
+          </section>
+
+          <button type="button" className={styles.addGuide} onClick={() => setPicking(true)}>＋ Add to a guide</button>
+        </div>
+
+        {/* ACTION AREA — reflects your relationship; the chooser only shows when you have none */}
+        <div className={styles.actionBar}>
+          {pending ? (
+            <div className={styles.confirm}>
+              <p className={styles.confirmText}>
+                {cur === "vouched"
+                  ? <>Take your vouch off <b>{spot.name}</b>? Your note’s kept — but your name comes off it.</>
+                  : <>Move <b>{spot.name}</b> back to want-to-go? You’ve already been.</>}
+              </p>
+              <div className={styles.confirmRow}>
+                <button type="button" className={styles.confirmKeep} onClick={() => setPending(null)}>Keep it as is</button>
+                <button type="button" className={styles.confirmGo} onClick={confirmDemote}>{pending === "want" ? "Move to want-to-go" : "Move to been"}</button>
+              </div>
+            </div>
+          ) : (!cur || editing) ? (
             <>
-              <span className={styles.receiptLabel}>Why it reached you</span>
-              <p className={styles.receiptLine}>{reachedBy.join(" · ")}{inGuides.length ? ` · in your “${inGuides[0]}”` : ""}</p>
-              <ul className={styles.verdicts}>
-                {mine && <li className={styles.verdict}><Avatar initials="RG" size={30} /><div><span className={styles.vWho}>You vouched</span><span className={styles.vLine}>“{mine.line}”</span></div></li>}
-                {vouchedBy.map((v) => (
-                  <li key={v.name} className={styles.verdict}>
-                    <Avatar initials={v.ini} size={30} />
-                    <div><a className={styles.vWho} href={`/p/${v.slug}`}>{v.name} vouched →</a><span className={styles.vLine}>“{v.line}”</span></div>
-                  </li>
-                ))}
-              </ul>
+              {editing && <button type="button" className={styles.barBack} onClick={() => setEditing(false)}>← keep it as is</button>}
+              <div className={styles.barRow}>
+                <button type="button" className={`${styles.act} ${cur === "want" ? styles.actWantOn : ""}`} onClick={() => setMy("want")}>{cur === "want" && <span className={styles.actChk} aria-hidden="true">✓</span>}Want to go</button>
+                <button type="button" className={`${styles.act} ${cur === "been" ? styles.actBeenOn : ""}`} onClick={() => setMy("been")}>{cur === "been" && <span className={styles.actChk} aria-hidden="true">✓</span>}Been</button>
+                <button type="button" className={`${styles.act} ${styles.actVouch} ${cur === "vouched" ? styles.actVouchOn : ""}`} onClick={() => setMy("vouched")}>{cur === "vouched" && <span className={styles.actChk} aria-hidden="true">✓</span>}{cur === "vouched" ? "Vouched" : "Vouch it"}</button>
+              </div>
             </>
           ) : (
-            <>
-              <span className={styles.receiptLabel}>Why it reached you</span>
-              <p className={styles.receiptEmpty}>No one you follow has put their name here yet. If you’d vouch for it — be the first.</p>
-            </>
-          )}
-        </section>
-
-        <div className={styles.split}>
-          <div className={styles.col}>
-            {order && (
-              <section className={styles.section}>
-                <span className={styles.label}>The order</span>
-                <p className={styles.order}>{order}</p>
-              </section>
-            )}
-
-            <section className={styles.section}>
-              <span className={styles.label}>Your move</span>
-              <div className={styles.stamps}>
-                {(["want", "been", "vouched"] as Stamp[]).map((s) => (
-                  <button key={s} type="button" className={`${styles.stamp} ${cur === s ? styles.stampOn : ""}`} onClick={() => setMy(s)}>
-                    {s === "want" ? (cur === "want" ? "Want to go ✓" : "Want to go") : s === "been" ? (cur === "been" ? "Been ✓" : "Been") : cur === "vouched" ? "Vouched ✓" : "Vouch it"}
-                  </button>
-                ))}
-                <a className={styles.addGuide} href="/guides" onClick={() => { try { window.sessionStorage.setItem("vouch:guide-seed", JSON.stringify({ name: spot.name, tags: `${spot.cuisine} · ${spot.area} · ${spot.price}`, note: mine?.line ?? order ?? "" })); } catch { /* ignore */ } }}>＋ Add to a guide</a>
-              </div>
-              {cur === "been" && (
-                <button type="button" className={styles.nudge} onClick={() => setMy("vouched")}>Loved it? <b>Put your name on it →</b></button>
+            <div className={styles.statusBar}>
+              {rel && (
+                <span className={`${styles.statusBadge} ${rel.tone === "vouched" ? styles.badgeVouched : rel.tone === "loved" ? styles.badgeBeen : rel.tone === "fine" ? styles.badgeFine : rel.tone === "no" ? styles.badgeNo : styles.badgeWant}`}>
+                  {rel.tone === "vouched" && <span aria-hidden="true">✓ </span>}{rel.label}
+                </span>
               )}
-              {cur === "want" && <p className={styles.stampHint}>On your radar. When you’ve been, mark it — then vouch if it earns your name.</p>}
-            </section>
-
-            <section className={styles.practical}>
-              <span className={styles.label}>The practical bits</span>
-              <p className={styles.practicalLine}>{spot.cuisine} · {spot.area} · {spot.price}</p>
-              <p className={styles.practicalLine}>{HOURS[spot.name] ?? "Hours on Google"}</p>
-            </section>
-          </div>
-
-          {spot.lat != null && spot.lng != null && (
-            <aside className={styles.mapCol}>
-              <span className={styles.label}>Where</span>
-              <div className={styles.mapWrap}>
-                <MapReal pins={[{ id: spot.name, lat: spot.lat, lng: spot.lng, name: spot.name, kind: "mine" }]} height={260} recede tag={`${spot.area} · Bengaluru`} />
+              <div className={styles.statusActions}>
+                {cur === "been" && entry?.gut === "loved" && <button type="button" className={styles.statusUp} onClick={() => applyStamp("vouched")}>Vouch it</button>}
+                {cur === "want" && <button type="button" className={styles.statusUp} onClick={() => applyStamp("been")}>I’ve been</button>}
+                <button type="button" className={styles.statusChange} onClick={() => setEditing(true)}>Change</button>
               </div>
-            </aside>
+            </div>
           )}
         </div>
-      </div>
+      </article>
 
-      <AddVouchModal open={adding} onClose={() => setAdding(false)} presetSpot={{ name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, lat: spot.lat, lng: spot.lng }} onAdded={(v) => { setMe(loadMe()); flash(`Your name’s on it. ${v.spot.name} is on your map.`); }} />
+      <AddVouchModal
+        open={adding}
+        onClose={() => setAdding(false)}
+        presetSpot={{ name: spot.name, area: spot.area, cuisine: spot.cuisine, price: spot.price, lat: spot.lat, lng: spot.lng }}
+        presetStamp={intent}
+        onCaptured={() => { setMe(loadMe()); setEditing(false); }}
+      />
+      <GuidePicker open={picking} onClose={() => setPicking(false)} item={guideItem} onAdded={(t) => setToast(`Added to “${t}”`)} />
       {toast && <div className={styles.toastWrap}><span className={styles.toast}>{toast}</span></div>}
     </WebShell>
   );

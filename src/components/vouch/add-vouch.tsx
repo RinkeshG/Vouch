@@ -1,44 +1,97 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Modal } from "./modal";
-import { Button } from "./button";
 import { Tag, OccasionChip } from "./chip";
 import { SearchField } from "./input";
 import { OCCASIONS, type Spot, type Vouch } from "./_taste";
 import { searchCatalog, type CatalogSpot } from "./_catalog";
-import { addVouch, vouches } from "./_me";
+import { addVouch, setStamp, vouches, getEntry, type Stamp, type Gut } from "./_me";
+import { RelChip } from "./rel-chip";
 import styles from "./add-vouch.module.css";
 
-/* The add-vouch ritual, available from anywhere (the spine action). Now searches the
-   REAL Bengaluru catalog (Supabase `places`) — you can vouch for any place, not the
-   ~14 seed spots. Pick → one line (≤120) → occasion(s) → it lands in your store
-   (_me). Optionally preset to a specific place (Spot page "Vouch it"). */
+/* The capture sheet, available from anywhere (the spine action). Search the REAL
+   Bengaluru catalog (Supabase `places`), pick a place, then choose your MOVE — the
+   three are deliberately NOT equal-weight (Constitution §1, speech acts):
+     · Want to go — one tap, no words. A note to your future self.
+     · Been      — one honest gut reaction (loved / fine / no). Your private diary.
+     · Vouch     — the worded, public act. Costs a line + occasion. Your name on it.
+   Friction matches meaning. Loved-it nudges toward a vouch, but never auto-vouches. */
 
 type Pick = { name: string; area: string; cuisine: string; price: string; lat: number | null; lng: number | null };
+type Step = "choose" | "been" | "vouch";
 const BLR = { lat: 12.9716, lng: 77.5946 };
+
+/* Hold to vouch — the deliberate "moment of hold" the act deserves (PRD §5.6): a tap
+   won't do it, you press and hold to put your name down. Keyboard activates directly. */
+function HoldButton({ disabled, onComplete, children }: { disabled?: boolean; onComplete: () => void; children: ReactNode }) {
+  const [holding, setHolding] = useState(false);
+  const timer = useRef<number | null>(null);
+  function start() {
+    if (disabled || timer.current) return;
+    setHolding(true);
+    timer.current = window.setTimeout(() => { timer.current = null; setHolding(false); onComplete(); }, 850);
+  }
+  function cancel() {
+    if (timer.current) { window.clearTimeout(timer.current); timer.current = null; }
+    setHolding(false);
+  }
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      className={`${styles.hold} ${holding ? styles.holding : ""}`}
+      onPointerDown={start}
+      onPointerUp={cancel}
+      onPointerLeave={cancel}
+      onPointerCancel={cancel}
+      onKeyDown={(e) => { if (!disabled && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onComplete(); } }}
+    >
+      <span className={styles.holdFill} aria-hidden="true" />
+      <span className={styles.holdLabel}>{children}</span>
+    </button>
+  );
+}
 
 export function AddVouchModal({
   open,
   onClose,
   onAdded,
+  onCaptured,
   presetSpot,
+  presetStamp,
 }: {
   open: boolean;
   onClose: () => void;
   onAdded?: (v: Vouch) => void;
+  onCaptured?: (r: { spot: Spot; stamp: Stamp; gut?: Gut }) => void;
   presetSpot?: Pick;
+  presetStamp?: "been" | "vouched";
 }) {
+  const initialStep = (p?: Pick): Step => (p ? (presetStamp === "been" ? "been" : "vouch") : "choose");
   const [q, setQ] = useState("");
   const [results, setResults] = useState<CatalogSpot[]>([]);
   const [loading, setLoading] = useState(false);
   const [sel, setSel] = useState<Pick | null>(presetSpot ?? null);
+  const [step, setStep] = useState<Step>(initialStep(presetSpot));
   const [line, setLine] = useState("");
   const [occ, setOcc] = useState<string[]>([]);
+  const [done, setDone] = useState<{ stamp: Stamp; gut?: Gut; name: string; count: number } | null>(null);
 
   const taken = useMemo(() => new Set(vouches().map((v) => v.spot.name)), [open]);
 
   // reset to the preset (or blank) whenever the modal opens
-  useEffect(() => { if (open) { setSel(presetSpot ?? null); setQ(""); setLine(""); setOcc([]); } }, [open, presetSpot]);
+  useEffect(() => {
+    if (open) { setSel(presetSpot ?? null); setStep(initialStep(presetSpot)); setQ(""); setLine(""); setOcc([]); setDone(null); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, presetSpot, presetStamp]);
+
+  // the success moment holds for a beat, then closes — long enough to feel it land
+  useEffect(() => {
+    if (!done) return;
+    const t = window.setTimeout(() => { setDone(null); onClose(); }, 2200);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done]);
 
   // live search the real catalog
   useEffect(() => {
@@ -50,23 +103,71 @@ export function AddVouchModal({
   }, [q, open, sel, taken]);
 
   const toggle = (o: string) => setOcc((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
-  function close() { onClose(); }
-  function commit() {
+  const spotFrom = (p: Pick, occasions: string[] = []): Spot => ({ name: p.name, area: p.area, cuisine: p.cuisine, price: p.price, occasions, lat: p.lat ?? BLR.lat, lng: p.lng ?? BLR.lng });
+
+  function pickResult(s: CatalogSpot) { setSel(s); setStep("choose"); }
+  function changePlace() { setSel(null); setStep("choose"); setQ(""); }
+
+  // record fired the capture; the success moment confirms it landed, then closes.
+  function finish(spot: Spot, stamp: Stamp, gut?: Gut) {
+    onCaptured?.({ spot, stamp, gut });
+    setDone({ stamp, gut, name: spot.name, count: vouches().length });
+  }
+  function chooseWant() {
+    if (!sel) return;
+    const spot = spotFrom(sel);
+    setStamp(spot, "want");
+    finish(spot, "want");
+  }
+  function chooseGut(gut: Gut) {
+    if (!sel) return;
+    const spot = spotFrom(sel);
+    setStamp(spot, "been", { gut });
+    finish(spot, "been", gut); // just log it — no pushy "turn this into a vouch" interstitial
+  }
+  function commitVouch() {
     if (!sel || !line.trim() || occ.length === 0) return;
-    const spot: Spot = { name: sel.name, area: sel.area, cuisine: sel.cuisine, price: sel.price, occasions: occ, lat: sel.lat ?? BLR.lat, lng: sel.lng ?? BLR.lng };
+    const spot = spotFrom(sel, occ);
     const v: Vouch = { spot, line: line.trim(), occ };
     addVouch(v);
     onAdded?.(v);
-    onClose();
+    finish(spot, "vouched");
   }
 
+  const existing = sel ? getEntry(sel.name) : undefined; // already on your map?
+
   return (
-    <Modal open={open} onClose={close} label="Vouch a place">
+    <Modal open={open} onClose={onClose} label="Add a place">
       <div className={styles.sheet}>
-        {!sel ? (
+        {done ? (
+          <div className={styles.done}>
+            {done.stamp === "vouched" ? (
+              <>
+                <div className={styles.seal}><span className={styles.sealMark} aria-hidden="true">✓</span></div>
+                <p className={styles.doneTitle}>Your name’s on it.</p>
+                <p className={styles.donePlace}>{done.name}</p>
+                <p className={styles.doneMeta}>{done.count} {done.count === 1 ? "place carries" : "places carry"} your name now.</p>
+              </>
+            ) : done.stamp === "want" ? (
+              <>
+                <div className={`${styles.seal} ${styles.sealWant}`} aria-hidden="true" />
+                <p className={styles.doneTitle}>On your radar.</p>
+                <p className={styles.donePlace}>{done.name}</p>
+                <p className={styles.doneMeta}>Saved for the night you’re nearby.</p>
+              </>
+            ) : (
+              <>
+                <div className={`${styles.seal} ${styles.sealBeen}`} aria-hidden="true"><span className={styles.sealMark} aria-hidden="true">✓</span></div>
+                <p className={styles.doneTitle}>{done.gut === "loved" ? "Loved it — logged." : done.gut === "no" ? "Logged. Not for you." : "Logged."}</p>
+                <p className={styles.donePlace}>{done.name}</p>
+                <p className={styles.doneMeta}>It’s in your diary now.</p>
+              </>
+            )}
+          </div>
+        ) : !sel ? (
           <>
-            <p className={styles.title}>A place you’d send a friend to — no hesitation.</p>
-            <SearchField placeholder="Search Bengaluru — any place you love…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
+            <p className={styles.title}>Add a place to your map.</p>
+            <SearchField placeholder="Search Bengaluru — any place you know…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
             <ul className={styles.results}>
               {loading && results.length === 0 ? (
                 <li className={styles.none}>Searching the city…</li>
@@ -74,7 +175,7 @@ export function AddVouchModal({
                 <li className={styles.none}>{q ? `Nothing matching “${q}”.` : "Start typing a place."}</li>
               ) : results.map((s) => (
                 <li key={s.slug}>
-                  <button type="button" className={styles.result} onClick={() => setSel(s)}>
+                  <button type="button" className={styles.result} onClick={() => pickResult(s)}>
                     <span className={styles.resultName}>{s.name}</span>
                     <span className={styles.resultMeta}>{s.cuisine} · {s.area} · {s.price}</span>
                   </button>
@@ -86,26 +187,71 @@ export function AddVouchModal({
           <>
             <div className={styles.head}>
               <span className={styles.place}>{sel.name}</span>
-              {!presetSpot && <button type="button" className={styles.change} onClick={() => setSel(null)}>↺ Change place</button>}
+              {!presetSpot && <button type="button" className={styles.change} onClick={changePlace}>↺ Change place</button>}
             </div>
-            <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area} · {sel.price}</Tag></span>
-            <label className={styles.fieldLabel}>One line — why you’d send them</label>
-            <div className={styles.lineWrap}>
-              <textarea
-                className={styles.lineInput}
-                value={line}
-                maxLength={120}
-                rows={2}
-                autoFocus
-                placeholder="Best bowl in the city. Go at 6 sharp."
-                onChange={(e) => setLine(e.target.value.replace(/\n/g, " "))}
-                onInput={(e) => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
-              />
-              <span className={styles.count}>{line.length}/120</span>
-            </div>
-            <label className={styles.fieldLabel}>Best for</label>
-            <div className={styles.occ}>{OCCASIONS.map((o) => <OccasionChip key={o} selected={occ.includes(o)} onToggle={() => toggle(o)}>{o}</OccasionChip>)}</div>
-            <Button variant="primary" full disabled={!line.trim() || occ.length === 0} onClick={commit}>Put my name on it ↵</Button>
+            <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area} · {sel.price}</Tag>{existing && <RelChip stamp={existing.stamp} gut={existing.gut} className={styles.headChip} />}</span>
+
+            {step === "choose" && (
+              <>
+                <p className={styles.prompt}>{existing ? "Already on your map — change it?" : "What’s it to you?"}</p>
+                <div className={styles.moves}>
+                  <button type="button" className={`${styles.move} ${styles.moveWant}`} onClick={chooseWant}>
+                    <span className={`${styles.moveDot} ${styles.dWant}`} aria-hidden="true" />
+                    <span className={styles.moveText}><span className={styles.moveName}>Want to go</span><span className={styles.moveHint}>Save it for later. One tap, no words.</span></span>
+                  </button>
+                  <button type="button" className={`${styles.move} ${styles.moveBeen}`} onClick={() => setStep("been")}>
+                    <span className={`${styles.moveDot} ${styles.dBeen}`} aria-hidden="true" />
+                    <span className={styles.moveText}><span className={styles.moveName}>I’ve been</span><span className={styles.moveHint}>Log it, and how it actually was.</span></span>
+                  </button>
+                  <button type="button" className={`${styles.move} ${styles.moveVouch}`} onClick={() => setStep("vouch")}>
+                    <span className={`${styles.moveDot} ${styles.dVouch}`} aria-hidden="true" />
+                    <span className={styles.moveText}><span className={styles.moveName}>Vouch for it</span><span className={styles.moveHint}>Put your name on it. The one that counts.</span></span>
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === "been" && (
+              <>
+                <button type="button" className={styles.back} onClick={() => setStep("choose")}>← back</button>
+                <p className={styles.prompt}>Been here. Would you go back?</p>
+                <div className={styles.gut}>
+                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("loved")}>
+                    <span className={`${styles.moveDot} ${styles.dBeen}`} aria-hidden="true" /> Loved it
+                  </button>
+                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("fine")}>
+                    <span className={`${styles.moveDot} ${styles.dFine}`} aria-hidden="true" /> It was fine
+                  </button>
+                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("no")}>
+                    <span className={`${styles.moveDot} ${styles.dNo}`} aria-hidden="true" /> Not for me
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === "vouch" && (
+              <>
+                {!presetSpot && <button type="button" className={styles.back} onClick={() => setStep("choose")}>← back</button>}
+                <label className={styles.fieldLabel}>One line — why you’d send them</label>
+                <div className={styles.lineWrap}>
+                  <textarea
+                    className={styles.lineInput}
+                    value={line}
+                    maxLength={120}
+                    rows={2}
+                    autoFocus
+                    placeholder="Best bowl in the city. Go at 6 sharp."
+                    onChange={(e) => setLine(e.target.value.replace(/\n/g, " "))}
+                    onInput={(e) => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
+                  />
+                  <span className={styles.count}>{line.length}/120</span>
+                </div>
+                <label className={styles.fieldLabel}>Best for</label>
+                <div className={styles.occ}>{OCCASIONS.map((o) => <OccasionChip key={o} selected={occ.includes(o)} onToggle={() => toggle(o)}>{o}</OccasionChip>)}</div>
+                <HoldButton disabled={!line.trim() || occ.length === 0} onComplete={commitVouch}>Hold to put your name on it</HoldButton>
+                <p className={styles.holdHint}>A vouch is forever until you take it back. Hold to mean it.</p>
+              </>
+            )}
           </>
         )}
       </div>

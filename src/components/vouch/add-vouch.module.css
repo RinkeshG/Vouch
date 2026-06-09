@@ -12,7 +12,7 @@
 .place { font-family: var(--display); font-weight: 700; font-size: 1.4rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.05; }
 .change { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--saffron); background: transparent; border: 1px solid rgba(246, 168, 43, 0.4); border-radius: var(--r-pill); padding: 6px 11px; cursor: pointer; white-space: nowrap; transition: background 0.16s var(--ease); }
 .change:hover { background: var(--saffron-dim); }
-.tags { display: block; }
+.tags { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
 .fieldLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); }
 .lineWrap { position: relative; }
 .lineInput { width: 100%; display: block; background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.4; padding: 12px 14px 22px; min-height: 54px; resize: none; overflow: hidden; }
@@ -20,3 +20,62 @@
 .lineInput:focus-visible { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 4px rgba(246, 168, 43, 0.13); }
 .count { position: absolute; right: 11px; bottom: 8px; font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.04em; color: var(--faint); pointer-events: none; }
 .occ { display: flex; flex-wrap: wrap; gap: 7px; }
+
+/* The three moves — deliberately unequal weight. Want is quiet, Vouch is the one
+   that's lit. The register dots echo the map so the language is consistent. */
+.prompt { font-family: var(--display); font-weight: 700; font-size: 1.12rem; letter-spacing: -0.015em; color: var(--text); margin: 4px 0 2px; }
+.moves { display: flex; flex-direction: column; gap: 10px; }
+.move { display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; background: rgba(244, 238, 227, 0.03); border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 14px 16px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease), transform 0.12s var(--ease); }
+.move:hover { transform: translateY(-1px); }
+.moveText { display: flex; flex-direction: column; gap: 1px; }
+.moveName { font-family: var(--sans); font-weight: 700; font-size: 1rem; color: var(--text); }
+.moveHint { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); }
+.moveWant:hover { border-color: var(--saffron-line); }
+.moveBeen:hover { border-color: var(--jade); background: var(--jade-dim); }
+.moveVouch { border-color: var(--saffron-line); background: var(--saffron-dim); }
+.moveVouch:hover { border-color: var(--saffron); }
+
+/* register dots — clean circles, matching the map pins */
+.moveDot { width: 14px; height: 14px; flex: none; border-radius: 50%; }
+.dWant { background: transparent; border: 1.75px solid var(--saffron-line); }
+.dBeen { background: var(--jade); box-shadow: 0 0 8px 1px var(--jade-dim); }
+.dVouch { background: var(--saffron); box-shadow: 0 0 12px 2px rgba(246, 168, 43, 0.6); }
+.dFine { background: rgba(244, 238, 227, 0.85); }
+.dNo { background: rgba(138, 130, 120, 0.8); }
+
+/* the gut question (been → loved / fine / no) */
+.gut { display: flex; flex-direction: column; gap: 8px; }
+.gutBtn { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; font-family: var(--sans); font-weight: 600; font-size: 0.98rem; color: var(--text); background: rgba(244, 238, 227, 0.03); border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 13px 15px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease); }
+.gutBtn:hover { border-color: var(--saffron); background: var(--saffron-dim); }
+
+.nudge { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin: 0; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* hold-to-vouch — the deliberate moment. A fill sweeps as you hold; release early and
+   it snaps back. The act takes intent, not a tap. */
+.hold { position: relative; overflow: hidden; width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; border: none; border-radius: var(--r-lg); cursor: pointer; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); color: var(--accent-ink); box-shadow: 0 12px 28px -12px rgba(246, 168, 43, 0.85); touch-action: none; user-select: none; -webkit-user-select: none; transition: opacity 0.15s ease; }
+.hold:disabled { opacity: 0.38; cursor: default; box-shadow: none; }
+.hold:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
+.holdFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(28, 20, 8, 0.26); transition: width 0.18s ease; }
+.holding .holdFill { width: 100%; transition: width 0.85s linear; }
+.holdLabel { position: relative; z-index: 1; font-family: var(--sans); font-weight: 700; font-size: 1rem; }
+.holdHint { font-family: var(--sans); font-size: 0.8rem; color: var(--faint); text-align: center; margin: 10px 0 0; line-height: 1.4; }
+
+/* the success moment — a clean circular seal presses in (disc + inner ring + check,
+   like a wax/passport stamp), never a lopsided pin. Delight from meaning. */
+.done { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px 18px 32px; }
+.seal { position: relative; width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle at 38% 30%, var(--saffron-hi), var(--saffron)); display: grid; place-items: center; box-shadow: 0 0 0 8px rgba(246,168,43,0.12), 0 18px 44px -14px rgba(246,168,43,0.9); margin-bottom: 18px; animation: sealIn 0.45s var(--ease) both; }
+.seal::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 1.5px solid rgba(28,20,8,0.3); }
+.sealMark { color: var(--accent-ink); font-size: 2.2rem; font-weight: 700; line-height: 1; }
+.sealWant { background: transparent; border: 2.5px solid var(--saffron-line); box-shadow: 0 0 0 8px rgba(246,168,43,0.06); }
+.sealWant::after { display: none; }
+.sealBeen { background: radial-gradient(circle at 38% 30%, #8fe0b3, var(--jade)); box-shadow: 0 0 0 8px var(--jade-dim), 0 18px 44px -14px rgba(118,210,155,0.7); }
+.sealBeen::after { border-color: rgba(12,30,22,0.32); }
+.sealBeen .sealMark { color: var(--bg); }
+.doneEyebrow { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--saffron); }
+.doneTitle { font-family: var(--display); font-weight: 800; font-size: 1.65rem; letter-spacing: -0.02em; color: var(--text); margin: 5px 0 0; line-height: 1.1; }
+.donePlace { font-family: var(--sans); font-size: 1.08rem; color: var(--text); margin: 7px 0 0; }
+.doneMeta { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); margin: 9px 0 0; }
+@keyframes sealIn { 0% { opacity: 0; transform: scale(0.7); } 60% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+.back { align-self: flex-start; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: transparent; border: none; cursor: pointer; padding: 2px 0; }
+.back:hover { color: var(--text); }

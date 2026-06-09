@@ -3,6 +3,7 @@
    Read-only, anon, public-read RLS. This is the discoverable supply; the user's own
    vouches stay local (_me) until auth. */
 import { slugify } from "./_guides";
+import { SEED } from "./_taste";
 
 export type CatalogSpot = {
   slug: string; name: string; area: string; cuisine: string; price: string;
@@ -12,6 +13,13 @@ export type CatalogSpot = {
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const PRICE = ["", "₹", "₹₹", "₹₹₹", "₹₹₹₹"];
+
+/* Resilience: if Supabase is unconfigured / unreachable / empty, fall back to the
+   curated SEED set so search is never dead. The product must work with zero
+   backend (Constitution: lovable with no network). */
+function seedCatalog(): CatalogSpot[] {
+  return SEED.map((s) => ({ slug: slugify(s.name), name: s.name, area: s.area, cuisine: s.cuisine, price: s.price, lat: s.lat, lng: s.lng, cuisines: [s.cuisine.toLowerCase()] }));
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapRow(r: any): CatalogSpot {
@@ -40,13 +48,15 @@ export async function loadCatalog(): Promise<CatalogSpot[]> {
 }
 
 export async function searchCatalog(q: string): Promise<CatalogSpot[]> {
-  const all = await loadCatalog();
+  const live = await loadCatalog();
+  const all = live.length ? live : seedCatalog();
   if (!q.trim()) return all.slice(0, 40);
   const t = q.toLowerCase();
   return all.filter((s) => (s.name + " " + s.area + " " + s.cuisines.join(" ")).toLowerCase().includes(t)).slice(0, 40);
 }
 
 export async function getCatalogSpot(slug: string): Promise<CatalogSpot | null> {
-  const all = await loadCatalog();
+  const live = await loadCatalog();
+  const all = live.length ? live : seedCatalog();
   return all.find((s) => s.slug === slug) ?? null;
 }

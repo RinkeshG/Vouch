@@ -15,9 +15,10 @@ export type MapPin = {
   line?: string; occasion?: string;
   kind?: "mine" | "palate"; by?: { name: string; ini: string };
   stamp?: "want" | "been" | "vouched";
+  gut?: "loved" | "fine" | "no";   // tints the "been" mark on the map
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, locate = false, onPinTap, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; locate?: boolean; onPinTap?: (id: string) => void; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -25,6 +26,13 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   const L = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markers = useRef<Record<string, any>>({});
+  // "you are here" — set only after the user grants location (never a guess)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const youMarker = useRef<any>(null);
+  // When the host wants to own the reveal (a designed place-card, not a Leaflet
+  // popup), a tap reports the id up instead of opening the built-in popup.
+  const onTap = useRef(onPinTap);
+  onTap.current = onPinTap;
   // always hold the latest pins so sync() is never stale — the map can finish
   // initializing AFTER the parent's data lands (or vice versa); either order works.
   const pinsRef = useRef<MapPin[]>(pins);
@@ -49,12 +57,16 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     pins.forEach((p) => {
       if (markers.current[p.id]) return;
       const hov = labelMode === "hover" ? ` ${styles.hover}` : "";
-      const dotClass = p.stamp === "been" ? styles.dotBeen : p.stamp === "want" ? styles.dotWant : styles.dot;
+      const beenClass = p.gut === "loved" ? styles.dotBeenLoved : p.gut === "no" ? styles.dotBeenNo : styles.dotBeen;
+      const dotClass = p.stamp === "been" ? beenClass : p.stamp === "want" ? styles.dotWant : styles.dot;
       const html = p.kind === "palate" && p.by
         ? `<div class="${styles.pinP}${hov}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`
         : `<div class="${styles.pin}${hov}"><span class="${dotClass}"></span><span class="${styles.label}">${p.name}</span></div>`;
       const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [8, 8], popupAnchor: [40, -6] });
-      markers.current[p.id] = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m).bindPopup(popupHTML(p), { className: styles.popup, closeButton: true });
+      const mk = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m);
+      if (onTap.current) mk.on("click", () => onTap.current?.(p.id));
+      else mk.bindPopup(popupHTML(p), { className: styles.popup, closeButton: true });
+      markers.current[p.id] = mk;
       changed = true;
     });
     if (!changed) return;
@@ -73,14 +85,36 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
         zoomControl: false, attributionControl: false,
         minZoom: 11, maxZoom: 18, maxBounds: BLR, maxBoundsViscosity: 1.0,
       }).setView([12.9716, 77.5946], 11.5);
-      const tiles = recede ? "dark_nolabels" : "dark_all";
-      leaflet.tileLayer(`https://{s}.basemaps.cartocdn.com/${tiles}/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
+      // Always the LABELLED dark base — neighbourhood names are what let you read
+      // the map at a glance. Warmth + legibility come from a CSS filter (see
+      // .recede in the stylesheet), never from crushing the tiles to black.
+      leaflet.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
       leaflet.control.zoom({ position: "bottomright" }).addTo(m);
       map.current = m;
       setTimeout(() => m.invalidateSize(), 60);
       sync();
+
+      // Location BY PERMISSION, never assumption: if the user grants it and they're
+      // in the city we cover, drop a "you are here" marker and (only when the map
+      // isn't already framing their pins) recenter on them. Denied → stay on the
+      // city, silently and honestly.
+      if (locate && typeof navigator !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const m2 = map.current;
+            if (dead || !m2) return;
+            const { latitude, longitude } = pos.coords;
+            if (!BLR.contains([latitude, longitude])) return; // outside our coverage → keep the city view
+            const youIcon = leaflet.divIcon({ className: styles.icon, html: `<div class="${styles.you}"><span class="${styles.youDot}"></span></div>`, iconSize: [2, 2], iconAnchor: [9, 9] });
+            youMarker.current = leaflet.marker([latitude, longitude], { icon: youIcon, interactive: false, keyboard: false, zIndexOffset: -200 }).addTo(m2);
+            if (pinsRef.current.length === 0) m2.flyTo([latitude, longitude], 14, { duration: 0.8 });
+          },
+          () => { /* denied / unavailable → city fallback, no guess */ },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
+        );
+      }
     })();
-    return () => { dead = true; map.current?.remove?.(); map.current = null; markers.current = {}; };
+    return () => { dead = true; map.current?.remove?.(); map.current = null; markers.current = {}; youMarker.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

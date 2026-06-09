@@ -6,7 +6,7 @@
 }
 .md { font-size: 0.58rem; padding: 5px 11px; }
 .sm { font-size: 0.52rem; padding: 4px 9px; gap: 5px; }
-.dot { width: 8px; height: 8px; flex: none; border-radius: 50% 50% 50% 2px; transform: rotate(45deg); }
+.dot { width: 8px; height: 8px; flex: none; border-radius: 50%; }
 
 .want .dot { background: var(--stamp-want); }
 .been .dot { background: var(--stamp-been); }

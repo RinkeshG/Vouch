@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root to THIS tree. Several package-lock.json files exist up
+  // the path (home dir, main repo, this worktree), so Turbopack otherwise infers
+  // the wrong root and compiles the main repo's stale auth `src/middleware.ts`.
+  turbopack: {
+    root: __dirname,
+  },
   images: {
     remotePatterns: [
       {

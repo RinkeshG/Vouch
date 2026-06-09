@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { WebShell } from "./web-shell";
 import { SearchField } from "./input";
 import { AddVouchModal } from "./add-vouch";
-import { archetypeFor } from "./_taste";
-import { vouches } from "./_me";
+import { vouches, loadMe, type Entry } from "./_me";
+import { RelChip } from "./rel-chip";
 import { searchCatalog, type CatalogSpot } from "./_catalog";
 import styles from "./search-page.module.css";
 
@@ -16,8 +17,9 @@ export function SearchPage() {
   const [results, setResults] = useState<CatalogSpot[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const arch = archetypeFor(vouches());
+  const [mine, setMine] = useState<Map<string, Entry>>(new Map());
 
+  useEffect(() => { setMine(new Map(loadMe().entries.map((e) => [e.spot.name, e]))); }, []);
   useEffect(() => {
     let dead = false;
     setLoading(true);
@@ -26,7 +28,7 @@ export function SearchPage() {
   }, [q]);
 
   return (
-    <WebShell active="search" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: vouches().length ? `${arch.glyph} ${arch.name}` : "Your palate" }}>
+    <WebShell active="search" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: vouches().length ? `${vouches().length} ${vouches().length === 1 ? "vouch" : "vouches"} · Bengaluru` : "Your palate" }}>
       <div className={styles.page}>
         <header className={styles.head}>
           <p className={styles.eyebrow}>Search · Bengaluru</p>
@@ -42,14 +44,20 @@ export function SearchPage() {
           <p className={styles.note}>{q ? `Nothing matching “${q}” in the catalog yet.` : "Start typing to search Bengaluru."}</p>
         ) : (
           <ol className={styles.results}>
-            {results.map((s) => (
-              <li key={s.slug}>
-                <a className={styles.row} href={`/spot/${s.slug}`}>
-                  <span className={styles.rowName}>{s.name}</span>
-                  <span className={styles.rowMeta}>{s.cuisine} · {s.area} · {s.price}</span>
-                </a>
-              </li>
-            ))}
+            {results.map((s) => {
+              const e = mine.get(s.name);
+              return (
+                <li key={s.slug}>
+                  <Link className={styles.row} href={`/spot/${s.slug}`}>
+                    <span className={styles.rowMain}>
+                      <span className={styles.rowName}>{s.name}</span>
+                      <span className={styles.rowMeta}>{s.cuisine} · {s.area} · {s.price}</span>
+                    </span>
+                    {e && <RelChip stamp={e.stamp} gut={e.gut} />}
+                  </Link>
+                </li>
+              );
+            })}
           </ol>
         )}
       </div>

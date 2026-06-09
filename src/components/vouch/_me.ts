@@ -6,8 +6,27 @@
 import type { Spot, Vouch } from "./_taste";
 
 export type Stamp = "want" | "been" | "vouched";
-export type Entry = { spot: Spot; stamp: Stamp; line?: string; occ?: string[]; at: number };
+/* The honest gut reaction captured the moment you mark a place "been" — the most
+   truthful signal in the product, and the on-ramp to a vouch. Not a star rating. */
+export type Gut = "loved" | "fine" | "no";
+export type Entry = { spot: Spot; stamp: Stamp; gut?: Gut; line?: string; occ?: string[]; at: number };
 export type Me = { entries: Entry[]; follows: string[] };
+
+/* ONE source of truth for how a place's relationship-to-you reads, everywhere it
+   shows (search, cards, map, place page). Status copy is calm and human — the
+   emotional "your name's on it" language belongs to the MOMENT of vouching, never
+   the steady-state label. Change a word here and it changes everywhere. */
+export type RelTone = "want" | "loved" | "fine" | "no" | "vouched";
+export function relationship(e?: { stamp: Stamp; gut?: Gut } | null): { label: string; tone: RelTone } | null {
+  if (!e) return null;
+  if (e.stamp === "vouched") return { label: "Vouched", tone: "vouched" };
+  if (e.stamp === "been") {
+    return e.gut === "loved" ? { label: "Loved it", tone: "loved" }
+      : e.gut === "no" ? { label: "Not for me", tone: "no" }
+      : { label: "It was fine", tone: "fine" };
+  }
+  return { label: "Want to go", tone: "want" };
+}
 
 const KEY = "vouch:me";
 const EMPTY: Me = { entries: [], follows: [] };
@@ -42,15 +61,16 @@ export function loadMe(): Me { return read(); }
 export function saveMe(m: Me): void { write(m); }
 
 /* Set / move a place's stamp. Vouched carries line + occasions; want/been don't. */
-export function setStamp(spot: Spot, stamp: Stamp, opts?: { line?: string; occ?: string[] }): Me {
+export function setStamp(spot: Spot, stamp: Stamp, opts?: { gut?: Gut; line?: string; occ?: string[] }): Me {
   const m = read();
   const prev = m.entries.find((e) => e.spot.name === spot.name);
   const rest = m.entries.filter((e) => e.spot.name !== spot.name);
   const entry: Entry = {
     spot, stamp, at: now(),
-    // Keep the vouch reason as a latent draft through demotions — never destroy the
-    // user's words. vouches() gates on stamp === "vouched", so a demoted line never
-    // leaks into the currency; it simply returns if they re-vouch (no retyping).
+    // Keep the gut reaction AND the vouch reason as latent drafts through demotions —
+    // never destroy the user's signal. vouches() gates on stamp === "vouched", so a
+    // demoted line never leaks into the currency; it simply returns if they re-vouch.
+    gut: opts?.gut ?? prev?.gut,
     line: opts?.line ?? prev?.line,
     occ: opts?.occ ?? prev?.occ,
   };

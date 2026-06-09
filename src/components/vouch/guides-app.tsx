@@ -4,7 +4,6 @@ import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { type GuideData } from "./guide";
 import { GuideArtifact } from "./guide-artifact";
-import { archetypeFor } from "./_taste";
 import {
   listGuides, getGuide, upsertGuide, deleteGuide, slugify, uid,
   type Guide, type GuideItem,
@@ -29,12 +28,12 @@ export function GuidesApp() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [arch, setArch] = useState(() => archetypeFor([]));
+  const [vCount, setVCount] = useState(0);
   const [seed, setSeed] = useState<GuideItem[]>([]);
 
   useEffect(() => {
     setGuides(listGuides());
-    setArch(archetypeFor(vouches()));
+    setVCount(vouches().length);
     // a Spot's "Add to a guide" hands off the place here
     try {
       const raw = window.sessionStorage.getItem("vouch:guide-seed");
@@ -55,7 +54,7 @@ export function GuidesApp() {
   }
 
   return (
-    <WebShell active="guides" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: `${arch.glyph} ${arch.name}` }}>
+    <WebShell active="guides" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: vCount ? `${vCount} ${vCount === 1 ? "vouch" : "vouches"} · Bengaluru` : "Building your map" }}>
       {view.kind === "list" && (
         <GuideList guides={guides} onNew={() => setView({ kind: "build" })} onOpen={(id) => setView({ kind: "view", id })} />
       )}

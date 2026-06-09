@@ -3,27 +3,49 @@
    spot's coordinates, a palate's spots, and the archetype/taste-match logic never
    drift between surfaces. Real curation moves to Supabase later (Constitution §6). */
 
-export type Spot = { name: string; area: string; cuisine: string; price: string; occasions: string[]; lat: number; lng: number };
+/* `vibe` = the one-line "what this is" (the context to decide from a card, never a
+   Maps listing). `move` = what to actually get (insider knowledge — the friend's tip).
+   Both surface on the place card and page; real catalog rows fill these from Supabase
+   later, and a hero photo slots into `cover` when wired. */
+export type Spot = { name: string; area: string; cuisine: string; price: string; occasions: string[]; lat: number; lng: number; vibe?: string; move?: string; cover?: string };
 export type Vouch = { spot: Spot; line: string; occ: string[] };
 export type PSpot = { name: string; lat: number; lng: number; line: string };
 export type FoundingPalate = { name: string; ini: string; occasions: string[]; blurb: string; spots: PSpot[] };
 
 export const SEED: Spot[] = [
-  { name: "Naru Noodle Bar", area: "Indiranagar", cuisine: "Ramen", price: "₹₹₹", occasions: ["date", "rainy day"], lat: 12.9748, lng: 77.6402 },
-  { name: "Empire", area: "Indiranagar", cuisine: "Kebabs", price: "₹₹", occasions: ["late night"], lat: 12.9707, lng: 77.6400 },
-  { name: "Brahmin’s Coffee Bar", area: "Shankarpuram", cuisine: "Filter coffee", price: "₹", occasions: ["coffee", "solo lunch"], lat: 12.9544, lng: 77.5650 },
-  { name: "Vidyarthi Bhavan", area: "Basavanagudi", cuisine: "Dosa", price: "₹", occasions: ["parents", "coffee"], lat: 12.9419, lng: 77.5732 },
-  { name: "Karavalli", area: "Residency Rd", cuisine: "Coastal", price: "₹₹₹₹", occasions: ["parents", "group dinner"], lat: 12.9618, lng: 77.6006 },
-  { name: "Toit", area: "Indiranagar", cuisine: "Brewpub", price: "₹₹₹", occasions: ["group dinner", "date"], lat: 12.9785, lng: 77.6403 },
-  { name: "CTR · Shri Sagar", area: "Malleshwaram", cuisine: "Benne dosa", price: "₹", occasions: ["coffee", "parents"], lat: 13.0028, lng: 77.5687 },
-  { name: "Shivaji Military Hotel", area: "Jayanagar", cuisine: "Donne biryani", price: "₹₹", occasions: ["worth the drive"], lat: 12.9266, lng: 77.5836 },
-  { name: "Corner House", area: "Koramangala", cuisine: "Ice cream", price: "₹", occasions: ["late night", "date"], lat: 12.9346, lng: 77.6270 },
-  { name: "Soka", area: "Indiranagar", cuisine: "Small plates", price: "₹₹₹", occasions: ["date", "group dinner"], lat: 12.9761, lng: 77.6406 },
-  { name: "Koshy’s", area: "St Marks Rd", cuisine: "Old-school", price: "₹₹", occasions: ["parents", "group dinner"], lat: 12.9736, lng: 77.6010 },
-  { name: "MTR", area: "Lalbagh", cuisine: "Tiffin", price: "₹", occasions: ["parents", "coffee"], lat: 12.9520, lng: 77.5848 },
-  { name: "Sodabottleopenerwala", area: "Lavelle Rd", cuisine: "Parsi", price: "₹₹₹", occasions: ["group dinner", "date"], lat: 12.9719, lng: 77.5970 },
-  { name: "Nagarjuna", area: "Residency Rd", cuisine: "Andhra", price: "₹₹", occasions: ["group dinner", "parents"], lat: 12.9707, lng: 77.6010 },
+  { name: "Naru Noodle Bar", area: "Indiranagar", cuisine: "Ramen", price: "₹₹₹", occasions: ["date", "rainy day"], lat: 12.9748, lng: 77.6402, vibe: "A tiny counter ramen-ya with a serious wine list — booked out weeks ahead.", move: "The shoyu ramen, a seat at the counter." },
+  { name: "Empire", area: "Indiranagar", cuisine: "Kebabs", price: "₹₹", occasions: ["late night"], lat: 12.9707, lng: 77.6400, vibe: "The 1 a.m. institution — kebabs, rolls, fluorescent light, always open.", move: "Chicken ghee roast with a roomali roll." },
+  { name: "Brahmin’s Coffee Bar", area: "Shankarpuram", cuisine: "Filter coffee", price: "₹", occasions: ["coffee", "solo lunch"], lat: 12.9544, lng: 77.5650, vibe: "Standing-room filter coffee and idli, unchanged since 1965.", move: "Idli with the coconut chutney, before 8." },
+  { name: "Vidyarthi Bhavan", area: "Basavanagudi", cuisine: "Dosa", price: "₹", occasions: ["parents", "coffee"], lat: 12.9419, lng: 77.5732, vibe: "Eighty years of crisp, ghee-soaked benne masala dosa.", move: "Masala dosa. No detours." },
+  { name: "Karavalli", area: "Residency Rd", cuisine: "Coastal", price: "₹₹₹₹", occasions: ["parents", "group dinner"], lat: 12.9618, lng: 77.6006, vibe: "White-tablecloth coastal cooking around a lantern-lit courtyard.", move: "Appam with the Coorg pandi curry." },
+  { name: "Toit", area: "Indiranagar", cuisine: "Brewpub", price: "₹₹₹", occasions: ["group dinner", "date"], lat: 12.9785, lng: 77.6403, vibe: "Bangalore’s brewpub — loud, packed, reliably good.", move: "A Toit Weiss and a wood-fired pizza." },
+  { name: "CTR · Shri Sagar", area: "Malleshwaram", cuisine: "Benne dosa", price: "₹", occasions: ["coffee", "parents"], lat: 13.0028, lng: 77.5687, vibe: "The Malleshwaram benchmark for benne dosa.", move: "Benne masala dosa, extra butter." },
+  { name: "Shivaji Military Hotel", area: "Jayanagar", cuisine: "Donne biryani", price: "₹₹", occasions: ["worth the drive"], lat: 12.9266, lng: 77.5836, vibe: "Old-school military hotel — the biryani’s gone by afternoon.", move: "Mutton donne biryani. Get there early." },
+  { name: "Corner House", area: "Koramangala", cuisine: "Ice cream", price: "₹", occasions: ["late night", "date"], lat: 12.9346, lng: 77.6270, vibe: "The after-dinner sundae ritual — crowded, sweet, late.", move: "Death by Chocolate. Always." },
+  { name: "Soka", area: "Indiranagar", cuisine: "Small plates", price: "₹₹₹", occasions: ["date", "group dinner"], lat: 12.9761, lng: 77.6406, vibe: "Intimate small plates and natural wine, low light.", move: "A negroni, then whatever’s seasonal." },
+  { name: "Koshy’s", area: "St Marks Rd", cuisine: "Old-school", price: "₹₹", occasions: ["parents", "group dinner"], lat: 12.9736, lng: 77.6010, vibe: "Faded-glamour all-day cafe; a city institution.", move: "Mutton cutlet and a cold coffee." },
+  { name: "MTR", area: "Lalbagh", cuisine: "Tiffin", price: "₹", occasions: ["parents", "coffee"], lat: 12.9520, lng: 77.5848, vibe: "The original tiffin room — the thali arrives like a ceremony.", move: "Rava idli, then the full meals." },
+  { name: "Sodabottleopenerwala", area: "Lavelle Rd", cuisine: "Parsi", price: "₹₹₹", occasions: ["group dinner", "date"], lat: 12.9719, lng: 77.5970, vibe: "A Bombay-Irani cafe revival — kitsch, fun, generous.", move: "Berry pulao and a bun maska." },
+  { name: "Nagarjuna", area: "Residency Rd", cuisine: "Andhra", price: "₹₹", occasions: ["group dinner", "parents"], lat: 12.9707, lng: 77.6010, vibe: "Fiery Andhra meals on a banana leaf, no frills.", move: "The non-veg thali — gloves off." },
 ];
+
+/* Hero treatment until real photos are wired: a warm, cuisine-keyed gradient + the
+   place's monogram. Never a broken image, never a generic stock pin (PRD §6). */
+export function placeTint(cuisine: string): string {
+  const c = (cuisine || "").toLowerCase();
+  if (/coffee|tiffin|dosa|idli|benne|breakfast/.test(c)) return "linear-gradient(135deg, #2a1d0a 0%, #7a5418 100%)";
+  if (/ramen|noodle|small|asian|sushi|japanese/.test(c)) return "linear-gradient(135deg, #2a1010 0%, #7c2a20 100%)";
+  if (/kebab|biryani|andhra|military|grill|mughlai|roll/.test(c)) return "linear-gradient(135deg, #2e1608 0%, #8f3c16 100%)";
+  if (/coastal|seafood|fish|mangalore/.test(c)) return "linear-gradient(135deg, #0c2420 0%, #1d5e4c 100%)";
+  if (/brew|bar|pub|beer/.test(c)) return "linear-gradient(135deg, #241b0a 0%, #7a5e1c 100%)";
+  if (/ice cream|dessert|sweet/.test(c)) return "linear-gradient(135deg, #2a1020 0%, #7c2e52 100%)";
+  return "linear-gradient(135deg, #261a0c 0%, #6e4a1c 100%)";
+}
+export function monogram(name: string): string {
+  // strip apostrophes first so "Brahmin's" → "Brahmins" (one token, not "B" + "s")
+  const parts = name.replace(/['’]/g, "").replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || (name[0] ?? "·").toUpperCase();
+}
 
 export const OCCASIONS = ["parents", "late night", "date", "solo lunch", "coffee", "group dinner", "worth the drive", "rainy day"];
 

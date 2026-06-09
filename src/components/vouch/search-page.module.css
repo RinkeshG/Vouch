@@ -6,8 +6,9 @@
 .note { font-family: var(--sans); font-size: 0.98rem; color: var(--muted); margin: 18px 2px; }
 
 .results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.row { display: flex; flex-direction: column; gap: 4px; padding: 16px 4px; border-bottom: 1px solid var(--line); text-decoration: none; transition: padding 0.15s var(--ease), background 0.15s var(--ease); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 4px; border-bottom: 1px solid var(--line); text-decoration: none; transition: padding 0.15s var(--ease), background 0.15s var(--ease); }
 .row:hover { background: rgba(244, 238, 227, 0.03); padding-left: 12px; padding-right: 12px; }
+.rowMain { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .rowName { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.1; }
 .row:hover .rowName { color: var(--saffron); }
 .rowMeta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
