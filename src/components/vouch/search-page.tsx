@@ -34,7 +34,7 @@ export function SearchPage() {
           <p className={styles.eyebrow}>Search · Bengaluru</p>
           <h1 className={styles.h1}>Find a place. See who vouched.</h1>
           <div className={styles.field}>
-            <SearchField placeholder="Search Bengaluru — by name, area, or cuisine…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
+            <SearchField placeholder="Name, area, or cuisine…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
           </div>
         </header>
 

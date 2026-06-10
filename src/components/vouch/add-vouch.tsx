@@ -209,7 +209,7 @@ export function AddVouchModal({
         ) : !sel ? (
           <>
             <p className={styles.title}>Add a place to your map.</p>
-            <SearchField placeholder="Search Bengaluru — any place you know…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <SearchField placeholder="Search any place you know…" value={q} onChange={(e) => setQ(e.target.value)} />
             <ul className={styles.results}>
               {q.trim() ? (
                 loading && results.length === 0 ? (
