@@ -12,6 +12,14 @@ export type Gut = "absolutely" | "maybe" | "no";
 export type Entry = { spot: Spot; stamp: Stamp; gut?: Gut; line?: string; occ?: string[]; at: number };
 export type Me = { entries: Entry[]; follows: string[] };
 
+/* place_events — the append-only TRUTH (PRD §4), mirrored locally so Want→Been and
+   "wanted for 3 months, finally went" are real queries now. The Entry above is the
+   latest-wins read model (≈ user_place); these events are what happened. The shape
+   matches the Supabase `place_events` table so wiring it later is a lift. */
+export type EventType = "wanted" | "visited" | "gut_set" | "vouched" | "unvouched" | "removed";
+export type EventSource = "manual" | "proximity_prompt" | "onboarding" | "guide_import";
+export type PlaceEvent = { place: string; type: EventType; gut?: Gut; source: EventSource; at: number };
+
 /* ONE source of truth for how a place's relationship-to-you reads, everywhere it
    shows (search, cards, map, place page). Status copy is calm and human — the
    emotional "your name's on it" language belongs to the MOMENT of vouching, never
@@ -70,11 +78,35 @@ function write(m: Me) {
   try { window.localStorage.setItem(KEY, JSON.stringify(m)); } catch { /* ignore */ }
 }
 
+/* ── the append-only events log (place_events mirror) ──────────────────────────── */
+const EVENTS_KEY = "vouch:events";
+function readEvents(): PlaceEvent[] {
+  if (typeof window === "undefined") return [];
+  try { const raw = window.localStorage.getItem(EVENTS_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+}
+function appendEvent(place: string, type: EventType, opts?: { gut?: Gut; source?: EventSource }) {
+  if (typeof window === "undefined") return;
+  try {
+    const log = readEvents();
+    log.push({ place, type, gut: opts?.gut, source: opts?.source ?? "manual", at: now() });
+    window.localStorage.setItem(EVENTS_KEY, JSON.stringify(log));
+  } catch { /* ignore */ }
+}
+export function placeEvents(): PlaceEvent[] { return readEvents(); }
+/* The moment you first wanted a place — powers the want loop's "wanted for N weeks". */
+export function firstWantedAt(place: string): number | null {
+  const first = readEvents().filter((x) => x.place === place && x.type === "wanted").sort((a, b) => a.at - b.at)[0];
+  return first ? first.at : null;
+}
+export function visitCount(place: string): number {
+  return readEvents().filter((x) => x.place === place && x.type === "visited").length;
+}
+
 export function loadMe(): Me { return read(); }
 export function saveMe(m: Me): void { write(m); }
 
 /* Set / move a place's stamp. Vouched carries line + occasions; want/been don't. */
-export function setStamp(spot: Spot, stamp: Stamp, opts?: { gut?: Gut; line?: string; occ?: string[] }): Me {
+export function setStamp(spot: Spot, stamp: Stamp, opts?: { gut?: Gut; line?: string; occ?: string[]; source?: EventSource }): Me {
   const m = read();
   const prev = m.entries.find((e) => e.spot.name === spot.name);
   const rest = m.entries.filter((e) => e.spot.name !== spot.name);
@@ -89,6 +121,15 @@ export function setStamp(spot: Spot, stamp: Stamp, opts?: { gut?: Gut; line?: st
   };
   const next = { ...m, entries: [...rest, entry] };
   write(next);
+  // append-only truth: log what happened (re-visits log another `visited`)
+  const source = opts?.source;
+  if (stamp === "want" && prev?.stamp !== "want") appendEvent(spot.name, "wanted", { source });
+  if (stamp === "been") {
+    appendEvent(spot.name, "visited", { source });
+    if (opts?.gut) appendEvent(spot.name, "gut_set", { gut: opts.gut, source });
+  }
+  if (stamp === "vouched" && prev?.stamp !== "vouched") appendEvent(spot.name, "vouched", { source });
+  if (prev?.stamp === "vouched" && stamp !== "vouched") appendEvent(spot.name, "unvouched", { source });
   return next;
 }
 export function addVouch(v: Vouch): Me {
@@ -98,6 +139,7 @@ export function removeEntry(name: string): Me {
   const m = read();
   const next = { ...m, entries: m.entries.filter((e) => e.spot.name !== name) };
   write(next);
+  appendEvent(name, "removed");
   return next;
 }
 export function getEntry(name: string): Entry | undefined {
