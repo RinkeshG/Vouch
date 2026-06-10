@@ -3,6 +3,8 @@
 
 .results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow-y: auto; }
 .nearLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 4px 2px 0; }
+/* divider before places already on your map — a section break, not the headline */
+.onMapLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 12px 2px 2px; margin-top: 6px; border-top: 1px solid var(--line); }
 .result { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 12px 14px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease); }
 .result:hover { border-color: var(--saffron); background: var(--saffron-dim); }
 .resultMain { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -33,14 +35,14 @@
 .moveName { font-family: var(--sans); font-weight: 700; font-size: 1rem; color: var(--text); }
 .moveHint { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); }
 .moveWant:hover { border-color: var(--saffron-line); }
-.moveBeen:hover { border-color: var(--jade); background: var(--jade-dim); }
+.moveBeen:hover { border-color: var(--stamp-want); background: rgba(205, 181, 149, 0.09); }
 .moveVouch { border-color: var(--saffron-line); background: var(--saffron-dim); }
 .moveVouch:hover { border-color: var(--saffron); }
 
 /* register dots — clean circles, matching the map pins */
 .moveDot { width: 14px; height: 14px; flex: none; border-radius: 50%; }
 .dWant { background: transparent; border: 1.75px solid var(--saffron-line); }
-.dBeen { background: var(--jade); box-shadow: 0 0 8px 1px var(--jade-dim); }
+.dBeen { background: var(--stamp-want); box-shadow: 0 0 7px 1px rgba(205, 181, 149, 0.3); }   /* neutral been (tan), matching .dotBeen — jade stays exclusive to Absolutely */
 .dVouch { background: var(--saffron); box-shadow: 0 0 12px 2px rgba(246, 168, 43, 0.6); }
 .dAbsolutely { background: var(--jade); box-shadow: 0 0 8px 1px var(--jade-dim); }
 .dMaybe { background: var(--stamp-want); }

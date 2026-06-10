@@ -183,6 +183,22 @@ export function AddVouchModal({
     );
   };
 
+  // adding a place is about adding something NEW: lead with places you haven't
+  // marked yet; the ones already on your map drop below a divider (still pickable,
+  // never the headline). (P2-3)
+  const placeList = (list: (CatalogSpot & { km?: number })[], showKm = false) => {
+    const fresh = list.filter((s) => !getEntry(s.name));
+    const marked = list.filter((s) => getEntry(s.name));
+    const row = (s: CatalogSpot & { km?: number }) => placeRow(s, showKm ? s.km : undefined);
+    return (
+      <>
+        {fresh.map(row)}
+        {marked.length > 0 && <li className={styles.onMapLabel} aria-hidden="true">Already on your map</li>}
+        {marked.map(row)}
+      </>
+    );
+  };
+
   return (
     /* initialFocus="none": the sheet leads with the tappable nearest list — popping
        the keyboard over it would defeat the whole zero-typing flow */
@@ -220,12 +236,12 @@ export function AddVouchModal({
               ) : near && near.length > 0 ? (
                 <>
                   <li className={styles.nearLabel} aria-hidden="true">Near you</li>
-                  {near.map((s) => placeRow(s, s.km))}
+                  {placeList(near, true)}
                 </>
               ) : locating ? (
                 <li className={styles.none}>Finding what’s near you…</li>
               ) : results.length > 0 ? (
-                results.map((s) => placeRow(s))
+                placeList(results)
               ) : (
                 <li className={styles.none}>Start typing a place.</li>
               )}
