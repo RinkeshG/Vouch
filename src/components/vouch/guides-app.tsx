@@ -97,7 +97,7 @@ function lifeSignal(g: Guide): string {
 function GuideList({ guides, onNew, onOpen }: { guides: Guide[]; onNew: () => void; onOpen: (id: string) => void }) {
   if (guides.length === 0) {
     return (
-      <div className={styles.page}>
+      <div className={`${styles.page} ${styles.pageEmpty}`}>
         <p className={styles.eyebrow}>Your guides</p>
         <div className={styles.empty}>
           <h1 className={styles.emptyH1}>Be the friend with the spots.</h1>

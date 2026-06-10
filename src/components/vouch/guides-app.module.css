@@ -1,5 +1,10 @@
 /* Guides workspace — list, editor (two-pane), owner view. */
-.page { max-width: 1000px; margin: 0 auto; padding: 40px 32px 56px; }
+.page { max-width: 1000px; margin: 0 auto; padding: 24px 18px 56px; }
+@media (min-width: 1000px) { .page { padding: 40px 32px 56px; } }
+/* empty state — center the hero in the space between the fixed bars rather than
+   top-pinning it and leaving a cavern below the CTA (mobile-first). */
+.pageEmpty { min-height: calc(100dvh - 54px - 64px - env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 24px; padding-bottom: 24px; }
+@media (min-width: 1000px) { .pageEmpty { min-height: calc(100dvh - 96px); padding-top: 40px; padding-bottom: 40px; } }
 .eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 8px; }
 .h1 { font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 3vw, 2.5rem); line-height: 1.04; letter-spacing: -0.028em; color: var(--text); margin: 0; }
 
@@ -7,7 +12,7 @@
 .listSub { font-family: var(--sans); font-size: 1rem; color: var(--muted); margin: 12px 0 0; max-width: 46ch; line-height: 1.5; }
 
 /* empty state — never a dead end, sets the motivation */
-.empty { max-width: 540px; margin: 48px auto 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.empty { max-width: 540px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .emptyH1 { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.03em; color: var(--text); line-height: 1.02; margin: 8px 0 0; }
 .emptyLine { font-family: var(--sans); font-size: 1.12rem; line-height: 1.55; color: var(--muted); margin: 0; }
 

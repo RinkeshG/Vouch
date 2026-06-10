@@ -1,13 +1,15 @@
-/* The Palate — a taste map, editorial. */
-.page { max-width: 980px; margin: 0 auto; padding: 40px 32px 56px; }
+/* The Palate — a taste map, editorial. Mobile-first: tight top under the bar and
+   an 18px reading gutter; desktop bumps the padding up. */
+.page { max-width: 980px; margin: 0 auto; padding: 24px 18px 56px; }
+@media (min-width: 1000px) { .page { padding: 40px 32px 56px; } }
 .eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 10px; }
-.previewNote { font-family: var(--sans); font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0 0 22px; max-width: 56ch; }
+.previewNote { font-family: var(--sans); font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0 0 24px; max-width: 56ch; }
 .previewNote a { color: var(--text); text-decoration: none; white-space: nowrap; font-weight: 500; }
 .previewNote a:hover { color: var(--saffron); }
 .notFound { font-family: var(--display); font-weight: 800; font-size: 2rem; color: var(--text); }
 
 /* hero — leads with WHEN to trust, never a bio */
-.hero { padding-bottom: 26px; border-bottom: 1px solid var(--line); }
+.hero { padding-bottom: 24px; border-bottom: 1px solid var(--line); }
 .heroTop { display: flex; align-items: center; gap: 16px; }
 .idCol { flex: 1; min-width: 0; }
 .name { font-family: var(--display); font-weight: 800; font-size: clamp(1.9rem, 3.4vw, 2.8rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--text); margin: 0; }
@@ -22,8 +24,8 @@
 .signals b { color: var(--text); font-family: var(--display); font-weight: 700; font-size: 0.85rem; }
 .signals i { color: var(--rule); font-style: normal; }
 
-.section { margin-top: 30px; }
-.label { display: block; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 14px; }
+.section { margin-top: 24px; }
+.label { display: block; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 12px; }
 .occ { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .split { display: grid; grid-template-columns: 1fr 340px; gap: 36px; margin-top: 12px; align-items: start; }
