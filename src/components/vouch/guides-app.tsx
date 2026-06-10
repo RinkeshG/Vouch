@@ -9,6 +9,7 @@ import {
   type Guide, type GuideItem,
 } from "./_guides";
 import { vouches } from "./_me";
+import { findSpot } from "./_taste";
 import { AddVouchModal } from "./add-vouch";
 import { publishGuide } from "./_share";
 import { shareGuideCard } from "./guide-share";
@@ -51,7 +52,8 @@ export function GuidesApp() {
     setToast("Making your guide card…");
     // publish so the link opens cross-device, then hand off the image + link together
     await publishGuide({ slug: g.slug, title: g.title, by: "You", note: g.note, anchor: g.anchor, items: g.items });
-    const r = await shareGuideCard({ slug: g.slug, title: g.title, by: "You", note: g.note, items: g.items }, url);
+    const pts = g.items.map((it) => findSpot(it.name)).filter(Boolean).map((s) => [s!.lat, s!.lng] as [number, number]);
+    const r = await shareGuideCard({ slug: g.slug, title: g.title, by: "You", note: g.note, items: g.items, pts }, url);
     setToast(r === "shared" ? "Sent." : r === "image-downloaded" ? "Card saved + link copied — drop both in the chat." : "Link copied.");
   }
 
