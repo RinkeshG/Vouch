@@ -17,8 +17,8 @@
   background: rgba(16, 15, 13, 0.72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
-.topLoc { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.topLoc i { width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--saffron); box-shadow: 0 0 8px 0 var(--saffron); }
+.topLoc { flex: none; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.topLoc i { flex: none; width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--saffron); box-shadow: 0 0 8px 0 var(--saffron); }
 
 /* --- mobile bottom tab bar --- */
 .tabs {

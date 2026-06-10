@@ -3,6 +3,9 @@
 .page { max-width: 980px; margin: 0 auto; padding: 24px 18px 56px; }
 @media (min-width: 1000px) { .page { padding: 40px 32px 56px; } }
 .eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 10px; }
+/* a real back affordance on its own line, not buried in the intro prose */
+.backLink { display: inline-block; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); text-decoration: none; margin: 0 0 16px; transition: color 0.15s var(--ease); }
+.backLink:hover { color: var(--saffron); }
 .previewNote { font-family: var(--sans); font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0 0 24px; max-width: 56ch; }
 .previewNote a { color: var(--text); text-decoration: none; white-space: nowrap; font-weight: 500; }
 .previewNote a:hover { color: var(--saffron); }
@@ -10,10 +13,12 @@
 
 /* hero — leads with WHEN to trust, never a bio */
 .hero { padding-bottom: 24px; border-bottom: 1px solid var(--line); }
-.heroTop { display: flex; align-items: center; gap: 16px; }
+/* wrap when cramped (mobile) so the action drops below and the id column keeps
+   full width — the handle then sits on one line, no orphaned '·'. */
+.heroTop { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
 .idCol { flex: 1; min-width: 0; }
 .name { font-family: var(--display); font-weight: 800; font-size: clamp(1.9rem, 3.4vw, 2.8rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--text); margin: 0; }
-.handle { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+.handle { display: block; white-space: nowrap; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
 .heroAction { flex: none; }
 
 .trust { font-family: var(--sans); font-size: 1.2rem; line-height: 1.5; color: var(--text); margin: 22px 0 0; max-width: 52ch; }

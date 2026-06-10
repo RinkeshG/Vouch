@@ -84,9 +84,10 @@ export function PalatePage({ slug }: { slug?: string }) {
   return (
     <WebShell active="you" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: myV.length ? `${myV.length} ${myV.length === 1 ? "vouch" : "vouches"} · Bengaluru` : "Your palate" }}>
       <div className={styles.page}>
+        {own && <a className={styles.backLink} href="/you">← Back to your ledger</a>}
         <p className={styles.eyebrow}>{own ? "How your palate reads" : "A palate"}</p>
         {own && (
-          <p className={styles.previewNote}>The outward view — what someone sees when they’re weighing whether to trust your taste. <a href="/you">← Back to your ledger</a></p>
+          <p className={styles.previewNote}>The outward view — what someone sees when they’re weighing whether to trust your taste.</p>
         )}
 
         <header className={styles.hero}>
