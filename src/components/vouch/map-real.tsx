@@ -39,7 +39,7 @@ export type MapPin = {
   cuisine?: string;                       // keys the tiny in-pin glyph (what the place IS)
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, themeToggle = false, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; themeToggle?: boolean; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, themeToggle = false, declutter = false, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; themeToggle?: boolean; declutter?: boolean; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [theme, setTheme] = useState<MapTheme>("dark"); // SSR-safe; resolved on mount
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,10 +61,44 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   onLoc.current = onLocated;
   const themeRef = useRef(theme);
   themeRef.current = theme;
+  const declutterRef = useRef(declutter);
+  declutterRef.current = declutter;
   // always hold the latest pins so sync() is never stale — the map can finish
   // initializing AFTER the parent's data lands (or vice versa); either order works.
   const pinsRef = useRef<MapPin[]>(pins);
   pinsRef.current = pins;
+
+  /* DECLUTTER (PRD §11 readability) — same-neighbourhood pins overlap into an
+     unreadable clump at city zoom. Each settle, recompute from the pins' TRUE screen
+     positions (never compounding) and push overlapping ones apart just enough to read,
+     then reposition the marker. Anchors stay near true; the alternative is a smudge. */
+  function spreadPins() {
+    const m = map.current;
+    if (!declutterRef.current || !m || !L.current) return;
+    const ps = pinsRef.current;
+    if (ps.length < 2) return;
+    const TH = 40; // min centre-to-centre px between pins
+    const it = ps.map((p) => { const pt = m.latLngToContainerPoint([p.lat, p.lng]); return { p, x: pt.x, y: pt.y }; });
+    for (let r = 0; r < 8; r++) {
+      let moved = false;
+      for (let i = 0; i < it.length; i++) for (let j = i + 1; j < it.length; j++) {
+        const a = it[i], b = it[j];
+        let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+        if (d < TH) {
+          if (d < 0.5) { dx = Math.cos(i * 2.4); dy = Math.sin(i * 2.4); d = 1; }
+          const push = (TH - d) / 2, ux = dx / d, uy = dy / d;
+          a.x -= ux * push; a.y -= uy * push; b.x += ux * push; b.y += uy * push; moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+    it.forEach((o) => {
+      const mk = markers.current[o.p.id]; if (!mk) return;
+      const tp = m.latLngToContainerPoint([o.p.lat, o.p.lng]);
+      const ll = Math.abs(o.x - tp.x) < 0.5 && Math.abs(o.y - tp.y) < 0.5 ? [o.p.lat, o.p.lng] : m.containerPointToLatLng([o.x, o.y]);
+      mk.setLatLng(ll);
+    });
+  }
 
   function popupHTML(p: MapPin) {
     const who = p.kind === "palate" && p.by ? `Vouched by ${p.by.name}` : "Your vouch";
@@ -123,7 +157,9 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       tiles.current = leaflet.tileLayer(TILES[themeRef.current], { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
       leaflet.control.zoom({ position: "bottomright" }).addTo(m);
       map.current = m;
-      setTimeout(() => m.invalidateSize(), 60);
+      // re-spread overlapping pins whenever the map settles (after a fly, zoom, or pan)
+      m.on("moveend", () => spreadPins());
+      setTimeout(() => { m.invalidateSize(); spreadPins(); }, 60);
       sync();
 
       // Location BY PERMISSION, never assumption: if the user grants it and they're

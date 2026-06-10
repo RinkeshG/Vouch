@@ -162,8 +162,12 @@ export function SpotPage({ slug }: { slug: string }) {
           <button type="button" className={styles.addGuide} onClick={() => setPicking(true)}>＋ Add to a guide</button>
         </div>
 
-        {/* ACTION AREA — reflects your relationship; the chooser only shows when you have none */}
-        <div className={styles.actionBar}>
+        {/* ACTION AREA — reflects your relationship; the chooser only shows when you have none.
+            When you open a focused DECISION (change an existing state, or the demote guard),
+            a scrim dims the page so the taller panel reads as an intentional overlay — never
+            clipping the content behind it. Tapping it cancels back to rest. */}
+        {(editing || pending) && <div className={styles.barScrim} onClick={() => { setPending(null); setEditing(false); }} aria-hidden="true" />}
+        <div className={`${styles.actionBar} ${(editing || pending) ? styles.actionBarRaised : ""}`}>
           {pending ? (
             <div className={styles.confirm}>
               <p className={styles.confirmText}>

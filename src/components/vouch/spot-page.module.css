@@ -57,6 +57,11 @@ a.vWho:hover { color: var(--text); }
 
 /* STICKY ACTION BAR — your move, thumb-reachable (fixed above the tab bar on mobile) */
 .actionBar { position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 30; padding: 11px 14px 12px; background: rgba(16,15,13,0.92); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--line); }
+/* focused-decision states (Change / demote-guard) are taller — a scrim makes them an
+   intentional overlay over a dimmed page, never an accidental clip of the content behind. */
+.barScrim { position: fixed; inset: 0; z-index: 29; background: rgba(8,7,5,0.6); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); animation: barScrimIn 0.18s ease both; }
+@keyframes barScrimIn { from { opacity: 0; } to { opacity: 1; } }
+.actionBarRaised { z-index: 31; border-radius: var(--r-xl) var(--r-xl) 0 0; box-shadow: 0 -18px 40px -12px rgba(0,0,0,0.6); }
 .barNudge { display: block; width: fit-content; margin: 0 auto 10px; font-family: var(--sans); font-size: 0.88rem; color: var(--text); background: var(--saffron-dim); border: 1px solid var(--saffron-line); border-radius: var(--r-pill); padding: 8px 15px; cursor: pointer; }
 .barNudge b { color: var(--saffron); font-weight: 600; }
 .barRow { display: flex; gap: 9px; max-width: 720px; margin: 0 auto; }
@@ -104,5 +109,7 @@ a.vWho:hover { color: var(--text); }
   .hero { height: 264px; border-radius: 0 0 var(--r-xl) var(--r-xl); }
   .body { padding: 26px 28px 60px; }
   .actionBar { position: static; background: transparent; border-top: 1px solid var(--line); -webkit-backdrop-filter: none; backdrop-filter: none; padding: 24px 0 0; margin: 28px 28px 0; }
+  .actionBarRaised { box-shadow: none; border-radius: 0; }
+  .barScrim { display: none; } /* the bar is in-flow on desktop — no overlay to dim */
   .barRow { max-width: none; }
 }

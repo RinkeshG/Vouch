@@ -120,7 +120,7 @@ export function ProducersHome() {
   return (
     <WebShell active="map" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: empty ? "Build your map" : `${entries.length} ${entries.length === 1 ? "place" : "places"} · Bengaluru` }}>
       <div className={styles.stage}>
-        <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede locate themeToggle onPinTap={setFocused} spotlightId={focused} dimmedIds={dimmedIds} onLocated={(lat, lng) => setMyPos({ lat, lng })} /></div>
+        <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede locate themeToggle declutter onPinTap={setFocused} spotlightId={focused} dimmedIds={dimmedIds} onLocated={(lat, lng) => setMyPos({ lat, lng })} /></div>
         <div className={styles.scrim} aria-hidden="true" />
 
         <header className={styles.header}>
