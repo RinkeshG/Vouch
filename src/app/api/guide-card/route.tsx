@@ -1,13 +1,15 @@
 import { ImageResponse } from "next/og";
 
 /* The guide image card (PRD §7.9, §8) — the 4:5 artifact that travels through
-   WhatsApp/IG, and the first thing a stranger sees of Vouch. Three directions, each
-   committed to ONE idea (?style=):
-     · map     — Strava-for-taste: REAL Carto tiles of Bengaluru, pins at their true
-                 coordinates, saffron glow. Geography is the hero.
-     · receipt — Receiptify-grade anatomy on thermal paper, ending in a handwritten
-                 signature. "A name on it", literally.
-     · poster  — Wrapped-confidence: a flat saffron field + enormous ink type.
+   WhatsApp/IG, and the first thing a stranger sees of Vouch. Directions on offer
+   (?style=), each committed to ONE idea rooted in what Vouch actually is — a gift
+   between friends, in Bengaluru:
+     · map      — REAL Carto tiles, pins at true coordinates. Your taste as territory.
+     · mixtape  — a guide IS a mixtape: a cassette a friend recorded for you,
+                  handwritten label, the places as Side A's tracklist.
+     · matchbox — Bengaluru matchbox-label vernacular: ornamental border, sunburst
+                  emblem, matchstick bullets, a striker strip (texture, no words).
+     · neon     — the guide as a glowing sign in the Bengaluru night.
    Guide data via query params (no DB); pts=lat,lng pairs power the map. */
 
 export const runtime = "edge";
@@ -47,8 +49,9 @@ export async function GET(req: Request) {
     { name: "Sign", data: caveat, weight: 700 as const },
   ];
 
-  const node = style === "receipt" ? ReceiptCard({ title, by, note, count, handle, takes })
-    : style === "poster" ? PosterCard({ title, by, note, count, handle, takes })
+  const node = style === "mixtape" ? MixtapeCard({ title, by, note, count, handle, takes })
+    : style === "matchbox" ? MatchboxCard({ title, by, note, count, handle, takes })
+    : style === "neon" ? NeonCard({ title, by, note, count, handle, takes })
     : MapCard({ title, by, count, handle, takes, pts });
 
   return new ImageResponse(node, { width: 1080, height: 1350, fonts });
@@ -131,86 +134,168 @@ function MapCard({ title, by, count, handle, takes, pts }: { title: string; by: 
   );
 }
 
-/* ─────────────── B · THE SIGNED RECEIPT (anatomy + an actual name) ─────────────
-   Receiptify's lesson: commit to the object completely — mono rigor, item rows,
-   a TOTAL line — then land OUR thesis: the guide is signed, by hand. */
-function ReceiptCard({ title, by, note, count, handle, takes }: { title: string; by: string; note: string; count: string; handle: string; takes: Take[] }) {
-  const INK = "#221b10", FAINT = "#7d7257";
-  const dash = { display: "flex", height: 2, background: "repeating-linear-gradient(90deg, rgba(34,27,16,0.55) 0 14px, transparent 14px 24px)", margin: "26px 0" } as const;
+/* ──────────────── B · THE MIXTAPE (a guide is something a friend records you) ───
+   The emotional truth of M3: "where should I eat?" answered like a mixtape — a
+   cassette with a handwritten label, the places as Side A's tracklist. */
+function MixtapeCard({ title, by, note, count, handle, takes }: { title: string; by: string; note: string; count: string; handle: string; takes: Take[] }) {
+  const CREAM = "#f1e7d3", INK = "#1c160d";
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#0e0c09", position: "relative", fontFamily: "Mono" }}>
-      {/* the field carries a faint saffron breath so it's never a void */}
-      <div style={{ position: "absolute", inset: 0, display: "flex", background: "radial-gradient(70% 50% at 50% 46%, rgba(246,168,43,0.07), rgba(14,12,9,0) 70%)" }} />
-      <div style={{ display: "flex", flexDirection: "column", width: 850, background: "#f5eedd", color: INK, padding: "58px 62px 50px", borderRadius: 4, transform: "rotate(-1deg)", boxShadow: "0 60px 120px -30px rgba(0,0,0,0.85), 0 18px 40px rgba(0,0,0,0.5)" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ display: "flex", fontFamily: "Bric", fontSize: 58, letterSpacing: 2 }}>VOUCH</div>
-          <div style={{ display: "flex", fontSize: 17, letterSpacing: 3, color: FAINT, marginTop: 8, textTransform: "uppercase" }}>Bengaluru · a guide, not a listing</div>
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", background: "#0d0b08", fontFamily: "Mono", position: "relative", padding: "56px 70px" }}>
+      <div style={{ position: "absolute", inset: 0, display: "flex", background: "radial-gradient(75% 50% at 50% 30%, rgba(246,168,43,0.08), rgba(13,11,8,0) 65%)" }} />
+      {/* header */}
+      <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", fontFamily: "Bric", fontSize: 38, color: "#f4eee3" }}><span style={{ display: "flex", color: "#f6a82b", marginRight: 3 }}>V</span>ouch</div>
+        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 18, letterSpacing: 4, color: "#8a7c62" }}>BENGALURU</div>
+      </div>
+
+      {/* the cassette */}
+      <div style={{ display: "flex", flexDirection: "column", width: 940, height: 560, marginTop: 44, background: "linear-gradient(165deg, #211b12, #171209)", borderRadius: 26, border: "1px solid rgba(246,168,43,0.25)", boxShadow: "0 50px 90px -30px rgba(0,0,0,0.9), inset 0 1px 0 rgba(244,238,227,0.08)", position: "relative", padding: 30 }}>
+        {/* corner screws */}
+        {[{ l: 18, t: 16 }, { l: 894, t: 16 }, { l: 18, t: 516 }, { l: 894, t: 516 }].map((s, i) => (
+          <div key={i} style={{ position: "absolute", left: s.l, top: s.t, width: 14, height: 14, borderRadius: 7, background: "#0d0b08", border: "1.5px solid rgba(244,238,227,0.25)", display: "flex" }} />
+        ))}
+        {/* label */}
+        <div style={{ display: "flex", flexDirection: "column", background: CREAM, borderRadius: 10, padding: "20px 30px 16px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 12, display: "flex", background: "#f6a82b" }} />
+          <div style={{ position: "absolute", left: 0, right: 0, top: 12, height: 5, display: "flex", background: "#1c160d" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
+            <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 16, letterSpacing: 3, color: "#8a7355" }}>SIDE A</div>
+            <div style={{ display: "flex", fontFamily: "Mono", fontSize: 16, letterSpacing: 2, color: "#8a7355" }}>{count || takes.length} PLACES</div>
+          </div>
+          {/* the handwritten line — a person wrote this for you */}
+          <div style={{ display: "flex", fontFamily: "Sign", fontSize: title.length <= 26 ? 78 : 62, color: INK, marginTop: 4, transform: "rotate(-1.2deg)" }}>{title}</div>
+          <div style={{ display: "flex", height: 2, background: "rgba(28,22,13,0.25)", marginTop: 2 }} />
+          <div style={{ display: "flex", fontFamily: "Sign", fontSize: 34, color: "#6b5638", marginTop: 8, transform: "rotate(-0.8deg)" }}>recorded for you by {by}</div>
         </div>
-        <div style={dash} />
-        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: title.length <= 32 ? 42 : 34, lineHeight: 1.15, textTransform: "uppercase", letterSpacing: 0.5 }}>{title}</div>
-        {note ? <div style={{ display: "flex", fontSize: 21, color: FAINT, marginTop: 10 }}>{note}</div> : <div style={{ display: "flex" }} />}
-        <div style={dash} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
-          {takes.map((t, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", fontWeight: 700, fontSize: 30, textTransform: "uppercase", letterSpacing: 0.5 }}>{String(i + 1).padStart(2, "0")}  {t.place}</div>
-                {/* a drawn check — glyphs outside the typeface are how tofu happens */}
-                <div style={{ display: "flex", width: 22, height: 12, borderLeft: `5px solid ${INK}`, borderBottom: `5px solid ${INK}`, transform: "rotate(-45deg)", marginTop: -6 }} />
+        {/* window + spools */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "26px 110px 0", background: "#0c0a07", border: "1px solid rgba(244,238,227,0.14)", borderRadius: 16, padding: "18px 34px", position: "relative" }}>
+          <div style={{ display: "flex", width: 92, height: 92, borderRadius: 46, border: "9px solid #efe5d0", background: "#0c0a07", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ display: "flex", width: 30, height: 30, borderRadius: 15, border: "4px dashed rgba(244,238,227,0.7)" }} />
+          </div>
+          {/* tape spanning the spools — more on the left: the night's just begun */}
+          <div style={{ position: "absolute", left: 130, right: 150, top: 86, height: 7, display: "flex", background: "rgba(70,52,26,0.9)", borderRadius: 4 }} />
+          <div style={{ display: "flex", width: 92, height: 92, borderRadius: 46, border: "9px solid #efe5d0", background: "#0c0a07", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ display: "flex", width: 30, height: 30, borderRadius: 15, border: "4px dashed rgba(244,238,227,0.7)" }} />
+          </div>
+        </div>
+      </div>
+
+      {/* the tracklist */}
+      <div style={{ display: "flex", flexDirection: "column", width: 940, marginTop: 46, gap: 0 }}>
+        {takes.slice(0, 4).map((t, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", padding: "18px 6px", borderTop: i === 0 ? "1px solid rgba(244,238,227,0)" : "1px solid rgba(244,238,227,0.12)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 18 }}>
+                <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 22, color: "#f6a82b" }}>A{i + 1}</div>
+                <div style={{ display: "flex", fontFamily: "Grot", fontWeight: 700, fontSize: 36, color: "#f4eee3" }}>{t.place}</div>
               </div>
-              {t.note ? <div style={{ display: "flex", fontSize: 21, color: FAINT, marginTop: 6, paddingLeft: 56 }}>{t.note}</div> : <div style={{ display: "flex" }} />}
             </div>
+            {t.note ? <div style={{ display: "flex", fontFamily: "Grot", fontSize: 25, color: "#a99f8f", marginTop: 6, paddingLeft: 56 }}>{t.note}</div> : <div style={{ display: "flex" }} />}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
+        <div style={{ display: "flex", fontFamily: "Mono", fontSize: 18, color: "#8a7c62", letterSpacing: 1 }}>play it hungry</div>
+        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 20, color: "#f4eee3" }}>{handle}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────── C · THE MATCHBOX (Bengaluru vernacular print, ownable) ────────────
+   Indian matchbox-label art: ornamental border, a sunburst emblem, factory line
+   ("BENGALURU GUIDE WORKS"), matchstick bullets, and a striker strip along the
+   bottom — texture only, words stay literal (PRD §10). */
+function MatchboxCard({ title, by, note, count, handle, takes }: { title: string; by: string; note: string; count: string; handle: string; takes: Take[] }) {
+  const CREAM = "#efe3c6", INK = "#231a0d", VERM = "#c14a1f", SAFF = "#e0930f";
+  return (
+    <div style={{ width: "100%", height: "100%", display: "flex", background: CREAM, position: "relative", fontFamily: "Mono", padding: 34 }}>
+      {/* double ornamental border */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, border: `10px solid ${VERM}`, position: "relative", padding: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, border: `3px solid ${INK}`, position: "relative", alignItems: "center", padding: "40px 56px 0", overflow: "hidden" }}>
+          {/* corner diamonds */}
+          {[{ l: -10, t: -10 }, { r: -10, t: -10 }, { l: -10, b: -10 }, { r: -10, b: -10 }].map((c, i) => (
+            <div key={i} style={{ position: "absolute", ...(c.l != null ? { left: c.l } : { right: (c as { r: number }).r }), ...(c.t != null ? { top: c.t } : { bottom: (c as { b: number }).b }), width: 20, height: 20, background: VERM, transform: "rotate(45deg)", display: "flex" }} />
           ))}
-        </div>
-        <div style={dash} />
-        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 28 }}>
-          <div style={{ display: "flex", letterSpacing: 1 }}>TOTAL</div>
-          <div style={{ display: "flex" }}>{count || takes.length} PLACES, NO STARS</div>
-        </div>
-        <div style={dash} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4 }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", fontSize: 18, color: FAINT }}>signed,</div>
-            <div style={{ display: "flex", fontFamily: "Sign", fontSize: 96, color: "#1c150c", marginTop: -6, transform: "rotate(-3deg)" }}>{by}</div>
+          {/* factory line */}
+          <div style={{ display: "flex", fontWeight: 700, fontSize: 19, letterSpacing: 6, color: VERM, textTransform: "uppercase" }}>Estd · Bengaluru Guide Works</div>
+          {/* sunburst + emblem */}
+          <div style={{ display: "flex", width: 340, height: 340, marginTop: 30, position: "relative", alignItems: "center", justifyContent: "center" }}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} style={{ position: "absolute", left: 166, top: 0, width: 8, height: 340, background: `linear-gradient(180deg, ${SAFF}55, ${SAFF}11)`, transform: `rotate(${i * 15}deg)`, display: "flex" }} />
+            ))}
+            <div style={{ display: "flex", width: 218, height: 218, borderRadius: 110, background: SAFF, border: `7px solid ${INK}`, alignItems: "center", justifyContent: "center", boxShadow: `0 0 0 10px ${CREAM}, 0 0 0 13px ${INK}` }}>
+              <div style={{ display: "flex", fontFamily: "Bric", fontSize: 130, color: INK, marginTop: -10 }}>V</div>
+            </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", paddingBottom: 14 }}>
-            <div style={{ display: "flex", fontWeight: 700, fontSize: 21 }}>{handle}</div>
-            <div style={{ display: "flex", fontSize: 16, color: FAINT, marginTop: 6 }}>the only review with a name on it</div>
+          {/* the guide title — the label's "brand" */}
+          <div style={{ display: "flex", fontFamily: "Bric", fontSize: title.length <= 26 ? 84 : 64, lineHeight: 0.98, letterSpacing: -2, color: INK, marginTop: 34, textAlign: "center", justifyContent: "center" }}>{title}</div>
+          {note ? <div style={{ display: "flex", fontSize: 20, letterSpacing: 2, color: "#7a6038", marginTop: 14, textTransform: "uppercase" }}>{note}</div> : <div style={{ display: "flex" }} />}
+          <div style={{ display: "flex", fontWeight: 700, fontSize: 19, letterSpacing: 4, color: VERM, marginTop: 18, textTransform: "uppercase" }}>Avg. contents · {count || takes.length} places · no stars</div>
+          {/* contents with matchstick bullets */}
+          <div style={{ display: "flex", flexDirection: "column", alignSelf: "stretch", marginTop: 30, gap: 18 }}>
+            {takes.slice(0, 4).map((t, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ display: "flex", width: 16, height: 16, borderRadius: 9, background: VERM, border: `2px solid ${INK}` }} />
+                  <div style={{ display: "flex", width: 44, height: 6, background: "#c9b893", border: `1.5px solid ${INK}`, marginLeft: -2 }} />
+                </div>
+                <div style={{ display: "flex", fontFamily: "Grot", fontWeight: 700, fontSize: 37, color: INK }}>{t.place}</div>
+              </div>
+            ))}
           </div>
+          {/* signature row */}
+          <div style={{ display: "flex", alignSelf: "stretch", justifyContent: "space-between", alignItems: "flex-end", marginTop: "auto", paddingBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+              <div style={{ display: "flex", fontSize: 18, color: "#7a6038" }}>by</div>
+              <div style={{ display: "flex", fontFamily: "Sign", fontSize: 56, color: INK, transform: "rotate(-2deg)" }}>{by}</div>
+            </div>
+            <div style={{ display: "flex", fontWeight: 700, fontSize: 20, color: INK }}>{handle}</div>
+          </div>
+          {/* striker strip — texture only */}
+          <div style={{ display: "flex", alignSelf: "stretch", height: 34, margin: "0 -56px", background: `repeating-linear-gradient(105deg, #2a2118 0 7px, #3a2e1f 7px 14px)`, borderTop: `3px solid ${INK}` }} />
         </div>
       </div>
     </div>
   );
 }
 
-/* ──────────────── C · THE SAFFRON POSTER (one color, huge type) ─────────────────
-   Wrapped's lesson: a flat, confident field + two type scales. Unmissable in a
-   WhatsApp thread, and the colour IS the brand. */
-function PosterCard({ title, by, note, count, handle, takes }: { title: string; by: string; note: string; count: string; handle: string; takes: Take[] }) {
-  const INK = "#211504";
+/* ───────────── D · THE NEON NIGHT (Empire at 1 a.m., as a sign) ─────────────────
+   The guide as a glowing signboard in the Bengaluru night — tube-lit title, the
+   places lit beneath. The night the guide is FOR. */
+function NeonCard({ title, by, note, count, handle, takes }: { title: string; by: string; note: string; count: string; handle: string; takes: Take[] }) {
+  const TUBE = "#fff3dd";
+  const glowSaff = "0 0 10px rgba(246,168,43,0.9), 0 0 34px rgba(246,168,43,0.65), 0 0 80px rgba(246,168,43,0.4)";
+  const glowWarm = "0 0 8px rgba(255,236,200,0.8), 0 0 30px rgba(255,210,140,0.5), 0 0 70px rgba(246,168,43,0.3)";
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#f6a82b", color: INK, padding: "64px 68px", fontFamily: "Grot", position: "relative" }}>
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "linear-gradient(180deg, #060509 0%, #0b0810 55%, #120c0a 100%)", fontFamily: "Grot", position: "relative", padding: "70px 76px", overflow: "hidden" }}>
+      {/* wall glow */}
+      <div style={{ position: "absolute", inset: 0, display: "flex", background: "radial-gradient(80% 45% at 50% 38%, rgba(246,168,43,0.13), rgba(6,5,9,0) 70%)" }} />
+      {/* mounting wire */}
+      <div style={{ position: "absolute", left: 540, top: 0, width: 2, height: 64, background: "rgba(244,238,227,0.18)", display: "flex" }} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", width: 74, height: 74, borderRadius: 18, background: INK, alignItems: "center", justifyContent: "center", fontFamily: "Bric", fontSize: 44, color: "#f6a82b" }}>V</div>
-        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 20, letterSpacing: 5, color: "rgba(33,21,4,0.66)" }}>BENGALURU</div>
+        <div style={{ display: "flex", fontFamily: "Bric", fontSize: 40, color: "#f6a82b", textShadow: glowSaff }}><span style={{ display: "flex", marginRight: 3 }}>V</span>ouch</div>
+        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 19, letterSpacing: 5, color: "rgba(244,238,227,0.55)" }}>BENGALURU · TONIGHT</div>
       </div>
-      <div style={{ display: "flex", fontFamily: "Bric", fontSize: title.length <= 26 ? 126 : 96, lineHeight: 0.95, letterSpacing: -5, marginTop: 70 }}>{title}</div>
-      {note ? <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 22, letterSpacing: 1, color: "rgba(33,21,4,0.62)", marginTop: 26, textTransform: "lowercase" }}>{note}</div> : <div style={{ display: "flex" }} />}
-      <div style={{ display: "flex", height: 4, background: INK, marginTop: 52 }} />
-      <div style={{ display: "flex", flexDirection: "column", marginTop: 8 }}>
+      {/* the sign */}
+      <div style={{ display: "flex", flexDirection: "column", marginTop: 92 }}>
+        <div style={{ display: "flex", fontFamily: "Bric", fontSize: title.length <= 26 ? 116 : 88, lineHeight: 1.0, letterSpacing: -3, color: TUBE, textShadow: glowWarm }}>{title}</div>
+        {note ? <div style={{ display: "flex", fontFamily: "Mono", fontSize: 23, letterSpacing: 2, color: "rgba(246,168,43,0.95)", textShadow: glowSaff, marginTop: 26, textTransform: "lowercase" }}>· {note} ·</div> : <div style={{ display: "flex" }} />}
+      </div>
+      {/* the lit list */}
+      <div style={{ display: "flex", flexDirection: "column", marginTop: 78, gap: 36 }}>
         {takes.slice(0, 4).map((t, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 26, padding: "26px 0", borderBottom: "2px solid rgba(33,21,4,0.25)" }}>
-            <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 26, color: "rgba(33,21,4,0.55)" }}>{String(i + 1).padStart(2, "0")}</div>
-            <div style={{ display: "flex", fontFamily: "Bric", fontSize: 52, letterSpacing: -1 }}>{t.place}</div>
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 26 }}>
+            <div style={{ display: "flex", width: 13, height: 13, borderRadius: 7, background: "#f6a82b", boxShadow: glowSaff }} />
+            <div style={{ display: "flex", fontFamily: "Grot", fontWeight: 700, fontSize: 47, color: TUBE, textShadow: "0 0 18px rgba(255,236,200,0.45)" }}>{t.place}</div>
+            <div style={{ display: "flex", fontFamily: "Mono", fontSize: 21, color: "rgba(169,159,143,0.85)", marginLeft: "auto" }}>{t.note ? t.note.slice(0, 26) + (t.note.length > 26 ? "…" : "") : ""}</div>
           </div>
         ))}
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "auto" }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 21, letterSpacing: 2, textTransform: "uppercase" }}>A guide by {by}</div>
-          <div style={{ display: "flex", fontFamily: "Mono", fontSize: 19, color: "rgba(33,21,4,0.62)", marginTop: 8 }}>{count || takes.length} places · every one with a name on it</div>
-        </div>
-        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 22 }}>{handle}</div>
+        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 21, letterSpacing: 2, color: "rgba(244,238,227,0.85)", textTransform: "uppercase" }}>A guide by {by}</div>
+        <div style={{ display: "flex", fontFamily: "Mono", fontWeight: 700, fontSize: 21, color: "#f6a82b", textShadow: glowSaff }}>{handle}</div>
       </div>
     </div>
   );
