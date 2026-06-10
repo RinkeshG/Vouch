@@ -38,7 +38,7 @@
 
 /* diary filter */
 .filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-.filterChip { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 7px 12px; cursor: pointer; transition: all 0.15s var(--ease); }
+.filterChip { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 0 15px; cursor: pointer; transition: all 0.15s var(--ease); }
 .filterChip:hover { border-color: var(--saffron); color: var(--saffron); }
 .filterChip b { color: var(--text); font-weight: 700; margin-left: 3px; }
 .filterOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }

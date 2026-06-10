@@ -13,7 +13,7 @@
    and narrow the map (tap to filter, tap again to clear). Off-lens pins dim, never
    vanish. A register at 0 fades and can't be tapped — honest, not noisy. */
 .legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
-.lgBtn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(16, 15, 13, 0.5); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 7px 12px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease); }
+.lgBtn { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(16, 15, 13, 0.5); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 0 15px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease); }
 .lgBtn:hover:not(:disabled) { border-color: rgba(244, 238, 227, 0.25); color: var(--text); }
 .lgBtn:disabled { opacity: 0.45; cursor: default; }
 .lgOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }
@@ -82,7 +82,7 @@
   .state { font-size: clamp(1.7rem, 7.6vw, 2.3rem); margin-top: 8px; }
   .sub { display: none; }
   .legend { gap: 7px; margin-top: 13px; }
-  .lgBtn { font-size: 0.56rem; padding: 6px 10px; }
+  .lgBtn { font-size: 0.56rem; padding: 0 12px; }
   .focusBtn { margin-top: 14px; font-size: 0.86rem; padding: 8px 14px; }
   .addWrap { display: none; }
   .toastWrap { bottom: 92px; }
