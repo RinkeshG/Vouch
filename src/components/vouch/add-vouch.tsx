@@ -255,6 +255,7 @@ export function AddVouchModal({
             </div>
             <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area} · {sel.price}</Tag>{existing && <RelChip stamp={existing.stamp} gut={existing.gut} className={styles.headChip} />}</span>
 
+            <div className={styles.stepBody}>
             {step === "choose" && (
               <>
                 <p className={styles.prompt}>{existing ? "Already on your map — change it?" : "What’s it to you?"}</p>
@@ -314,6 +315,7 @@ export function AddVouchModal({
                 <p className={styles.holdHint}>A vouch is forever until you take it back. Hold to mean it.</p>
               </>
             )}
+            </div>
           </>
         )}
       </div>

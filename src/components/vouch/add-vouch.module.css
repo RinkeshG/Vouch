@@ -18,6 +18,11 @@
 .change { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--saffron); background: transparent; border: 1px solid rgba(246, 168, 43, 0.4); border-radius: var(--r-pill); padding: 6px 11px; cursor: pointer; white-space: nowrap; transition: background 0.16s var(--ease); }
 .change:hover { background: var(--saffron-dim); }
 .tags { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+/* hold the decision steps (choose / been / vouch) to one height so the place
+   header above never jumps as you move between them — the sheet is bottom-
+   anchored, so a shorter step would otherwise drop the header. Sized to the
+   tallest step (the three moves). (P2-2) */
+.stepBody { min-height: 320px; margin-top: 10px; display: flex; flex-direction: column; }
 .fieldLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); }
 .lineWrap { position: relative; }
 .lineInput { width: 100%; display: block; background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.4; padding: 12px 14px 22px; min-height: 54px; resize: none; overflow: hidden; }
