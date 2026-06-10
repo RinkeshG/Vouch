@@ -190,12 +190,12 @@ export function SpotPage({ slug }: { slug: string }) {
           ) : (
             <div className={styles.statusBar}>
               {rel && (
-                <span className={`${styles.statusBadge} ${rel.tone === "vouched" ? styles.badgeVouched : rel.tone === "loved" ? styles.badgeBeen : rel.tone === "fine" ? styles.badgeFine : rel.tone === "no" ? styles.badgeNo : styles.badgeWant}`}>
+                <span className={`${styles.statusBadge} ${rel.tone === "vouched" ? styles.badgeVouched : rel.tone === "absolutely" ? styles.badgeBeen : rel.tone === "maybe" ? styles.badgeFine : rel.tone === "no" ? styles.badgeNo : styles.badgeWant}`}>
                   {rel.tone === "vouched" && <span aria-hidden="true">✓ </span>}{rel.label}
                 </span>
               )}
               <div className={styles.statusActions}>
-                {cur === "been" && entry?.gut === "loved" && <button type="button" className={styles.statusUp} onClick={() => applyStamp("vouched")}>Vouch it</button>}
+                {cur === "been" && entry?.gut === "absolutely" && <button type="button" className={styles.statusUp} onClick={() => applyStamp("vouched")}>Vouch it</button>}
                 {cur === "want" && <button type="button" className={styles.statusUp} onClick={() => applyStamp("been")}>I’ve been</button>}
                 <button type="button" className={styles.statusChange} onClick={() => setEditing(true)}>Change</button>
               </div>

@@ -40,7 +40,8 @@
 .dWant { background: transparent; border: 1.75px solid var(--saffron-line); }
 .dBeen { background: var(--jade); box-shadow: 0 0 8px 1px var(--jade-dim); }
 .dVouch { background: var(--saffron); box-shadow: 0 0 12px 2px rgba(246, 168, 43, 0.6); }
-.dFine { background: rgba(244, 238, 227, 0.85); }
+.dAbsolutely { background: var(--jade); box-shadow: 0 0 8px 1px var(--jade-dim); }
+.dMaybe { background: var(--stamp-want); }
 .dNo { background: rgba(138, 130, 120, 0.8); }
 
 /* the gut question (been → loved / fine / no) */

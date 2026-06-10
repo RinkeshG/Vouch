@@ -15,7 +15,7 @@ import styles from "./add-vouch.module.css";
    Bengaluru catalog (Supabase `places`), pick a place, then choose your MOVE — the
    three are deliberately NOT equal-weight (Constitution §1, speech acts):
      · Want to go — one tap, no words. A note to your future self.
-     · Been      — one honest gut reaction (loved / fine / no). Your private diary.
+     · Been      — one honest answer to "Go back?" (Absolutely / Maybe / No). Private.
      · Vouch     — the worded, public act. Costs a line + occasion. Your name on it.
    Friction matches meaning. Loved-it nudges toward a vouch, but never auto-vouches. */
 
@@ -166,7 +166,7 @@ export function AddVouchModal({
             ) : (
               <>
                 <div className={`${styles.seal} ${styles.sealBeen}`} aria-hidden="true"><span className={styles.sealMark} aria-hidden="true">✓</span></div>
-                <p className={styles.doneTitle}>{done.gut === "loved" ? "Loved it — logged." : done.gut === "no" ? "Logged. Not for me." : "Logged."}</p>
+                <p className={styles.doneTitle}>{done.gut === "absolutely" ? "Logged. You’d go back." : done.gut === "no" ? "Logged. You wouldn’t." : "Logged."}</p>
                 <p className={styles.donePlace}>{done.name}</p>
                 <Link href="/you" className={styles.doneLink}>It’s in your diary now →</Link>
               </>
@@ -222,16 +222,16 @@ export function AddVouchModal({
             {step === "been" && (
               <>
                 <button type="button" className={styles.back} onClick={() => setStep("choose")}>← back</button>
-                <p className={styles.prompt}>Been here. Would you go back?</p>
+                <p className={styles.prompt}>Go back?</p>
                 <div className={styles.gut}>
-                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("loved")}>
-                    <span className={`${styles.moveDot} ${styles.dBeen}`} aria-hidden="true" /> Loved it
+                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("absolutely")}>
+                    <span className={`${styles.moveDot} ${styles.dAbsolutely}`} aria-hidden="true" /> Absolutely
                   </button>
-                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("fine")}>
-                    <span className={`${styles.moveDot} ${styles.dFine}`} aria-hidden="true" /> It was fine
+                  <button type="button" className={styles.gutBtn} onClick={() => chooseGut("maybe")}>
+                    <span className={`${styles.moveDot} ${styles.dMaybe}`} aria-hidden="true" /> Maybe
                   </button>
                   <button type="button" className={styles.gutBtn} onClick={() => chooseGut("no")}>
-                    <span className={`${styles.moveDot} ${styles.dNo}`} aria-hidden="true" /> Not for me
+                    <span className={`${styles.moveDot} ${styles.dNo}`} aria-hidden="true" /> No
                   </button>
                 </div>
               </>

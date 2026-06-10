@@ -43,9 +43,9 @@ function meta(e: Entry): string {
 
 const GUT_FILTERS: { key: GutFilter; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "loved", label: "Loved" },
-  { key: "fine", label: "Fine" },
-  { key: "no", label: "Not for me" },
+  { key: "absolutely", label: "Absolutely" },
+  { key: "maybe", label: "Maybe" },
+  { key: "no", label: "No" },
 ];
 
 export function YouPage() {
@@ -61,8 +61,8 @@ export function YouPage() {
 
   const gutCounts = {
     all: been.length,
-    loved: been.filter((e) => e.gut === "loved").length,
-    fine: been.filter((e) => e.gut === "fine").length,
+    absolutely: been.filter((e) => e.gut === "absolutely").length,
+    maybe: been.filter((e) => e.gut === "maybe").length,
     no: been.filter((e) => e.gut === "no").length,
   };
 
@@ -119,7 +119,7 @@ export function YouPage() {
               </div>
 
               {been.length === 0 ? (
-                <p className={styles.empty}>Nothing logged yet. The first time you mark somewhere <b>been</b>, your honest read lands here — loved it, fine, or not for you.</p>
+                <p className={styles.empty}>Nothing logged yet. The first time you mark somewhere <b>been</b>, your honest answer — go back? absolutely, maybe, or no — lands here.</p>
               ) : (
                 <>
                   <div className={styles.filter}>
@@ -143,7 +143,7 @@ export function YouPage() {
                               <span className={styles.rowName}>{e.spot.name}</span>
                               <span className={styles.rowMeta}>{meta(e)}</span>
                             </Link>
-                            {e.gut === "loved" && (
+                            {e.gut === "absolutely" && (
                               <button type="button" className={styles.onramp} onClick={() => openCapture(toPick(e), "vouched")}>
                                 Put your name on it →
                               </button>

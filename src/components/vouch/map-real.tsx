@@ -15,7 +15,7 @@ export type MapPin = {
   line?: string; occasion?: string;
   kind?: "mine" | "palate"; by?: { name: string; ini: string };
   stamp?: "want" | "been" | "vouched";
-  gut?: "loved" | "fine" | "no";   // tints the "been" mark on the map
+  gut?: "absolutely" | "maybe" | "no";   // tints the "been" mark by your "Go back?" answer
 };
 
 export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, locate = false, onPinTap, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; locate?: boolean; onPinTap?: (id: string) => void; tag?: string }) {
@@ -57,7 +57,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     pins.forEach((p) => {
       if (markers.current[p.id]) return;
       const hov = labelMode === "hover" ? ` ${styles.hover}` : "";
-      const beenClass = p.gut === "loved" ? styles.dotBeenLoved : p.gut === "no" ? styles.dotBeenNo : styles.dotBeen;
+      const beenClass = p.gut === "absolutely" ? styles.dotBeenAbsolutely : p.gut === "no" ? styles.dotBeenNo : styles.dotBeen;
       const dotClass = p.stamp === "been" ? beenClass : p.stamp === "want" ? styles.dotWant : styles.dot;
       const html = p.kind === "palate" && p.by
         ? `<div class="${styles.pinP}${hov}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`

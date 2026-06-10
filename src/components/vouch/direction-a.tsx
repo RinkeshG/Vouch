@@ -56,7 +56,7 @@ export function ProducersHome() {
 
   // The one decision aid Home needs: when you can't choose, pick from the places you'd
   // actually go — vouched first, else the ones you loved. Browsing/filtering lives on /you.
-  const decidePool = vouched.length ? vouched : entries.filter((e) => e.stamp === "been" && e.gut === "loved");
+  const decidePool = vouched.length ? vouched : entries.filter((e) => e.stamp === "been" && e.gut === "absolutely");
   function pickForMe() {
     if (!decidePool.length) return;
     const ids = decidePool.map((e) => `me:${e.spot.name}`);
@@ -67,7 +67,7 @@ export function ProducersHome() {
 
   // the card reads as a recommendation to YOURSELF, in the voice of your own past call
   function recLine(e: (typeof entries)[number]): string {
-    if (e.stamp === "been") return e.gut === "loved" ? "You loved it last time." : e.gut === "no" ? "Not your favourite — but it’s on your map." : "It was fine, last time.";
+    if (e.stamp === "been") return e.gut === "absolutely" ? "You’d go back, no question." : e.gut === "no" ? "You wouldn’t go back — but it’s on your map." : "You were on the fence last time.";
     return "On your radar — you’ve been meaning to go.";
   }
 
