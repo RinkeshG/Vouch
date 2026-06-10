@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import "../../components/vouch/vouch.css";
 import { MapProvider } from "../../components/vouch/_map-context";
 
+/* the product is After-Dark — the installed-app + browser chrome should match (the
+   root cream theme-color is the landing's). */
+export const viewport = { themeColor: "#100f0d" };
+
 /* The product (After-Dark). Self-contained: loads the type families and wraps in
    `.vouch` so tokens apply without touching the legacy globals/routes. Product
    surfaces live here with clean URLs (/start, /home, /g/:slug, …). `MapProvider`

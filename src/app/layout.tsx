@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { PwaRegister } from "../components/pwa-register";
 
 export const metadata: Metadata = {
   title: "Vouch — Curated lists of your favorite places",
   description:
     "Build and share beautiful, curated lists of the places you love. Your taste, beautifully organized. Now in Bangalore.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Vouch" },
   openGraph: {
     title: "Vouch — Curated lists of your favorite places",
     description:
@@ -46,7 +49,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>{children}<PwaRegister /></body>
     </html>
   );
 }

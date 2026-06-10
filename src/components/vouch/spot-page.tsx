@@ -115,26 +115,24 @@ export function SpotPage({ slug }: { slug: string }) {
             </div>
           )}
 
-          {/* THE RECEIPT — the people you trust */}
-          <section className={styles.receipt}>
-            <span className={styles.receiptLabel}>Why it reached you</span>
-            {reachedBy.length ? (
-              <>
-                <p className={styles.receiptLine}>{reachedBy.join(" · ")}{inGuides.length ? ` · in your “${inGuides[0]}”` : ""}</p>
-                <ul className={styles.verdicts}>
-                  {mine && <li className={styles.verdict}><Avatar initials="RG" size={32} /><div><span className={styles.vWho}>You vouched</span><span className={styles.vLine}>“{mine.line}”</span></div></li>}
-                  {vouchedBy.map((v) => (
-                    <li key={v.name} className={styles.verdict}>
-                      <Avatar initials={v.ini} size={32} />
-                      <div><a className={styles.vWho} href={`/p/${v.slug}`}>{v.name} vouched →</a><span className={styles.vLine}>“{v.line}”</span></div>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className={styles.receiptEmpty}>No one you follow has put their name here yet. If you’d send a friend, be the first.</p>
-            )}
-          </section>
+          {/* VOUCHED BY PEOPLE YOU FOLLOW — renders ONLY when someone you trust has put
+              their name here. A cold page is confidence, not apology: the social section
+              is simply absent (PRD §7.4), never "0 vouches". */}
+          {reachedBy.length > 0 && (
+            <section className={styles.receipt}>
+              <span className={styles.receiptLabel}>Why it reached you</span>
+              <p className={styles.receiptLine}>{reachedBy.join(" · ")}{inGuides.length ? ` · in your “${inGuides[0]}”` : ""}</p>
+              <ul className={styles.verdicts}>
+                {mine && <li className={styles.verdict}><Avatar initials="RG" size={32} /><div><span className={styles.vWho}>You vouched</span><span className={styles.vLine}>“{mine.line}”</span></div></li>}
+                {vouchedBy.map((v) => (
+                  <li key={v.name} className={styles.verdict}>
+                    <Avatar initials={v.ini} size={32} />
+                    <div><a className={styles.vWho} href={`/p/${v.slug}`}>{v.name} vouched →</a><span className={styles.vLine}>“{v.line}”</span></div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* WHAT TO GET */}
           {spot.move && (
