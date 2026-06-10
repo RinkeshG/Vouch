@@ -4,9 +4,23 @@ import { useParams } from "next/navigation";
 import { Wordmark } from "../../../../components/vouch/wordmark";
 import { Button } from "../../../../components/vouch/button";
 import { GuideArtifact } from "../../../../components/vouch/guide-artifact";
-import { getGuideBySlug } from "../../../../components/vouch/_guides";
+import { getGuideBySlug, type GuideItem } from "../../../../components/vouch/_guides";
 import { getSharedGuide, type SharedGuide } from "../../../../components/vouch/_share";
+import { findSpot, coord, type Spot } from "../../../../components/vouch/_taste";
+import { useMyMap } from "../../../../components/vouch/_map-context";
+import { shareGuideCard } from "../../../../components/vouch/guide-share";
 import styles from "../../../../components/vouch/guide-artifact.module.css";
+
+/* A guide item → a Spot we can drop on the map. Curated places resolve from SEED
+   (real coords + cuisine); anything else is parsed from its "cuisine · area · price"
+   tag line and pinned near the city centre until enrichment fills coords. */
+function itemToSpot(it: GuideItem): Spot {
+  const seed = findSpot(it.name);
+  if (seed) return seed;
+  const [cuisine, area, price] = (it.tags || "").split("·").map((s) => s.trim());
+  const c = coord(it.name);
+  return { name: it.name, area: area || "Bengaluru", cuisine: cuisine || "", price: price || "₹₹", occasions: [], lat: c.lat, lng: c.lng };
+}
 
 /* The public share page — what a friend opens from a link, on ANY device. Reads the
    published guide from Supabase (`shared_guides`) first; falls back to localStorage
@@ -14,7 +28,17 @@ import styles from "../../../../components/vouch/guide-artifact.module.css";
 export default function SharedGuidePage() {
   const params = useParams();
   const slug = String(params?.slug ?? "");
+  const { setStamp } = useMyMap();
   const [guide, setGuide] = useState<SharedGuide | null | undefined>(undefined);
+  const [wanted, setWanted] = useState(false);
+
+  // "Want all of these" (PRD §7.1b) — the growth loop's payoff: a friend's whole list
+  // drops onto YOUR map as Wants (sourced guide_import), so their taste reaches you.
+  function wantAll() {
+    if (!guide) return;
+    guide.items.forEach((it) => setStamp(itemToSpot(it), "want", { source: "guide_import" }));
+    setWanted(true);
+  }
 
   useEffect(() => {
     let dead = false;
@@ -51,8 +75,11 @@ export default function SharedGuidePage() {
         guide={{ title: guide.title, by: guide.by, ini, count: guide.items.length, note: guide.note, anchor: guide.anchor, items: guide.items }}
         share
         linkSpots
+        onWantAll={wantAll}
+        wanted={wanted}
+        onShare={() => shareGuideCard({ slug, title: guide.title, by: guide.by, note: guide.note, items: guide.items }, window.location.href)}
       />
-      <p className={styles.shareHint}>shared with you · invite-only · Bengaluru</p>
+      <p className={styles.shareHint}>a guide on Vouch · Bengaluru</p>
     </div>
   );
 }

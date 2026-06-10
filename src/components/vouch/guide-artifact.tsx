@@ -15,12 +15,18 @@ export function GuideArtifact({
   share = false,
   palateHref,
   linkSpots = false,
+  onWantAll,
+  wanted = false,
+  onShare,
 }: {
   guide: GuideData;
   whenToTrust?: string;
   share?: boolean;
   palateHref?: string;
   linkSpots?: boolean;
+  onWantAll?: () => void;
+  wanted?: boolean;
+  onShare?: () => void;
 }) {
   return (
     <article className={styles.guide}>
@@ -53,11 +59,16 @@ export function GuideArtifact({
 
       {share && (
         <footer className={styles.foot}>
-          <Button variant="primary">Want all of these →</Button>
-          {palateHref
-            ? <a className={styles.ghost} href={palateHref}>See {guide.by}’s palate →</a>
-            : <button type="button" className={styles.ghost}>See {guide.by}’s palate</button>}
-          <p className={styles.gate}>Saves the whole list to your map — each place with {guide.by}’s name on it, not a star.</p>
+          {wanted ? (
+            <a href="/home" className={styles.primaryLink}><Button variant="primary">On your map — open it →</Button></a>
+          ) : (
+            <Button variant="primary" onClick={onWantAll}>Want all of these →</Button>
+          )}
+          {onShare && <button type="button" className={styles.ghost} onClick={onShare}>Share this guide ↗</button>}
+          {palateHref && <a className={styles.ghost} href={palateHref}>See {guide.by}’s palate →</a>}
+          <p className={styles.gate}>{wanted
+            ? `${guide.count} ${guide.count === 1 ? "place" : "places"} dropped on your map — each with ${guide.by}’s name on it. Next time you’re near one, you’ll know.`
+            : `Saves the whole list to your map — each place with ${guide.by}’s name on it, not a star.`}</p>
         </footer>
       )}
     </article>
