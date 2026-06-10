@@ -77,7 +77,7 @@ export default function SharedGuidePage() {
         linkSpots
         onWantAll={wantAll}
         wanted={wanted}
-        onShare={() => shareGuideCard({ slug, title: guide.title, by: guide.by, note: guide.note, items: guide.items, pts: guide.items.map((it) => findSpot(it.name)).filter(Boolean).map((s) => [s!.lat, s!.lng] as [number, number]) }, window.location.href)}
+        onShare={() => shareGuideCard({ slug, title: guide.title, by: guide.by, note: guide.note, items: guide.items, pts: guide.items.slice(0, 4).flatMap((it, i) => { const s = findSpot(it.name); return s ? [[i, s.lat, s.lng] as [number, number, number]] : []; }) }, window.location.href)}
       />
       <p className={styles.shareHint}>a guide on Vouch · Bengaluru</p>
     </div>

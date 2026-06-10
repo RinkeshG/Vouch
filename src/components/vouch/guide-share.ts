@@ -3,8 +3,9 @@
    and the link, together. Where file-sharing isn't supported, we copy the link and
    download the image so the user can drop both into the chat by hand. */
 
-type Item = { name: string; note?: string };
-type ShareGuide = { slug: string; title: string; by?: string; note?: string; items: Item[]; pts?: [number, number][] };
+type Item = { name: string; note?: string; tags?: string };
+/* pts: [itemIndex, lat, lng] — the index keys each pin's number to its row on the card */
+type ShareGuide = { slug: string; title: string; by?: string; note?: string; items: Item[]; pts?: [number, number, number][] };
 
 export function guideCardUrl(g: ShareGuide): string {
   const p = new URLSearchParams();
@@ -12,9 +13,13 @@ export function guideCardUrl(g: ShareGuide): string {
   p.set("by", g.by || "You");
   if (g.note) p.set("note", g.note);
   p.set("count", String(g.items.length));
-  g.items.slice(0, 4).forEach((it) => p.append("n", `${it.name}::${it.note || ""}`));
-  // real coordinates → the map card pins places where they actually stand
-  (g.pts || []).forEach(([la, ln]) => p.append("pt", `${la},${ln}`));
+  // n = Name::take::Area — the area is the middle of the "cuisine · area · price" tags
+  g.items.slice(0, 4).forEach((it) => {
+    const area = (it.tags || "").split("·")[1]?.trim() || "";
+    p.append("n", `${it.name}::${it.note || ""}::${area}`);
+  });
+  // real coordinates → pins land where the places actually stand, numbered by row
+  (g.pts || []).forEach(([i, la, ln]) => p.append("pt", `${i},${la},${ln}`));
   return `/api/guide-card?${p.toString()}`;
 }
 
