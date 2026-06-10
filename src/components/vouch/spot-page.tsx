@@ -176,7 +176,7 @@ export function SpotPage({ slug }: { slug: string }) {
                   : <>Move <b>{spot.name}</b> back to want-to-go? You’ve already been.</>}
               </p>
               <div className={styles.confirmRow}>
-                <button type="button" className={styles.confirmKeep} onClick={() => setPending(null)}>Keep it as is</button>
+                <button type="button" className={styles.confirmKeep} onClick={() => { setPending(null); setEditing(false); }}>Keep it as is</button>
                 <button type="button" className={styles.confirmGo} onClick={confirmDemote}>{pending === "want" ? "Move to want-to-go" : "Move to been"}</button>
               </div>
             </div>
