@@ -11,10 +11,12 @@ export type NavKey = "map" | "search" | "guides" | "you";
    privileged centre ＋ capture. The desktop rail (≥1000px) is the enhancement, not
    the source of truth — it is rendered alongside and revealed by width, never the
    mobile bar stretched. */
-// Nav: Map · + · Guides · You (PRD §5). Search lives inside capture + on the map,
-// never a tab of its own.
+// Nav: Map · Search · + · Guides · You. (Product call: the PRD's 4-tab nav folded
+// search into capture/map; the owner wants Search as a first-class tab — it also
+// keeps the bar symmetric around the centre ＋.)
 const NAV: { key: NavKey; glyph: string; label: string; href: string }[] = [
   { key: "map", glyph: "◍", label: "Your map", href: "/home" },
+  { key: "search", glyph: "⌕", label: "Search", href: "/search" },
   { key: "guides", glyph: "❑", label: "Guides", href: "/guides" },
   { key: "you", glyph: "◆", label: "You", href: "/you" },
 ];
@@ -68,12 +70,14 @@ export function WebShell({
 
       <main className={styles.main}>{children}</main>
 
-      {/* MOBILE — bottom tab bar (<1000px): Map · ＋ · Guides · You. The ＋ capture
-          sits at the exact centre (the privileged thumb position); Map breathes in
-          the left half, Guides · You share the right. */}
+      {/* MOBILE — bottom tab bar (<1000px): Map · Search · ＋ · Guides · You — two
+          tabs each side, so the privileged ＋ capture sits naturally dead-centre. */}
       <nav className={styles.tabs} aria-label="Vouch">
-        <Link href="/home" className={`${styles.tab} ${styles.tabHome} ${active === "map" ? styles.tabOn : ""}`} aria-current={active === "map" ? "page" : undefined}>
+        <Link href="/home" className={`${styles.tab} ${active === "map" ? styles.tabOn : ""}`} aria-current={active === "map" ? "page" : undefined}>
           <span className={styles.tabGlyph} aria-hidden="true">◍</span><span className={styles.tabLabel}>Map</span>
+        </Link>
+        <Link href="/search" className={`${styles.tab} ${active === "search" ? styles.tabOn : ""}`} aria-current={active === "search" ? "page" : undefined}>
+          <span className={styles.tabGlyph} aria-hidden="true">⌕</span><span className={styles.tabLabel}>Search</span>
         </Link>
         <button type="button" className={styles.tabAdd} onClick={onNewVouch} aria-label="Add a place">
           <span className={styles.tabAddPlus} aria-hidden="true">＋</span>

@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
@@ -91,10 +90,6 @@ export function ProducersHome() {
       <div className={styles.stage}>
         <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede locate onPinTap={setFocused} spotlightId={focused} dimmedIds={dimmedIds} /></div>
         <div className={styles.scrim} aria-hidden="true" />
-
-        <Link href="/search" className={styles.search} aria-label="Search places">
-          <span className={styles.searchGlyph} aria-hidden="true">⌕</span> Search
-        </Link>
 
         <header className={styles.header}>
           {empty ? (
