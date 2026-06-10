@@ -2,16 +2,21 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./modal.module.css";
 
-/* Dialog on desktop, bottom-sheet on mobile. Scroll-lock · Esc · focus-trap. */
+/* Dialog on desktop, bottom-sheet on mobile. Scroll-lock · Esc · focus-trap.
+   `initialFocus="none"` keeps focus on the sheet itself — for sheets that lead with
+   a tappable list (the nearest-5 capture), where auto-focusing an input would pop
+   the keyboard over the very thing the user came to tap. */
 export function Modal({
   open,
   onClose,
   label,
+  initialFocus = "field",
   children,
 }: {
   open: boolean;
   onClose: () => void;
   label: string;
+  initialFocus?: "field" | "none";
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -61,8 +66,12 @@ export function Modal({
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const prevFocus = document.activeElement as HTMLElement | null;
-    // focus the first real field (textarea/input), not the ✕ close button
-    const t = window.setTimeout(() => ref.current?.querySelector<HTMLElement>("textarea, input, button, a[href]")?.focus(), 40);
+    // focus the first real field (textarea/input), not the ✕ close button — unless the
+    // sheet leads with a list, in which case focus the sheet (no keyboard pop).
+    const t = window.setTimeout(() => {
+      if (initialFocus === "none") { ref.current?.focus(); return; }
+      ref.current?.querySelector<HTMLElement>("textarea, input, button, a[href]")?.focus();
+    }, 40);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
@@ -74,7 +83,7 @@ export function Modal({
   if (!open) return null;
   return (
     <div className={styles.scrim} style={vp.kb ? { paddingBottom: vp.kb } : undefined} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div ref={ref} className={styles.sheet} role="dialog" aria-modal="true" aria-label={label} style={vp.kb ? { maxHeight: `${vp.vh - 16}px` } : undefined}>
+      <div ref={ref} tabIndex={-1} className={styles.sheet} role="dialog" aria-modal="true" aria-label={label} style={vp.kb ? { maxHeight: `${vp.vh - 16}px` } : undefined}>
         <button type="button" className={styles.close} onClick={onClose} aria-label="Close">✕</button>
         {children}
       </div>

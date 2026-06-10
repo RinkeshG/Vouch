@@ -5,10 +5,10 @@ import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
 import { AddVouchModal } from "./add-vouch";
 import { useMyMap } from "./_map-context";
-import { type Stamp } from "./_me";
+import { type Stamp, firstWantedAt } from "./_me";
 import { slugify } from "./_guides";
 import { findSpot, placeTint, monogram, FOUNDING } from "./_taste";
-import { cleanArea } from "./_catalog";
+import { cleanArea, distKm, fmtDist } from "./_catalog";
 import { RelChip } from "./rel-chip";
 import styles from "./direction-a.module.css";
 
@@ -25,6 +25,8 @@ export function ProducersHome() {
   const [focused, setFocused] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [lens, setLens] = useState<Lens>("all");
+  const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [spineDismissed, setSpineDismissed] = useState(false);
 
   const vouched = entries.filter((e) => e.stamp === "vouched");
   const counts = {
@@ -79,16 +81,46 @@ export function ProducersHome() {
     setFocused(null); // a stale card over a re-lensed map is a lie
   }
 
+  // THE WANT LOOP SPINE (PRD §7.3) — the one moment a solo user's app beats their own
+  // memory: you're near something you've been meaning to try. Powered by the same
+  // by-permission location the map uses; distance-only until hours data lands
+  // ("open now" would be a guess — we don't fake it).
+  const nearWants = myPos
+    ? entries
+        .filter((e) => e.stamp === "want")
+        .map((e) => ({ e, km: distKm(myPos.lat, myPos.lng, e.spot.lat, e.spot.lng) }))
+        .filter((x) => x.km <= 2.5)
+        .sort((a, b) => a.km - b.km)
+    : [];
+  const spine = !empty && !card && !spineDismissed && lens !== "want" && nearWants.length > 0 ? nearWants : null;
+  function openSpine() {
+    if (!spine) return;
+    if (spine.length === 1) { setLens("all"); setFocused(`me:${spine[0].e.spot.name}`); }
+    else { setLens("want"); setFocused(null); } // isolate the ghosts; pick one by eye
+  }
+
+  // "wanted for 3 weeks" — read from the append-only events log, never invented
+  function wantedFor(name: string): string | null {
+    const t = firstWantedAt(name);
+    if (!t) return null;
+    const days = Math.floor((Date.now() - t) / 86400000);
+    if (days < 7) return null;
+    if (days < 30) { const w = Math.floor(days / 7); return `${w} week${w > 1 ? "s" : ""}`; }
+    const m = Math.floor(days / 30);
+    return `${m} month${m > 1 ? "s" : ""}`;
+  }
+
   // the card reads as a recommendation to YOURSELF, in the voice of your own past call
   function recLine(e: (typeof entries)[number]): string {
     if (e.stamp === "been") return e.gut === "absolutely" ? "You’d go back, no question." : e.gut === "no" ? "You wouldn’t go back — but it’s on your map." : "You were on the fence last time.";
-    return "On your radar — you’ve been meaning to go.";
+    const dur = wantedFor(e.spot.name);
+    return dur ? `On your radar for ${dur} — you’ve been meaning to go.` : "On your radar — you’ve been meaning to go.";
   }
 
   return (
     <WebShell active="map" onNewVouch={() => setAdding(true)} you={{ ini: "RG", name: "You", line: empty ? "Build your map" : `${entries.length} ${entries.length === 1 ? "place" : "places"} · Bengaluru` }}>
       <div className={styles.stage}>
-        <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede locate onPinTap={setFocused} spotlightId={focused} dimmedIds={dimmedIds} /></div>
+        <div className={styles.mapLayer}><MapReal pins={pins} height="100%" labelMode="hover" bleed recede locate onPinTap={setFocused} spotlightId={focused} dimmedIds={dimmedIds} onLocated={(lat, lng) => setMyPos({ lat, lng })} /></div>
         <div className={styles.scrim} aria-hidden="true" />
 
         <header className={styles.header}>
@@ -120,6 +152,26 @@ export function ProducersHome() {
           )}
         </header>
 
+        {/* the want-loop spine — prime slot, bottom third, dismissible (PRD §7.3) */}
+        {spine && (
+          <div className={styles.spine}>
+            <button type="button" className={styles.spineBody} onClick={openSpine}>
+              <span className={styles.spineEyebrow}>Near you</span>
+              <span className={styles.spineLine}>
+                {spine.length === 1
+                  ? <>You’re near <b>{spine[0].e.spot.name}</b> — you wanted to try it.</>
+                  : <><b>{spine.length} places</b> you wanted are close by.</>}
+              </span>
+              <span className={styles.spineMeta}>
+                {spine.length === 1
+                  ? `${fmtDist(spine[0].km)} away →`
+                  : `${spine[0].e.spot.name} · ${fmtDist(spine[0].km)} · +${spine.length - 1} more →`}
+              </span>
+            </button>
+            <button type="button" className={styles.spineClose} onClick={() => setSpineDismissed(true)} aria-label="Dismiss">✕</button>
+          </div>
+        )}
+
         {card && (
           <div className={styles.placeCard} role="dialog" aria-label={card.sp.name}>
             <button type="button" className={styles.cardClose} onClick={() => setFocused(null)} aria-label="Back to map">✕</button>
@@ -138,7 +190,9 @@ export function ProducersHome() {
               : <p className={styles.cardRec}>{recLine(card.e)}</p>}
             {card.vibe && <p className={styles.cardVibe}>{card.vibe}</p>}
             <div className={styles.cardActions}>
-              <a className={styles.cardReceipt} href={`/spot/${slugify(card.sp.name)}`}>see the full place →</a>
+              {/* the decision ends in GO — link out for logistics (PRD §1) */}
+              <a className={styles.cardMaps} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${card.sp.name} ${cleanArea(card.sp.area)} Bengaluru`)}`} target="_blank" rel="noreferrer">Open in Maps ↗</a>
+              <a className={styles.cardReceipt} href={`/spot/${slugify(card.sp.name)}`}>the full place →</a>
               {decidePool.length > 1 && <button type="button" className={styles.cardAnother} onClick={pickForMe}>↻ Pick another</button>}
             </div>
           </div>
@@ -152,8 +206,9 @@ export function ProducersHome() {
 
       <AddVouchModal open={adding} onClose={() => setAdding(false)} onCaptured={(r) => {
         // entries update reactively via the seam; clear the lens so the new pin is
-        // never dimmed, then frame it.
-        setLens("all"); setFocused(`me:${r.spot.name}`);
+        // never dimmed. For a WANT the ghost pin floating in is the whole confirmation
+        // (PRD §10) — no card; been/vouch land with their card open.
+        setLens("all"); setFocused(r.stamp === "want" ? null : `me:${r.spot.name}`);
       }} />
     </WebShell>
   );

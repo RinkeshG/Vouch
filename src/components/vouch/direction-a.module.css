@@ -33,6 +33,18 @@
 .toastWrap { position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 5; pointer-events: none; }
 .toast { display: inline-block; font-family: var(--sans); font-size: 0.92rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); border-radius: var(--r-pill); padding: 11px 20px; box-shadow: var(--shadow-pop); animation: vouchStampIn 0.34s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 
+/* THE WANT-LOOP SPINE (PRD §7.3) — the prime bottom slot: "you're near something you
+   wanted." It speaks in the WANT register (tan), never saffron — saffron is vouch's. */
+.spine { position: absolute; left: 14px; right: 14px; bottom: 92px; z-index: 5; display: flex; align-items: flex-start; background: var(--surface); border: 1px solid rgba(205, 181, 149, 0.38); border-radius: var(--r-xl); box-shadow: var(--shadow-lift); animation: cardUp 0.3s var(--ease) both; }
+.spineBody { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-align: left; background: none; border: none; padding: 14px 4px 15px 17px; cursor: pointer; }
+.spineEyebrow { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--stamp-want); }
+.spineLine { font-family: var(--display); font-weight: 700; font-size: 1.12rem; letter-spacing: -0.015em; line-height: 1.25; color: var(--text); }
+.spineLine b { font-weight: 800; color: var(--stamp-want); }
+.spineMeta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.spineClose { flex: none; width: 30px; height: 30px; margin: 11px 11px 0 0; display: grid; place-items: center; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: rgba(244,238,227,0.04); color: var(--faint); font-size: 0.8rem; line-height: 1; cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease; }
+.spineClose:hover { color: var(--text); border-color: var(--rule); }
+@media (min-width: 1000px) { .spine { left: auto; right: 28px; bottom: 28px; width: 392px; } }
+
 /* THE PLACE CARD — a compact glance card (the full hero lives on the place page).
    A monogram thumb (or a photo when wired) anchors it; clean meta, never a URL.
    PRD §5.3: tapping a pin / "pick one" slides this up, clear of the header. */
@@ -50,8 +62,11 @@
 .cardVibe { font-family: var(--sans); font-size: 0.97rem; line-height: 1.45; color: var(--text); margin: 13px 0 0; }
 .cardTake { font-family: var(--sans); font-size: 1rem; font-style: italic; line-height: 1.45; color: var(--muted); margin: 13px 0 0; padding-left: 12px; border-left: 2px solid var(--saffron-line); }
 .cardRec { font-family: var(--sans); font-size: 1rem; font-weight: 500; line-height: 1.4; color: var(--text); margin: 13px 0 0; }
-.cardActions { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
-.cardReceipt { font-family: var(--sans); font-size: 0.92rem; font-weight: 600; color: var(--saffron); text-decoration: none; }
+.cardActions { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 16px; }
+/* the GO action leads; the deeper read is quieter */
+.cardMaps { font-family: var(--sans); font-size: 0.92rem; font-weight: 600; color: var(--text); text-decoration: none; }
+.cardMaps:hover { color: var(--saffron); }
+.cardReceipt { font-family: var(--sans); font-size: 0.92rem; font-weight: 500; color: var(--muted); text-decoration: none; }
 .cardReceipt:hover { color: var(--saffron-hi); }
 .cardAnother { margin-left: auto; font-family: var(--sans); font-size: 0.84rem; color: var(--muted); background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 6px 13px; cursor: pointer; transition: all 0.15s var(--ease); }
 .cardAnother:hover { border-color: var(--saffron); color: var(--saffron); }

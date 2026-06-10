@@ -81,3 +81,29 @@ export async function getCatalogSpot(slug: string): Promise<CatalogSpot | null> 
   const all = live.length ? live : seedCatalog();
   return all.find((s) => s.slug === slug) ?? null;
 }
+
+/* ── nearest-first capture (PRD §7.2) ─────────────────────────────────────────────
+   Distance at city scale: equirectangular is within ~0.1% of haversine — fine. */
+const KM_PER_DEG = 111.32;
+export function distKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const dLat = (bLat - aLat) * KM_PER_DEG;
+  const dLng = (bLng - aLng) * KM_PER_DEG * Math.cos(((aLat + bLat) / 2) * (Math.PI / 180));
+  return Math.sqrt(dLat * dLat + dLng * dLng);
+}
+export function fmtDist(km: number): string {
+  return km < 1 ? `${Math.max(50, Math.round(km * 1000 / 50) * 50)} m` : `${km.toFixed(1)} km`;
+}
+
+/* The 5 nearest places to where you're standing. Only rows with real coordinates
+   qualify (most live rows don't carry them yet — the enrichment job fills this in),
+   so we union live + SEED, dedup by slug, and rank by distance. */
+export async function nearestCatalog(lat: number, lng: number, n = 5): Promise<(CatalogSpot & { km: number })[]> {
+  const live = await loadCatalog();
+  const bySlug = new Map<string, CatalogSpot>();
+  [...live, ...seedCatalog()].forEach((s) => { if (!bySlug.has(s.slug)) bySlug.set(s.slug, s); });
+  return [...bySlug.values()]
+    .filter((s) => s.lat != null && s.lng != null)
+    .map((s) => ({ ...s, km: distKm(lat, lng, s.lat as number, s.lng as number) }))
+    .sort((a, b) => a.km - b.km)
+    .slice(0, n);
+}

@@ -1,23 +1,23 @@
 "use client";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Modal } from "./modal";
 import { Tag } from "./chip";
 import { SearchField } from "./input";
 import { type Spot, type Vouch } from "./_taste";
-import { searchCatalog, type CatalogSpot } from "./_catalog";
+import { searchCatalog, nearestCatalog, fmtDist, type CatalogSpot } from "./_catalog";
 import { type Stamp, type Gut } from "./_me";
 import { useMyMap } from "./_map-context";
 import { RelChip } from "./rel-chip";
 import styles from "./add-vouch.module.css";
 
-/* The capture sheet, available from anywhere (the spine action). Search the REAL
-   Bengaluru catalog (Supabase `places`), pick a place, then choose your MOVE — the
-   three are deliberately NOT equal-weight (Constitution §1, speech acts):
-     · Want to go — one tap, no words. A note to your future self.
+/* The capture sheet (M2: walking out — 5 seconds or it's lost). Opens PRE-POPULATED
+   with the 5 nearest places (PRD §7.2): the common case is two taps, place → state,
+   zero typing. Search sits above as the fallback. The three acts are deliberately
+   NOT equal-weight:
+     · Want to go — one tap. The sheet closes itself; the ghost pin IS the confirmation.
      · Been      — one honest answer to "Go back?" (Absolutely / Maybe / No). Private.
-     · Vouch     — the worded, public act. Costs a line + occasion. Your name on it.
-   Friction matches meaning. Loved-it nudges toward a vouch, but never auto-vouches. */
+     · Vouch     — the worded, public act. Costs a line + a hold. Your name on it. */
 
 type Pick = { name: string; area: string; cuisine: string; price: string; lat: number | null; lng: number | null };
 type Step = "choose" | "been" | "vouch";
@@ -75,15 +75,12 @@ export function AddVouchModal({
   const [q, setQ] = useState("");
   const [results, setResults] = useState<CatalogSpot[]>([]);
   const [loading, setLoading] = useState(false);
+  const [near, setNear] = useState<(CatalogSpot & { km: number })[] | null>(null);
+  const [locating, setLocating] = useState(false);
   const [sel, setSel] = useState<Pick | null>(presetSpot ?? null);
   const [step, setStep] = useState<Step>(initialStep(presetSpot));
   const [line, setLine] = useState("");
   const [done, setDone] = useState<{ stamp: Stamp; gut?: Gut; name: string; count: number } | null>(null);
-
-  // snapshot of places already vouched, taken when the sheet opens (so it doesn't
-  // churn the result list mid-session); used to hide them from search.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const taken = useMemo(() => new Set(entries.filter((e) => e.stamp === "vouched" && e.line).map((e) => e.spot.name)), [open]);
 
   // reset to the preset (or blank) whenever the modal opens
   useEffect(() => {
@@ -91,22 +88,47 @@ export function AddVouchModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, presetSpot, presetStamp]);
 
-  // the success moment holds for a beat, then closes — long enough to feel it land
+  // Nearest-first (PRD §7.2): on open, one foreground location check (a cached fix is
+  // fine — maximumAge 5 min) → the 5 nearest places. Denied / slow / out of the city →
+  // fall back to search, silently and honestly. Never a nag.
+  useEffect(() => {
+    if (!open || presetSpot || typeof navigator === "undefined" || !navigator.geolocation) return;
+    let dead = false;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (dead) return;
+        nearestCatalog(pos.coords.latitude, pos.coords.longitude, 5).then((r) => {
+          if (dead) return;
+          // a "nearest" 50 km away means you're not in the city — that's not near
+          setNear(r.length && r[0].km <= 25 ? r : null);
+          setLocating(false);
+        });
+      },
+      () => { if (!dead) { setNear(null); setLocating(false); } },
+      { enableHighAccuracy: false, timeout: 3500, maximumAge: 300000 },
+    );
+    return () => { dead = true; };
+  }, [open, presetSpot]);
+
+  // the success moment holds for a beat, then closes — the weight of the moment
+  // scales with the act (vouch lingers; a been logs and gets out of your way)
   useEffect(() => {
     if (!done) return;
-    const t = window.setTimeout(() => { setDone(null); onClose(); }, 2200);
+    const t = window.setTimeout(() => { setDone(null); onClose(); }, done.stamp === "vouched" ? 2200 : 1800);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
 
-  // live search the real catalog
+  // live search the real catalog. Places already on your map stay in the results,
+  // wearing their state chip (PRD §7.2) — you go back to places you vouch for most.
   useEffect(() => {
     if (!open || sel) return;
     let dead = false;
     setLoading(true);
-    searchCatalog(q).then((r) => { if (!dead) { setResults(r.filter((s) => !taken.has(s.name)).slice(0, 8)); setLoading(false); } });
+    searchCatalog(q).then((r) => { if (!dead) { setResults(r.slice(0, 8)); setLoading(false); } });
     return () => { dead = true; };
-  }, [q, open, sel, taken]);
+  }, [q, open, sel]);
 
   const spotFrom = (p: Pick): Spot => ({ name: p.name, area: p.area, cuisine: p.cuisine, price: p.price, occasions: [], lat: p.lat ?? BLR.lat, lng: p.lng ?? BLR.lng });
 
@@ -123,8 +145,9 @@ export function AddVouchModal({
   function chooseWant() {
     if (!sel) return;
     const spot = spotFrom(sel);
-    const next = setStamp(spot, "want");
-    finish(spot, "want", vouchCount(next));
+    setStamp(spot, "want");
+    onCaptured?.({ spot, stamp: "want" });
+    onClose(); // no done-screen: the ghost pin floating onto the map IS the confirmation (PRD §10)
   }
   function chooseGut(gut: Gut) {
     if (!sel) return;
@@ -143,8 +166,27 @@ export function AddVouchModal({
 
   const existing = sel ? getEntry(sel.name) : undefined; // already on your map?
 
+  // one row everywhere a place can be picked — distance leads when we know it,
+  // and a place already on your map wears its state chip (PRD §7.2).
+  const placeRow = (s: CatalogSpot, km?: number) => {
+    const ex = getEntry(s.name);
+    return (
+      <li key={s.slug}>
+        <button type="button" className={styles.result} onClick={() => pickResult(s)}>
+          <span className={styles.resultMain}>
+            <span className={styles.resultName}>{s.name}</span>
+            <span className={styles.resultMeta}>{km != null ? `${fmtDist(km)} · ` : ""}{s.cuisine} · {s.area} · {s.price}</span>
+          </span>
+          {ex && <RelChip stamp={ex.stamp} gut={ex.gut} className={styles.resultChip} />}
+        </button>
+      </li>
+    );
+  };
+
   return (
-    <Modal open={open} onClose={onClose} label="Add a place">
+    /* initialFocus="none": the sheet leads with the tappable nearest list — popping
+       the keyboard over it would defeat the whole zero-typing flow */
+    <Modal open={open} onClose={onClose} label="Add a place" initialFocus="none">
       <div className={styles.sheet}>
         {done ? (
           <div className={styles.done}>
@@ -154,13 +196,6 @@ export function AddVouchModal({
                 <p className={styles.doneTitle}>Your name’s on it.</p>
                 <p className={styles.donePlace}>{done.name}</p>
                 <p className={styles.doneMeta}>{done.count} {done.count === 1 ? "place carries" : "places carry"} your name now.</p>
-              </>
-            ) : done.stamp === "want" ? (
-              <>
-                <div className={`${styles.seal} ${styles.sealWant}`} aria-hidden="true" />
-                <p className={styles.doneTitle}>On your radar.</p>
-                <p className={styles.donePlace}>{done.name}</p>
-                <p className={styles.doneMeta}>Saved for the night you’re nearby.</p>
               </>
             ) : (
               <>
@@ -174,20 +209,26 @@ export function AddVouchModal({
         ) : !sel ? (
           <>
             <p className={styles.title}>Add a place to your map.</p>
-            <SearchField placeholder="Search Bengaluru — any place you know…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
+            <SearchField placeholder="Search Bengaluru — any place you know…" value={q} onChange={(e) => setQ(e.target.value)} />
             <ul className={styles.results}>
-              {loading && results.length === 0 ? (
-                <li className={styles.none}>Searching the city…</li>
-              ) : results.length === 0 ? (
-                <li className={styles.none}>{q ? `Nothing matching “${q}”.` : "Start typing a place."}</li>
-              ) : results.map((s) => (
-                <li key={s.slug}>
-                  <button type="button" className={styles.result} onClick={() => pickResult(s)}>
-                    <span className={styles.resultName}>{s.name}</span>
-                    <span className={styles.resultMeta}>{s.cuisine} · {s.area} · {s.price}</span>
-                  </button>
-                </li>
-              ))}
+              {q.trim() ? (
+                loading && results.length === 0 ? (
+                  <li className={styles.none}>Searching the city…</li>
+                ) : results.length === 0 ? (
+                  <li className={styles.none}>Nothing matching “{q}”.</li>
+                ) : results.map((s) => placeRow(s))
+              ) : near && near.length > 0 ? (
+                <>
+                  <li className={styles.nearLabel} aria-hidden="true">Near you</li>
+                  {near.map((s) => placeRow(s, s.km))}
+                </>
+              ) : locating ? (
+                <li className={styles.none}>Finding what’s near you…</li>
+              ) : results.length > 0 ? (
+                results.map((s) => placeRow(s))
+              ) : (
+                <li className={styles.none}>Start typing a place.</li>
+              )}
             </ul>
           </>
         ) : (

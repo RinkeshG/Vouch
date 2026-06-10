@@ -20,7 +20,7 @@ export type MapPin = {
   cuisine?: string;                       // keys the tiny in-pin glyph (what the place IS)
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -35,6 +35,8 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   // popup), a tap reports the id up instead of opening the built-in popup.
   const onTap = useRef(onPinTap);
   onTap.current = onPinTap;
+  const onLoc = useRef(onLocated);
+  onLoc.current = onLocated;
   // always hold the latest pins so sync() is never stale — the map can finish
   // initializing AFTER the parent's data lands (or vice versa); either order works.
   const pinsRef = useRef<MapPin[]>(pins);
@@ -111,6 +113,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
             if (dead || !m2) return;
             const { latitude, longitude } = pos.coords;
             if (!BLR.contains([latitude, longitude])) return; // outside our coverage → keep the city view
+            onLoc.current?.(latitude, longitude); // the host may want the position (the want-loop spine)
             const youIcon = leaflet.divIcon({ className: styles.icon, html: `<div class="${styles.you}"><span class="${styles.youDot}"></span></div>`, iconSize: [2, 2], iconAnchor: [9, 9] });
             youMarker.current = leaflet.marker([latitude, longitude], { icon: youIcon, interactive: false, keyboard: false, zIndexOffset: -200 }).addTo(m2);
             if (pinsRef.current.length === 0) m2.flyTo([latitude, longitude], 14, { duration: 0.8 });

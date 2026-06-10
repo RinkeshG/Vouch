@@ -2,8 +2,11 @@
 .title { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--text); margin: 0 0 2px; line-height: 1.1; padding-right: 40px; }
 
 .results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow-y: auto; }
-.result { width: 100%; display: flex; flex-direction: column; gap: 3px; text-align: left; background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 12px 14px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease); }
+.nearLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 4px 2px 0; }
+.result { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 12px 14px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease); }
 .result:hover { border-color: var(--saffron); background: var(--saffron-dim); }
+.resultMain { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.resultChip { flex: none; }
 .resultName { font-family: var(--display); font-weight: 700; font-size: 1.02rem; letter-spacing: -0.015em; color: var(--text); }
 .resultMeta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
 .none { font-family: var(--sans); font-size: 0.9rem; color: var(--muted); padding: 8px 2px; }
@@ -67,8 +70,6 @@
 .seal { position: relative; width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle at 38% 30%, var(--saffron-hi), var(--saffron)); display: grid; place-items: center; box-shadow: 0 0 0 8px rgba(246,168,43,0.12), 0 18px 44px -14px rgba(246,168,43,0.9); margin-bottom: 18px; animation: sealIn 0.45s var(--ease) both; }
 .seal::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 1.5px solid rgba(28,20,8,0.3); }
 .sealMark { color: var(--accent-ink); font-size: 2.2rem; font-weight: 700; line-height: 1; }
-.sealWant { background: transparent; border: 2.5px solid var(--saffron-line); box-shadow: 0 0 0 8px rgba(246,168,43,0.06); }
-.sealWant::after { display: none; }
 .sealBeen { background: radial-gradient(circle at 38% 30%, #8fe0b3, var(--jade)); box-shadow: 0 0 0 8px var(--jade-dim), 0 18px 44px -14px rgba(118,210,155,0.7); }
 .sealBeen::after { border-color: rgba(12,30,22,0.32); }
 .sealBeen .sealMark { color: var(--bg); }
