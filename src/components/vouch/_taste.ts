@@ -41,6 +41,25 @@ export function placeTint(cuisine: string): string {
   if (/ice cream|dessert|sweet/.test(c)) return "linear-gradient(135deg, #2a1020 0%, #7c2e52 100%)";
   return "linear-gradient(135deg, #261a0c 0%, #6e4a1c 100%)";
 }
+/* Tiny monoline glyphs (24-grid, stroke = currentColor) keyed by cuisine family —
+   so a pin says WHAT a place is at a glance while its colour still says your
+   relationship to it. Drawn in the product's stroke style, never emoji. Families
+   without an obvious mark return null and stay a clean dot — restraint, not noise. */
+const G = (inner: string) =>
+  `<svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>${inner}</svg>`;
+export function cuisineGlyph(cuisine?: string): string | null {
+  const c = (cuisine || "").toLowerCase();
+  if (/coffee|cafe|chai/.test(c)) return G("<path d='M5 8h10v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8z'/><path d='M15 9h1.5a2.5 2.5 0 0 1 0 5H15'/>");
+  if (/dosa|tiffin|idli|udupi|south indian/.test(c)) return G("<path d='M4 15a8 8 0 0 1 16 0z'/><path d='M7 19h10'/>");
+  if (/ramen|noodle|sushi|japanese|asian|thai|chinese|momo|small plates/.test(c)) return G("<path d='M4 12h16a8 8 0 0 1-16 0z'/><path d='M10 8l2.5-5'/><path d='M14 8l2.5-5'/>");
+  if (/kebab|biryani|grill|andhra|mughlai|military|bbq|tandoor/.test(c)) return G("<path d='M12 3c2.5 3.5 5 5.5 5 9a5 5 0 1 1-10 0c0-3.5 2.5-5.5 5-9z'/>");
+  if (/brew|beer|pub|taproom|\bbar\b/.test(c)) return G("<path d='M6 5h9v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5z'/><path d='M15 9h1.5a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H15'/><path d='M6 8.5h9'/>");
+  if (/ice cream|dessert|sweet|bakery|cake|gelato/.test(c)) return G("<circle cx='12' cy='8' r='4.5'/><path d='M8.5 11.5L12 21l3.5-9.5'/>");
+  if (/coastal|seafood|fish|mangalor/.test(c)) return G("<path d='M3 12c3-3.5 6.5-5 10.5-5 2.5 2.5 2.5 7.5 0 10C9.5 17 6.5 15.5 3 12z'/><path d='M14 8.5L19 12l-5 3.5'/>");
+  if (/pizza|italian/.test(c)) return G("<path d='M12 3L4 19h16z'/><path d='M7.5 12.5h9'/>");
+  return null;
+}
+
 export function monogram(name: string): string {
   // strip apostrophes first so "Brahmin's" → "Brahmins" (one token, not "B" + "s")
   const parts = name.replace(/['’]/g, "").replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);

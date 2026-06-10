@@ -53,7 +53,7 @@
 
 /* hold-to-vouch — the deliberate moment. A fill sweeps as you hold; release early and
    it snaps back. The act takes intent, not a tap. */
-.hold { position: relative; overflow: hidden; width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; border: none; border-radius: var(--r-lg); cursor: pointer; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); color: var(--accent-ink); box-shadow: 0 12px 28px -12px rgba(246, 168, 43, 0.85); touch-action: none; user-select: none; -webkit-user-select: none; transition: opacity 0.15s ease; }
+.hold { position: relative; overflow: hidden; width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; border: none; border-radius: var(--r-lg); cursor: pointer; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); color: var(--accent-ink); box-shadow: 0 12px 28px -12px rgba(246, 168, 43, 0.85); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: opacity 0.15s ease; }
 .hold:disabled { opacity: 0.38; cursor: default; box-shadow: none; }
 .hold:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
 .holdFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(28, 20, 8, 0.26); transition: width 0.18s ease; }

@@ -68,10 +68,11 @@ export function WebShell({
 
       <main className={styles.main}>{children}</main>
 
-      {/* MOBILE — bottom tab bar (<1000px): Map · ＋ · Guides · You, evenly spaced,
-          the ＋ capture elevated and saffron. */}
+      {/* MOBILE — bottom tab bar (<1000px): Map · ＋ · Guides · You. The ＋ capture
+          sits at the exact centre (the privileged thumb position); Map breathes in
+          the left half, Guides · You share the right. */}
       <nav className={styles.tabs} aria-label="Vouch">
-        <Link href="/home" className={`${styles.tab} ${active === "map" ? styles.tabOn : ""}`} aria-current={active === "map" ? "page" : undefined}>
+        <Link href="/home" className={`${styles.tab} ${styles.tabHome} ${active === "map" ? styles.tabOn : ""}`} aria-current={active === "map" ? "page" : undefined}>
           <span className={styles.tabGlyph} aria-hidden="true">◍</span><span className={styles.tabLabel}>Map</span>
         </Link>
         <button type="button" className={styles.tabAdd} onClick={onNewVouch} aria-label="Add a place">

@@ -31,6 +31,20 @@ export function Modal({
     vv.addEventListener("scroll", update);
     return () => { vv.removeEventListener("resize", update); vv.removeEventListener("scroll", update); };
   }, [open]);
+  // The sheet pushes a history state so the browser BACK button closes it instead of
+  // leaving the site (PRD §7.2 web mechanics — the #1 mobile-web rage moment).
+  useEffect(() => {
+    if (!open || typeof window === "undefined") return;
+    let poppedByUser = false;
+    const onPop = () => { poppedByUser = true; onCloseRef.current(); };
+    window.history.pushState({ vouchSheet: true }, "");
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      // closed by ✕ / Esc / scrim → consume the state we pushed so back stays sane
+      if (!poppedByUser) window.history.back();
+    };
+  }, [open]);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

@@ -26,14 +26,17 @@
 /* pins (divIcon content) */
 .icon { background: transparent; border: none; }
 .pin, .pinP { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; animation: drop 0.45s var(--ease) both; cursor: pointer; transition: opacity 0.3s var(--ease), filter 0.3s var(--ease); }
-/* stamp-state pins — the map reads as your relationship to each place. A dark halo
-   ring (the 0 0 0 2px shadow) separates every pin from the tiles underneath, so they
-   stay legible whatever's behind them. */
-.dot { width: 15px; height: 15px; flex: none; border-radius: 50%; background: var(--saffron); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 16px 3px rgba(246, 168, 43, 0.9); }   /* Vouched — the currency, glows brightest */
-.dotBeen { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--stamp-want); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 7px 1px rgba(205, 181, 149, 0.28); }   /* Been · Go back? maybe — neutral tan */
-.dotBeenAbsolutely { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--jade); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 11px 2px rgba(118, 210, 155, 0.6); }   /* Been · Go back? absolutely — warm jade */
-.dotBeenNo { width: 11px; height: 11px; flex: none; border-radius: 50%; background: rgba(138, 130, 120, 0.7); box-shadow: 0 0 0 2px rgba(16,15,13,0.55); }   /* Been · Go back? no — desaturated grey, no glow */
-.dotWant { width: 13px; height: 13px; flex: none; border-radius: 50%; background: transparent; border: 1.75px solid rgba(246, 168, 43, 0.88); box-shadow: 0 0 0 2px rgba(16,15,13,0.4); }   /* Want to go — a clear ghost ring */
+/* stamp-state pins — the map reads on two axes at a glance: the dot's COLOUR is your
+   relationship (the register), the tiny glyph inside is WHAT the place is (coffee,
+   biryani, beer…). A dark halo ring (the 0 0 0 2px shadow) separates every pin from
+   the tiles underneath. `color` on each class inks the glyph (stroke: currentColor). */
+.dot, .dotBeen, .dotBeenAbsolutely, .dotBeenNo, .dotWant { flex: none; border-radius: 50%; display: grid; place-items: center; }
+.dot svg, .dotBeen svg, .dotBeenAbsolutely svg, .dotBeenNo svg, .dotWant svg { display: block; }
+.dot { width: 22px; height: 22px; background: var(--saffron); color: rgba(36, 24, 6, 0.92); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 16px 3px rgba(246, 168, 43, 0.9); }   /* Vouched — the currency, glows brightest */
+.dotBeen { width: 20px; height: 20px; background: var(--stamp-want); color: rgba(44, 33, 16, 0.9); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 7px 1px rgba(205, 181, 149, 0.28); }   /* Been · Go back? maybe — neutral tan */
+.dotBeenAbsolutely { width: 20px; height: 20px; background: var(--jade); color: rgba(10, 34, 22, 0.9); box-shadow: 0 0 0 2px rgba(16,15,13,0.55), 0 0 11px 2px rgba(118, 210, 155, 0.6); }   /* Been · Go back? absolutely — warm jade */
+.dotBeenNo { width: 19px; height: 19px; background: rgba(138, 130, 120, 0.72); color: rgba(22, 19, 15, 0.85); box-shadow: 0 0 0 2px rgba(16,15,13,0.55); }   /* Been · Go back? no — desaturated grey, no glow */
+.dotWant { width: 20px; height: 20px; background: rgba(16, 15, 13, 0.45); border: 1.75px solid rgba(246, 168, 43, 0.88); color: rgba(246, 168, 43, 0.92); box-shadow: 0 0 0 2px rgba(16,15,13,0.4); }   /* Want to go — a ghost ring; the glyph hints what you saved it for */
 .ava { width: 24px; height: 24px; flex: none; border-radius: 7px 7px 7px 2px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 0.56rem; color: var(--accent-ink); background: linear-gradient(135deg, var(--saffron), var(--ember)); box-shadow: 0 0 12px 1px rgba(246, 168, 43, 0.6); border: 1.5px solid var(--bg); }
 .label { font-family: var(--sans); font-weight: 600; font-size: 0.74rem; color: var(--text); background: rgba(12, 10, 7, 0.88); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 3px 9px; transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
 /* crowded surfaces (Home): keep pins clean, reveal the name on hover/focus — tap

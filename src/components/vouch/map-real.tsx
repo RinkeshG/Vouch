@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import { slugify } from "./_guides";
+import { cuisineGlyph } from "./_taste";
 import styles from "./map-real.module.css";
 
 /* The Vouch map — a REAL dark Bengaluru (Leaflet + Carto dark raster tiles, no
@@ -16,9 +17,10 @@ export type MapPin = {
   kind?: "mine" | "palate"; by?: { name: string; ini: string };
   stamp?: "want" | "been" | "vouched";
   gut?: "absolutely" | "maybe" | "no";   // tints the "been" mark by your "Go back?" answer
+  cuisine?: string;                       // keys the tiny in-pin glyph (what the place IS)
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, locate = false, onPinTap, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; locate?: boolean; onPinTap?: (id: string) => void; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -59,10 +61,12 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       const hov = labelMode === "hover" ? ` ${styles.hover}` : "";
       const beenClass = p.gut === "absolutely" ? styles.dotBeenAbsolutely : p.gut === "no" ? styles.dotBeenNo : styles.dotBeen;
       const dotClass = p.stamp === "been" ? beenClass : p.stamp === "want" ? styles.dotWant : styles.dot;
+      // the glyph says WHAT it is; the dot colour says your relationship (register)
+      const glyph = p.kind !== "palate" ? (cuisineGlyph(p.cuisine) ?? "") : "";
       const html = p.kind === "palate" && p.by
         ? `<div class="${styles.pinP}${hov}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`
-        : `<div class="${styles.pin}${hov}"><span class="${dotClass}"></span><span class="${styles.label}">${p.name}</span></div>`;
-      const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [8, 8], popupAnchor: [40, -6] });
+        : `<div class="${styles.pin}${hov}"><span class="${dotClass}">${glyph}</span><span class="${styles.label}">${p.name}</span></div>`;
+      const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [10, 10], popupAnchor: [40, -6] });
       const mk = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m);
       // your own pins open the designed place-card (onPinTap); a palate's borrowed pins
       // open the receipt popup (who vouched + why).
@@ -133,19 +137,24 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     mk.openPopup();
   }, [focusId]);
 
-  // spotlight: dim everything but one pin (the decision-moment focus)
+  // spotlight (the decision-moment focus) and lens-dimming (the legend filter) share
+  // one pass: spotlight wins when set; otherwise pins outside the active lens recede.
+  // Dimming — never removing — keeps the map still and your spatial memory intact.
+  const dimKey = dimmedIds.join("|");
   useEffect(() => {
+    const dim = new Set(dimmedIds);
     Object.entries(markers.current).forEach(([id, mk]) => {
       const el = (mk.getElement?.() as HTMLElement | undefined);
       if (!el) return;
-      el.classList.toggle(styles.dimmed, !!spotlightId && id !== spotlightId);
+      const dimmed = spotlightId ? id !== spotlightId : dim.has(id);
+      el.classList.toggle(styles.dimmed, dimmed);
       el.classList.toggle(styles.lit, !!spotlightId && id === spotlightId);
     });
     if (spotlightId && map.current && markers.current[spotlightId]) {
       map.current.flyTo(markers.current[spotlightId].getLatLng(), 14, { duration: 0.6 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spotlightId, sig]);
+  }, [spotlightId, sig, dimKey]);
 
   function fit() {
     const m = map.current;

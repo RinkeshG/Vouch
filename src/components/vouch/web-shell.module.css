@@ -32,6 +32,9 @@
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
   text-decoration: none; color: var(--faint); padding-top: 4px; transition: color 0.15s ease;
 }
+/* Map owns the left half so the ＋ (54px + 6px margins) centres at exactly 50%;
+   Guides · You split the right half. */
+.tabHome { flex: 0 0 calc(50% - 33px); }
 .tab:hover { color: var(--muted); }
 .tabGlyph { font-size: 1.18rem; line-height: 1; }
 .tabLabel { font-family: var(--mono); font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em; }

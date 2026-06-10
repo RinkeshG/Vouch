@@ -46,6 +46,7 @@ function HoldButton({ disabled, onComplete, children }: { disabled?: boolean; on
       onPointerUp={cancel}
       onPointerLeave={cancel}
       onPointerCancel={cancel}
+      onContextMenu={(e) => e.preventDefault()}   /* the long-press IS the gesture — no callout (PRD §9.2) */
       onKeyDown={(e) => { if (!disabled && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onComplete(); } }}
     >
       <span className={styles.holdFill} aria-hidden="true" />

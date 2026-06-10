@@ -14,10 +14,14 @@
 .arch { color: var(--saffron); white-space: nowrap; }
 .sub { font-family: var(--sans); font-size: 1.1rem; color: var(--muted); line-height: 1.45; margin: 16px 0 0; max-width: 42ch; }
 
-/* a quiet key — what the pin colours mean, with your counts. Reads the map; never a
-   filter farm. Stamp/occasion browsing lives on /you, where lists want lenses. */
-.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 18px 0 0; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.legend span { display: inline-flex; align-items: center; gap: 7px; }
+/* the legend IS the filter — one row of count-chips that both key the pin colours
+   and narrow the map (tap to filter, tap again to clear). Off-lens pins dim, never
+   vanish. A register at 0 fades and can't be tapped — honest, not noisy. */
+.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+.lgBtn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(16, 15, 13, 0.5); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 7px 12px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease); }
+.lgBtn:hover:not(:disabled) { border-color: rgba(244, 238, 227, 0.25); color: var(--text); }
+.lgBtn:disabled { opacity: 0.45; cursor: default; }
+.lgOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }
 .lgVouched, .lgBeen, .lgWant { width: 11px; height: 11px; border-radius: 50%; flex: none; }
 .lgVouched { background: var(--saffron); box-shadow: 0 0 8px 1px rgba(246, 168, 43, 0.8); }
 .lgBeen { background: rgba(244, 238, 227, 0.5); }
@@ -67,7 +71,8 @@
   .eyebrow { font-size: 0.56rem; letter-spacing: 0.16em; }
   .state { font-size: clamp(1.7rem, 7.6vw, 2.3rem); margin-top: 8px; }
   .sub { display: none; }
-  .legend { gap: 13px; margin-top: 13px; font-size: 0.56rem; }
+  .legend { gap: 7px; margin-top: 13px; }
+  .lgBtn { font-size: 0.56rem; padding: 6px 10px; }
   .search { top: 66px; right: 16px; font-size: 0.84rem; padding: 8px 13px; }
   .focusBtn { margin-top: 14px; font-size: 0.86rem; padding: 8px 14px; }
   .addWrap { display: none; }
