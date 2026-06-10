@@ -4,6 +4,11 @@
 .scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(16,15,13,0.92) 0%, rgba(16,15,13,0.5) 30%, rgba(16,15,13,0) 52%, rgba(16,15,13,0.4) 78%, rgba(16,15,13,0.92) 100%); }
 
 .header { position: relative; z-index: 2; padding: 60px 48px 0; max-width: 720px; }
+
+/* search affordance — the map's only top-right control (PRD §7.3). Quiet glass pill. */
+.search { position: absolute; z-index: 3; top: 60px; right: 28px; display: inline-flex; align-items: center; gap: 7px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); text-decoration: none; background: rgba(12, 10, 7, 0.62); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 15px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: border-color 0.15s var(--ease), color 0.15s var(--ease); }
+.search:hover { border-color: var(--saffron); color: var(--saffron); }
+.searchGlyph { font-size: 1.05rem; line-height: 1; }
 .eyebrow { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--saffron); }
 .state { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--text); margin: 14px 0 0; }
 .arch { color: var(--saffron); white-space: nowrap; }
@@ -58,11 +63,12 @@
 @media (max-width: 999px) {
   /* break out of .main's bar insets so the map is truly full-bleed behind the bars */
   .stage { height: 100dvh; margin-top: -54px; margin-bottom: calc(-64px - env(safe-area-inset-bottom)); }
-  .header { padding: 68px 18px 0; max-width: none; }
+  .header { padding: 68px 104px 0 18px; max-width: none; }   /* reserve top-right for the search pill */
   .eyebrow { font-size: 0.56rem; letter-spacing: 0.16em; }
   .state { font-size: clamp(1.7rem, 7.6vw, 2.3rem); margin-top: 8px; }
   .sub { display: none; }
   .legend { gap: 13px; margin-top: 13px; font-size: 0.56rem; }
+  .search { top: 66px; right: 16px; font-size: 0.84rem; padding: 8px 13px; }
   .focusBtn { margin-top: 14px; font-size: 0.86rem; padding: 8px 14px; }
   .addWrap { display: none; }
   .toastWrap { bottom: 92px; }
