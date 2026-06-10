@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import * as store from "./_me";
-import type { Entry, Gut, Me, Stamp } from "./_me";
+import type { Entry, EventSource, Gut, Me, Stamp } from "./_me";
 import type { Spot, Vouch } from "./_taste";
 
 /* THE DATA SEAM. Every surface reads your map through this one hook — never a stray
@@ -15,7 +15,7 @@ import type { Spot, Vouch } from "./_taste";
    for a success moment) while every mounted surface re-renders reactively. */
 
 type Mutators = {
-  setStamp: (spot: Spot, stamp: Stamp, opts?: { gut?: Gut; line?: string; occ?: string[] }) => Me;
+  setStamp: (spot: Spot, stamp: Stamp, opts?: { gut?: Gut; line?: string; occ?: string[]; source?: EventSource }) => Me;
   addVouch: (v: Vouch) => Me;
   removeEntry: (name: string) => Me;
   toggleFollow: (name: string) => Me;
