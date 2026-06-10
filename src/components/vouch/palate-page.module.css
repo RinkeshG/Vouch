@@ -39,24 +39,6 @@
 .sigLine { font-family: var(--sans); font-size: 0.96rem; color: var(--muted); line-height: 1.4; }
 .sigTags { font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
 
-/* the Been diary — your private record, gut-tinted, filterable */
-.diaryFilter { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
-.diaryChip { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 6px 11px; cursor: pointer; transition: all 0.15s var(--ease); }
-.diaryChip:hover { border-color: var(--saffron); color: var(--saffron); }
-.diaryOn { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-dim); }
-.diary { list-style: none; margin: 0; padding: 0; }
-.diaryRow { display: flex; align-items: center; gap: 13px; padding: 13px 0; border-top: 1px solid var(--line); }
-.diaryRow:first-child { border-top: none; }
-.diaryDot { width: 12px; height: 12px; flex: none; border-radius: 50%; }
-.dLoved { background: var(--jade); box-shadow: 0 0 7px 1px var(--jade-dim); }
-.dFine { background: rgba(244, 238, 227, 0.85); }
-.dNo { background: rgba(138, 130, 120, 0.8); }
-.diaryBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-decoration: none; }
-.diaryBody:hover .diaryName { color: var(--saffron); }
-.diaryName { font-family: var(--display); font-weight: 700; font-size: 1.08rem; letter-spacing: -0.015em; color: var(--text); line-height: 1.1; }
-.diaryTags { font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
-.diaryGut { flex: none; font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-
 .guide { display: flex; flex-direction: column; gap: 4px; padding: 15px 16px; border: 1px solid var(--line-2); border-radius: var(--r-lg); text-decoration: none; margin-bottom: 10px; transition: border-color 0.15s var(--ease), background 0.15s var(--ease); }
 .guide:hover { border-color: var(--saffron); background: var(--saffron-dim); }
 .guideTitle { font-family: var(--display); font-weight: 700; font-size: 1.1rem; letter-spacing: -0.015em; color: var(--text); }

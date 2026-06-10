@@ -2,9 +2,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Modal } from "./modal";
-import { Tag, OccasionChip } from "./chip";
+import { Tag } from "./chip";
 import { SearchField } from "./input";
-import { OCCASIONS, type Spot, type Vouch } from "./_taste";
+import { type Spot, type Vouch } from "./_taste";
 import { searchCatalog, type CatalogSpot } from "./_catalog";
 import { type Stamp, type Gut } from "./_me";
 import { useMyMap } from "./_map-context";
@@ -77,7 +77,6 @@ export function AddVouchModal({
   const [sel, setSel] = useState<Pick | null>(presetSpot ?? null);
   const [step, setStep] = useState<Step>(initialStep(presetSpot));
   const [line, setLine] = useState("");
-  const [occ, setOcc] = useState<string[]>([]);
   const [done, setDone] = useState<{ stamp: Stamp; gut?: Gut; name: string; count: number } | null>(null);
 
   // snapshot of places already vouched, taken when the sheet opens (so it doesn't
@@ -87,7 +86,7 @@ export function AddVouchModal({
 
   // reset to the preset (or blank) whenever the modal opens
   useEffect(() => {
-    if (open) { setSel(presetSpot ?? null); setStep(initialStep(presetSpot)); setQ(""); setLine(""); setOcc([]); setDone(null); }
+    if (open) { setSel(presetSpot ?? null); setStep(initialStep(presetSpot)); setQ(""); setLine(""); setDone(null); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, presetSpot, presetStamp]);
 
@@ -108,8 +107,7 @@ export function AddVouchModal({
     return () => { dead = true; };
   }, [q, open, sel, taken]);
 
-  const toggle = (o: string) => setOcc((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
-  const spotFrom = (p: Pick, occasions: string[] = []): Spot => ({ name: p.name, area: p.area, cuisine: p.cuisine, price: p.price, occasions, lat: p.lat ?? BLR.lat, lng: p.lng ?? BLR.lng });
+  const spotFrom = (p: Pick): Spot => ({ name: p.name, area: p.area, cuisine: p.cuisine, price: p.price, occasions: [], lat: p.lat ?? BLR.lat, lng: p.lng ?? BLR.lng });
 
   function pickResult(s: CatalogSpot) { setSel(s); setStep("choose"); }
   function changePlace() { setSel(null); setStep("choose"); setQ(""); }
@@ -134,9 +132,9 @@ export function AddVouchModal({
     finish(spot, "been", vouchCount(next), gut); // just log it — no pushy "turn this into a vouch" interstitial
   }
   function commitVouch() {
-    if (!sel || !line.trim() || occ.length === 0) return;
-    const spot = spotFrom(sel, occ);
-    const v: Vouch = { spot, line: line.trim(), occ };
+    if (!sel || !line.trim()) return;
+    const spot = spotFrom(sel);
+    const v: Vouch = { spot, line: line.trim(), occ: [] };
     const next = addVouch(v);
     onAdded?.(v);
     finish(spot, "vouched", vouchCount(next));
@@ -254,9 +252,7 @@ export function AddVouchModal({
                   />
                   <span className={styles.count}>{line.length}/120</span>
                 </div>
-                <label className={styles.fieldLabel}>Best for</label>
-                <div className={styles.occ}>{OCCASIONS.map((o) => <OccasionChip key={o} selected={occ.includes(o)} onToggle={() => toggle(o)}>{o}</OccasionChip>)}</div>
-                <HoldButton disabled={!line.trim() || occ.length === 0} onComplete={commitVouch}>Hold to put your name on it</HoldButton>
+                <HoldButton disabled={!line.trim()} onComplete={commitVouch}>Hold to put your name on it</HoldButton>
                 <p className={styles.holdHint}>A vouch is forever until you take it back. Hold to mean it.</p>
               </>
             )}

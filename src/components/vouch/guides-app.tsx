@@ -85,9 +85,9 @@ export function GuidesApp() {
 }
 
 /* ── list / empty — a field-guide contents page, not a card grid ──────────── */
+// No public counts (PRD §6) — a guide's meta is just its size.
 function lifeSignal(g: Guide): string {
-  const spots = `${g.items.length} ${g.items.length === 1 ? "spot" : "spots"}`;
-  return g.borrows > 0 ? `${spots} · borrowed ${g.borrows}×` : `${spots} · not sent yet`;
+  return `${g.items.length} ${g.items.length === 1 ? "place" : "places"}`;
 }
 
 function GuideList({ guides, onNew, onOpen }: { guides: Guide[]; onNew: () => void; onOpen: (id: string) => void }) {

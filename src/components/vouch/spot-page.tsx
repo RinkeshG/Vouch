@@ -13,7 +13,7 @@ import styles from "./spot-page.module.css";
 
 /* The place page (PRD §5.4) — answers "is this for me, and why do people I trust
    rate it?", not logistics. Order: hero (identity in one glance) → the receipt (who
-   you trust vouched + their lines) → the move (what to get) → demoted practical bits
+   you trust vouched + their lines) → what to order → demoted practical bits
    + Open in Maps → a sticky Want/Been/Vouch bar. No stars, no persona. */
 
 const HOURS: Record<string, string> = {
@@ -139,7 +139,7 @@ export function SpotPage({ slug }: { slug: string }) {
           {/* WHAT TO GET */}
           {spot.move && (
             <section className={styles.section}>
-              <span className={styles.label}>What to get</span>
+              <span className={styles.label}>What to order</span>
               <p className={styles.move}>{spot.move}</p>
             </section>
           )}

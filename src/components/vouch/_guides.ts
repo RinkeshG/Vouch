@@ -11,7 +11,7 @@ export type Guide = {
   note?: string;
   anchor?: string;
   items: GuideItem[];
-  borrows: number; // how many people have borrowed it — the life-signal (utility, not vanity)
+  borrows: number; // internal only — never shown as a count (PRD §6); a future private "saved by" ack
   createdAt: number;
   updatedAt: number;
 };

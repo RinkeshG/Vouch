@@ -160,7 +160,7 @@ export function PalatePage({ slug }: { slug?: string }) {
                 ownGuides.length ? ownGuides.map((g) => (
                   <a key={g.id} href="/guides" className={styles.guide}>
                     <span className={styles.guideTitle}>{g.title}</span>
-                    <span className={styles.guideMeta}>{g.items.length} spots · borrowed {g.borrows || 0}×</span>
+                    <span className={styles.guideMeta}>{g.items.length} {g.items.length === 1 ? "place" : "places"}</span>
                   </a>
                 )) : <a href="/guides" className={styles.guideEmpty}>No guides yet — make the one people keep asking you for →</a>
               ) : (
@@ -182,7 +182,7 @@ export function PalatePage({ slug }: { slug?: string }) {
           )}
         </div>
 
-        {!own && <p className={styles.gate}>Vouch is invite-only · Bengaluru. Follow {display} to borrow their map — every spot with their name on it.</p>}
+        {!own && <p className={styles.gate}>Follow {display} and their vouches land on your map — every place with their name on it, not a star.</p>}
       </div>
 
       <AddVouchModal open={adding} onClose={() => setAdding(false)} onCaptured={(r) => { setToast(r.stamp === "vouched" ? `Your name’s on it. ${r.spot.name} is on your map.` : r.stamp === "want" ? `Saved. ${r.spot.name}’s on your want-to-go.` : `Logged. ${r.spot.name}’s in your diary.`); window.setTimeout(() => setToast(null), 2800); }} />

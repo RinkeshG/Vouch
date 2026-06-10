@@ -19,7 +19,6 @@
 .lineInput::placeholder { color: var(--faint); }
 .lineInput:focus-visible { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 4px rgba(246, 168, 43, 0.13); }
 .count { position: absolute; right: 11px; bottom: 8px; font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.04em; color: var(--faint); pointer-events: none; }
-.occ { display: flex; flex-wrap: wrap; gap: 7px; }
 
 /* The three moves — deliberately unequal weight. Want is quiet, Vouch is the one
    that's lit. The register dots echo the map so the language is consistent. */
