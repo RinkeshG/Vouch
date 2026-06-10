@@ -1,8 +1,12 @@
 /* Vouch service worker — installability + a resilient shell (PRD §12). The product
    runs on localStorage, so capture already works offline; this keeps the shell and
-   visited pages available with no network. App-shell precache + runtime cache;
-   network-first for navigations so you always get fresh HTML when online. */
-const CACHE = "vouch-shell-v3";
+   visited pages available with no network.
+
+   Strategy matters: NETWORK-FIRST by default so you never get stranded on stale code
+   after a deploy; CACHE-FIRST only for Next's content-hashed immutable assets
+   (/_next/static) which are safe to keep forever. Cross-origin (tiles, fonts, APIs)
+   is left alone. */
+const CACHE = "vouch-shell-v4";
 const SHELL = ["/home", "/manifest.webmanifest", "/icon.svg", "/icon-192.svg", "/icon-512.svg"];
 
 self.addEventListener("install", (event) => {
@@ -20,20 +24,17 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return; // never cache tiles, fonts, APIs cross-origin
+  if (url.origin !== self.location.origin) return; // tiles, fonts, APIs → untouched
 
-  // navigations: network-first, fall back to cached page, then the home shell
-  if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req).then((res) => { const clone = res.clone(); caches.open(CACHE).then((c) => c.put(req, clone)); return res; })
-        .catch(() => caches.match(req).then((c) => c || caches.match("/home"))),
-    );
+  // immutable hashed build assets → cache-first (safe; the URL changes when content does)
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(caches.match(req).then((c) => c || fetch(req).then((res) => { const cl = res.clone(); caches.open(CACHE).then((ca) => ca.put(req, cl)); return res; })));
     return;
   }
-  // same-origin assets: cache-first, fill the cache as we go
+
+  // navigations + everything else → network-first, fall back to cache (then /home) offline
   event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req).then((res) => {
-      const clone = res.clone(); caches.open(CACHE).then((c) => c.put(req, clone)); return res;
-    }).catch(() => cached)),
+    fetch(req).then((res) => { const cl = res.clone(); caches.open(CACHE).then((c) => c.put(req, cl)); return res; })
+      .catch(() => caches.match(req).then((c) => c || (req.mode === "navigate" ? caches.match("/home") : undefined))),
   );
 });
