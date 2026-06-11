@@ -41,15 +41,17 @@
   --sans: "Space Grotesk", system-ui, -apple-system, sans-serif;
   --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* — type ramp (product) — */
-  --t-display: clamp(2.4rem, 5vw, 4rem);
-  --t-h1: clamp(1.9rem, 3.6vw, 2.8rem);
-  --t-h2: clamp(1.5rem, 2.6vw, 2rem);
-  --t-h3: 1.25rem;
-  --t-body: 1rem;
-  --t-body-sm: 0.9rem;
-  --t-label: 0.62rem;     /* mono uppercase */
-  --t-caption: 0.56rem;
+  /* — THE TYPE LADDER (mobile-first) — every text sits on ONE rung; rungs are jobs.
+     Hierarchy is RATIO not increment: adjacent rungs differ ≥1.25× or by family+colour.
+     Max 4 rungs per screen (+ the title). Hand-rolled font-sizes in component CSS
+     are a design error — consume these. */
+  --rung-title: 1.875rem;    /* R0 · room title — Bricolage 800 */
+  --rung-take: 1.1875rem;    /* R1 · lead content (a take) — Grotesk italic */
+  --rung-lead: 1.0625rem;    /* R1 · lead content (a place name) — Bricolage 700 */
+  --rung-support: 0.875rem;  /* R2 · support/attribution — Grotesk */
+  --rung-action: 0.9375rem;  /* R3 · actions — Grotesk 600 */
+  --rung-meta: 0.625rem;     /* R4 · meta whisper — Mono uppercase */
+  --rung-num: 1.3125rem;     /* R6 · jewelry numerals (also 1.625 / 2rem) */
 
   /* — spacing (4px grid) — */
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px;
@@ -94,6 +96,22 @@
   outline-offset: 3px;
   border-radius: 6px;
 }
+
+/* ── THE TYPE LADDER, as classes — the only text voices in the product ──────────
+   R0 title · R1 take/lead · R2 support · R3 action · R4 meta · R5 label · R6 num.
+   Colour is part of the rung (cream=content, muted=support, faint=whisper,
+   saffron=the one thing + actions); override colour only with intent. */
+.vouch .tTitle { font-family: var(--display); font-weight: 800; font-size: var(--rung-title); line-height: 1.0; letter-spacing: -0.035em; color: var(--text); }
+.vouch .tTake { font-family: var(--sans); font-style: italic; font-weight: 400; font-size: var(--rung-take); line-height: 1.35; letter-spacing: -0.012em; color: var(--text); }
+.vouch .tLead { font-family: var(--display); font-weight: 700; font-size: var(--rung-lead); line-height: 1.15; letter-spacing: -0.02em; color: var(--text); }
+.vouch .tSupport { font-family: var(--sans); font-weight: 400; font-size: var(--rung-support); line-height: 1.4; color: var(--muted); }
+.vouch .tAction { font-family: var(--sans); font-weight: 600; font-size: var(--rung-action); line-height: 1.2; color: var(--saffron); }
+.vouch .tActionQuiet { font-family: var(--sans); font-weight: 500; font-size: var(--rung-action); line-height: 1.2; color: var(--muted); }
+.vouch .tMeta { font-family: var(--mono); font-weight: 400; font-size: var(--rung-meta); text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+.vouch .tLabel { font-family: var(--mono); font-weight: 700; font-size: var(--rung-meta); text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); }
+.vouch .tNum { font-family: var(--display); font-weight: 800; font-size: var(--rung-num); line-height: 1; letter-spacing: -0.02em; color: var(--text); }
+.vouch .tNum26 { font-size: 1.625rem; }
+.vouch .tNum32 { font-size: 2rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .vouch *, .vouch *::before, .vouch *::after {

@@ -4,47 +4,52 @@ import Link from "next/link";
 import { WebShell } from "./web-shell";
 import { Avatar } from "./avatar";
 import { AddVouchModal } from "./add-vouch";
+import { MapReal, type MapPin } from "./map-real";
 import { useMyMap } from "./_map-context";
 import { type Entry, type Gut, firstWantedAt } from "./_me";
+import { PlaceRow, TakeEntry, MixBar } from "./atoms";
 import { findSpot } from "./_taste";
 import { cleanArea, distKm, fmtDist } from "./_catalog";
 import { slugify } from "./_guides";
 import styles from "./you-page.module.css";
 
-/* YOU — your own taste, three rooms behind one overview. Not a ledger of identical
-   rows: each register does a different job, so each gets its own page.
-   · Overview  — who you are + the one thing worth doing now + three doors.
-   · Vouched   — a portfolio: your takes set like an editor's picks.
-   · Been      — a diary you can navigate (find · lens · groups).
-   · Want      — a backlog you knock down (near-you → go, the rest → log it). */
+/* YOU — an overview into three rooms, each with its own visual identity
+   (mobile-craft-audit Part 2):
+   · Overview — identity + one nudge + doors that PREVIEW each room's visual DNA.
+   · Vouched  — the portfolio: featured lead take, tiled take-entries.
+   · Been     — the diary: verdict MixBar (summary = filter), bounded chronology,
+                collapsed Earlier, sticky labels.
+   · Want     — the radar: the mini-map leads, near-you acts, the queue groups by area.
+   Scale law: sections bound at 8, Earlier collapses to month groups, find at >10. */
 
 type View = "overview" | "vouched" | "been" | "want";
-type BeenLens = "recent" | "verdict" | "area";
+type BeenLens = "recent" | "area";
 type Pick = { name: string; area: string; cuisine: string; price: string; lat: number | null; lng: number | null };
 
 const DAY = 86_400_000;
+const BOUND = 8; // max rows a section shows before "All N →"
 const GUT_LABEL: Record<Gut, string> = { absolutely: "Absolutely", maybe: "Maybe", no: "No" };
-const GUT_CLASS: Record<Gut, string> = { absolutely: "vAbsolutely", maybe: "vMaybe", no: "vNo" };
 
 function toPick(e: Entry): Pick {
   const s = e.spot, seed = findSpot(s.name);
   return { name: s.name, area: s.area || seed?.area || "", cuisine: s.cuisine || seed?.cuisine || "", price: s.price || seed?.price || "", lat: s.lat, lng: s.lng };
 }
+function cuisineOf(e: Entry): string { return e.spot.cuisine || findSpot(e.spot.name)?.cuisine || "—"; }
 function metaOf(e: Entry): string {
-  const s = e.spot, seed = findSpot(s.name);
-  return [s.cuisine || seed?.cuisine, cleanArea(s.area || seed?.area || "")].filter(Boolean).join(" · ");
+  return [cuisineOf(e), cleanArea(e.spot.area || findSpot(e.spot.name)?.area || "")].filter((x) => x && x !== "—").join(" · ");
 }
-function areaOf(e: Entry): string {
-  return cleanArea(e.spot.area || findSpot(e.spot.name)?.area || "") || "Elsewhere";
-}
+function areaOf(e: Entry): string { return cleanArea(e.spot.area || findSpot(e.spot.name)?.area || "") || "Elsewhere"; }
 function agingOf(name: string): string | null {
   const t = firstWantedAt(name);
   if (!t) return null;
   const d = Math.floor((Date.now() - t) / DAY);
   if (d < 7) return null;
-  if (d < 30) { const w = Math.floor(d / 7); return `${w} week${w > 1 ? "s" : ""}`; }
-  const m = Math.floor(d / 30);
-  return `${m} month${m > 1 ? "s" : ""}`;
+  if (d < 30) { const w = Math.floor(d / 7); return `${w}w`; }
+  return `${Math.floor(d / 30)}mo`;
+}
+function monthOf(at: number): string {
+  if (!at) return "Older";
+  return new Date(at).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 const mapsHref = (name: string, area: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${cleanArea(area)} Bengaluru`)}`;
@@ -53,6 +58,9 @@ export function YouPage() {
   const { entries, follows, ready } = useMyMap();
   const [view, setView] = useState<View>("overview");
   const [beenLens, setBeenLens] = useState<BeenLens>("recent");
+  const [gutFilter, setGutFilter] = useState<Gut | null>(null);
+  const [earlierOpen, setEarlierOpen] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [preset, setPreset] = useState<{ spot: Pick; stamp: "been" | "vouched" } | null>(null);
@@ -64,7 +72,6 @@ export function YouPage() {
   const want = useMemo(() => entries.filter((e) => e.stamp === "want").sort((a, b) => (b.at || 0) - (a.at || 0)), [entries]);
   const total = entries.length;
 
-  // near-you needs location — asked by permission, cached grant means no re-prompt.
   useEffect(() => {
     if (want.length === 0 || typeof navigator === "undefined" || !navigator.geolocation) return;
     let dead = false;
@@ -80,72 +87,101 @@ export function YouPage() {
     () => (myPos ? want.map((e) => ({ e, km: distKm(myPos.lat, myPos.lng, e.spot.lat, e.spot.lng) })).filter((x) => x.km <= 2.5).sort((a, b) => a.km - b.km) : []),
     [myPos, want],
   );
-  const restWants = useMemo(() => {
-    const near = new Set(nearWants.map((x) => x.e.spot.name));
-    return want
-      .filter((e) => !near.has(e.spot.name))
-      .map((e) => ({ e, aging: agingOf(e.spot.name), since: firstWantedAt(e.spot.name) ?? e.at }))
-      .sort((a, b) => (a.since || 0) - (b.since || 0));
-  }, [want, nearWants]);
 
-  const absolutely = useMemo(() => been.filter((e) => e.gut === "absolutely").length, [been]);
+  const gutCounts = useMemo(() => ({
+    absolutely: been.filter((e) => e.gut === "absolutely").length,
+    maybe: been.filter((e) => e.gut === "maybe").length,
+    no: been.filter((e) => e.gut === "no").length,
+  }), [been]);
+
   const topCuisines = useMemo(() => {
     const tally: Record<string, number> = {};
     const src = vouched.length ? vouched : been.filter((e) => e.gut === "absolutely");
-    src.forEach((e) => { const c = e.spot.cuisine || findSpot(e.spot.name)?.cuisine; if (c) tally[c] = (tally[c] || 0) + 1; });
+    src.forEach((e) => { const c = cuisineOf(e); if (c !== "—") tally[c] = (tally[c] || 0) + 1; });
     return Object.entries(tally).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([c]) => c);
   }, [vouched, been]);
 
   function openCapture(spot: Pick, stamp: "been" | "vouched") { setPreset({ spot, stamp }); setAdding(true); }
   function flash(msg: string) { setToast(msg); window.setTimeout(() => setToast(null), 2600); }
+  function open(v: View) { setView(v); setExpanded(new Set()); setEarlierOpen(false); setGutFilter(null); setQuery(""); window.scrollTo(0, 0); }
   const youLine = vouched.length ? `${vouched.length} ${vouched.length === 1 ? "vouch" : "vouches"} · Bengaluru` : total ? "Building your map" : "You";
 
-  // ── the diary, grouped by the active lens ──────────────────────────────────
+  /* ── BEEN: filter → group → bound ─────────────────────────────────────────── */
   const q = query.trim().toLowerCase();
-  const beenShown = q ? been.filter((e) => (e.spot.name + " " + metaOf(e)).toLowerCase().includes(q)) : been;
-  const beenGroups: { key: string; rows: Entry[] }[] = (() => {
-    if (beenLens === "verdict") {
-      return (["absolutely", "maybe", "no"] as Gut[])
-        .map((g) => ({ key: GUT_LABEL[g], rows: beenShown.filter((e) => e.gut === g) }))
-        .filter((g) => g.rows.length);
-    }
+  const beenShown = been
+    .filter((e) => (gutFilter ? e.gut === gutFilter : true))
+    .filter((e) => (q ? (e.spot.name + " " + metaOf(e)).toLowerCase().includes(q) : true));
+
+  type Group = { key: string; rows: Entry[]; collapsed?: boolean };
+  const beenGroups: Group[] = (() => {
     if (beenLens === "area") {
       const by: Record<string, Entry[]> = {};
       beenShown.forEach((e) => { (by[areaOf(e)] ||= []).push(e); });
       return Object.entries(by).sort((a, b) => b[1].length - a[1].length).map(([key, rows]) => ({ key, rows }));
     }
     const now = Date.now();
-    const bucket = (at: number) => (!at ? "Earlier" : now - at < 7 * DAY ? "This week" : now - at < 31 * DAY ? "This month" : "Earlier");
-    return ["This week", "This month", "Earlier"].map((b) => ({ key: b, rows: beenShown.filter((e) => bucket(e.at) === b) })).filter((g) => g.rows.length);
+    const week = beenShown.filter((e) => e.at && now - e.at < 7 * DAY);
+    const month = beenShown.filter((e) => e.at && now - e.at >= 7 * DAY && now - e.at < 31 * DAY);
+    const earlier = beenShown.filter((e) => !e.at || now - e.at >= 31 * DAY);
+    const groups: Group[] = [];
+    if (week.length) groups.push({ key: "This week", rows: week });
+    if (month.length) groups.push({ key: "This month", rows: month });
+    if (earlier.length) {
+      if (!earlierOpen && (week.length || month.length)) groups.push({ key: "Earlier", rows: earlier, collapsed: true });
+      else {
+        const by: Record<string, Entry[]> = {};
+        earlier.forEach((e) => { (by[monthOf(e.at)] ||= []).push(e); });
+        Object.entries(by).forEach(([key, rows]) => groups.push({ key, rows }));
+      }
+    }
+    return groups;
   })();
 
-  // a diary row — verdict shown as a word EXCEPT in the verdict lens (the header says it once)
-  const diaryRow = (e: Entry, showVerdict: boolean) => (
-    <li key={e.spot.name} className={styles.row}>
-      <Link className={styles.rowBody} href={`/spot/${slugify(e.spot.name)}`}>
-        <span className={styles.rowName}>{e.spot.name}</span>
-        <span className={styles.rowMeta}>{beenLens === "area" ? (e.spot.cuisine || findSpot(e.spot.name)?.cuisine || "") : metaOf(e)}</span>
-      </Link>
-      {showVerdict && e.gut && <span className={`${styles.verdict} ${styles[GUT_CLASS[e.gut]]}`}>{GUT_LABEL[e.gut]}</span>}
-    </li>
-  );
+  const bounded = (g: Group): { rows: Entry[]; more: number } => {
+    if (expanded.has(g.key) || g.rows.length <= BOUND) return { rows: g.rows, more: 0 };
+    return { rows: g.rows.slice(0, BOUND), more: g.rows.length - BOUND };
+  };
 
-  // ── the one nudge the overview surfaces, chosen by your state ───────────────
+  /* ── VOUCHED: featured lead + (≤12 flat | >12 cuisine groups) ─────────────── */
+  const [featured, ...restVouched] = vouched;
+  const vouchedGroups: Group[] | null = restVouched.length > 11
+    ? (() => {
+        const by: Record<string, Entry[]> = {};
+        restVouched.forEach((e) => { (by[cuisineOf(e)] ||= []).push(e); });
+        return Object.entries(by).sort((a, b) => b[1].length - a[1].length).map(([key, rows]) => ({ key, rows }));
+      })()
+    : null;
+
+  /* ── WANT: near-you + area-grouped queue ──────────────────────────────────── */
+  const queueWants = useMemo(() => {
+    const near = new Set(nearWants.map((x) => x.e.spot.name));
+    return want.filter((e) => !near.has(e.spot.name));
+  }, [want, nearWants]);
+  const wantGroups: Group[] = (() => {
+    const by: Record<string, Entry[]> = {};
+    queueWants.forEach((e) => { (by[areaOf(e)] ||= []).push(e); });
+    return Object.entries(by).sort((a, b) => b[1].length - a[1].length).map(([key, rows]) => ({ key, rows }));
+  })();
+  const radarPins: MapPin[] = want.map((e) => ({ id: `w:${e.spot.name}`, lat: e.spot.lat, lng: e.spot.lng, name: e.spot.name, kind: "mine", stamp: "want", cuisine: e.spot.cuisine }));
+
+  /* ── the one nudge ────────────────────────────────────────────────────────── */
   const nudge = (() => {
     if (nearWants.length) {
       const x = nearWants[0];
       return { node: <>You&rsquo;re <b>{fmtDist(x.km)}</b> from <b>{x.e.spot.name}</b> &mdash; the place you wanted to try.</>, href: mapsHref(x.e.spot.name, x.e.spot.area) };
     }
-    if (absolutely) return { node: <><b>{absolutely}</b> {absolutely === 1 ? "place you'd" : "places you'd"} go back to &mdash; turn one into a vouch.</>, onClick: () => { setBeenLens("verdict"); setView("been"); } };
-    if (want.length) return { node: <><b>{want.length}</b> on your radar &mdash; line up your next one.</>, onClick: () => setView("want") };
-    if (been.length) return { node: <>Your diary&rsquo;s underway &mdash; <b>{been.length}</b> logged so far.</>, onClick: () => setView("been") };
+    if (gutCounts.absolutely) return { node: <><b>{gutCounts.absolutely}</b> {gutCounts.absolutely === 1 ? "place you'd" : "places you'd"} go back to &mdash; turn one into a vouch.</>, onClick: () => { open("been"); setGutFilter("absolutely"); } };
+    if (want.length) return { node: <><b>{want.length}</b> on your radar &mdash; line up your next one.</>, onClick: () => open("want") };
+    if (been.length) return { node: <>Your diary&rsquo;s underway &mdash; <b>{been.length}</b> logged so far.</>, onClick: () => open("been") };
     return { node: <>Mark a place &mdash; it starts your map.</>, onClick: () => { setPreset(null); setAdding(true); } };
   })();
 
-  const back = (
-    <button type="button" className={styles.back} onClick={() => setView("overview")}>
-      <span aria-hidden="true">←</span> You
-    </button>
+  const backBtn = <button type="button" className={`tLabel ${styles.back}`} onClick={() => open("overview")}><span aria-hidden="true">←</span> You</button>;
+  const groupHead = (g: { key: string; rows: Entry[] }) => (
+    <div className={styles.groupHead}><span className={`tLabel ${styles.groupLabel}`}>{g.key}</span><span className={`tMeta ${styles.groupCount}`}>{g.rows.length}</span></div>
+  );
+  const moreBtn = (g: Group, more: number) => (
+    <button type="button" className={`tActionQuiet ${styles.more}`} onClick={() => setExpanded((s) => new Set(s).add(g.key))}>All {g.rows.length} →</button>
   );
 
   return (
@@ -154,106 +190,114 @@ export function YouPage() {
 
         {/* ═══ OVERVIEW ═══ */}
         {view === "overview" && (
-          <div className={styles.overview}>
+          <div>
             <header className={styles.idRow}>
               <Avatar initials="RG" size={56} />
               <div className={styles.idCol}>
-                <h1 className={styles.name}>You</h1>
-                <span className={styles.handle}>@you · Bengaluru</span>
+                <h1 className={`tTitle ${styles.name}`}>You</h1>
+                <span className={`tMeta ${styles.handle}`}>@you · Bengaluru</span>
               </div>
             </header>
 
             {ready && total > 0 && (
               <p className={styles.signature}>
-                {topCuisines.length > 0 && <span className={styles.sigStrong}>{topCuisines.join(" & ")}, mostly.</span>}{" "}
+                {topCuisines.length > 0 && <b>{topCuisines.join(" & ")}, mostly.</b>}{" "}
                 {vouched.length
-                  ? <>{topCuisines.length ? "" : <span className={styles.sigStrong}>Your taste.</span>} <b className={styles.sigCount}>{vouched.length}</b> {vouched.length === 1 ? "place carries" : "places carry"} your name.</>
-                  : <><b className={styles.sigCount}>{been.length}</b> in your diary, so far.</>}
+                  ? <><span className={styles.sigNum}>{vouched.length}</span> {vouched.length === 1 ? "place carries" : "places carry"} your name.</>
+                  : <><span className={styles.sigNum}>{been.length}</span> in your diary, so far.</>}
               </p>
             )}
 
             {ready && total === 0 ? (
               <div className={styles.cold}>
                 <p className={styles.coldTitle}>Your map&rsquo;s empty.</p>
-                <p className={styles.coldBody}>Mark a place &mdash; want to go, been, or put your name on it &mdash; and your taste starts taking shape here.</p>
+                <p className={`tSupport ${styles.coldBody}`}>Mark a place &mdash; want to go, been, or put your name on it &mdash; and your taste starts taking shape here.</p>
                 <button type="button" className={styles.coldBtn} onClick={() => { setPreset(null); setAdding(true); }}>Add your first place →</button>
               </div>
             ) : (
               <>
-                {nudge.href ? (
-                  <a className={styles.nudge} href={nudge.href} target="_blank" rel="noreferrer"><span className={styles.nudgeText}>{nudge.node}</span><span className={styles.nudgeArrow} aria-hidden="true">→</span></a>
-                ) : (
-                  <button type="button" className={styles.nudge} onClick={nudge.onClick}><span className={styles.nudgeText}>{nudge.node}</span><span className={styles.nudgeArrow} aria-hidden="true">→</span></button>
-                )}
+                {nudge.href
+                  ? <a className={styles.nudge} href={nudge.href} target="_blank" rel="noreferrer"><span className={styles.nudgeText}>{nudge.node}</span><span className={styles.nudgeArrow} aria-hidden="true">→</span></a>
+                  : <button type="button" className={styles.nudge} onClick={nudge.onClick}><span className={styles.nudgeText}>{nudge.node}</span><span className={styles.nudgeArrow} aria-hidden="true">→</span></button>}
 
+                {/* the doors preview each room's VISUAL, not more text */}
                 <div className={styles.doors}>
-                  <button type="button" className={styles.door} onClick={() => setView("vouched")} disabled={!vouched.length}>
-                    <span className={`${styles.doorMark} ${styles.markVouched}`} aria-hidden="true" />
-                    <span className={styles.doorBody}>
-                      <span className={styles.doorTop}><span className={`${styles.doorLabel} ${styles.labelVouched}`}>Vouched</span><span className={styles.doorCount}>{vouched.length}</span></span>
-                      <span className={styles.doorPeek}>{vouched.length ? (vouched[0].line ? <em>&ldquo;{vouched[0].line}&rdquo; &mdash; {vouched[0].spot.name}</em> : `${vouched.length} you'd stake your word on`) : "Nothing yet — your absolutelys are the start"}</span>
+                  <button type="button" className={styles.door} onClick={() => open("vouched")} disabled={!vouched.length}>
+                    <span className={styles.doorTop}>
+                      <span className={`tLabel ${styles.doorSaffron}`}>Vouched</span>
+                      <span className="tNum">{vouched.length}</span>
+                      <span className={styles.doorChev} aria-hidden="true">›</span>
                     </span>
-                    <span className={styles.doorChev} aria-hidden="true">›</span>
+                    {vouched[0]?.line
+                      ? <span className={styles.doorTake}>&ldquo;{vouched[0].line}&rdquo;<i className={`tMeta ${styles.doorTakeBy}`}> — {vouched[0].spot.name}</i></span>
+                      : <span className={`tSupport ${styles.doorHint}`}>{vouched.length ? "You'd stake your word on these" : "Your absolutelys are where this starts"}</span>}
                   </button>
 
-                  <button type="button" className={styles.door} onClick={() => setView("been")} disabled={!been.length}>
-                    <span className={`${styles.doorMark} ${styles.markBeen}`} aria-hidden="true" />
-                    <span className={styles.doorBody}>
-                      <span className={styles.doorTop}><span className={styles.doorLabel}>Been</span><span className={styles.doorCount}>{been.length}</span></span>
-                      <span className={styles.doorPeek}>{been.length ? <>last: {been[0].spot.name}{been[0].gut === "absolutely" ? " — you'd go back" : been[0].gut === "no" ? " — you wouldn't" : ""}</> : "Your honest diary — nothing logged yet"}</span>
+                  <button type="button" className={styles.door} onClick={() => open("been")} disabled={!been.length}>
+                    <span className={styles.doorTop}>
+                      <span className="tLabel">Been</span>
+                      <span className="tNum">{been.length}</span>
+                      <span className={styles.doorChev} aria-hidden="true">›</span>
                     </span>
-                    <span className={styles.doorChev} aria-hidden="true">›</span>
+                    {been.length
+                      ? <MixBar counts={gutCounts} mini />
+                      : <span className={`tSupport ${styles.doorHint}`}>Your honest diary</span>}
                   </button>
 
-                  <button type="button" className={styles.door} onClick={() => setView("want")} disabled={!want.length}>
-                    <span className={`${styles.doorMark} ${styles.markWant}`} aria-hidden="true" />
-                    <span className={styles.doorBody}>
-                      <span className={styles.doorTop}><span className={styles.doorLabel}>Want</span><span className={styles.doorCount}>{want.length}</span></span>
-                      <span className={`${styles.doorPeek} ${nearWants.length ? styles.peekLive : ""}`}>{nearWants.length ? `${nearWants.length} near you right now` : want.length ? "Saved for the right night" : "Your radar's empty"}</span>
+                  <button type="button" className={styles.door} onClick={() => open("want")} disabled={!want.length}>
+                    <span className={styles.doorTop}>
+                      <span className="tLabel">Want</span>
+                      <span className="tNum">{want.length}</span>
+                      <span className={styles.doorChev} aria-hidden="true">›</span>
                     </span>
-                    <span className={styles.doorChev} aria-hidden="true">›</span>
+                    <span className={styles.doorWantLine}>
+                      <i className={styles.ghostRing} aria-hidden="true" />
+                      <span className={`tSupport ${nearWants.length ? styles.doorLive : ""}`}>{nearWants.length ? `${nearWants.length} near you right now` : want.length ? "Saved for the right night" : "Your radar's empty"}</span>
+                    </span>
                   </button>
                 </div>
               </>
             )}
 
-            <div className={styles.overviewFoot}>
-              <Link href="/palate" className={styles.footLink}>Your palate →</Link>
-              <Link href="/guides" className={styles.footLink}>Your guides →</Link>
-              {follows.length > 0 && <span className={styles.following}>Following {follows.length}</span>}
+            <div className={styles.foot}>
+              <Link href="/palate" className={`tActionQuiet ${styles.footLink}`}>Your palate →</Link>
+              <Link href="/guides" className={`tActionQuiet ${styles.footLink}`}>Your guides →</Link>
+              {follows.length > 0 && <span className={`tMeta ${styles.following}`}>Following {follows.length}</span>}
             </div>
           </div>
         )}
 
         {/* ═══ VOUCHED — the portfolio ═══ */}
         {view === "vouched" && (
-          <div className={styles.register}>
-            {back}
-            <h1 className={styles.regTitle}>Your name&rsquo;s on these</h1>
-            <p className={styles.regSub}>{vouched.length} you&rsquo;d stake your word on</p>
+          <div>
+            {backBtn}
+            <h1 className={`tTitle ${styles.regTitle}`}>Your name&rsquo;s on these</h1>
+            <p className={`tLabel ${styles.regSub}`}>{vouched.length} you&rsquo;d stake your word on</p>
 
             {vouched.length === 0 ? (
-              <p className={styles.regEmpty}>Nothing carries your name yet. The places you mark <b>absolutely</b> in your diary are where a vouch begins.</p>
+              <p className={`tSupport ${styles.regEmpty}`}>Nothing carries your name yet. The places you mark <b>absolutely</b> in your diary are where a vouch begins.</p>
             ) : (
               <>
-                <ol className={styles.folio}>
-                  {vouched.map((e, i) => (
-                    <li key={e.spot.name} className={styles.folioItem}>
-                      <span className={styles.folioNum} aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-                      <Link className={styles.folioBody} href={`/spot/${slugify(e.spot.name)}`}>
-                        {e.line && <p className={styles.folioTake}>&ldquo;{e.line}&rdquo;</p>}
-                        <span className={styles.folioAttr}>
-                          <span className={styles.folioSeal} aria-hidden="true" />
-                          <span className={styles.folioName}>{e.spot.name}</span>
-                        </span>
-                        <span className={styles.folioMeta}>{metaOf(e)}</span>
-                      </Link>
-                    </li>
+                <ul className={styles.list}>
+                  {featured && <TakeEntry featured take={featured.line} name={featured.spot.name} meta={metaOf(featured)} cuisine={cuisineOf(featured)} href={`/spot/${slugify(featured.spot.name)}`} />}
+                  {!vouchedGroups && restVouched.map((e) => (
+                    <TakeEntry key={e.spot.name} take={e.line} name={e.spot.name} meta={metaOf(e)} cuisine={cuisineOf(e)} href={`/spot/${slugify(e.spot.name)}`} />
                   ))}
-                </ol>
+                </ul>
+                {vouchedGroups?.map((g) => (
+                  <section key={g.key} className={styles.group}>
+                    {groupHead(g)}
+                    <ul className={styles.list}>
+                      {bounded(g).rows.map((e) => (
+                        <TakeEntry key={e.spot.name} take={e.line} name={e.spot.name} meta={areaOf(e)} cuisine={cuisineOf(e)} href={`/spot/${slugify(e.spot.name)}`} />
+                      ))}
+                    </ul>
+                    {bounded(g).more > 0 && moreBtn(g, bounded(g).more)}
+                  </section>
+                ))}
                 <div className={styles.folioActions}>
-                  <Link href="/guides" className={styles.folioPrimary}>Build a guide from these</Link>
-                  <Link href="/palate" className={styles.folioSecondary}>See how these read to others →</Link>
+                  <Link href="/guides" className={styles.primaryBtn}>Build a guide from these</Link>
+                  <Link href="/palate" className={`tActionQuiet ${styles.centerLink}`}>See how these read to others →</Link>
                 </div>
               </>
             )}
@@ -262,43 +306,56 @@ export function YouPage() {
 
         {/* ═══ BEEN — the diary ═══ */}
         {view === "been" && (
-          <div className={styles.register}>
-            {back}
-            <h1 className={styles.regTitle}>Your diary</h1>
-            <p className={styles.regSub}>{been.length} {been.length === 1 ? "place" : "places"} · how they actually were</p>
+          <div>
+            {backBtn}
+            <h1 className={`tTitle ${styles.regTitle}`}>Your diary</h1>
+            <p className={`tLabel ${styles.regSub}`}>{been.length} {been.length === 1 ? "place" : "places"} · how they actually were</p>
 
             {been.length === 0 ? (
-              <p className={styles.regEmpty}>Nothing logged yet. The first time you mark somewhere <b>been</b>, your honest answer — go back? absolutely, maybe, or no — lands here.</p>
+              <p className={`tSupport ${styles.regEmpty}`}>Nothing logged yet. The first time you mark somewhere <b>been</b>, your honest answer — go back? — lands here.</p>
             ) : (
               <>
-                <div className={styles.find}>
-                  <span className={styles.findIcon} aria-hidden="true">⌕</span>
-                  <input className={styles.findInput} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Find a place…" aria-label="Find a place in your diary" />
+                {/* the summary IS the filter — your honesty as an object */}
+                <div className={styles.mixWrap}>
+                  <MixBar counts={gutCounts} active={gutFilter} onSelect={setGutFilter} />
                 </div>
 
+                {been.length > 10 && (
+                  <div className={styles.find}>
+                    <span className={styles.findIcon} aria-hidden="true">⌕</span>
+                    <input className={styles.findInput} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Find a place…" aria-label="Find a place in your diary" />
+                  </div>
+                )}
+
                 <div className={styles.lenses} role="tablist" aria-label="Group the diary">
-                  {(["recent", "verdict", "area"] as BeenLens[]).map((l) => (
-                    <button key={l} type="button" role="tab" aria-selected={beenLens === l} className={`${styles.lens} ${beenLens === l ? styles.lensOn : ""}`} onClick={() => setBeenLens(l)}>
-                      {l === "recent" ? "Recent" : l === "verdict" ? "Verdict" : "Area"}
+                  {(["recent", "area"] as BeenLens[]).map((l) => (
+                    <button key={l} type="button" role="tab" aria-selected={beenLens === l} className={`${styles.lens} ${beenLens === l ? styles.lensOn : ""}`} onClick={() => { setBeenLens(l); setExpanded(new Set()); }}>
+                      {l === "recent" ? "Recent" : "Area"}
                     </button>
                   ))}
                 </div>
 
-                {absolutely > 0 && beenLens !== "verdict" && (
-                  <button type="button" className={styles.vouchNudge} onClick={() => setBeenLens("verdict")}>
-                    <b>{absolutely}</b> you&rsquo;d go back to — turn one into a vouch →
-                  </button>
-                )}
-
                 {beenGroups.length === 0 ? (
-                  <p className={styles.regEmpty}>No matches{q ? ` for “${query.trim()}”` : ""}.</p>
-                ) : beenGroups.map((g) => (
+                  <p className={`tSupport ${styles.regEmpty}`}>No matches{q ? ` for “${query.trim()}”` : ""}.</p>
+                ) : beenGroups.map((g) => g.collapsed ? (
+                  <button key={g.key} type="button" className={styles.earlier} onClick={() => setEarlierOpen(true)}>
+                    <span className={`tLabel ${styles.groupLabel}`}>Earlier</span>
+                    <span className={`tMeta ${styles.groupCount}`}>{g.rows.length}</span>
+                    <span className={`tActionQuiet ${styles.earlierOpen}`}>Show →</span>
+                  </button>
+                ) : (
                   <section key={g.key} className={styles.group}>
-                    <div className={styles.groupHead}>
-                      <span className={`${styles.groupLabel} ${beenLens === "verdict" ? styles[`gh_${g.key.toLowerCase()}`] || "" : ""}`}>{g.key}</span>
-                      <span className={styles.groupCount}>{g.rows.length}</span>
-                    </div>
-                    <ul className={styles.rows}>{g.rows.map((e) => diaryRow(e, beenLens !== "verdict"))}</ul>
+                    {groupHead(g)}
+                    <ul className={styles.list}>
+                      {bounded(g).rows.map((e) => (
+                        <PlaceRow key={e.spot.name} name={e.spot.name} cuisine={cuisineOf(e)} mark={e.gut ?? "maybe"}
+                          meta={beenLens === "area" ? cuisineOf(e) : metaOf(e)}
+                          href={`/spot/${slugify(e.spot.name)}`}
+                          right={!gutFilter && e.gut ? <span className={`tMeta ${styles[`vw_${e.gut}`]}`}>{GUT_LABEL[e.gut]}</span> : undefined}
+                        />
+                      ))}
+                    </ul>
+                    {bounded(g).more > 0 && moreBtn(g, bounded(g).more)}
                   </section>
                 ))}
               </>
@@ -306,52 +363,56 @@ export function YouPage() {
           </div>
         )}
 
-        {/* ═══ WANT — the backlog ═══ */}
+        {/* ═══ WANT — the radar ═══ */}
         {view === "want" && (
-          <div className={styles.register}>
-            {back}
-            <h1 className={styles.regTitle}>On your radar</h1>
-            <p className={styles.regSub}>{want.length} saved for the right night</p>
+          <div>
+            {backBtn}
+            <h1 className={`tTitle ${styles.regTitle}`}>On your radar</h1>
+            <p className={`tLabel ${styles.regSub}`}>{want.length} saved for the right night</p>
 
             {want.length === 0 ? (
-              <p className={styles.regEmpty}>Nothing saved yet. When a place catches your eye, mark it <b>want to go</b> — it lands here, and on your map.</p>
+              <p className={`tSupport ${styles.regEmpty}`}>Nothing saved yet. When a place catches your eye, mark it <b>want to go</b> — it lands here, and on your map.</p>
             ) : (
               <>
+                {/* the radar itself — a glance, tap opens the live map */}
+                <div className={styles.radar}>
+                  <MapReal pins={radarPins} height={170} interactive={false} labelMode="hover" recede tag="Your radar" />
+                  <Link href="/home" className={styles.radarLink} aria-label="Open your radar on the map" />
+                </div>
+
                 {nearWants.length > 0 && (
                   <section className={styles.group}>
-                    <span className={`${styles.groupLabel} ${styles.nearLabel}`}>● Near you now</span>
-                    <ul className={styles.wantList}>
+                    <div className={styles.groupHead}><span className={`tLabel ${styles.liveLabel}`}>Near you now</span></div>
+                    <ul className={styles.list}>
                       {nearWants.map(({ e, km }) => (
-                        <li key={e.spot.name} className={`${styles.wantRow} ${styles.wantNear}`}>
-                          <span className={styles.wantRing} aria-hidden="true" />
-                          <Link className={styles.rowBody} href={`/spot/${slugify(e.spot.name)}`}>
-                            <span className={styles.rowName}>{e.spot.name}</span>
-                            <span className={styles.rowMeta}>{metaOf(e)} · <span className={styles.live}>{fmtDist(km)}</span></span>
-                          </Link>
-                          <a className={styles.wantGo} href={mapsHref(e.spot.name, e.spot.area)} target="_blank" rel="noreferrer">Go →</a>
-                        </li>
+                        <PlaceRow key={e.spot.name} highlight name={e.spot.name} cuisine={cuisineOf(e)} mark="want"
+                          meta={<>{metaOf(e)} · <span className={styles.liveText}>{fmtDist(km)}</span></>}
+                          href={`/spot/${slugify(e.spot.name)}`}
+                          right={<a className={`tAction ${styles.go}`} href={mapsHref(e.spot.name, e.spot.area)} target="_blank" rel="noreferrer">Go →</a>}
+                        />
                       ))}
                     </ul>
                   </section>
                 )}
 
-                {restWants.length > 0 && (
-                  <section className={styles.group}>
-                    {nearWants.length > 0 && <span className={styles.groupLabel}>Longest on your list</span>}
-                    <ul className={styles.wantList}>
-                      {restWants.map(({ e, aging }) => (
-                        <li key={e.spot.name} className={styles.wantRow}>
-                          <span className={styles.wantRing} aria-hidden="true" />
-                          <Link className={styles.rowBody} href={`/spot/${slugify(e.spot.name)}`}>
-                            <span className={styles.rowName}>{e.spot.name}</span>
-                            <span className={styles.rowMeta}>{metaOf(e)}{aging ? <> · <span className={styles.aging}>wanted {aging}</span></> : ""}</span>
-                          </Link>
-                          <button type="button" className={styles.wantLog} onClick={() => openCapture(toPick(e), "been")}>Been here? →</button>
-                        </li>
-                      ))}
+                {wantGroups.map((g) => (
+                  <section key={g.key} className={styles.group}>
+                    {groupHead(g)}
+                    <ul className={styles.list}>
+                      {bounded(g).rows.map((e) => {
+                        const aging = agingOf(e.spot.name);
+                        return (
+                          <PlaceRow key={e.spot.name} name={e.spot.name} cuisine={cuisineOf(e)} mark="want"
+                            meta={<>{cuisineOf(e)}{aging ? <> · <span className={styles.agingText}>wanted {aging}</span></> : null}</>}
+                            href={`/spot/${slugify(e.spot.name)}`}
+                            right={<button type="button" className={`tActionQuiet ${styles.logBtn}`} onClick={() => openCapture(toPick(e), "been")}>Been here? →</button>}
+                          />
+                        );
+                      })}
                     </ul>
+                    {bounded(g).more > 0 && moreBtn(g, bounded(g).more)}
                   </section>
-                )}
+                ))}
               </>
             )}
           </div>
