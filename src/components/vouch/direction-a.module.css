@@ -77,6 +77,12 @@
 .cardReceipt:hover { color: var(--saffron-hi); }
 .cardAnother { margin-left: auto; font-family: var(--sans); font-size: 0.84rem; color: var(--muted); background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 6px 13px; cursor: pointer; transition: all 0.15s var(--ease); }
 .cardAnother:hover { border-color: var(--saffron); color: var(--saffron); }
+/* the rejection pivot — appears after a couple of "another"s, quietly offering the
+   other lane. A hairline sets it off from the actions above. */
+.cardPivot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+.pivotLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
+.pivotBtn { font-family: var(--sans); font-size: 0.86rem; font-weight: 600; color: var(--saffron); background: transparent; border: none; padding: 0; cursor: pointer; transition: color 0.15s var(--ease); }
+.pivotBtn:hover { color: var(--saffron-hi); }
 @media (min-width: 1000px) { .placeCard { left: auto; right: 28px; bottom: 28px; width: 392px; } }
 
 /* MOBILE (<1000px) — map-forward. Controls float at the top under the bar, the map

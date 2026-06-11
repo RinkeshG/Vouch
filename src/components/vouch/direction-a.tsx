@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { WebShell } from "./web-shell";
 import { Button } from "./button";
 import { MapReal, type MapPin } from "./map-real";
@@ -27,6 +27,7 @@ export function ProducersHome() {
   const [lens, setLens] = useState<Lens>("all");
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
   const [spineDismissed, setSpineDismissed] = useState(false);
+  const [pick, setPick] = useState<{ mood: "new" | "sure"; idx: number; rejects: number } | null>(null);
 
   const vouched = entries.filter((e) => e.stamp === "vouched");
   const counts = {
@@ -65,20 +66,46 @@ export function ProducersHome() {
     return { e: focusedEntry, sp, vibe: sp.vibe ?? seed?.vibe, move: sp.move ?? seed?.move, cover: sp.cover ?? seed?.cover };
   })() : null;
 
-  // The one decision aid Home needs: when you can't choose, pick from the places you'd
-  // actually go — vouched first, else the ones you'd go back to, no question.
-  const decidePool = vouched.length ? vouched : entries.filter((e) => e.stamp === "been" && e.gut === "absolutely");
-  function pickForMe() {
-    if (!decidePool.length) return;
+  // ── "Pick for me" — reads your intent, never a blind shuffle. Lead with a WANT
+  // (your own saved intent; nearest first when we know where you are), fall back to a
+  // SURE THING (vouched + been·absolutely — never maybe/no, the trust line). Each
+  // "another" is a REJECTION: cycle smart (no repeats), and after a couple, stop
+  // pretending and offer to switch lanes — the taps are the signal.
+  const { wantOrder, sureOrder } = useMemo(() => {
+    const order = (list: typeof entries, oldestFirst: boolean) =>
+      list
+        .map((e) => ({ id: `me:${e.spot.name}`, km: myPos ? distKm(myPos.lat, myPos.lng, e.spot.lat, e.spot.lng) : null, since: firstWantedAt(e.spot.name) ?? e.at, at: e.at }))
+        .sort((a, b) => (a.km != null && b.km != null ? a.km - b.km : oldestFirst ? a.since - b.since : b.at - a.at))
+        .map((x) => x.id);
+    return {
+      wantOrder: order(entries.filter((e) => e.stamp === "want"), true),
+      sureOrder: order(entries.filter((e) => e.stamp === "vouched" || (e.stamp === "been" && e.gut === "absolutely")), false),
+    };
+  }, [entries, myPos]);
+  const goWorthy = wantOrder.length + sureOrder.length;
+
+  function startPick(mood?: "new" | "sure") {
+    let m: "new" | "sure" = mood ?? (wantOrder.length ? "new" : "sure");
+    let order = m === "new" ? wantOrder : sureOrder;
+    if (!order.length) { m = m === "new" ? "sure" : "new"; order = m === "new" ? wantOrder : sureOrder; }
+    if (!order.length) return;
     setLens("all"); // the pick must never land on a dimmed pin
-    const ids = decidePool.map((e) => `me:${e.spot.name}`);
-    const others = ids.filter((id) => id !== focused);
-    const list = others.length ? others : ids;
-    setFocused(list[Math.floor(Math.random() * list.length)]);
+    setPick({ mood: m, idx: 0, rejects: 0 });
+    setFocused(order[0]);
   }
+  function pickAnother() {
+    if (!pick) { startPick(); return; }
+    const order = pick.mood === "new" ? wantOrder : sureOrder;
+    if (!order.length) return;
+    const idx = (pick.idx + 1) % order.length;
+    setLens("all");
+    setPick({ mood: pick.mood, idx, rejects: pick.rejects + 1 });
+    setFocused(order[idx]);
+  }
+  function closeCard() { setFocused(null); setPick(null); }
   function toggleLens(l: Exclude<Lens, "all">) {
     setLens((cur) => (cur === l ? "all" : l));
-    setFocused(null); // a stale card over a re-lensed map is a lie
+    setFocused(null); setPick(null); // a stale card over a re-lensed map is a lie
   }
 
   // THE WANT LOOP SPINE (PRD §7.3) — the one moment a solo user's app beats their own
@@ -147,8 +174,8 @@ export function ProducersHome() {
             </>
           )}
 
-          {!empty && !focused && decidePool.length > 1 && (
-            <button type="button" className={styles.focusBtn} onClick={pickForMe}>Can’t decide? <b>Pick one for me →</b></button>
+          {!empty && !focused && goWorthy > 1 && (
+            <button type="button" className={styles.focusBtn} onClick={() => startPick()}>Can’t decide? <b>Pick one for me →</b></button>
           )}
         </header>
 
@@ -174,7 +201,7 @@ export function ProducersHome() {
 
         {card && (
           <div className={styles.placeCard} role="dialog" aria-label={card.sp.name}>
-            <button type="button" className={styles.cardClose} onClick={() => setFocused(null)} aria-label="Back to map">✕</button>
+            <button type="button" className={styles.cardClose} onClick={closeCard} aria-label="Back to map">✕</button>
             <div className={styles.cardHead}>
               <div className={styles.cardThumb} style={card.cover ? { backgroundImage: `url(${card.cover})`, backgroundSize: "cover", backgroundPosition: "center" } : { background: placeTint(card.sp.cuisine) }}>
                 {!card.cover && <span className={styles.cardThumbMono} aria-hidden="true">{monogram(card.sp.name)}</span>}
@@ -193,8 +220,18 @@ export function ProducersHome() {
               {/* the decision ends in GO — link out for logistics (PRD §1) */}
               <a className={styles.cardMaps} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${card.sp.name} ${cleanArea(card.sp.area)} Bengaluru`)}`} target="_blank" rel="noreferrer">Open in Maps ↗</a>
               <a className={styles.cardReceipt} href={`/spot/${slugify(card.sp.name)}`}>the full place →</a>
-              {decidePool.length > 1 && <button type="button" className={styles.cardAnother} onClick={pickForMe}>↻ Pick another</button>}
+              {goWorthy > 1 && <button type="button" className={styles.cardAnother} onClick={pickAnother}>↻ Pick another</button>}
             </div>
+            {/* the rejection signal: kept tapping "another" → this lane isn't it. Offer
+                to switch instead of shuffling the same pool forever. */}
+            {pick && pick.rejects >= 2 && (pick.mood === "new" ? sureOrder.length > 0 : wantOrder.length > 0) && (
+              <div className={styles.cardPivot}>
+                <span className={styles.pivotLabel}>Not these?</span>
+                {pick.mood === "new"
+                  ? <button type="button" className={styles.pivotBtn} onClick={() => startPick("sure")}>Show me a sure thing →</button>
+                  : <button type="button" className={styles.pivotBtn} onClick={() => startPick("new")}>Try something new →</button>}
+              </div>
+            )}
           </div>
         )}
 
@@ -208,7 +245,7 @@ export function ProducersHome() {
         // entries update reactively via the seam; clear the lens so the new pin is
         // never dimmed. For a WANT the ghost pin floating in is the whole confirmation
         // (PRD §10) — no card; been/vouch land with their card open.
-        setLens("all"); setFocused(r.stamp === "want" ? null : `me:${r.spot.name}`);
+        setLens("all"); setPick(null); setFocused(r.stamp === "want" ? null : `me:${r.spot.name}`);
       }} />
     </WebShell>
   );
