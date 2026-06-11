@@ -54,7 +54,9 @@ export function cuisineGlyph(cuisine?: string): string | null {
   if (/ramen|noodle|sushi|japanese|asian|thai|chinese|momo|small plates/.test(c)) return G("<path d='M4 12h16a8 8 0 0 1-16 0z'/><path d='M10 8l2.5-5'/><path d='M14 8l2.5-5'/>");
   if (/kebab|biryani|grill|andhra|mughlai|military|bbq|tandoor/.test(c)) return G("<path d='M12 3c2.5 3.5 5 5.5 5 9a5 5 0 1 1-10 0c0-3.5 2.5-5.5 5-9z'/>");
   if (/brew|beer|pub|taproom|\bbar\b/.test(c)) return G("<path d='M6 5h9v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5z'/><path d='M15 9h1.5a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H15'/><path d='M6 8.5h9'/>");
-  if (/ice cream|dessert|sweet|bakery|cake|gelato/.test(c)) return G("<circle cx='12' cy='8' r='4.5'/><path d='M8.5 11.5L12 21l3.5-9.5'/>");
+  /* sundae cup, not scoop-over-point — at pin size a circle above a taper reads
+     as a generic map marker and breaks the glyph family */
+  if (/ice cream|dessert|sweet|bakery|cake|gelato/.test(c)) return G("<path d='M6.5 10.5h11L15.5 19h-7z'/><path d='M8 10.5a4 4 0 0 1 8 0'/><path d='M12 6.5V4'/>");
   if (/coastal|seafood|fish|mangalor/.test(c)) return G("<path d='M3 12c3-3.5 6.5-5 10.5-5 2.5 2.5 2.5 7.5 0 10C9.5 17 6.5 15.5 3 12z'/><path d='M14 8.5L19 12l-5 3.5'/>");
   if (/pizza|italian/.test(c)) return G("<path d='M12 3L4 19h16z'/><path d='M7.5 12.5h9'/>");
   return null;

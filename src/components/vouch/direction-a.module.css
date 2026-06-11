@@ -12,7 +12,7 @@
 /* the legend IS the filter — one row of count-chips that both key the pin colours
    and narrow the map (tap to filter, tap again to clear). Off-lens pins dim, never
    vanish. A register at 0 fades and can't be tapped — honest, not noisy. */
-.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
 .lgBtn { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(16, 15, 13, 0.5); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 0 15px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease); }
 .lgBtn:hover:not(:disabled) { border-color: rgba(244, 238, 227, 0.25); color: var(--text); }
 .lgBtn:disabled { opacity: 0.45; cursor: default; }
@@ -22,9 +22,12 @@
 .lgBeen { background: rgba(244, 238, 227, 0.5); }
 .lgWant { background: transparent; border: 1.5px solid rgba(246, 168, 43, 0.65); }
 
-.focusBtn { margin-top: 20px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--text); background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; transition: all 0.15s var(--ease); }
-.focusBtn:hover { border-color: var(--saffron); color: var(--saffron); }
-.focusBtn b { font-weight: 700; color: var(--saffron); }
+/* the decision assist — a quiet glass pill in PAPER, not saffron. The lamps on
+   this screen are the pins and the ＋; the assist earns saffron only on press. */
+.focusBtn { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; margin-top: 24px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; color: var(--muted); background: rgba(16, 15, 13, 0.5); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 0 16px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color 0.15s var(--ease), color 0.15s var(--ease); }
+.focusBtn:hover, .focusBtn:active { border-color: var(--saffron); color: var(--saffron); }
+.focusBtn:hover b, .focusBtn:active b { color: var(--saffron); }
+.focusBtn b { font-weight: 700; color: var(--text); transition: color 0.15s var(--ease); }
 
 .addWrap { position: absolute; z-index: 2; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .stamps { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
@@ -81,9 +84,11 @@
   .eyebrow { font-size: 0.56rem; letter-spacing: 0.16em; }
   .state { font-size: clamp(1.7rem, 7.6vw, 2.3rem); margin-top: 8px; }
   .sub { display: none; }
-  .legend { gap: 7px; margin-top: 13px; }
+  /* headline + legend read as ONE group (the key to the map); the assist pill
+     separates decisively — proximity carries the meaning */
+  .legend { gap: 7px; margin-top: 8px; }
   .lgBtn { font-size: 0.56rem; padding: 0 12px; }
-  .focusBtn { margin-top: 14px; font-size: 0.86rem; padding: 8px 14px; }
+  .focusBtn { margin-top: 24px; font-size: 0.86rem; padding: 0 14px; }
   .addWrap { display: none; }
   .toastWrap { bottom: 92px; }
 }
