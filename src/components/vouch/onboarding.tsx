@@ -116,7 +116,7 @@ export function Onboarding() {
       <div className={styles.stage}>
         <div className={styles.payoff}>
           <div className={styles.payoffMap}>
-            <MapReal pins={payoffPins} height="100%" labelMode="hover" recede tag="Your map · Bengaluru" />
+            <MapReal pins={payoffPins} height="100%" labelMode="hover" recede interactive={false} tag="Your map · Bengaluru" />
           </div>
           <div className={styles.payoffText}>
             <p className={styles.payEyebrow}>Your map</p>

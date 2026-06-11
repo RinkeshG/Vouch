@@ -155,7 +155,7 @@ export function SpotPage({ slug }: { slug: string }) {
             </dl>
             {spot.lat != null && spot.lng != null && (
               <div className={styles.mapWrap}>
-                <MapReal pins={[{ id: spot.name, lat: spot.lat, lng: spot.lng, name: spot.name, kind: "mine", stamp: cur ?? "want" }]} height={184} tag={`${spot.area} · Bengaluru`} />
+                <MapReal pins={[{ id: spot.name, lat: spot.lat, lng: spot.lng, name: spot.name, kind: "mine", stamp: cur ?? "want" }]} height={184} interactive={false} tag={`${spot.area} · Bengaluru`} />
               </div>
             )}
             <a className={styles.maps} href={mapsHref} target="_blank" rel="noreferrer">Open in Google Maps →</a>

@@ -28,7 +28,7 @@ export type MapPin = {
   cuisine?: string;                       // keys the tiny in-pin glyph (what the place IS)
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, declutter = false, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; declutter?: boolean; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, declutter = false, interactive = true, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; declutter?: boolean; interactive?: boolean; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -137,14 +137,18 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       const m = leaflet.map(ref.current, {
         zoomControl: false, attributionControl: false,
         minZoom: 11, maxZoom: 18, maxBounds: BLR, maxBoundsViscosity: 1.0,
+        // static (embedded) maps are a glance, not a tool: kill every interaction so
+        // they never trap the page scroll. The home map (interactive) keeps them all.
+        dragging: interactive, scrollWheelZoom: interactive, doubleClickZoom: interactive,
+        touchZoom: interactive, boxZoom: interactive, keyboard: interactive, tapHold: false,
       }).setView([12.9716, 77.5946], 11.5);
       // Always the LABELLED dark base — neighbourhood names are what let you read
       // the map at a glance. Warmth + legibility come from a CSS filter (see
       // .recede in the stylesheet), never from crushing the tiles to black.
       tiles.current = leaflet.tileLayer(DARK_TILES, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
-      // zoom buttons only on the small embedded cards (no pinch on desktop); the
-      // immersive home map stays clean — pinch to zoom, a recenter control to reframe.
-      if (!bleed) leaflet.control.zoom({ position: "bottomright" }).addTo(m);
+      // zoom buttons only on an interactive embedded card (none exist today — the
+      // home map uses pinch/scroll, embedded maps are static); kept for future use.
+      if (interactive && !bleed) leaflet.control.zoom({ position: "bottomright" }).addTo(m);
       map.current = m;
       // re-spread overlapping pins whenever the map settles (after a fly, zoom, or pan)
       m.on("moveend", () => spreadPins());
@@ -191,13 +195,6 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spotlightId, sig, dimKey]);
-
-  function fit() {
-    const m = map.current;
-    if (!m || !pins.length) return;
-    if (pins.length === 1) m.flyTo([pins[0].lat, pins[0].lng], 14);
-    else m.flyToBounds(pins.map((p) => [p.lat, p.lng]), { padding: [70, 70], maxZoom: 14 });
-  }
 
   // drop or move the "you are here" marker (created once, then reused)
   function placeYou(lat: number, lng: number) {
@@ -256,19 +253,17 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   }
 
   return (
-    <div className={`${styles.wrap} ${styles.themeDark} ${bleed ? styles.bleed : ""}`} style={{ height }}>
+    <div className={`${styles.wrap} ${styles.themeDark} ${bleed ? styles.bleed : ""} ${interactive ? "" : styles.staticMap}`} style={{ height }}>
       <div ref={ref} className={styles.map} />
       {recede && <div className={styles.vignette} aria-hidden="true" />}
       <span className={styles.tag}>{tag}</span>
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}
-      {/* the immersive home map carries ONE clear control — recenter: reframe your
-          whole map (your places + you). Embedded cards get the inline "Fit my map". */}
-      {locate ? (
+      {/* only the immersive home map carries a control — recenter: reframe your whole
+          map (your places + you). Embedded maps are static glances, no controls. */}
+      {locate && (
         <button type="button" className={styles.recenter} onClick={recenter} aria-label="Recenter the map on your places">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /></svg>
         </button>
-      ) : (
-        pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>
       )}
     </div>
   );

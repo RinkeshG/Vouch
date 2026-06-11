@@ -179,7 +179,7 @@ export function PalatePage({ slug }: { slug?: string }) {
           {mapPins.length > 0 && (
             <aside className={styles.mapCol}>
               <span className={styles.label}>{own ? "Your Bengaluru" : `${display}’s Bengaluru`}</span>
-              <div className={styles.mapWrap}><MapReal pins={mapPins} height={300} labelMode="hover" recede tag={own ? "Your map" : `${display}’s map`} /></div>
+              <div className={styles.mapWrap}><MapReal pins={mapPins} height={300} labelMode="hover" recede interactive={false} tag={own ? "Your map" : `${display}’s map`} /></div>
             </aside>
           )}
         </div>
