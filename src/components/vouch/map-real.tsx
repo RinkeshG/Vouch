@@ -16,6 +16,8 @@ import styles from "./map-real.module.css";
    dusk look, so the surface is dark everywhere, day or night. Carto's labelled dark
    tiles + a warming CSS filter (see .themeDark) read as the city at night. */
 const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+// the city we cover — location outside it is never framed (we don't pretend to know)
+const inBLR = (lat: number, lng: number) => lat >= 12.8 && lat <= 13.16 && lng >= 77.44 && lng <= 77.8;
 
 export type MapPin = {
   id: string; lat: number; lng: number; name: string;
@@ -39,6 +41,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   // "you are here" — set only after the user grants location (never a guess)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const youMarker = useRef<any>(null);
+  const youPos = useRef<{ lat: number; lng: number } | null>(null);
   // When the host wants to own the reveal (a designed place-card, not a Leaflet
   // popup), a tap reports the id up instead of opening the built-in popup.
   const onTap = useRef(onPinTap);
@@ -148,26 +151,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       setTimeout(() => { m.invalidateSize(); spreadPins(); }, 60);
       sync();
 
-      // Location BY PERMISSION, never assumption: if the user grants it and they're
-      // in the city we cover, drop a "you are here" marker and (only when the map
-      // isn't already framing their pins) recenter on them. Denied → stay on the
-      // city, silently and honestly.
-      if (locate && typeof navigator !== "undefined" && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const m2 = map.current;
-            if (dead || !m2) return;
-            const { latitude, longitude } = pos.coords;
-            if (!BLR.contains([latitude, longitude])) return; // outside our coverage → keep the city view
-            onLoc.current?.(latitude, longitude); // the host may want the position (the want-loop spine)
-            const youIcon = leaflet.divIcon({ className: styles.icon, html: `<div class="${styles.you}"><span class="${styles.youDot}"></span></div>`, iconSize: [2, 2], iconAnchor: [9, 9] });
-            youMarker.current = leaflet.marker([latitude, longitude], { icon: youIcon, interactive: false, keyboard: false, zIndexOffset: -200 }).addTo(m2);
-            if (pinsRef.current.length === 0) m2.flyTo([latitude, longitude], 14, { duration: 0.8 });
-          },
-          () => { /* denied / unavailable → city fallback, no guess */ },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
-        );
-      }
+      // Location BY PERMISSION, never assumption: on mount, ask once. Only fly to
+      // them if the map has nothing of theirs to frame yet (an empty map). Denied →
+      // stay on the city, silently. The recenter control re-asks on demand later.
+      if (locate) requestLocate({ fly: pinsRef.current.length === 0 });
     })();
     return () => { dead = true; map.current?.remove?.(); map.current = null; markers.current = {}; youMarker.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -212,13 +199,74 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     else m.flyToBounds(pins.map((p) => [p.lat, p.lng]), { padding: [70, 70], maxZoom: 14 });
   }
 
+  // drop or move the "you are here" marker (created once, then reused)
+  function placeYou(lat: number, lng: number) {
+    const m = map.current, leaflet = L.current;
+    if (!m || !leaflet) return;
+    youPos.current = { lat, lng };
+    if (youMarker.current) { youMarker.current.setLatLng([lat, lng]); return; }
+    const youIcon = leaflet.divIcon({ className: styles.icon, html: `<div class="${styles.you}"><span class="${styles.youDot}"></span></div>`, iconSize: [2, 2], iconAnchor: [9, 9] });
+    youMarker.current = leaflet.marker([lat, lng], { icon: youIcon, interactive: false, keyboard: false, zIndexOffset: -200 }).addTo(m);
+  }
+
+  // ask for location (the browser caches the grant, so repeat taps are instant).
+  // Outside the city, or denied → fall back to framing their places, never a guess.
+  function requestLocate({ fly }: { fly: boolean }) {
+    if (typeof navigator === "undefined" || !navigator.geolocation) { if (fly) frameAll(); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        if (!inBLR(latitude, longitude)) { if (fly) frameAll(); return; }
+        onLoc.current?.(latitude, longitude);
+        placeYou(latitude, longitude);
+        if (fly) map.current?.flyTo([latitude, longitude], 15, { duration: 0.9 });
+      },
+      () => { if (fly) frameAll(); },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 },
+    );
+  }
+
+  // frame everything that's yours — your pins plus you, if we know where you are
+  function frameAll() {
+    const m = map.current;
+    if (!m) return;
+    const pts = pinsRef.current.map((p) => [p.lat, p.lng] as [number, number]);
+    if (youPos.current) pts.push([youPos.current.lat, youPos.current.lng]);
+    if (pts.length === 0) return;
+    if (pts.length === 1) m.flyTo(pts[0], 15, { duration: 0.9 });
+    // generous top/bottom padding so pins clear the header overlay and the spine card
+    else m.flyToBounds(pts, { paddingTopLeft: [36, bleed ? 200 : 60], paddingBottomRight: [36, bleed ? 190 : 60], maxZoom: 15, duration: 0.9 });
+  }
+
+  // the recenter control: snap to you if we already know where you are (and quietly
+  // refresh it); otherwise ask, and fly there once it lands.
+  function recenter() {
+    if (youPos.current) { map.current?.flyTo([youPos.current.lat, youPos.current.lng], 15, { duration: 0.9 }); requestLocate({ fly: false }); }
+    else requestLocate({ fly: true });
+  }
+
   return (
     <div className={`${styles.wrap} ${styles.themeDark} ${bleed ? styles.bleed : ""}`} style={{ height }}>
       <div ref={ref} className={styles.map} />
       {recede && <div className={styles.vignette} aria-hidden="true" />}
       <span className={styles.tag}>{tag}</span>
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}
-      {pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>}
+      {/* the immersive home map carries its own controls (locate + frame) top-right;
+          embedded cards get the inline "Fit my map" instead. */}
+      {locate ? (
+        <div className={styles.controls}>
+          <button type="button" className={styles.ctrlBtn} onClick={recenter} aria-label="Recenter on my location">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /></svg>
+          </button>
+          {pins.length > 1 && (
+            <button type="button" className={styles.ctrlBtn} onClick={frameAll} aria-label="Frame all my places">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+            </button>
+          )}
+        </div>
+      ) : (
+        pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>
+      )}
     </div>
   );
 }

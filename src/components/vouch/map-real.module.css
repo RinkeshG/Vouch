@@ -27,6 +27,15 @@
 .fit { position: absolute; left: 16px; bottom: 16px; z-index: 500; font-family: var(--sans); font-size: 0.82rem; font-weight: 500; color: var(--text); background: rgba(12, 10, 7, 0.7); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 8px 13px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color var(--dur) ease, color var(--dur) ease; }
 .fit:hover { border-color: var(--saffron); color: var(--saffron); }
 
+/* the immersive home map's controls — locate + frame. Right edge, vertically
+   centred: the one band always clear of the header (top) and the spine/tab bar
+   (bottom). Quiet glass rounds, never saffron (controls aren't vouches). */
+.controls { position: absolute; top: 50%; right: 14px; transform: translateY(-50%); z-index: 500; display: flex; flex-direction: column; gap: 10px; }
+.ctrlBtn { width: 44px; height: 44px; display: grid; place-items: center; color: var(--text); background: rgba(12, 10, 7, 0.64); border: 1px solid var(--line-2); border-radius: 50%; cursor: pointer; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 6px 18px -10px rgba(0,0,0,0.8); transition: border-color var(--dur) ease, color var(--dur) ease, transform 0.12s var(--ease); }
+.ctrlBtn:hover { border-color: var(--text); }
+.ctrlBtn:active { transform: scale(0.94); }
+.ctrlBtn svg { display: block; }
+
 /* pins (divIcon content) */
 .icon { background: transparent; border: none; }
 .pin, .pinP { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; animation: drop 0.45s var(--ease) both; cursor: pointer; transition: opacity 0.3s var(--ease), filter 0.3s var(--ease); }
