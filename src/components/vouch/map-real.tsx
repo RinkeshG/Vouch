@@ -42,6 +42,9 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const youMarker = useRef<any>(null);
   const youPos = useRef<{ lat: number; lng: number } | null>(null);
+  // the spotlight we were on last pass — so when a card closes (spotlight clears),
+  // we know to animate the camera back to the overview instead of sitting zoomed-in.
+  const prevSpot = useRef<string | null | undefined>(null);
   // When the host wants to own the reveal (a designed place-card, not a Leaflet
   // popup), a tap reports the id up instead of opening the built-in popup.
   const onTap = useRef(onPinTap);
@@ -192,7 +195,12 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     });
     if (spotlightId && map.current && markers.current[spotlightId]) {
       map.current.flyTo(markers.current[spotlightId].getLatLng(), 14, { duration: 0.6 });
+    } else if (!spotlightId && prevSpot.current) {
+      // entering focus zooms in + dims; leaving it must reverse both — glide the
+      // camera back to the whole-map overview, not leave it stranded on one pin.
+      frameAll();
     }
+    prevSpot.current = spotlightId;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spotlightId, sig, dimKey]);
 
