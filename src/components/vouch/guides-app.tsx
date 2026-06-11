@@ -98,10 +98,23 @@ function GuideList({ guides, onNew, onOpen }: { guides: Guide[]; onNew: () => vo
   if (guides.length === 0) {
     return (
       <div className={`${styles.page} ${styles.pageEmpty}`}>
-        <p className={styles.eyebrow}>Your guides</p>
         <div className={styles.empty}>
-          <h1 className={styles.emptyH1}>Be the friend with the spots.</h1>
-          <p className={styles.emptyLine}>A guide is the answer you hand over when someone asks where to go — a few places you’d put your name on, titled like you’d text it. Make the one people keep asking you for.</p>
+          {/* the promise, faintly visible — a press proof of what a guide looks
+              like, so the empty state shows the reward instead of describing it */}
+          <div className={styles.ghost} aria-hidden="true">
+            <p className={styles.ghostTitle}>First date, no cringe</p>
+            <ul className={styles.ghostRows}>
+              <li>Soka <span>Indiranagar</span></li>
+              <li>Karavalli <span>Residency Rd</span></li>
+              <li>Naru Noodle Bar <span>Indiranagar</span></li>
+            </ul>
+            <p className={styles.ghostBy}>a guide by @you</p>
+          </div>
+          <div>
+            <p className={styles.eyebrow}>Your guides</p>
+            <h1 className={styles.emptyH1}>Be the friend with the spots.</h1>
+          </div>
+          <p className={styles.emptyLine}>A guide is the answer you hand over when someone asks where to go. Make the one people keep asking you for.</p>
           <Button variant="primary" onClick={onNew}>Start a guide →</Button>
         </div>
       </div>

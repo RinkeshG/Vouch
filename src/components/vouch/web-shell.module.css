@@ -37,15 +37,17 @@
 .tabLabel { font-family: var(--mono); font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
 .tabOn { color: var(--saffron); }
 
+/* the capture ＋ is CHROME — present, tappable, but it must never outshine a
+   content-level CTA on the screen above it. Smaller, glow cut to a breath. */
 .tabAdd {
-  flex: none; display: grid; place-items: center; width: 54px; height: 54px; margin: -20px 6px 0;
-  border: 2px solid var(--bg); border-radius: 17px; cursor: pointer; color: var(--accent-ink);
+  flex: none; display: grid; place-items: center; width: 48px; height: 48px; margin: -14px 6px 0;
+  border: 2px solid var(--bg); border-radius: 15px; cursor: pointer; color: var(--accent-ink);
   background: linear-gradient(135deg, var(--saffron-hi), var(--saffron));
-  box-shadow: 0 12px 28px -10px rgba(246, 168, 43, 0.9); transition: transform 0.15s var(--ease);
+  box-shadow: 0 6px 16px -8px rgba(246, 168, 43, 0.55); transition: transform 0.15s var(--ease);
 }
 .tabAdd:hover { transform: translateY(-2px); }
 .tabAdd:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
-.tabAddPlus { font-size: 1.7rem; line-height: 1; font-weight: 400; }
+.tabAddPlus { font-size: 1.5rem; line-height: 1; font-weight: 400; }
 
 /* ============================ DESKTOP (≥1000px) ============================ */
 @media (min-width: 1000px) {
