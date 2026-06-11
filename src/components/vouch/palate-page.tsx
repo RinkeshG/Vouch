@@ -6,6 +6,7 @@ import { Button } from "./button";
 import { OccasionChip } from "./chip";
 import { MapReal, type MapPin } from "./map-real";
 import { FOUNDING, findSpot, type FoundingPalate, type Vouch } from "./_taste";
+import { TakeEntry } from "./atoms";
 import { listGuides, slugify, type Guide } from "./_guides";
 import { useMyMap } from "./_map-context";
 import { AddVouchModal } from "./add-vouch";
@@ -142,14 +143,9 @@ export function PalatePage({ slug }: { slug?: string }) {
                   {signature.map((s, i) => {
                     const spot = findSpot(s.name);
                     return (
-                      <li key={s.name} className={styles.sigRow}>
-                        <span className={styles.sigNum}>{String(i + 1).padStart(2, "0")}</span>
-                        <a className={styles.sigBody} href={`/spot/${slugify(s.name)}`}>
-                          <span className={styles.sigName}>{s.name}</span>
-                          {s.line && <span className={styles.sigLine}>“{s.line}”</span>}
-                          {spot && <span className={styles.sigTags}>{spot.cuisine} · {spot.area}</span>}
-                        </a>
-                      </li>
+                      <TakeEntry key={s.name} rank={i + 1} take={s.line} name={s.name}
+                        meta={spot ? `${spot.cuisine} · ${spot.area}` : ""}
+                        href={`/spot/${slugify(s.name)}`} />
                     );
                   })}
                 </ol>

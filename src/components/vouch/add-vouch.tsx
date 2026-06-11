@@ -9,6 +9,7 @@ import { searchCatalog, nearestCatalog, fmtDist, type CatalogSpot } from "./_cat
 import { type Stamp, type Gut } from "./_me";
 import { useMyMap } from "./_map-context";
 import { RelChip } from "./rel-chip";
+import { PlaceRow } from "./atoms";
 import styles from "./add-vouch.module.css";
 
 /* The capture sheet (M2: walking out — 5 seconds or it's lost). Opens PRE-POPULATED
@@ -170,20 +171,18 @@ export function AddVouchModal({
 
   const existing = sel ? getEntry(sel.name) : undefined; // already on your map?
 
-  // one row everywhere a place can be picked — distance leads when we know it,
-  // and a place already on your map wears its state chip (PRD §7.2).
+  // THE PlaceRow (atoms.tsx) — the same tiled row as search/diary/radar, so a place
+  // looks like itself everywhere. Distance leads the meta when we know it; a place
+  // already on your map wears its state chip (PRD §7.2).
   const placeRow = (s: CatalogSpot, km?: number) => {
     const ex = getEntry(s.name);
     return (
-      <li key={s.slug}>
-        <button type="button" className={styles.result} onClick={() => pickResult(s)}>
-          <span className={styles.resultMain}>
-            <span className={styles.resultName}>{s.name}</span>
-            <span className={styles.resultMeta}>{km != null ? `${fmtDist(km)} · ` : ""}{s.cuisine} · {s.area}</span>
-          </span>
-          {ex && <RelChip stamp={ex.stamp} mode="state" variant="quiet" className={styles.resultChip} />}
-        </button>
-      </li>
+      <PlaceRow key={s.slug} name={s.name} cuisine={s.cuisine}
+        meta={`${km != null ? `${fmtDist(km)} · ` : ""}${s.cuisine} · ${s.area}`}
+        mark={ex ? (ex.stamp === "been" ? ex.gut ?? "maybe" : ex.stamp) : null}
+        onClick={() => pickResult(s)}
+        right={ex ? <RelChip stamp={ex.stamp} mode="state" variant="quiet" /> : undefined}
+      />
     );
   };
 

@@ -7,14 +7,7 @@
 .nearLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 4px 2px 6px; }
 /* section break before places already on your map — air + a label, not more chrome */
 .onMapLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 18px 2px 6px; }
-.result { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; background: transparent; border: none; border-top: 1px solid var(--line); border-radius: 0; padding: 13px 2px; cursor: pointer; }
-.results li:first-child .result { border-top: none; }
-.result:hover .resultName { color: var(--saffron); }
-.resultName { transition: color 0.15s var(--ease); }
-.resultMain { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.resultChip { flex: none; }
-.resultName { font-family: var(--display); font-weight: 700; font-size: 1.02rem; letter-spacing: -0.015em; color: var(--text); }
-.resultMeta { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
+/* rows are the shared PlaceRow atom (atoms.tsx) — nothing row-shaped lives here */
 .none { font-family: var(--sans); font-size: 0.9rem; color: var(--muted); padding: 8px 2px; }
 
 .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-right: 40px; }
