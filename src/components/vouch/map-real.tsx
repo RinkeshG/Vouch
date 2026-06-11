@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import { slugify } from "./_guides";
 import { cuisineGlyph } from "./_taste";
@@ -11,24 +11,11 @@ import styles from "./map-real.module.css";
    tap one to see who vouched & why. Markers are DIFFED (added/removed) so typing
    elsewhere never re-renders or blinks the pins. */
 
-/* Two basemaps, because of the sun (PRD §11): a warm-dark night map and a warm-light
-   day map (Carto Voyager — legible in Indian daylight). Pins, labels and chrome are
-   dark glass over the tiles, so they stay legible on both; only the tile layer + its
-   filter swap. */
-const TILES = {
-  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-  light: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-};
-type MapTheme = "light" | "dark";
-function resolveTheme(): MapTheme {
-  if (typeof window === "undefined") return "dark";
-  const saved = window.localStorage.getItem("vouch:maptheme");
-  if (saved === "light" || saved === "dark") return saved;
-  const hour = new Date().getHours();
-  const daytime = hour >= 7 && hour < 18;
-  const prefersLight = window.matchMedia?.("(prefers-color-scheme: light)").matches ?? false;
-  return daytime || prefersLight ? "light" : "dark";
-}
+/* One basemap, always: the warm-dark night map. Vouch lives After Dark (brand) —
+   a day/light basemap washed the saffron pins out and broke the city's amber-at-
+   dusk look, so the surface is dark everywhere, day or night. Carto's labelled dark
+   tiles + a warming CSS filter (see .themeDark) read as the city at night. */
+const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
 
 export type MapPin = {
   id: string; lat: number; lng: number; name: string;
@@ -39,9 +26,8 @@ export type MapPin = {
   cuisine?: string;                       // keys the tiny in-pin glyph (what the place IS)
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, themeToggle = false, declutter = false, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; themeToggle?: boolean; declutter?: boolean; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, dimmedIds = [], locate = false, onPinTap, onLocated, declutter = false, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; dimmedIds?: string[]; locate?: boolean; onPinTap?: (id: string) => void; onLocated?: (lat: number, lng: number) => void; declutter?: boolean; tag?: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [theme, setTheme] = useState<MapTheme>("dark"); // SSR-safe; resolved on mount
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,8 +45,6 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   onTap.current = onPinTap;
   const onLoc = useRef(onLocated);
   onLoc.current = onLocated;
-  const themeRef = useRef(theme);
-  themeRef.current = theme;
   const declutterRef = useRef(declutter);
   declutterRef.current = declutter;
   // always hold the latest pins so sync() is never stale — the map can finish
@@ -154,8 +138,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       // Always the LABELLED dark base — neighbourhood names are what let you read
       // the map at a glance. Warmth + legibility come from a CSS filter (see
       // .recede in the stylesheet), never from crushing the tiles to black.
-      tiles.current = leaflet.tileLayer(TILES[themeRef.current], { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
-      leaflet.control.zoom({ position: "bottomright" }).addTo(m);
+      tiles.current = leaflet.tileLayer(DARK_TILES, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
+      // zoom buttons only on the small embedded cards (no pinch on desktop); the
+      // immersive home map stays clean — pinch to zoom, a recenter control to reframe.
+      if (!bleed) leaflet.control.zoom({ position: "bottomright" }).addTo(m);
       map.current = m;
       // re-spread overlapping pins whenever the map settles (after a fly, zoom, or pan)
       m.on("moveend", () => spreadPins());
@@ -186,19 +172,6 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     return () => { dead = true; map.current?.remove?.(); map.current = null; markers.current = {}; youMarker.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // resolve the real basemap on mount (time-of-day + prefers-color-scheme + saved
-   // override) — SSR rendered "dark" to avoid a hydration flash.
-  useEffect(() => { setTheme(resolveTheme()); }, []);
-  // swap the tile layer in place when the theme changes (no remount, no blink)
-  useEffect(() => { tiles.current?.setUrl(TILES[theme]); }, [theme]);
-  function toggleTheme() {
-    setTheme((t) => {
-      const next = t === "light" ? "dark" : "light";
-      try { window.localStorage.setItem("vouch:maptheme", next); } catch { /* ignore */ }
-      return next;
-    });
-  }
 
   // re-sync ONLY when the set of pins changes — not on every parent render
   const sig = pins.map((p) => p.id).join("|");
@@ -240,15 +213,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   }
 
   return (
-    <div className={`${styles.wrap} ${theme === "light" ? styles.themeLight : styles.themeDark} ${bleed ? styles.bleed : ""}`} style={{ height }}>
+    <div className={`${styles.wrap} ${styles.themeDark} ${bleed ? styles.bleed : ""}`} style={{ height }}>
       <div ref={ref} className={styles.map} />
       {recede && <div className={styles.vignette} aria-hidden="true" />}
       <span className={styles.tag}>{tag}</span>
-      {themeToggle && (
-        <button type="button" className={styles.theme} onClick={toggleTheme} aria-label={theme === "light" ? "Switch to the night map" : "Switch to the day map"}>
-          {theme === "light" ? "☾" : "☀"}
-        </button>
-      )}
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}
       {pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>}
     </div>
