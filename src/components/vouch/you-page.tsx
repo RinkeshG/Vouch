@@ -142,13 +142,16 @@ export function YouPage() {
     return { rows: g.rows.slice(0, BOUND), more: g.rows.length - BOUND };
   };
 
-  /* ── VOUCHED: featured lead + (≤12 flat | >12 cuisine groups) ─────────────── */
+  /* ── VOUCHED: featured lead + (≤12 flat | >12 cuisine groups). Grouping must
+     CONDENSE: if your vouches don't cluster by cuisine (≈1 per group), groups
+     fragment worse than a flat list — fall back to one bounded run instead. ── */
   const [featured, ...restVouched] = vouched;
   const vouchedGroups: Group[] | null = restVouched.length > 11
     ? (() => {
         const by: Record<string, Entry[]> = {};
         restVouched.forEach((e) => { (by[cuisineOf(e)] ||= []).push(e); });
-        return Object.entries(by).sort((a, b) => b[1].length - a[1].length).map(([key, rows]) => ({ key, rows }));
+        const gs = Object.entries(by).sort((a, b) => b[1].length - a[1].length).map(([key, rows]) => ({ key, rows }));
+        return gs.length <= restVouched.length / 2 ? gs : [{ key: "", rows: restVouched }];
       })()
     : null;
 
@@ -285,8 +288,8 @@ export function YouPage() {
                   ))}
                 </ul>
                 {vouchedGroups?.map((g) => (
-                  <section key={g.key} className={styles.group}>
-                    {groupHead(g)}
+                  <section key={g.key || "all"} className={styles.group}>
+                    {g.key && groupHead(g)}
                     <ul className={styles.list}>
                       {bounded(g).rows.map((e) => (
                         <TakeEntry key={e.spot.name} take={e.line} name={e.spot.name} meta={areaOf(e)} cuisine={cuisineOf(e)} href={`/spot/${slugify(e.spot.name)}`} />
