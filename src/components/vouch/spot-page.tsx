@@ -150,7 +150,7 @@ export function SpotPage({ slug }: { slug: string }) {
             <dl className={styles.detailGrid}>
               <div className={styles.detailRow}><dt className={styles.dt}>Cuisine</dt><dd className={styles.dd}>{spot.cuisine}</dd></div>
               <div className={styles.detailRow}><dt className={styles.dt}>Area</dt><dd className={styles.dd}>{spot.area}</dd></div>
-              <div className={styles.detailRow}><dt className={styles.dt}>Price</dt><dd className={styles.dd}>{spot.price}</dd></div>
+              <div className={styles.detailRow}><dt className={styles.dt}>Price</dt><dd className={`${styles.dd} ${styles.priceVal}`}>{spot.price}</dd></div>
               <div className={styles.detailRow}><dt className={styles.dt}>Hours</dt><dd className={styles.dd}>{HOURS[spot.name] ?? "See Google"}</dd></div>
             </dl>
             {spot.lat != null && spot.lng != null && (

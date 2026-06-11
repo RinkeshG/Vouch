@@ -51,6 +51,10 @@ a.vWho:hover { color: var(--text); }
 .detailRow { display: flex; flex-direction: column; gap: 3px; }
 .dt { font-family: var(--mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin: 0; }
 .dd { font-family: var(--sans); font-size: 0.98rem; color: var(--text); margin: 0; line-height: 1.3; }
+/* price is the one ₹ we keep — render it in a system mono (SF Mono / Cascadia /
+   Roboto Mono) that always carries the rupee glyph, never Space Mono/Grotesk
+   (which ship a broken one). Mono also matches the brand's 'prices are mono'. */
+.priceVal { font-family: ui-monospace, "SF Mono", "Roboto Mono", Menlo, monospace; font-size: 0.92rem; letter-spacing: 0.02em; }
 
 .addGuide { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; font-family: var(--sans); font-weight: 600; font-size: 0.92rem; color: var(--text); background: rgba(244,238,227,0.05); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 11px 18px; text-decoration: none; transition: all 0.15s var(--ease); }
 .addGuide:hover { border-color: var(--saffron); color: var(--saffron); }
