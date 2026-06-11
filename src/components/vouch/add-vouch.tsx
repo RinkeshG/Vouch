@@ -82,11 +82,15 @@ export function AddVouchModal({
   const [line, setLine] = useState("");
   const [done, setDone] = useState<{ stamp: Stamp; gut?: Gut; name: string; count: number } | null>(null);
 
-  // reset to the preset (or blank) whenever the modal opens
+  // reset to the preset (or blank) whenever the modal opens or the preset PLACE
+  // changes. Depend on a stable key (the name), never the presetSpot object —
+  // callers pass an inline object literal, so a new reference lands on every
+  // parent render; depending on it would re-fire mid-capture and setDone(null),
+  // wiping the success screen right after you vouch.
   useEffect(() => {
     if (open) { setSel(presetSpot ?? null); setStep(initialStep(presetSpot)); setQ(""); setLine(""); setDone(null); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, presetSpot, presetStamp]);
+  }, [open, presetSpot?.name, presetStamp]);
 
   // Nearest-first (PRD §7.2): on open, one foreground location check (a cached fix is
   // fine — maximumAge 5 min) → the 5 nearest places. Denied / slow / out of the city →
@@ -313,7 +317,7 @@ export function AddVouchModal({
                   <span className={styles.count}>{line.length}/120</span>
                 </div>
                 <HoldButton disabled={!line.trim()} onComplete={commitVouch}>Hold to put your name on it</HoldButton>
-                <p className={styles.holdHint}>A vouch is forever until you take it back. Hold to mean it.</p>
+                <p className={styles.stepFoot}>{"// a vouch is forever — until you take it back"}</p>
               </>
             )}
             </div>
