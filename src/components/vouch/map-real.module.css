@@ -26,7 +26,8 @@
 .map { position: absolute; inset: 0; }
 .tag { position: absolute; top: 14px; left: 16px; z-index: 500; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text); background: rgba(12, 10, 7, 0.6); padding: 5px 10px; border-radius: var(--r-pill); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); pointer-events: none; }
 .empty { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); z-index: 500; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); pointer-events: none; }
-.fit { position: absolute; left: 16px; bottom: 16px; z-index: 500; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text); background: rgba(12, 10, 7, 0.7); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 8px 13px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color var(--dur) ease, color var(--dur) ease; }
+/* a control, not a catalog label — buttons are sans, sentence case (mono is never a CTA) */
+.fit { position: absolute; left: 16px; bottom: 16px; z-index: 500; font-family: var(--sans); font-size: 0.82rem; font-weight: 500; color: var(--text); background: rgba(12, 10, 7, 0.7); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 8px 13px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color var(--dur) ease, color var(--dur) ease; }
 .fit:hover { border-color: var(--saffron); color: var(--saffron); }
 
 /* pins (divIcon content) */

@@ -4,9 +4,10 @@
 @media (min-width: 1000px) { .page { padding: 40px 32px 56px; } }
 .eyebrow { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--saffron); margin: 0 0 10px; }
 /* a real back affordance on its own line, not buried in the intro prose */
-.backLink { display: inline-block; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); text-decoration: none; margin: 0 0 16px; transition: color 0.15s var(--ease); }
+.backLink { display: inline-block; font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); text-decoration: none; margin: 0 0 12px; transition: color 0.15s var(--ease); }
 .backLink:hover { color: var(--saffron); }
-.previewNote { font-family: var(--sans); font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0 0 24px; max-width: 56ch; }
+/* one line of preamble, no more — the page's real headline is the known-for line */
+.previewNote { font-family: var(--sans); font-size: 0.9rem; line-height: 1.5; color: var(--muted); margin: 0 0 24px; max-width: 56ch; }
 .previewNote a { color: var(--text); text-decoration: none; white-space: nowrap; font-weight: 500; }
 .previewNote a:hover { color: var(--saffron); }
 .notFound { font-family: var(--display); font-weight: 800; font-size: 2rem; color: var(--text); }
@@ -39,7 +40,9 @@
 .sig { list-style: none; margin: 0; padding: 0; }
 .sigRow { display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
 .sigRow:first-child { border-top: none; }
-.sigNum { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); padding-top: 5px; }
+/* the rank is the system's signature — a proud outline numeral in display 800,
+   not a whisper of mono. This is the page people screenshot. */
+.sigNum { flex: none; width: 2.6rem; font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1.3px var(--rule); padding-top: 3px; }
 .sigBody { display: flex; flex-direction: column; gap: 4px; min-width: 0; text-decoration: none; }
 .sigBody:hover .sigName { color: var(--saffron); }
 .sigName { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.1; }

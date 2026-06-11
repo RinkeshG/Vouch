@@ -25,7 +25,8 @@ const META: Record<string, PalateMeta> = {
 const SLUG_TO_NAME: Record<string, string> = { aditi: "Aditi", rohan: "Rohan", meera: "Meera" };
 
 function pins(spots: { name: string; lat: number; lng: number; line?: string }[], by?: { name: string; ini: string }): MapPin[] {
-  return spots.map((s) => ({ id: `${by?.name ?? "me"}:${s.name}`, lat: s.lat, lng: s.lng, name: s.name, line: s.line, kind: by ? "palate" : "mine", by }));
+  // cuisine keys the glyph-in-dot pin — one pin atom everywhere, never bare circles
+  return spots.map((s) => ({ id: `${by?.name ?? "me"}:${s.name}`, lat: s.lat, lng: s.lng, name: s.name, line: s.line, cuisine: findSpot(s.name)?.cuisine, kind: by ? "palate" : "mine", by }));
 }
 
 export function PalatePage({ slug }: { slug?: string }) {
@@ -87,7 +88,7 @@ export function PalatePage({ slug }: { slug?: string }) {
         {own && <a className={styles.backLink} href="/you">← Back to your ledger</a>}
         <p className={styles.eyebrow}>{own ? "How your palate reads" : "A palate"}</p>
         {own && (
-          <p className={styles.previewNote}>The outward view — what someone sees when they’re weighing whether to trust your taste.</p>
+          <p className={styles.previewNote}>What someone sees before trusting your taste.</p>
         )}
 
         <header className={styles.hero}>
@@ -178,7 +179,7 @@ export function PalatePage({ slug }: { slug?: string }) {
           {mapPins.length > 0 && (
             <aside className={styles.mapCol}>
               <span className={styles.label}>{own ? "Your Bengaluru" : `${display}’s Bengaluru`}</span>
-              <div className={styles.mapWrap}><MapReal pins={mapPins} height={300} labelMode="hover" recede tag={own ? "Your map · Bengaluru" : `${display}’s map`} /></div>
+              <div className={styles.mapWrap}><MapReal pins={mapPins} height={300} labelMode="hover" recede tag={own ? "Your map" : `${display}’s map`} /></div>
             </aside>
           )}
         </div>
