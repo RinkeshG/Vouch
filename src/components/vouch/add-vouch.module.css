@@ -1,12 +1,16 @@
 .sheet { display: flex; flex-direction: column; gap: 12px; }
 .title { font-family: var(--display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--text); margin: 0 0 2px; line-height: 1.1; padding-right: 40px; }
 
-.results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow-y: auto; }
-.nearLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 4px 2px 0; }
-/* divider before places already on your map — a section break, not the headline */
-.onMapLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 12px 2px 2px; margin-top: 6px; border-top: 1px solid var(--line); }
-.result { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; background: transparent; border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 12px 14px; cursor: pointer; transition: border-color 0.16s var(--ease), background 0.16s var(--ease); }
-.result:hover { border-color: var(--saffron); background: var(--saffron-dim); }
+/* the pick list is a LEDGER INDEX — hairline rows like /search, never a stack of
+   boxed cards. The type does the hierarchy; the rules just keep the register. */
+.results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; max-height: 340px; overflow-y: auto; }
+.nearLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 4px 2px 6px; }
+/* section break before places already on your map — air + a label, not more chrome */
+.onMapLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); padding: 18px 2px 6px; }
+.result { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; background: transparent; border: none; border-top: 1px solid var(--line); border-radius: 0; padding: 13px 2px; cursor: pointer; }
+.results li:first-child .result { border-top: none; }
+.result:hover .resultName { color: var(--saffron); }
+.resultName { transition: color 0.15s var(--ease); }
 .resultMain { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .resultChip { flex: none; }
 .resultName { font-family: var(--display); font-weight: 700; font-size: 1.02rem; letter-spacing: -0.015em; color: var(--text); }
@@ -15,15 +19,17 @@
 
 .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-right: 40px; }
 .place { font-family: var(--display); font-weight: 700; font-size: 1.4rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.05; }
-.change { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--saffron); background: transparent; border: 1px solid rgba(246, 168, 43, 0.4); border-radius: var(--r-pill); padding: 6px 11px; cursor: pointer; white-space: nowrap; transition: background 0.16s var(--ease); }
-.change:hover { background: var(--saffron-dim); }
+/* the escape hatch is QUIET — sans, sentence case, muted. Mono uppercase + saffron
+   made it the brightest text on the step, outshining the actual primary. */
+.change { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--sans); font-size: 0.84rem; font-weight: 500; color: var(--muted); background: transparent; border: none; padding: 0 0 0 12px; cursor: pointer; white-space: nowrap; transition: color 0.16s var(--ease); }
+.change:hover, .change:active { color: var(--saffron); }
 .tags { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
 /* hold the decision steps (choose / been / vouch) to one height so the place
    header above never jumps as you move between them — the sheet is bottom-
    anchored, so a shorter step would otherwise drop the header. Sized to the
    tallest step (the three moves). (P2-2) */
 .stepBody { min-height: 320px; margin-top: 10px; display: flex; flex-direction: column; }
-.fieldLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); }
+.fieldLabel { font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
 .lineWrap { position: relative; }
 .lineInput { width: 100%; display: block; background: rgba(244, 238, 227, 0.04); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.4; padding: 12px 14px 22px; min-height: 54px; resize: none; overflow: hidden; }
 .lineInput::placeholder { color: var(--faint); }
@@ -63,8 +69,10 @@
 
 /* hold-to-vouch — the deliberate moment. A fill sweeps as you hold; release early and
    it snaps back. The act takes intent, not a tap. */
-.hold { position: relative; overflow: hidden; width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; border: none; border-radius: var(--r-lg); cursor: pointer; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); color: var(--accent-ink); box-shadow: 0 12px 28px -12px rgba(246, 168, 43, 0.85); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: opacity 0.15s ease; }
-.hold:disabled { opacity: 0.38; cursor: default; box-shadow: none; }
+.hold { position: relative; overflow: hidden; width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: var(--r-lg); cursor: pointer; background: linear-gradient(135deg, var(--saffron-hi), var(--saffron)); color: var(--accent-ink); box-shadow: 0 12px 28px -12px rgba(246, 168, 43, 0.85); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: opacity 0.15s ease; }
+/* until there's a line, the act is a GHOST — the lamp lights only when there's
+   something to put your name on. A dimmed gradient still read ~70% active. */
+.hold:disabled { background: rgba(244, 238, 227, 0.04); color: var(--faint); border-color: var(--line-2); cursor: default; box-shadow: none; }
 .hold:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
 .holdFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(28, 20, 8, 0.26); transition: width 0.18s ease; }
 .holding .holdFill { width: 100%; transition: width 0.85s linear; }
@@ -87,5 +95,11 @@
 .doneLink { display: inline-block; font-family: var(--sans); font-size: 0.92rem; font-weight: 500; color: var(--saffron); text-decoration: none; margin: 9px 0 0; transition: color 0.15s var(--ease); }
 .doneLink:hover { color: var(--saffron-hi); }
 @keyframes sealIn { 0% { opacity: 0; transform: scale(0.7); } 60% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
-.back { align-self: flex-start; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: transparent; border: none; cursor: pointer; padding: 2px 0; }
+/* back gets a real hit area (44px) and real air below it — never fused to the
+   prompt or a field label into one mono block */
+.back { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; margin: -10px 0 6px; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: transparent; border: none; cursor: pointer; padding: 0 12px 0 0; }
 .back:hover { color: var(--text); }
+
+/* the bottom of a short step is ANCHORED, not leftover — a quiet code-comment
+   that earns the air by saying something true */
+.stepFoot { margin: auto 0 0; padding-top: 16px; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.03em; color: var(--faint); }

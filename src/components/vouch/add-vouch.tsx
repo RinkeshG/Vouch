@@ -251,7 +251,7 @@ export function AddVouchModal({
           <>
             <div className={styles.head}>
               <span className={styles.place}>{sel.name}</span>
-              {!presetSpot && <button type="button" className={styles.change} onClick={changePlace}>↺ Change place</button>}
+              {!presetSpot && <button type="button" className={styles.change} onClick={changePlace}>↺ Change</button>}
             </div>
             <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area} · {sel.price}</Tag>{existing && <RelChip stamp={existing.stamp} gut={existing.gut} className={styles.headChip} />}</span>
 
@@ -291,6 +291,7 @@ export function AddVouchModal({
                     <span className={`${styles.moveDot} ${styles.dNo}`} aria-hidden="true" /> No
                   </button>
                 </div>
+                <p className={styles.stepFoot}>{"// stays in your diary — only a vouch is public"}</p>
               </>
             )}
 
