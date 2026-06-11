@@ -27,14 +27,13 @@
 .fit { position: absolute; left: 16px; bottom: 16px; z-index: 500; font-family: var(--sans); font-size: 0.82rem; font-weight: 500; color: var(--text); background: rgba(12, 10, 7, 0.7); border: 1px solid var(--line-2); border-radius: var(--r-pill); padding: 8px 13px; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: border-color var(--dur) ease, color var(--dur) ease; }
 .fit:hover { border-color: var(--saffron); color: var(--saffron); }
 
-/* the immersive home map's controls — locate + frame. Top-right, below the bar:
-   clear of the header (which is left-aligned) and, crucially, of the place/spine
-   cards that slide up from the bottom. Quiet glass rounds, never saffron. */
-.controls { position: absolute; top: calc(132px + env(safe-area-inset-top)); right: 14px; z-index: 500; display: flex; flex-direction: column; gap: 10px; }
-.ctrlBtn { width: 44px; height: 44px; display: grid; place-items: center; color: var(--text); background: rgba(12, 10, 7, 0.64); border: 1px solid var(--line-2); border-radius: 50%; cursor: pointer; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 6px 18px -10px rgba(0,0,0,0.8); transition: border-color var(--dur) ease, color var(--dur) ease, transform 0.12s var(--ease); }
-.ctrlBtn:hover { border-color: var(--text); }
-.ctrlBtn:active { transform: scale(0.94); }
-.ctrlBtn svg { display: block; }
+/* the immersive home map's single control — recenter. Top-right, below the bar:
+   clear of the header (left-aligned) and the place/spine cards that slide up from
+   the bottom. Quiet glass round, never saffron (a control isn't a vouch). */
+.recenter { position: absolute; top: calc(132px + env(safe-area-inset-top)); right: 14px; z-index: 500; width: 44px; height: 44px; display: grid; place-items: center; color: var(--text); background: rgba(12, 10, 7, 0.66); border: 1px solid var(--line-2); border-radius: 50%; cursor: pointer; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 6px 18px -10px rgba(0,0,0,0.85); transition: border-color var(--dur) ease, color var(--dur) ease, transform 0.12s var(--ease); }
+.recenter:hover { border-color: var(--text); }
+.recenter:active { transform: scale(0.92); }
+.recenter svg { display: block; }
 
 /* pins (divIcon content) */
 .icon { background: transparent; border: none; }

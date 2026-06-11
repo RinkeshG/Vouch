@@ -238,11 +238,21 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
     else m.flyToBounds(pts, { paddingTopLeft: [36, bleed ? 200 : 60], paddingBottomRight: [36, bleed ? 190 : 60], maxZoom: 15, duration: 0.9 });
   }
 
-  // the recenter control: snap to you if we already know where you are (and quietly
-  // refresh it); otherwise ask, and fly there once it lands.
+  // the recenter control: reframe the whole map — your places plus you. Refresh
+  // your location first (cached grant → instant), then fit everything. One tap
+  // always animates back to "your map", whether you panned off or zoomed in.
   function recenter() {
-    if (youPos.current) { map.current?.flyTo([youPos.current.lat, youPos.current.lng], 15, { duration: 0.9 }); requestLocate({ fly: false }); }
-    else requestLocate({ fly: true });
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          if (inBLR(latitude, longitude)) { onLoc.current?.(latitude, longitude); placeYou(latitude, longitude); }
+          frameAll();
+        },
+        () => frameAll(),
+        { enableHighAccuracy: false, timeout: 6000, maximumAge: 120000 },
+      );
+    } else frameAll();
   }
 
   return (
@@ -251,19 +261,12 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       {recede && <div className={styles.vignette} aria-hidden="true" />}
       <span className={styles.tag}>{tag}</span>
       {pins.length === 0 && <span className={styles.empty}>your vouches drop here</span>}
-      {/* the immersive home map carries its own controls (locate + frame) top-right;
-          embedded cards get the inline "Fit my map" instead. */}
+      {/* the immersive home map carries ONE clear control — recenter: reframe your
+          whole map (your places + you). Embedded cards get the inline "Fit my map". */}
       {locate ? (
-        <div className={styles.controls}>
-          <button type="button" className={styles.ctrlBtn} onClick={recenter} aria-label="Recenter on my location">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /></svg>
-          </button>
-          {pins.length > 1 && (
-            <button type="button" className={styles.ctrlBtn} onClick={frameAll} aria-label="Frame all my places">
-              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
-            </button>
-          )}
-        </div>
+        <button type="button" className={styles.recenter} onClick={recenter} aria-label="Recenter the map on your places">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /></svg>
+        </button>
       ) : (
         pins.length > 1 && <button type="button" className={styles.fit} onClick={fit} aria-label="Fit my map">⤢ Fit my map</button>
       )}

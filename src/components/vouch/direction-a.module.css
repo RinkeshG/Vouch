@@ -3,7 +3,11 @@
 .mapLayer { position: absolute; inset: 0; }
 .scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(16,15,13,0.92) 0%, rgba(16,15,13,0.5) 30%, rgba(16,15,13,0) 52%, rgba(16,15,13,0.4) 78%, rgba(16,15,13,0.92) 100%); }
 
-.header { position: relative; z-index: 2; padding: 60px 48px 0; max-width: 720px; }
+/* the header floats over the map; its empty areas must pass touches THROUGH to the
+   map (and its controls) underneath — only its real controls capture taps. Without
+   this, the full-width header/legend box swallows taps meant for the map controls. */
+.header { position: relative; z-index: 2; padding: 60px 48px 0; max-width: 720px; pointer-events: none; }
+.header :where(button, a) { pointer-events: auto; }
 .eyebrow { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--saffron); }
 .state { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--text); margin: 14px 0 0; }
 .arch { color: var(--saffron); white-space: nowrap; }
