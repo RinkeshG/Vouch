@@ -90,7 +90,7 @@ export function SpotPage({ slug }: { slug: string }) {
   // honest standing — only what we actually know (founding palates + you). Never invented.
   const vouchTotal = vouchedBy.length + (mine ? 1 : 0);
   const rel = relationship(entry);
-  const guideItem: GuideItem = { name: spot.name, tags: `${spot.cuisine} · ${spot.area} · ${spot.price}`, note: mine?.line ?? spot.move ?? "" };
+  const guideItem: GuideItem = { name: spot.name, tags: `${spot.cuisine} · ${spot.area}`, note: mine?.line ?? spot.move ?? "" };
 
   return (
     <WebShell active="search" onNewVouch={() => { setIntent("vouched"); setAdding(true); }} you={{ ini: "RG", name: "You", line: youLine }}>

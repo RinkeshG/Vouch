@@ -77,7 +77,7 @@ export function Onboarding() {
           <div className={styles.body}>
             <span className={styles.kind}>
               {glyph && <span className={styles.glyph} dangerouslySetInnerHTML={{ __html: glyph }} />}
-              {card.cuisine} · {cleanArea(card.area)} · {card.price}
+              {card.cuisine} · {cleanArea(card.area)}
             </span>
             <h1 className={styles.name}>{card.name}</h1>
             {card.vibe && <p className={styles.vibe}>{card.vibe}</p>}
@@ -149,7 +149,7 @@ export function Onboarding() {
             <li key={s.slug}>
               <button type="button" className={styles.closeRow} onClick={() => wantAndGo(s)}>
                 <span className={styles.closeName}>{s.name}</span>
-                <span className={styles.closeMeta}>{s.cuisine} · {cleanArea(s.area)} · {s.price}</span>
+                <span className={styles.closeMeta}>{s.cuisine} · {cleanArea(s.area)}</span>
               </button>
             </li>
           ))}

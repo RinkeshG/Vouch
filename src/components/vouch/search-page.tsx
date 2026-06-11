@@ -51,7 +51,7 @@ export function SearchPage() {
                   <Link className={styles.row} href={`/spot/${s.slug}`}>
                     <span className={styles.rowMain}>
                       <span className={styles.rowName}>{s.name}</span>
-                      <span className={styles.rowMeta}>{s.cuisine} · {s.area} · {s.price}</span>
+                      <span className={styles.rowMeta}>{s.cuisine} · {s.area}</span>
                     </span>
                     {e && <RelChip stamp={e.stamp} mode="state" variant="quiet" />}
                   </Link>

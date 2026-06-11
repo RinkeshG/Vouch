@@ -182,7 +182,7 @@ export function ProducersHome() {
               <div className={styles.cardHeadText}>
                 <RelChip stamp={card.e.stamp} gut={card.e.gut} />
                 <h2 className={styles.cardName}>{card.sp.name}</h2>
-                <div className={styles.cardMeta}>{card.sp.cuisine} · {cleanArea(card.sp.area)} · {card.sp.price}</div>
+                <div className={styles.cardMeta}>{card.sp.cuisine} · {cleanArea(card.sp.area)}</div>
               </div>
             </div>
             {card.e.stamp === "vouched" && card.e.line

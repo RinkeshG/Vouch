@@ -175,7 +175,7 @@ export function AddVouchModal({
         <button type="button" className={styles.result} onClick={() => pickResult(s)}>
           <span className={styles.resultMain}>
             <span className={styles.resultName}>{s.name}</span>
-            <span className={styles.resultMeta}>{km != null ? `${fmtDist(km)} · ` : ""}{s.cuisine} · {s.area} · {s.price}</span>
+            <span className={styles.resultMeta}>{km != null ? `${fmtDist(km)} · ` : ""}{s.cuisine} · {s.area}</span>
           </span>
           {ex && <RelChip stamp={ex.stamp} mode="state" variant="quiet" className={styles.resultChip} />}
         </button>
@@ -253,7 +253,7 @@ export function AddVouchModal({
               <span className={styles.place}>{sel.name}</span>
               {!presetSpot && <button type="button" className={styles.change} onClick={changePlace}>↺ Change</button>}
             </div>
-            <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area} · {sel.price}</Tag>{existing && <RelChip stamp={existing.stamp} gut={existing.gut} className={styles.headChip} />}</span>
+            <span className={styles.tags}><Tag>{sel.cuisine} · {sel.area}</Tag>{existing && <RelChip stamp={existing.stamp} gut={existing.gut} className={styles.headChip} />}</span>
 
             <div className={styles.stepBody}>
             {step === "choose" && (
