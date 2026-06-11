@@ -82,22 +82,23 @@ export function YouPage() {
       <div className={styles.page}>
         <p className={styles.eyebrow}>Your ledger</p>
 
+        {/* the hero is a ledger spread — identity on the left page, the record
+            (display-800 numerals) on the right. No empty half. */}
         <header className={styles.hero}>
           <Avatar initials="RG" size={56} />
           <div className={styles.idCol}>
             <h1 className={styles.name}>You</h1>
             <span className={styles.handle}>@you · Bengaluru</span>
           </div>
+          {ready && total > 0 && (
+            <div className={styles.heroStats}>
+              <span><b>{vouched.length}</b> vouched</span>
+              <span><b>{been.length}</b> been</span>
+              <span><b>{want.length}</b> want to go</span>
+              {follows.length > 0 && <span>following <b>{follows.length}</b></span>}
+            </div>
+          )}
         </header>
-
-        {ready && total > 0 && (
-          <div className={styles.stats}>
-            <span><b>{vouched.length}</b> vouched</span><i>·</i>
-            <span><b>{been.length}</b> been</span><i>·</i>
-            <span><b>{want.length}</b> want to go</span>
-            {follows.length > 0 && <><i>·</i><span>following <b>{follows.length}</b></span></>}
-          </div>
-        )}
         <div className={styles.heroLinks}>
           <Link href="/palate" className={styles.heroLink}>Preview your palate →</Link>
           <Link href="/guides" className={styles.heroLink}>Your guides →</Link>
@@ -138,11 +139,13 @@ export function YouPage() {
                       <ul className={styles.rows}>
                         {g.rows.map((e) => (
                           <li key={e.spot.name} className={styles.row}>
-                            <RelChip stamp="been" gut={e.gut} className={styles.rowChip} />
+                            {/* names share one flush-left axis; the verdict is the
+                                ledger's right column (quiet — dot carries the tone) */}
                             <Link className={styles.rowBody} href={`/spot/${slugify(e.spot.name)}`}>
                               <span className={styles.rowName}>{e.spot.name}</span>
                               <span className={styles.rowMeta}>{meta(e)}</span>
                             </Link>
+                            <RelChip stamp="been" gut={e.gut} variant="quiet" className={styles.rowChip} />
                             {e.gut === "absolutely" && (
                               <button type="button" className={styles.onramp} onClick={() => openCapture(toPick(e), "vouched")}>
                                 Put your name on it →
@@ -164,10 +167,11 @@ export function YouPage() {
                   <h2 className={styles.secTitle}>On your radar</h2>
                   <p className={styles.secSub}>Saved for the right night.</p>
                 </div>
+                {/* no per-row chips here: every row is a want — the section title
+                    says it once, properly */}
                 <ul className={styles.rows}>
                   {want.map((e) => (
                     <li key={e.spot.name} className={styles.row}>
-                      <RelChip stamp="want" className={styles.rowChip} />
                       <Link className={styles.rowBody} href={`/spot/${slugify(e.spot.name)}`}>
                         <span className={styles.rowName}>{e.spot.name}</span>
                         <span className={styles.rowMeta}>{meta(e)}</span>
@@ -189,7 +193,6 @@ export function YouPage() {
                 <ul className={styles.rows}>
                   {vouched.map((e) => (
                     <li key={e.spot.name} className={`${styles.row} ${styles.rowVouched}`}>
-                      <RelChip stamp="vouched" className={styles.rowChip} />
                       <Link className={styles.rowBody} href={`/spot/${slugify(e.spot.name)}`}>
                         <span className={styles.rowName}>{e.spot.name}</span>
                         {e.line && <span className={styles.rowTake}>“{e.line}”</span>}
