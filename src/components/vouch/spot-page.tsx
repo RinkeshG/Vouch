@@ -120,8 +120,10 @@ export function SpotPage({ slug }: { slug: string }) {
               is simply absent (PRD §7.4), never "0 vouches". */}
           {reachedBy.length > 0 && (
             <section className={styles.receipt}>
+              {/* no summary line — the standing stat above gives the count, and a
+                  summary that paraphrases the receipts three lines early is noise.
+                  The receipts ARE the answer. */}
               <span className={styles.receiptLabel}>Why it reached you</span>
-              <p className={styles.receiptLine}>{reachedBy.join(" · ")}{inGuides.length ? ` · in your “${inGuides[0]}”` : ""}</p>
               <ul className={styles.verdicts}>
                 {mine && <li className={styles.verdict}><Avatar initials="RG" size={32} /><div><span className={styles.vWho}>You vouched</span><span className={styles.vLine}>“{mine.line}”</span></div></li>}
                 {vouchedBy.map((v) => (

@@ -3,6 +3,12 @@
   background: linear-gradient(135deg, var(--saffron), var(--ember));
   color: var(--accent-ink); font-family: var(--mono); font-weight: 700;
 }
+/* identity tones — one warm family, five distinct people. Ink text on all. */
+.t0 { background: linear-gradient(135deg, #ffc658, #f6a82b); }   /* saffron — you */
+.t1 { background: linear-gradient(135deg, #ff9a6b, #e06a42); }   /* clay */
+.t2 { background: linear-gradient(135deg, #e8c87e, #c49a4a); }   /* ochre */
+.t3 { background: linear-gradient(135deg, #e6d2b0, #cdb595); }   /* tan */
+.t4 { background: linear-gradient(135deg, #c2cbb1, #96a283); }   /* sage */
 
 .stack { display: inline-flex; align-items: center; }
 .stack i {

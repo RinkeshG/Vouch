@@ -20,9 +20,9 @@
 /* THE RECEIPT — why it reached you */
 .receipt { padding: 18px 18px 20px; border: 1px solid var(--saffron-line); background: var(--saffron-dim); border-radius: var(--r-xl); }
 .receiptLabel { display: block; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--saffron); }
-.receiptLine { font-family: var(--sans); font-size: 1.02rem; color: var(--text); margin: 8px 0 0; }
 .receiptEmpty { font-family: var(--sans); font-size: 1rem; color: var(--muted); line-height: 1.5; margin: 8px 0 0; }
-.verdicts { list-style: none; margin: 16px 0 0; padding: 16px 0 0; border-top: 1px solid var(--saffron-line); display: flex; flex-direction: column; gap: 15px; }
+/* the receipts lead — straight from the label to the names, no paraphrase between */
+.verdicts { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 15px; }
 .verdict { display: flex; align-items: flex-start; gap: 12px; }
 .verdict > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .vWho { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); text-decoration: none; }
@@ -86,7 +86,9 @@ a.vWho:hover { color: var(--text); }
 
 /* status — when you already have a relationship, show it as a settled badge, not a
    chooser begging to be pressed. "Change" reveals the chooser (with the guard). */
-.statusBar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; max-width: 720px; margin: 0 auto; }
+/* one thought, one cluster — your state and its edit sit together, not on
+   opposite shores of the bar */
+.statusBar { display: flex; align-items: center; justify-content: flex-start; gap: 16px; flex-wrap: wrap; max-width: 720px; margin: 0 auto; }
 .statusBadge { display: inline-flex; align-items: center; gap: 7px; font-family: var(--sans); font-weight: 600; font-size: 0.98rem; padding: 11px 16px; border-radius: var(--r-lg); border: 1px solid; }
 .badgeVouched { color: var(--saffron); border-color: var(--saffron-line); background: var(--saffron-dim); }
 .badgeBeen { color: var(--jade); border-color: var(--jade); background: var(--jade-dim); }
