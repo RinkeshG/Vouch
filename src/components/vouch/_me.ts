@@ -24,7 +24,7 @@ export type PlaceEvent = { place: string; type: EventType; gut?: Gut; source: Ev
    shows (search, cards, map, place page). Status copy is calm and human — the
    emotional "your name's on it" language belongs to the MOMENT of vouching, never
    the steady-state label. Change a word here and it changes everywhere. */
-export type RelTone = "want" | "absolutely" | "maybe" | "no" | "vouched";
+export type RelTone = "want" | "been" | "absolutely" | "maybe" | "no" | "vouched";
 export function relationship(e?: { stamp: Stamp; gut?: Gut } | null): { label: string; tone: RelTone } | null {
   if (!e) return null;
   if (e.stamp === "vouched") return { label: "Vouched", tone: "vouched" };
@@ -34,6 +34,16 @@ export function relationship(e?: { stamp: Stamp; gut?: Gut } | null): { label: s
       : e.gut === "no" ? { label: "No", tone: "no" }
       : { label: "Maybe", tone: "maybe" };
   }
+  return { label: "Want to go", tone: "want" };
+}
+
+/* The STATE register — stamp only, never the verdict. Index surfaces (search, the
+   capture pick-list) say what a place IS to you; "Go back? → Maybe/No" answers live
+   in the diary, where the question is in view. */
+export function relationshipState(e?: { stamp: Stamp } | null): { label: string; tone: RelTone } | null {
+  if (!e) return null;
+  if (e.stamp === "vouched") return { label: "Vouched", tone: "vouched" };
+  if (e.stamp === "been") return { label: "Been", tone: "been" };
   return { label: "Want to go", tone: "want" };
 }
 

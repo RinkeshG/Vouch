@@ -1,11 +1,24 @@
 /* RelChip is a NON-interactive state label (always a <span>) — it must not read as
-   a tappable control. The interactive pills (legend, diary filter) keep their 1px
-   outline + pill radius; this drops both. What's left is a quiet, tone-tinted tag
-   (small radius, no border) — a status label, not a button. */
+   a tappable control. Two variants:
+   — tag:   tone-tinted label (small radius, no border). The diary's stamp.
+   — quiet: register dot + mono label in muted — the map legend's language, for the
+     right-hand column of ledger rows where pill chrome would sawtooth the edge. */
 .chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 0.56rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 4px 8px; border-radius: var(--r-xs); white-space: nowrap; }
 .tick { font-size: 0.62rem; line-height: 1; }
-.want { color: var(--stamp-want); background: rgba(205, 181, 149, 0.14); }
-.absolutely { color: var(--jade); background: var(--jade-dim); }
-.maybe { color: var(--muted); background: rgba(244, 238, 227, 0.06); }
-.no { color: var(--faint); background: rgba(244, 238, 227, 0.05); }
-.vouched { color: var(--saffron); background: var(--saffron-dim); }
+.chip.want { color: var(--stamp-want); background: rgba(205, 181, 149, 0.14); }
+.chip.been { color: var(--muted); background: rgba(244, 238, 227, 0.06); }
+.chip.absolutely { color: var(--jade); background: var(--jade-dim); }
+.chip.maybe { color: var(--muted); background: rgba(244, 238, 227, 0.06); }
+.chip.no { color: var(--faint); background: rgba(244, 238, 227, 0.05); }
+.chip.vouched { color: var(--saffron); background: var(--saffron-dim); }
+
+/* quiet — uniform muted text; the DOT carries the register, exactly like the
+   home-map legend, so index rows stay calm and the right edge stays clean */
+.quiet { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.56rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); white-space: nowrap; }
+.qDot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.quiet.vouched .qDot { background: var(--saffron); box-shadow: 0 0 7px 1px rgba(246, 168, 43, 0.55); }
+.quiet.been .qDot { background: rgba(244, 238, 227, 0.5); }
+.quiet.want .qDot { background: transparent; border: 1.5px solid rgba(246, 168, 43, 0.65); }
+.quiet.absolutely .qDot { background: var(--jade); box-shadow: 0 0 6px 1px rgba(118, 210, 155, 0.4); }
+.quiet.maybe .qDot { background: var(--stamp-want); }
+.quiet.no .qDot { background: rgba(138, 130, 120, 0.8); }

@@ -53,7 +53,7 @@ export function SearchPage() {
                       <span className={styles.rowName}>{s.name}</span>
                       <span className={styles.rowMeta}>{s.cuisine} · {s.area} · {s.price}</span>
                     </span>
-                    {e && <RelChip stamp={e.stamp} gut={e.gut} />}
+                    {e && <RelChip stamp={e.stamp} mode="state" variant="quiet" />}
                   </Link>
                 </li>
               );

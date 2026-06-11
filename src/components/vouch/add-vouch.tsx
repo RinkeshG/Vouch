@@ -177,7 +177,7 @@ export function AddVouchModal({
             <span className={styles.resultName}>{s.name}</span>
             <span className={styles.resultMeta}>{km != null ? `${fmtDist(km)} · ` : ""}{s.cuisine} · {s.area} · {s.price}</span>
           </span>
-          {ex && <RelChip stamp={ex.stamp} gut={ex.gut} className={styles.resultChip} />}
+          {ex && <RelChip stamp={ex.stamp} mode="state" variant="quiet" className={styles.resultChip} />}
         </button>
       </li>
     );
