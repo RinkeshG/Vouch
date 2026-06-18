@@ -69,19 +69,32 @@ export function CatIcon({ cat, size = 16 }: { cat: Cat; size?: number }) {
   }
 }
 
-/* ---- the cover ---- */
-export function Media({ rank, cat, name, img, children }: { rank?: number; cat: Cat; name?: string; img?: string; children?: ReactNode }) {
+/* ---- the cover: a REAL crop of the map where this place is (different for
+   every place, unmistakably a product — not a placeholder), or the maker's
+   photo. The map is Vouch's native visual. ---- */
+const TILE_Z = 14;
+function mapTile(lat: number, lng: number, z = TILE_Z) {
+  const n = 2 ** z;
+  const x = Math.floor(((lng + 180) / 360) * n);
+  const latR = (lat * Math.PI) / 180;
+  const y = Math.floor(((1 - Math.asinh(Math.tan(latR)) / Math.PI) / 2) * n);
+  return `https://a.basemaps.cartocdn.com/dark_all/${z}/${x}/${y}@2x.png`;
+}
+export function Media({ rank, cat, lat, lng, img, children, h = 150 }: { rank?: number; cat: Cat; lat?: number; lng?: number; img?: string; children?: ReactNode; h?: number }) {
   const tint = `var(--t-${cat})`;
-  const bg = img
-    ? `center/cover no-repeat url("${img}")`
-    : `radial-gradient(240px 150px at 80% 24%, color-mix(in srgb, ${tint} 30%, transparent), transparent 72%), var(--cover-grid), linear-gradient(150deg, color-mix(in srgb, ${tint} 11%, #1a130b), #100c07)`;
+  const isMap = !img && lat != null && lng != null;
+  const bg = img ? `center/cover no-repeat url("${img}")` : isMap ? `center/cover no-repeat url("${mapTile(lat!, lng!)}")` : `linear-gradient(150deg, color-mix(in srgb, ${tint} 12%, #1a130b), #100c07)`;
   return (
-    <div style={{ position: "relative", height: 150, overflow: "hidden", borderBottom: "1px solid var(--line)" }}>
-      <div className="v3-media-bg" style={{ background: bg }}>
-        {!img && <span aria-hidden style={{ position: "absolute", right: 6, bottom: -28, fontWeight: 700, fontSize: 162, lineHeight: 1, color: "transparent", WebkitTextStroke: `1.5px ${tint}`, opacity: 0.24 }}>{(name || "·")[0].toUpperCase()}</span>}
-      </div>
-      {rank != null && <span style={{ position: "absolute", top: 12, left: 12, zIndex: 3, fontSize: "0.66rem", fontWeight: 600, color: "var(--ink)", background: "rgba(20,17,11,.6)", border: "1px solid var(--line-2)", borderRadius: "var(--r-xs)", padding: "2px 8px" }}>{String(rank).padStart(2, "0")}</span>}
-      {!img && <span style={{ position: "absolute", left: 12, bottom: 12, zIndex: 3, display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px 5px 9px", borderRadius: "var(--r-pill)", background: `color-mix(in srgb, ${tint} 14%, rgba(20,17,11,.55))`, border: `1px solid color-mix(in srgb, ${tint} 40%, transparent)`, color: tint, fontSize: "0.56rem", fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase" }}><CatIcon cat={cat} size={13} />{CAT_LABEL[cat]}</span>}
+    <div style={{ position: "relative", height: h, overflow: "hidden", borderBottom: "1px solid var(--line)" }}>
+      <div className="v3-media-bg" style={{ background: bg }} />
+      {/* warm the cool map tiles into the theme */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(36,23,10,.30)", mixBlendMode: "multiply" }} />
+      {/* scrim for depth + legibility of the chips */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(16,12,7,.12) 0%, transparent 38%, rgba(16,12,7,.82) 100%)" }} />
+      {/* the place, pinned */}
+      {isMap && <span aria-hidden style={{ position: "absolute", top: "44%", left: "50%", transform: "translate(-50%,-50%)", width: 16, height: 16, borderRadius: "50%", background: "var(--accent)", border: "2px solid #1a1206", boxShadow: "0 0 0 6px rgba(230,162,62,.22), 0 5px 14px rgba(0,0,0,.6)" }} />}
+      {rank != null && <span style={{ position: "absolute", top: 12, left: 12, zIndex: 3, fontSize: "0.66rem", fontWeight: 600, color: "var(--ink)", background: "rgba(16,12,7,.62)", backdropFilter: "blur(3px)", border: "1px solid var(--line-2)", borderRadius: "var(--r-xs)", padding: "2px 8px" }}>{String(rank).padStart(2, "0")}</span>}
+      <span style={{ position: "absolute", left: 12, bottom: 12, zIndex: 3, display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px 5px 9px", borderRadius: "var(--r-pill)", background: `color-mix(in srgb, ${tint} 16%, rgba(16,12,7,.6))`, backdropFilter: "blur(3px)", border: `1px solid color-mix(in srgb, ${tint} 42%, transparent)`, color: tint, fontSize: "0.56rem", fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase" }}><CatIcon cat={cat} size={13} />{CAT_LABEL[cat]}</span>
       {children}
     </div>
   );
@@ -104,7 +117,7 @@ export function PlaceCard({ place, rank, saved, onSave, onOpen }: { place: Place
   return (
     <article className="v3-card v3-anim" style={{ background: "linear-gradient(165deg, var(--card-top), var(--card-bot))", border: "1px solid var(--line-2)", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "var(--shadow)", animation: `v3-rise .5s var(--eout) ${delay}ms both` }}>
       <div onClick={onOpen} style={{ cursor: onOpen ? "pointer" : "default" }}>
-        <Media rank={rank} cat={place.cat} name={place.name} img={place.img}>{onSave && <SaveHeart saved={!!saved} onClick={onSave} />}</Media>
+        <Media rank={rank} cat={place.cat} lat={place.lat} lng={place.lng} img={place.img}>{onSave && <SaveHeart saved={!!saved} onClick={onSave} />}</Media>
       </div>
       <div style={{ padding: "15px 16px 16px" }}>
         <h3 style={{ fontWeight: 600, fontSize: "1.3rem", letterSpacing: "-0.01em", color: "var(--ink)", margin: 0, lineHeight: 1.1 }}>{place.name}</h3>
