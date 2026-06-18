@@ -13,7 +13,7 @@ export default function V2Layout({ children }: { children: ReactNode }) {
   return (
     <>
       <link rel="stylesheet" href={FONTS} />
-      <div className="v2">{children}</div>
+      <div className="v2"><div className="v2-grain" aria-hidden="true" />{children}</div>
     </>
   );
 }

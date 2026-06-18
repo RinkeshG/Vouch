@@ -17,7 +17,7 @@ export type MapPin = {
   stamp?: "want" | "been" | "vouched";
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, tag = "Your map · Bengaluru", onSelect, onReady }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; tag?: string; onSelect?: (id: string) => void; onReady?: () => void }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, tag = "Your map · Bengaluru", onSelect, onReady, route = false }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; tag?: string; onSelect?: (id: string) => void; onReady?: () => void; route?: boolean }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -33,6 +33,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   onSelectRef.current = onSelect;
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  const routeRef = useRef(route);
+  routeRef.current = route;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const line = useRef<any>(null);
 
   function popupHTML(p: MapPin) {
     const who = p.kind === "palate" && p.by ? `Vouched by ${p.by.name}` : "Your vouch";
@@ -61,6 +65,12 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
       markers.current[p.id] = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m).bindPopup(popupHTML(p), { className: styles.popup, closeButton: true }).on("click", () => onSelectRef.current?.(p.id));
       changed = true;
     });
+    // the route — a dashed line through the places in the order they're meant to be done
+    if (line.current) { line.current.remove(); line.current = null; }
+    if (routeRef.current && pins.length > 1) {
+      line.current = leaflet.polyline(pins.map((p) => [p.lat, p.lng]), { color: "#d99a4e", weight: 1.6, opacity: 0.5, dashArray: "1 8", lineCap: "round" }).addTo(m);
+      line.current.bringToBack();
+    }
     if (!changed) return;
     if (pins.length === 1) m.flyTo([pins[0].lat, pins[0].lng], 14, { duration: 0.8 });
     else if (pins.length > 1) m.flyToBounds(pins.map((p) => [p.lat, p.lng]), { padding: [70, 70], maxZoom: 14, duration: 0.8 });

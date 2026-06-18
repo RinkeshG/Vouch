@@ -3,7 +3,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { saveGuide, slugExists, type Cat, type Guide, type Place } from "./data";
 import { searchCatalog } from "./catalog";
-import { CatIcon, Curator, Eyebrow, PlaceCard } from "./kit";
+import { CatIcon, Curator, Eyebrow, PlaceCard, Seal } from "./kit";
 
 /* PHASE 3 — the builder (reusable for /new and /edit).
    JTBD: "give my recommendation once, beautifully, near-zero effort, proud to
@@ -47,6 +47,7 @@ export function Builder({ initial }: { initial?: Guide }) {
   const [q, setQ] = useState("");
   const [drag, setDrag] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [sealing, setSealing] = useState(false);
   const editingSlug = initial?.slug;
   const reorder = (from: number, to: number) => setPlaces((ps) => { if (from === to) return ps; const n = [...ps]; const [x] = n.splice(from, 1); n.splice(to, 0, x); return n; });
 
@@ -69,7 +70,8 @@ export function Builder({ initial }: { initial?: Guide }) {
     const slug = editingSlug ?? uniqueSlug(title);
     const guide: Guide = { slug, title: title.trim().replace(/\.$/, ""), intro: intro.trim() || "a few places i love.", sortLabel: sortLabel.trim() || "my picks", curator: { name, ini, bio: bio.trim() || "Bengaluru" }, places, published };
     try { saveGuide(guide); } catch { setErr("couldn't save — your photos may be too large. remove one and try again."); return; }
-    router.push(published ? `/v2/g/${slug}?just=1` : "/v2");
+    if (published) { setSealing(true); window.setTimeout(() => router.push(`/v2/g/${slug}?just=1`), 1400); }
+    else router.push("/v2");
   }
 
   return (
@@ -173,6 +175,15 @@ export function Builder({ initial }: { initial?: Guide }) {
           </div>
         </section>
       </div>
+      {sealing && (
+        <div className="v2-scrim" style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(8,8,7,.88)", backdropFilter: "blur(8px)", display: "grid", placeItems: "center", textAlign: "center" }}>
+          <div>
+            <div className="v2-stamp" style={{ display: "inline-block" }}><Seal ini={ini} name={name} size={158} /></div>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "var(--mono)", fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--live)", marginTop: 26 }}><span className="v2-livedot" /> sealed · live</p>
+            <h2 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "var(--ink)", margin: "10px 0 0" }}>{title}</h2>
+          </div>
+        </div>
+      )}
       {err && (
         <div className="v2-sheet" style={{ position: "fixed", bottom: 22, left: "50%", transform: "translateX(-50%)", zIndex: 40, background: "var(--s2)", border: "1px solid var(--accent-line)", borderRadius: "var(--r-md)", padding: "11px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow)" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: "0.7rem", color: "var(--read)" }}>{err}</span>

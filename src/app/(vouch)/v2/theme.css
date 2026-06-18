@@ -113,8 +113,33 @@
 .v2-grab { cursor: grab; }
 .v2-grab:active { cursor: grabbing; }
 
+/* ---- depth & visual layer: category tints, media zoom, grain, save heart ---- */
+.v2 {
+  --tint-coffee: #d99a4e; --tint-food: #d9694e; --tint-drink: #c9a24e;
+  --tint-view: #6ba9c9; --tint-shop: #b07ec9; --tint-stay: #7ec99a;
+  --media-grid: repeating-linear-gradient(0deg, rgba(241,239,231,.05) 0 1px, transparent 1px 22px), repeating-linear-gradient(90deg, rgba(241,239,231,.05) 0 1px, transparent 1px 22px);
+}
+.v2-media-bg { position: absolute; inset: 0; transition: transform .55s var(--eout); }
+.v2-card:hover .v2-media-bg { transform: scale(1.06); }
+.v2-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.v2-heart { position: absolute; top: 10px; right: 10px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: none; cursor: pointer; background: rgba(13,13,12,.5); backdrop-filter: blur(4px); color: var(--ink); transition: transform .15s var(--eout), background .2s, color .2s; }
+.v2-heart:hover { background: rgba(13,13,12,.72); }
+.v2-heart:active { transform: scale(.86); }
+.v2-heart.on { color: var(--accent); }
+.v2-heart.on svg { animation: v2-pop .42s var(--eout); }
+.v2-grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .05; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.v2-glow { position: absolute; z-index: 0; width: 520px; height: 320px; border-radius: 50%; filter: blur(90px); opacity: .14; background: radial-gradient(circle, var(--accent), transparent 70%); pointer-events: none; }
+
+/* the seal — the signature: a vouch is a personal stamp of trust */
+@keyframes v2-stamp { 0% { opacity: 0; transform: scale(1.7) rotate(-24deg); } 55% { opacity: 1; transform: scale(.93) rotate(-5deg); } 100% { opacity: 1; transform: scale(1) rotate(-8deg); } }
+.v2-stamp { animation: v2-stamp .55s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes v2-toast-in { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.v2-toast { position: fixed; bottom: 26px; left: 50%; z-index: 70; animation: v2-toast-in .3s var(--eout); }
+
 @media (prefers-reduced-motion: reduce) {
-  .v2 [class*="v2-anim"], .v2-fade, .v2-sheet, .v2-scrim, .v2-pop, .v2-develop { animation: none !important; }
-  .v2-card, .v2-btn { transition: none !important; }
-  .v2-livedot::after { animation: none !important; opacity: 0; }
+  .v2 [class*="v2-anim"], .v2-fade, .v2-sheet, .v2-scrim, .v2-pop, .v2-develop, .v2-stamp, .v2-toast { animation: none !important; }
+  .v2-card, .v2-btn, .v2-media-bg { transition: none !important; }
+  .v2-card:hover .v2-media-bg { transform: none !important; }
+  .v2-livedot::after, .v2-heart.on svg { animation: none !important; }
+  .v2-livedot::after { opacity: 0; }
 }

@@ -59,9 +59,25 @@ export function Curator({ name, ini, bio, size = 40 }: { name: string; ini: stri
   );
 }
 
+/* ---- the seal: a vouch is a personal stamp of trust (the signature motif) ---- */
+export function Seal({ ini, name, size = 120, rotate = -8 }: { ini: string; name: string; size?: number; rotate?: number }) {
+  const id = `seal-${ini}-${size}`.replace(/\s/g, "");
+  const ring = (name + " · bengaluru · vouched · ").toUpperCase();
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" style={{ transform: `rotate(${rotate}deg)`, color: "var(--accent)" }} aria-hidden="true">
+      <defs><path id={id} d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0" /></defs>
+      <circle cx="60" cy="60" r="57" fill="none" stroke="currentColor" strokeWidth="1.4" opacity="0.75" />
+      <circle cx="60" cy="60" r="40" fill="none" stroke="currentColor" strokeWidth="0.7" strokeDasharray="1 3.4" opacity="0.6" />
+      <text fontFamily="var(--mono)" fontSize="7.6" letterSpacing="1.6" fill="currentColor" opacity="0.85"><textPath href={`#${id}`} startOffset="0">{ring}</textPath></text>
+      <text x="60" y="57" textAnchor="middle" fontFamily="var(--sans)" fontWeight="600" fontSize="25" fill="currentColor">{ini}</text>
+      <text x="60" y="74" textAnchor="middle" fontFamily="var(--mono)" fontSize="6.4" letterSpacing="2" fill="currentColor" opacity="0.8">A GUIDE</text>
+    </svg>
+  );
+}
+
 /* ---- category line icon ---- */
 export function CatIcon({ cat, size = 38 }: { cat: Cat; size?: number }) {
-  const p = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "var(--accent)", strokeWidth: 1.4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const p = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   switch (cat) {
     case "drink": return <svg {...p}><path d="M7 8h8v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8z" /><path d="M15 10h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2" /><path d="M7 8a2.5 2.5 0 0 1 2.5-3 2.5 2.5 0 0 1 5 0A2.5 2.5 0 0 1 15 8" /></svg>;
     case "food": return <svg {...p}><path d="M4 11h16a8 8 0 0 1-16 0z" /><path d="M9 6c0-1 1-1 1-2M12 6c0-1 1-1 1-2M15 6c0-1 1-1 1-2" /></svg>;
@@ -72,13 +88,29 @@ export function CatIcon({ cat, size = 38 }: { cat: Cat; size?: number }) {
   }
 }
 
-/* ---- the calm placeholder media ---- */
-export function Media({ rank, cat, img, h = 132 }: { rank?: number; cat: Cat; img?: string; h?: number }) {
+/* ---- the cover: a category-tinted, textured placeholder (color + depth on the
+   board, Pinterest-style), or the creator's photo. zooms on hover (Airbnb). ---- */
+export function Media({ rank, cat, name, img, featured, children }: { rank?: number; cat: Cat; name?: string; img?: string; featured?: boolean; children?: ReactNode }) {
+  const tint = `var(--tint-${cat})`;
+  const h = featured ? 252 : 168;
+  const placeholderBg = `radial-gradient(190px 140px at 72% 20%, color-mix(in srgb, ${tint} 24%, transparent), transparent 70%), var(--media-grid), linear-gradient(160deg, #221a12, #13110b)`;
   return (
-    <div style={{ position: "relative", height: h, display: "grid", placeItems: "center", background: img ? `center/cover no-repeat url("${img}")` : "var(--media-bg)", borderBottom: "1px solid var(--line)" }}>
-      {rank != null && <span style={{ position: "absolute", top: 12, left: 12, fontFamily: "var(--mono)", fontSize: "0.66rem", color: "var(--accent)", border: "1px solid var(--accent-line)", background: "rgba(13,13,12,.55)", borderRadius: "var(--r-xs)", padding: "2px 7px" }}>{String(rank).padStart(2, "0")}</span>}
-      {!img && <CatIcon cat={cat} />}
+    <div className="v2-media" style={{ position: "relative", height: h, overflow: "hidden", borderBottom: "1px solid var(--line)" }}>
+      <div className="v2-media-bg" style={{ background: img ? `center/cover no-repeat url("${img}")` : placeholderBg }}>
+        {!img && <span aria-hidden style={{ position: "absolute", right: -6, bottom: -34, fontFamily: "var(--sans)", fontWeight: 600, fontSize: featured ? 210 : 134, lineHeight: 1, color: "transparent", WebkitTextStroke: `1.5px ${tint}`, opacity: 0.16 }}>{(name || "·")[0]}</span>}
+      </div>
+      {!img && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: tint, opacity: 0.95 }}><CatIcon cat={cat} size={featured ? 48 : 38} /></span>}
+      {rank != null && <span style={{ position: "absolute", top: 12, left: 12, zIndex: 3, fontFamily: "var(--mono)", fontSize: "0.66rem", color: "var(--accent)", border: "1px solid var(--accent-line)", background: "rgba(13,13,12,.55)", borderRadius: "var(--r-xs)", padding: "2px 7px" }}>{String(rank).padStart(2, "0")}</span>}
+      {children}
     </div>
+  );
+}
+
+export function SaveHeart({ saved, onClick }: { saved: boolean; onClick: () => void }) {
+  return (
+    <button type="button" aria-label={saved ? "saved to my map" : "save to my map"} onClick={(e) => { e.stopPropagation(); onClick(); }} className={`v2-heart${saved ? " on" : ""}`}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20s-7-4.4-9.3-8.7C1.2 8 2.7 4.6 6.1 4.6c2 0 3.2 1.2 3.9 2.3.7-1.1 1.9-2.3 3.9-2.3 3.4 0 4.9 3.4 3.4 6.7C19 15.6 12 20 12 20z" /></svg>
+    </button>
   );
 }
 
@@ -107,17 +139,22 @@ export function OrderBlock({ place }: { place: Place }) {
   return <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid var(--line)" }}>{row("order", place.order)}{row("go", place.when)}</div>;
 }
 
-/* ---- the full place card (gallery) ---- */
-export function PlaceCard({ place, rank, footer }: { place: Place; rank: number; footer?: ReactNode }) {
-  const delay = Math.min((rank - 1) * 60, 300);
+/* ---- the place card: cover-led, a 2-line voice hook (full note lives in the
+   detail), one tight meta line. Tap the cover to fly into the map. ---- */
+export function PlaceCard({ place, rank, featured, saved, onSave, onOpen, footer }: { place: Place; rank: number; featured?: boolean; saved?: boolean; onSave?: () => void; onOpen?: () => void; footer?: ReactNode }) {
+  const delay = Math.min((rank - 1) * 55, 280);
   return (
     <article className="v2-card v2-anim" style={{ background: "linear-gradient(165deg, var(--s2), #100e0a)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "0 24px 54px -38px rgba(0,0,0,.9)", animation: `v2-develop .5s var(--eout) ${delay}ms both` }}>
-      <Media rank={rank} cat={place.cat} img={place.img} />
-      <div style={{ padding: "16px 18px 20px" }}>
-        <h3 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1.45rem", letterSpacing: "-0.015em", color: "var(--ink)", margin: 0, lineHeight: 1.06 }}>{place.name}</h3>
+      <div onClick={onOpen} style={{ cursor: onOpen ? "pointer" : "default" }}>
+        <Media rank={rank} cat={place.cat} name={place.name} img={place.img} featured={featured}>
+          {onSave && <SaveHeart saved={!!saved} onClick={onSave} />}
+        </Media>
+      </div>
+      <div style={{ padding: featured ? "18px 22px 20px" : "15px 17px 17px" }}>
+        <h3 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: featured ? "1.7rem" : "1.34rem", letterSpacing: "-0.015em", color: "var(--ink)", margin: 0, lineHeight: 1.08 }}>{place.name}</h3>
         <Loc place={place} />
-        <Note>{place.note}</Note>
-        <OrderBlock place={place} />
+        <p className={featured ? undefined : "v2-clamp"} style={{ fontFamily: "var(--sans)", fontSize: featured ? "1.05rem" : "0.97rem", lineHeight: 1.5, color: "var(--read)", margin: "10px 0 0" }}>{place.note}</p>
+        {place.order && <p style={{ display: "flex", gap: 8, marginTop: 12, fontFamily: "var(--mono)", fontSize: "0.62rem", letterSpacing: "0.04em", color: "var(--mut)", alignItems: "baseline" }}><span style={{ color: "var(--faint)", textTransform: "uppercase" }}>order</span> {place.order}</p>}
         {footer}
       </div>
     </article>

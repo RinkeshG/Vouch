@@ -2,8 +2,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { MapReal, type MapPin } from "../../../../../components/vouch/map-real";
-import { getGuide, isSaved, loadSaved, savedKey, toggleSaved, type Place } from "../../../../../components/v2/data";
-import { Button, Curator, Eyebrow, Lede, LinkButton, LostIcon, Monogram, PlaceCard, PlaceDetail, StatePanel, Title, Toggle } from "../../../../../components/v2/kit";
+import { CAT_LABEL, getGuide, loadSaved, toggleSaved, type Place } from "../../../../../components/v2/data";
+import { Button, Curator, Eyebrow, Lede, LinkButton, LostIcon, Monogram, PlaceCard, PlaceDetail, Seal, StatePanel, Title, Toggle } from "../../../../../components/v2/kit";
+
+function useCountUp(target: number, ms = 650) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let raf = 0; const t0 = performance.now();
+    const tick = (t: number) => { const p = Math.min(1, (t - t0) / ms); setN(Math.round(target * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return n;
+}
 
 /* PHASE 2 — published guide (viewer) · PHASE 4 — share moment · PHASE 6 — save w/ provenance. */
 
@@ -20,6 +30,8 @@ export default function PublishedGuide() {
   const [copied, setCopied] = useState(false);
   const [url, setUrl] = useState("");
   const [mapReady, setMapReady] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const count = useCountUp(guide?.places.length ?? 0);
 
   useEffect(() => {
     if (!guide) return;
@@ -39,8 +51,10 @@ export default function PublishedGuide() {
   const selRank = guide.places.findIndex((p) => p.id === selected.id) + 1;
 
   const save = (p: Place) => {
+    const adding = !savedKeys.has(p.name);
     toggleSaved({ ...p, via: guide.curator.name, viaIni: guide.curator.ini, guideSlug: guide.slug, guideTitle: guide.title });
     setSavedKeys((prev) => { const n = new Set(prev); n.has(p.name) ? n.delete(p.name) : n.add(p.name); return n; });
+    if (adding) { setToast(`stamped on your map · via ${guide.curator.name.toLowerCase()}`); window.setTimeout(() => setToast(null), 2300); }
   };
   const copy = () => { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); };
 
@@ -60,38 +74,64 @@ export default function PublishedGuide() {
         <Button variant="ghost" onClick={() => setShare(true)}>share ↗</Button>
       </header>
 
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "44px 28px 18px" }}>
-        <Eyebrow>// a guide by {guide.curator.name.toLowerCase()}</Eyebrow>
-        <Title>{guide.title}.</Title>
-        <Lede>{guide.intro}</Lede>
-        <div style={{ marginTop: 22 }}><Curator name={guide.curator.name} ini={guide.curator.ini} bio={guide.curator.bio} /></div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 18, alignItems: "center", justifyContent: "space-between", marginTop: 28 }}>
-          <Toggle value={view} onChange={setView} options={[{ key: "cards", label: "Cards", icon: <GridIcon /> }, { key: "map", label: "Map", icon: <MapIcon /> }]} />
-          <span style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", color: "var(--mut)" }}><b style={{ color: "var(--accent)", fontWeight: 500 }}>{guide.places.length}</b> places · {guide.sortLabel}</span>
+      <div className="v2-pad" style={{ position: "relative", maxWidth: 1080, margin: "0 auto", padding: "48px 28px 18px" }}>
+        <div className="v2-glow" style={{ top: -30, left: -40 }} aria-hidden="true" />
+        <div style={{ position: "relative" }}>
+          <Eyebrow>// a guide by {guide.curator.name.toLowerCase()}</Eyebrow>
+          <Title>{guide.title}.</Title>
+          <Lede>{guide.intro}</Lede>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 22, flexWrap: "wrap" }}>
+            <Curator name={guide.curator.name} ini={guide.curator.ini} bio={guide.curator.bio} />
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {[...new Set(guide.places.map((p) => p.cat))].slice(0, 4).map((c) => (
+                <span key={c} style={{ fontFamily: "var(--mono)", fontSize: "0.58rem", letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--mut)", border: "1px solid var(--line2)", borderRadius: "var(--r-pill)", padding: "4px 10px" }}>{CAT_LABEL[c]}</span>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 18, alignItems: "center", justifyContent: "space-between", marginTop: 28 }}>
+            <Toggle value={view} onChange={setView} options={[{ key: "cards", label: "Cards", icon: <GridIcon /> }, { key: "map", label: "Map", icon: <MapIcon /> }]} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", color: "var(--mut)" }}><b style={{ color: "var(--accent)", fontWeight: 500 }}>{count}</b> places · {guide.sortLabel}</span>
+          </div>
         </div>
       </div>
 
       {view === "cards" ? (
         <div className="v2-fade v2-pad" style={{ maxWidth: 1080, margin: "0 auto", padding: "10px 28px 96px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 22 }}>
-            {guide.places.map((p, i) => <PlaceCard key={p.id} place={p} rank={i + 1} footer={<SaveBtn p={p} />} />)}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 22 }}>
+            {guide.places.map((p, i) => (
+              <div key={p.id} style={i === 0 ? { gridColumn: "1 / -1" } : undefined}>
+                <PlaceCard place={p} rank={i + 1} featured={i === 0} saved={savedKeys.has(p.name)} onSave={() => save(p)} onOpen={() => { setView("map"); setSel(p.id); }} />
+              </div>
+            ))}
           </div>
         </div>
       ) : (
         <div className="v2-mapsplit v2-fade v2-pad" style={{ maxWidth: 1080, margin: "0 auto", padding: "10px 28px 64px" }}>
           <div className="v2-mapbox" style={{ position: "relative", height: "70dvh", borderRadius: "var(--r-xl)", overflow: "hidden", border: "1px solid var(--line2)" }}>
             <div className={`v2-skeleton${mapReady ? " ready" : ""}`}><span style={{ fontFamily: "var(--mono)", fontSize: "0.66rem", letterSpacing: "0.08em", color: "var(--faint)" }}>finding the places…</span></div>
-            <MapReal pins={pins} height="100%" labelMode="hover" focusId={sel} onSelect={setSel} onReady={() => setMapReady(true)} tag={`${guide.curator.name.toLowerCase()}'s bengaluru`} />
+            <MapReal pins={pins} height="100%" labelMode="hover" focusId={sel} onSelect={setSel} onReady={() => setMapReady(true)} route tag={`${guide.curator.name.toLowerCase()}'s bengaluru`} />
           </div>
           <PlaceDetail place={selected} rank={selRank} footer={<SaveBtn p={selected} />} />
         </div>
       )}
 
-      <footer style={{ maxWidth: 1080, margin: "0 auto", padding: "28px", borderTop: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 9, fontFamily: "var(--mono)", fontSize: "0.7rem", color: "var(--mut)" }}><Monogram ini={guide.curator.ini} size={22} /> a vouch guide · {guide.curator.name.toLowerCase()}</span>
-        <a href="/v2/new" style={{ fontFamily: "var(--mono)", fontSize: "0.7rem", color: "var(--accent)", textDecoration: "none" }}>make your own →</a>
+      <footer style={{ maxWidth: 1080, margin: "0 auto", padding: "36px 28px 56px", borderTop: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 20 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 16 }}>
+          <span style={{ opacity: 0.9 }}><Seal ini={guide.curator.ini} name={guide.curator.name} size={78} /></span>
+          <span style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <span style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: "0.95rem", color: "var(--ink)" }}>vouched by {guide.curator.name}</span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: "0.64rem", color: "var(--mut)" }}>{guide.curator.bio}</span>
+          </span>
+        </span>
+        <a href="/v2/new" style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", color: "var(--accent)", textDecoration: "none" }}>make your own →</a>
       </footer>
 
+      {toast && (
+        <div className="v2-toast" style={{ background: "var(--s2)", border: "1px solid var(--accent-line)", borderRadius: "var(--r-pill)", padding: "10px 18px", display: "flex", alignItems: "center", gap: 10, boxShadow: "var(--shadow-lift)" }}>
+          <span style={{ color: "var(--accent)", display: "grid", placeItems: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: "0.7rem", letterSpacing: "0.02em", color: "var(--read)" }}>{toast}</span>
+        </div>
+      )}
       {share && (
         <div onClick={() => setShare(false)} className="v2-scrim" style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(8,8,7,.74)", backdropFilter: "blur(6px)", display: "grid", placeItems: "center", padding: 24 }}>
           <div onClick={(e) => e.stopPropagation()} className="v2-sheet" style={{ width: "min(460px, 100%)", background: "var(--s2)", border: "1px solid var(--line2)", borderRadius: "var(--r-xl)", boxShadow: "var(--shadow-lift)", padding: "26px 26px 28px" }}>
