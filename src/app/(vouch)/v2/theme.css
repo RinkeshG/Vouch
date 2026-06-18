@@ -1,0 +1,120 @@
+/* ============================================================================
+   VOUCH v0.1 — design system, ported from the coffee page and adapted.
+   Near-black + warm amber, Space Grotesk + JetBrains Mono, ruthless restraint.
+   Scoped to .v2 so it overrides the legacy After-Dark tokens without touching
+   them. Borrowed Vouch components (the map) inherit this theme via the compat
+   remap at the bottom — that's how a saffron pin becomes an amber one.
+   ========================================================================== */
+.v2 {
+  --bg: #0d0d0c;
+  --s1: #131310;
+  --s2: #16140f;
+  --ink: #f1efe7;
+  --read: #cbc8bd;
+  --mut: #9e9b90;
+  --faint: #807d73;
+  --line: #262520;
+  --line2: #34332b;
+
+  --accent: #d99a4e;          /* warm amber — appetite, trust, the one accent  */
+  --accent-2: #e8b56a;        /* hover sheen                                    */
+  --accent-ink: #1a1206;      /* text on amber — never white                    */
+  --accent-dim: rgba(217, 154, 78, 0.10);
+  --accent-line: rgba(217, 154, 78, 0.32);
+  --live: #c4e86b;            /* lime — live / saved / "go" only                */
+
+  --sans: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --r-xs: 6px; --r-sm: 8px; --r-md: 11px; --r-lg: 14px; --r-xl: 18px; --r-pill: 999px;
+  --shadow: 0 22px 48px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-lift: 0 34px 64px rgba(0,0,0,.6);
+  --eout: cubic-bezier(.2,.7,.2,1);
+
+  /* the calm placeholder media — a designed empty, never a hole */
+  --media-bg:
+    radial-gradient(140px 92px at 72% 26%, rgba(217,154,78,.16), transparent 72%),
+    repeating-linear-gradient(0deg, rgba(241,239,231,.045) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(90deg, rgba(241,239,231,.045) 0 1px, transparent 1px 22px),
+    linear-gradient(160deg, #241a10, #14110b);
+
+  background: var(--bg);
+  color: var(--read);
+  font-family: var(--sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+
+  /* ---- compat remap: borrowed Vouch components read these ---- */
+  --saffron: var(--accent);
+  --saffron-hi: var(--accent-2);
+  --saffron-dim: var(--accent-dim);
+  --saffron-line: var(--accent-line);
+  --surface: var(--s2);
+  --surface-2: var(--s1);
+  --text: var(--ink);
+  --muted: var(--read);
+  --bg-2: var(--s1);
+  --line-2: var(--line2);
+  --jade: var(--live);
+  --stamp-want: #cdb595;
+  --stamp-been: var(--live);
+  --stamp-vouched: var(--accent);
+  --display: var(--sans);
+  --r-sm: 8px;
+}
+
+.v2 ::selection { background: var(--accent); color: var(--accent-ink); }
+.v2 *::-webkit-scrollbar { width: 10px; height: 10px; }
+.v2 *::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 6px; border: 3px solid var(--bg); }
+
+@keyframes v2-develop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes v2-pulse { 0% { opacity: .6; transform: scale(1); } 70%,100% { opacity: 0; transform: scale(2.4); } }
+@keyframes v2-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes v2-sheet { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes v2-scrim { from { opacity: 0; } to { opacity: 1; } }
+@keyframes v2-pop { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+@keyframes v2-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+/* ---- responsive layout primitives (mobile-first product opens in a chat) ---- */
+.v2-split { display: grid; grid-template-columns: 1fr 1fr; }
+.v2-mapsplit { display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; align-items: start; }
+@media (max-width: 920px) {
+  .v2-split { grid-template-columns: 1fr; }
+  .v2-split > .v2-editor { border-right: none !important; }
+  .v2-split > .v2-preview { position: static !important; height: auto !important; border-top: 1px solid var(--line); }
+  .v2-mapsplit { grid-template-columns: 1fr; }
+  .v2-mapsplit > .v2-mapbox { height: 46dvh !important; }
+}
+@media (max-width: 560px) {
+  .v2-pad { padding-left: 18px !important; padding-right: 18px !important; }
+  .v2-hide-sm { display: none !important; }
+}
+
+/* ---- interaction + delight (subtle, meaningful — never gimmicks) ---- */
+.v2-card { transition: transform .3s var(--eout), border-color .3s, box-shadow .3s; }
+.v2-card:hover { transform: translateY(-4px); border-color: var(--accent-line); box-shadow: 0 34px 64px -34px rgba(0,0,0,.92); }
+.v2-btn { transition: transform .12s var(--eout), background .2s, border-color .2s, color .2s; }
+.v2-btn:active { transform: scale(.97); }
+.v2-link { transition: color .18s, border-color .18s; }
+.v2-fade { animation: v2-fade .34s var(--eout); }
+.v2-sheet { animation: v2-sheet .4s var(--eout); }
+.v2-scrim { animation: v2-scrim .25s ease; }
+.v2-pop { animation: v2-pop .42s var(--eout); }
+.v2-livedot { width: 7px; height: 7px; border-radius: 50%; background: var(--live); position: relative; display: inline-block; }
+.v2-livedot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--live); animation: v2-pulse 2.4s cubic-bezier(0,0,.2,1) infinite; }
+
+@keyframes v2-shimmer { 0% { background-position: -460px 0; } 100% { background-position: 920px 0; } }
+.v2-skeleton { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: grid; place-items: center; background: linear-gradient(100deg, #14110b 28%, #221a10 48%, #14110b 68%); background-size: 920px 100%; animation: v2-shimmer 1.5s linear infinite; transition: opacity .5s var(--eout); }
+.v2-skeleton.ready { opacity: 0; }
+.v2-sugg { transition: background .15s; }
+.v2-sugg:hover { background: rgba(217,154,78,.07); }
+.v2-dragging { opacity: .45; }
+.v2-grab { cursor: grab; }
+.v2-grab:active { cursor: grabbing; }
+
+@media (prefers-reduced-motion: reduce) {
+  .v2 [class*="v2-anim"], .v2-fade, .v2-sheet, .v2-scrim, .v2-pop, .v2-develop { animation: none !important; }
+  .v2-card, .v2-btn { transition: none !important; }
+  .v2-livedot::after { animation: none !important; opacity: 0; }
+}

@@ -17,7 +17,7 @@ export type MapPin = {
   stamp?: "want" | "been" | "vouched";
 };
 
-export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, tag = "Your map · Bengaluru" }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; tag?: string }) {
+export function MapReal({ pins = [], height = 460, labelMode = "always", focusId, bleed = false, recede = false, spotlightId, tag = "Your map · Bengaluru", onSelect, onReady }: { pins?: MapPin[]; height?: number | string; labelMode?: "always" | "hover"; focusId?: string | null; bleed?: boolean; recede?: boolean; spotlightId?: string | null; tag?: string; onSelect?: (id: string) => void; onReady?: () => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
@@ -29,6 +29,10 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
   // initializing AFTER the parent's data lands (or vice versa); either order works.
   const pinsRef = useRef<MapPin[]>(pins);
   pinsRef.current = pins;
+  const onSelectRef = useRef(onSelect);
+  onSelectRef.current = onSelect;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   function popupHTML(p: MapPin) {
     const who = p.kind === "palate" && p.by ? `Vouched by ${p.by.name}` : "Your vouch";
@@ -54,7 +58,7 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
         ? `<div class="${styles.pinP}${hov}"><span class="${styles.ava}">${p.by.ini}</span><span class="${styles.label}">${p.name}</span></div>`
         : `<div class="${styles.pin}${hov}"><span class="${dotClass}"></span><span class="${styles.label}">${p.name}</span></div>`;
       const icon = leaflet.divIcon({ className: styles.icon, html, iconSize: [2, 2], iconAnchor: [8, 8], popupAnchor: [40, -6] });
-      markers.current[p.id] = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m).bindPopup(popupHTML(p), { className: styles.popup, closeButton: true });
+      markers.current[p.id] = leaflet.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(m).bindPopup(popupHTML(p), { className: styles.popup, closeButton: true }).on("click", () => onSelectRef.current?.(p.id));
       changed = true;
     });
     if (!changed) return;
@@ -74,7 +78,9 @@ export function MapReal({ pins = [], height = 460, labelMode = "always", focusId
         minZoom: 11, maxZoom: 18, maxBounds: BLR, maxBoundsViscosity: 1.0,
       }).setView([12.9716, 77.5946], 11.5);
       const tiles = recede ? "dark_nolabels" : "dark_all";
-      leaflet.tileLayer(`https://{s}.basemaps.cartocdn.com/${tiles}/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 }).addTo(m);
+      const tl = leaflet.tileLayer(`https://{s}.basemaps.cartocdn.com/${tiles}/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", detectRetina: true, minZoom: 11, maxZoom: 18 });
+      tl.on("load", () => onReadyRef.current?.());
+      tl.addTo(m);
       leaflet.control.zoom({ position: "bottomright" }).addTo(m);
       map.current = m;
       setTimeout(() => m.invalidateSize(), 60);
