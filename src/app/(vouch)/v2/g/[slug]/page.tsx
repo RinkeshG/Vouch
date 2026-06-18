@@ -97,11 +97,9 @@ export default function PublishedGuide() {
 
       {view === "cards" ? (
         <div className="v2-fade v2-pad" style={{ maxWidth: 1080, margin: "0 auto", padding: "10px 28px 96px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 22 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(282px, 338px))", justifyContent: "start", gap: 20 }}>
             {guide.places.map((p, i) => (
-              <div key={p.id} style={i === 0 ? { gridColumn: "1 / -1" } : undefined}>
-                <PlaceCard place={p} rank={i + 1} featured={i === 0} saved={savedKeys.has(p.name)} onSave={() => save(p)} onOpen={() => { setView("map"); setSel(p.id); }} />
-              </div>
+              <PlaceCard key={p.id} place={p} rank={i + 1} saved={savedKeys.has(p.name)} onSave={() => save(p)} onOpen={() => { setView("map"); setSel(p.id); }} />
             ))}
           </div>
         </div>

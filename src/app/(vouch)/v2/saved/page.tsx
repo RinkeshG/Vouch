@@ -50,7 +50,7 @@ export default function MyMap() {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {saved.map((s, i) => (
               <div key={i} style={{ background: "var(--s2)", border: "1px solid var(--line2)", borderRadius: "var(--r-lg)", padding: "14px 15px", display: "flex", alignItems: "center", gap: 13 }}>
-                <span style={{ color: "var(--accent)", flex: "none" }}><CatIcon cat={s.cat} size={22} /></span>
+                <span style={{ width: 42, height: 42, flex: "none", borderRadius: "var(--r-sm)", display: "grid", placeItems: "center", background: `color-mix(in srgb, var(--tint-${s.cat}) 16%, var(--s1))`, border: `1px solid color-mix(in srgb, var(--tint-${s.cat}) 32%, transparent)`, color: `var(--tint-${s.cat})` }}><CatIcon cat={s.cat} size={19} /></span>
                 <span style={{ minWidth: 0, flex: 1 }}>
                   <span style={{ display: "block", fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1rem", color: "var(--ink)" }}>{s.name}</span>
                   <span style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3, fontFamily: "var(--mono)", fontSize: "0.62rem", color: "var(--mut)" }}>

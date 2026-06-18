@@ -1,6 +1,6 @@
 "use client";
 import type { CSSProperties, ReactNode } from "react";
-import type { Cat, Place } from "./data";
+import { CAT_LABEL, type Cat, type Place } from "./data";
 
 /* The v0.1 component kit — the design system as parts. Every screen is built
    from these so the whole product feels like one hand made it. */
@@ -92,15 +92,19 @@ export function CatIcon({ cat, size = 38 }: { cat: Cat; size?: number }) {
    board, Pinterest-style), or the creator's photo. zooms on hover (Airbnb). ---- */
 export function Media({ rank, cat, name, img, featured, children }: { rank?: number; cat: Cat; name?: string; img?: string; featured?: boolean; children?: ReactNode }) {
   const tint = `var(--tint-${cat})`;
-  const h = featured ? 252 : 168;
-  const placeholderBg = `radial-gradient(190px 140px at 72% 20%, color-mix(in srgb, ${tint} 24%, transparent), transparent 70%), var(--media-grid), linear-gradient(160deg, #221a12, #13110b)`;
+  const h = featured ? 178 : 150;
+  const placeholderBg = `radial-gradient(240px 160px at 82% 24%, color-mix(in srgb, ${tint} 30%, transparent), transparent 72%), var(--media-grid), linear-gradient(150deg, color-mix(in srgb, ${tint} 11%, #181107), #0f0c07)`;
   return (
     <div className="v2-media" style={{ position: "relative", height: h, overflow: "hidden", borderBottom: "1px solid var(--line)" }}>
       <div className="v2-media-bg" style={{ background: img ? `center/cover no-repeat url("${img}")` : placeholderBg }}>
-        {!img && <span aria-hidden style={{ position: "absolute", right: -6, bottom: -34, fontFamily: "var(--sans)", fontWeight: 600, fontSize: featured ? 210 : 134, lineHeight: 1, color: "transparent", WebkitTextStroke: `1.5px ${tint}`, opacity: 0.16 }}>{(name || "·")[0]}</span>}
+        {!img && <span aria-hidden style={{ position: "absolute", right: 8, bottom: -28, fontFamily: "var(--sans)", fontWeight: 700, fontSize: featured ? 184 : 162, lineHeight: 1, color: "transparent", WebkitTextStroke: `1.5px ${tint}`, opacity: 0.22 }}>{(name || "·")[0].toUpperCase()}</span>}
       </div>
-      {!img && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: tint, opacity: 0.95 }}><CatIcon cat={cat} size={featured ? 48 : 38} /></span>}
-      {rank != null && <span style={{ position: "absolute", top: 12, left: 12, zIndex: 3, fontFamily: "var(--mono)", fontSize: "0.66rem", color: "var(--accent)", border: "1px solid var(--accent-line)", background: "rgba(13,13,12,.55)", borderRadius: "var(--r-xs)", padding: "2px 7px" }}>{String(rank).padStart(2, "0")}</span>}
+      {rank != null && <span style={{ position: "absolute", top: 12, left: 12, zIndex: 3, fontFamily: "var(--mono)", fontSize: "0.64rem", color: "var(--accent)", border: "1px solid var(--accent-line)", background: "rgba(13,13,12,.6)", borderRadius: "var(--r-xs)", padding: "2px 7px" }}>{String(rank).padStart(2, "0")}</span>}
+      {!img && (
+        <span style={{ position: "absolute", left: 12, bottom: 12, zIndex: 3, display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px 5px 8px", borderRadius: "var(--r-pill)", background: `color-mix(in srgb, ${tint} 15%, rgba(13,13,12,.55))`, border: `1px solid color-mix(in srgb, ${tint} 40%, transparent)`, color: tint }}>
+          <CatIcon cat={cat} size={14} /><span style={{ fontFamily: "var(--mono)", fontSize: "0.56rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>{CAT_LABEL[cat]}</span>
+        </span>
+      )}
       {children}
     </div>
   );
@@ -150,11 +154,11 @@ export function PlaceCard({ place, rank, featured, saved, onSave, onOpen, footer
           {onSave && <SaveHeart saved={!!saved} onClick={onSave} />}
         </Media>
       </div>
-      <div style={{ padding: featured ? "18px 22px 20px" : "15px 17px 17px" }}>
-        <h3 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: featured ? "1.7rem" : "1.34rem", letterSpacing: "-0.015em", color: "var(--ink)", margin: 0, lineHeight: 1.08 }}>{place.name}</h3>
+      <div style={{ padding: "14px 16px 15px" }}>
+        <h3 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1.28rem", letterSpacing: "-0.015em", color: "var(--ink)", margin: 0, lineHeight: 1.1 }}>{place.name}</h3>
         <Loc place={place} />
-        <p className={featured ? undefined : "v2-clamp"} style={{ fontFamily: "var(--sans)", fontSize: featured ? "1.05rem" : "0.97rem", lineHeight: 1.5, color: "var(--read)", margin: "10px 0 0" }}>{place.note}</p>
-        {place.order && <p style={{ display: "flex", gap: 8, marginTop: 12, fontFamily: "var(--mono)", fontSize: "0.62rem", letterSpacing: "0.04em", color: "var(--mut)", alignItems: "baseline" }}><span style={{ color: "var(--faint)", textTransform: "uppercase" }}>order</span> {place.order}</p>}
+        <p className="v2-clamp" style={{ fontFamily: "var(--sans)", fontSize: "0.95rem", lineHeight: 1.5, color: "var(--read)", margin: "9px 0 0", minHeight: "2.85em" }}>{place.note}</p>
+        {place.order && <p style={{ display: "flex", gap: 8, marginTop: 11, paddingTop: 11, borderTop: "1px solid var(--line)", fontFamily: "var(--mono)", fontSize: "0.62rem", letterSpacing: "0.04em", color: "var(--mut)", alignItems: "baseline" }}><span style={{ color: "var(--faint)", textTransform: "uppercase" }}>order</span> {place.order}</p>}
         {footer}
       </div>
     </article>

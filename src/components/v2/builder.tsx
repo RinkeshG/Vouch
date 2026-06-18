@@ -95,7 +95,8 @@ export function Builder({ initial }: { initial?: Guide }) {
           <textarea value={intro} onChange={(e) => setIntro(e.target.value)} placeholder="one line in your voice — who's this for, what's the vibe?" rows={2} style={{ ...input, marginTop: 16, resize: "vertical", lineHeight: 1.5 }} />
           <input value={bio} onChange={(e) => setBio(e.target.value)} placeholder="and you are… (e.g. indiranagar, 6 years)" style={{ ...input, marginTop: 12 }} />
 
-          <div style={{ marginTop: 28 }}>
+          <div style={{ marginTop: 30, paddingTop: 26, borderTop: "1px solid var(--line)" }}>
+            <p style={{ fontFamily: "var(--mono)", fontSize: "0.62rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--faint)", margin: "0 0 14px" }}>// the places</p>
             <label style={labelCss}>add a place</label>
             <div style={{ position: "relative" }}>
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="search a place by name…" style={input} />
@@ -117,11 +118,13 @@ export function Builder({ initial }: { initial?: Guide }) {
           <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 14 }}>
             {places.map((p, i) => (
               <div key={p.id} onDragOver={(e) => e.preventDefault()} onDragEnter={() => { if (drag !== null && drag !== i) { reorder(drag, i); setDrag(i); } }} className={drag === i ? "v2-dragging" : undefined} style={{ background: "var(--s2)", border: "1px solid var(--line2)", borderRadius: "var(--r-lg)", padding: "15px 16px 17px", transition: "opacity .2s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span draggable onDragStart={() => setDrag(i)} onDragEnd={() => setDrag(null)} className="v2-grab" title="drag to reorder" style={{ width: 24, height: 26, flex: "none", display: "grid", placeItems: "center", color: "var(--faint)", fontSize: "0.9rem", borderRadius: "var(--r-sm)", border: "1px solid var(--line2)", userSelect: "none" }}>⠿</span>
-                  <span style={{ color: "var(--accent)" }}><CatIcon cat={p.cat} size={20} /></span>
-                  <span style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1.05rem", color: "var(--ink)" }}>{p.name}</span>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: "0.62rem", color: "var(--mut)" }}>{p.area}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                  <span draggable onDragStart={() => setDrag(i)} onDragEnd={() => setDrag(null)} className="v2-grab" title="drag to reorder" style={{ width: 22, height: 26, flex: "none", display: "grid", placeItems: "center", color: "var(--faint)", fontSize: "0.9rem", userSelect: "none" }}>⠿</span>
+                  <span style={{ width: 40, height: 40, flex: "none", borderRadius: "var(--r-sm)", display: "grid", placeItems: "center", background: `color-mix(in srgb, var(--tint-${p.cat}) 16%, var(--s1))`, border: `1px solid color-mix(in srgb, var(--tint-${p.cat}) 32%, transparent)`, color: `var(--tint-${p.cat})` }}><CatIcon cat={p.cat} size={19} /></span>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1.04rem", color: "var(--ink)", lineHeight: 1.1 }}>{p.name}</span>
+                    <span style={{ display: "block", fontFamily: "var(--mono)", fontSize: "0.6rem", color: "var(--mut)", marginTop: 2 }}>{p.area}</span>
+                  </span>
                   <span style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
                     <button type="button" onClick={() => move(p.id, -1)} disabled={i === 0} style={iconBtn(i === 0)}>↑</button>
                     <button type="button" onClick={() => move(p.id, 1)} disabled={i === places.length - 1} style={iconBtn(i === places.length - 1)}>↓</button>
@@ -157,7 +160,7 @@ export function Builder({ initial }: { initial?: Guide }) {
                 </div>
               </div>
             ))}
-            {places.length === 0 && <p style={{ fontFamily: "var(--mono)", fontSize: "0.78rem", color: "var(--faint)", textAlign: "center", padding: "20px", border: "1px dashed var(--line2)", borderRadius: "var(--r-lg)" }}>search a place above — it&apos;ll appear here, and on your page →</p>}
+            {places.length === 0 && <p style={{ fontFamily: "var(--sans)", fontSize: "0.9rem", lineHeight: 1.5, color: "var(--faint)", textAlign: "center", padding: "26px 20px", border: "1px dashed var(--line2)", borderRadius: "var(--r-lg)", margin: 0 }}>add the five-or-so places you&apos;d actually send a friend.<br />they&apos;ll line up here, and on your page →</p>}
           </div>
         </section>
 
@@ -171,7 +174,12 @@ export function Builder({ initial }: { initial?: Guide }) {
           </div>
           <div style={{ marginTop: 24, display: "grid", gap: 18 }}>
             {places.map((p, i) => <PlaceCard key={p.id} place={{ ...p, note: p.note || "…your line about this place" }} rank={i + 1} />)}
-            {places.length === 0 && <div style={{ height: 220, border: "1px dashed var(--line2)", borderRadius: "var(--r-xl)", display: "grid", placeItems: "center", fontFamily: "var(--mono)", fontSize: "0.78rem", color: "var(--faint)" }}>your places will line up here</div>}
+            {places.length === 0 && (
+              <div style={{ height: 240, border: "1px dashed var(--line2)", borderRadius: "var(--r-xl)", display: "grid", placeItems: "center", gap: 12, textAlign: "center", background: "var(--media-bg)" }}>
+                <span style={{ color: "var(--faint)" }}><CatIcon cat="coffee" size={30} /></span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", letterSpacing: "0.04em", color: "var(--faint)" }}>your page builds itself as you go</span>
+              </div>
+            )}
           </div>
         </section>
       </div>

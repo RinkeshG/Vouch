@@ -59,9 +59,11 @@ function GuideCard({ g }: { g: Guide }) {
   const cat = g.places[0]?.cat ?? "coffee";
   return (
     <a href={href} className="v2-card" style={{ display: "block", textDecoration: "none", background: "linear-gradient(165deg, var(--s2), #100e0a)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "0 24px 54px -38px rgba(0,0,0,.9)" }}>
-      <div style={{ position: "relative", height: 116, display: "grid", placeItems: "center", background: "var(--media-bg)", borderBottom: "1px solid var(--line)" }}>
-        <span style={{ position: "absolute", top: 12, left: 12, fontFamily: "var(--mono)", fontSize: "0.6rem", letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: "var(--r-pill)", border: `1px solid ${g.published ? "var(--accent-line)" : "var(--line2)"}`, color: g.published ? "var(--accent)" : "var(--mut)", background: g.published ? "var(--accent-dim)" : "transparent" }}>{g.published ? "live" : "draft"}</span>
-        <CatIcon cat={cat} size={32} />
+      <div style={{ position: "relative", height: 128, overflow: "hidden", borderBottom: "1px solid var(--line)" }}>
+        <div style={{ position: "absolute", inset: 0, background: `radial-gradient(230px 150px at 82% 24%, color-mix(in srgb, var(--tint-${cat}) 30%, transparent), transparent 72%), var(--media-grid), linear-gradient(150deg, color-mix(in srgb, var(--tint-${cat}) 11%, #181107), #0f0c07)` }}>
+          <span aria-hidden style={{ position: "absolute", right: 8, bottom: -22, fontFamily: "var(--sans)", fontWeight: 700, fontSize: 134, lineHeight: 1, color: "transparent", WebkitTextStroke: `1.5px var(--tint-${cat})`, opacity: 0.2 }}>{(g.title || "·")[0].toUpperCase()}</span>
+        </div>
+        <span style={{ position: "absolute", top: 12, left: 12, zIndex: 2, fontFamily: "var(--mono)", fontSize: "0.6rem", letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: "var(--r-pill)", border: `1px solid ${g.published ? "var(--accent-line)" : "var(--line2)"}`, color: g.published ? "var(--accent)" : "var(--mut)", background: g.published ? "var(--accent-dim)" : "rgba(13,13,12,.5)" }}>{g.published ? "live" : "draft"}</span>
       </div>
       <div style={{ padding: "15px 17px 17px" }}>
         <h3 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: "1.18rem", letterSpacing: "-0.015em", color: "var(--ink)", margin: 0, lineHeight: 1.15 }}>{g.title}</h3>
