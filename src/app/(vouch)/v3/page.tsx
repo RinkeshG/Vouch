@@ -128,6 +128,7 @@ export default function Landing() {
   const map = useRef<any>(null);
   const navRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const vouchRef = useRef<HTMLDivElement | null>(null);
+  const msheetRef = useRef<HTMLDivElement | null>(null);
   const focusRef = useRef<((area: string, idx: number) => void) | null>(null);
   const [ready, setReady] = useState(false);
   const [rain, setRain] = useState(false);
@@ -155,12 +156,15 @@ export default function Landing() {
       const s = area === "hero" ? HERO_PICK : AREAS.find((a) => a.key === area)?.spots[idx];
       const el = vouchRef.current;
       document.querySelectorAll<HTMLElement>(`[data-rowarea="${area}"]`).forEach((r) => r.classList.toggle("active", +(r.dataset.rowidx || -1) === idx));
-      if (!s || !el) { focus = null; el?.classList.remove("on"); return; }
+      if (!s || !el) { focus = null; el?.classList.remove("on"); msheetRef.current?.classList.remove("on"); return; }
       const changed = area !== curArea || idx !== curIdx; curArea = area; curIdx = idx;
       el.querySelector(".vchpin-dot")!.innerHTML = glyphSVG(s.cat, "#231606", 13);
       el.querySelector(".vchpin-line")!.textContent = "“" + s.vo + "”";
       el.querySelector(".vchpin-place")!.textContent = s.name;
       el.classList.toggle("full", area === "hero");
+      // mobile bottom sheet: one vouch at a time, in her full voice
+      const a = AREAS.find((x) => x.key === area); const ms = msheetRef.current;
+      if (ms) { if (a) { ms.querySelector(".ms-kicker")!.textContent = a.name; ms.querySelector(".ms-prog")!.textContent = `${idx + 1} / ${a.spots.length}`; ms.querySelector(".ms-line")!.textContent = "“" + s.vo + "”"; ms.querySelector(".ms-place")!.textContent = s.name; ms.classList.add("on"); } else ms.classList.remove("on"); }
       focus = { lng: s.lng, lat: s.lat }; positionVouch();
       if (changed) { warmUp(el.querySelector(".vchpin-dot"), area === "hero"); el.querySelector(".vchpin-card")?.animate([{ opacity: 0, transform: "translateX(-6px)" }, { opacity: 1, transform: "none" }], { duration: 460, easing: "cubic-bezier(.23,1,.32,1)", fill: "both" }); }
     }
@@ -177,7 +181,9 @@ export default function Landing() {
         const sec = SECS[i], prev = SECS[Math.max(0, i - 1)];
         // arrive in the first 28% of a section, then hold — fly-in, then walk
         const arrive = smooth(clamp(localP / 0.28));
-        m.jumpTo({ center: [lerp(prev.c[0], sec.c[0], arrive), lerp(prev.c[1], sec.c[1], arrive)], zoom: lerp(prev.z, sec.z, arrive), pitch: lerp(prev.p, sec.p, arrive), bearing: lerp(prev.b, sec.b, arrive) });
+        // mobile: flatten the tilt and push the focus above the bottom sheet
+        const mob = window.innerWidth < 760;
+        m.jumpTo({ center: [lerp(prev.c[0], sec.c[0], arrive), lerp(prev.c[1], sec.c[1], arrive)], zoom: lerp(prev.z, sec.z, arrive), pitch: lerp(prev.p, sec.p, arrive) * (mob ? 0.4 : 1), bearing: lerp(prev.b, sec.b, arrive) * (mob ? 0.45 : 1), padding: mob ? { top: 0, right: 0, bottom: Math.round(vh * 0.42), left: 0 } : { top: 0, right: 0, bottom: 0, left: 0 } });
         positionVouch();
         const key = y < vh * 0.5 ? "hero" : sec.key;
         navRefs.current.forEach((nb) => nb && nb.classList.toggle("on", nb.dataset.k === key));
@@ -186,7 +192,7 @@ export default function Landing() {
         // focus: hero leads with Koshy's; in a neighbourhood, scroll WALKS the picks
         if (key === "hero") setFocus("hero", 0);
         else if (sec.area != null) { const n = AREAS[sec.area].spots.length; const sp = clamp((localP - 0.28) / 0.7); setFocus(sec.key, clamp(Math.floor(sp * n), 0, n - 1)); }
-        else if (key === "finale") { focus = null; vouchRef.current?.classList.remove("on"); }
+        else if (key === "finale") { focus = null; vouchRef.current?.classList.remove("on"); msheetRef.current?.classList.remove("on"); }
         if (key !== prevKey) { prevKey = key; m.getLayer && m.getLayer("pl-ico") && applyGlow(m, key === "finale" ? [0, 1, 2, 3, 4, 5, 6, 7] : lit, key === "finale"); }
       });
     }
@@ -200,6 +206,7 @@ export default function Landing() {
 
       m.on("load", async () => {
         if (dead) return;
+        try {
         for (const l of m.getStyle().layers) {
           const sl = l["source-layer"];
           if (l.type === "background") m.setPaintProperty(l.id, "background-color", "#0c0a06");
@@ -230,6 +237,7 @@ export default function Landing() {
           const cur = (await r.json())?.current; const code = cur?.weather_code ?? null; const temp = cur?.temperature_2m ?? null;
           if (!dead) { setRain(code != null && [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)); lit = contextLit(new Date(), code, temp); if (prevKey !== "finale") applyGlow(m, lit); }
         } catch { }
+        } catch { /* never leave the map half-built on a transient style error */ }
       });
 
       window.addEventListener("scroll", onScroll, { passive: true });
@@ -316,12 +324,33 @@ export default function Landing() {
         .made .m{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:700;color:var(--accent-ink);background:linear-gradient(135deg,var(--accent-2),var(--accent));border:2px solid var(--bg);margin-left:-8px;box-shadow:0 4px 12px -4px rgba(0,0,0,.6);}
         .made .m:first-child{margin-left:0;}
         .madecap{font-size:.78rem;color:var(--muted);margin-top:12px;}
+        .msheet{display:none;}
         @media(max-width:760px){
-          .chaprail{display:none;} .cta-pill{top:auto;bottom:22px;right:50%;transform:translateX(50%) translateY(8px);} .cta-pill.on{transform:translateX(50%);}
+          .chaprail{display:none;}
+          /* persistent way-in rides the top corner, never blocks the sheet */
+          .cta-pill{top:16px;bottom:auto;right:14px;left:auto;transform:translateY(-8px);padding:8px 14px;font-size:.78rem;box-shadow:0 8px 22px -8px rgba(230,162,62,.55);} .cta-pill.on{transform:none;}
+          /* map up top; words in the thumb zone */
+          .scrim-left{background:linear-gradient(0deg,rgba(6,4,2,.95) 0%,rgba(6,4,2,.6) 28%,transparent 54%);}
           .chap.hero{align-items:flex-end;} .stick{align-items:flex-end;}
-          .panel{margin:0;max-width:none;width:100%;padding:0 18px env(safe-area-inset-bottom,90px) 18px;}
-          .scrim-left{background:linear-gradient(0deg,rgba(5,3,1,.94) 0%,rgba(5,3,1,.6) 36%,transparent 66%);}
-          .listcard{display:none;}
+          .panel{margin:0;max-width:none;width:100%;}
+          .chap.hero .panel{padding:0 20px calc(env(safe-area-inset-bottom,16px) + 24px);}
+          h1.hero-h{font-size:2.15rem;line-height:1.04;max-width:none;margin-top:10px;}
+          .clarity{font-size:1rem;margin-top:12px;max-width:none;}
+          .hero-cta{margin-top:18px;}
+          .cue{display:none;}
+          .chap:not(.hero):not(.finale) .panel{display:none;}      /* the neighbourhood chrome → the sheet */
+          .finale{align-items:center;} .finale .panel{padding:0 22px;} .finale h2{font-size:2.45rem !important;} .finale .made{margin-top:20px;}
+          .vchpin-card{display:none !important;}                     /* on the map: only the lifted pin (the "where") */
+          .vchpin-dot{width:24px;height:24px;}
+          /* THE SHEET — the "what": one vouch, in her full voice */
+          .msheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:6;padding:22px 22px calc(env(safe-area-inset-bottom,16px) + 20px);pointer-events:none;background:linear-gradient(180deg,transparent,rgba(7,5,2,.8) 22%,rgba(7,5,2,.97) 58%);opacity:0;transform:translateY(14px);transition:opacity .5s var(--e-out),transform .5s var(--e-out);}
+          .msheet.on{opacity:1;transform:none;}
+          .ms-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px;}
+          .ms-kicker{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);}
+          .ms-prog{font-size:.72rem;color:var(--faint);font-variant-numeric:tabular-nums;letter-spacing:.05em;}
+          .ms-line{font-style:italic;font-size:1.28rem;line-height:1.34;color:#F8EDD6;margin:0;text-shadow:0 2px 16px rgba(0,0,0,.95);}
+          .ms-place{font-weight:600;font-size:.9rem;color:var(--accent);margin:11px 0 0;}
+          .ms-place::after{content:" · priya";color:var(--muted);font-weight:400;}
         }
         @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;}.rain{display:none;}.map-stage{filter:none;transform:none;}}
       `}</style>
@@ -333,6 +362,8 @@ export default function Landing() {
       {rain && <div className="rain" aria-hidden="true">{Array.from({ length: 60 }).map((_, i) => <i key={i} style={{ left: `${(i * 137) % 100}%`, height: `${42 + (i * 53) % 48}px`, animationDuration: `${0.55 + ((i * 31) % 45) / 100}s`, animationDelay: `${-((i * 47) % 100) / 100}s`, opacity: 0.14 + ((i * 23) % 22) / 100 }} />)}</div>}
 
       <div ref={vouchRef} className="vchpin"><div className="vchpin-inner"><span className="vchpin-dot" /><div className="vchpin-card"><p className="vchpin-line" /><p className="vchpin-place" /></div></div></div>
+      {/* mobile thumb-zone sheet — one vouch at a time, in her voice */}
+      <div ref={msheetRef} className="msheet"><div className="ms-top"><span className="ms-kicker" /><span className="ms-prog" /></div><p className="ms-line" /><p className="ms-place" /></div>
 
       <a className={"cta-pill" + (scrolled ? " on" : "")} href="/v3/new">make yours →</a>
       <nav className="chaprail" aria-label="chapters">
