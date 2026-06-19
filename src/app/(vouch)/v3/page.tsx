@@ -175,6 +175,7 @@ export default function Landing() {
   const [ready, setReady] = useState(false);
   const [rain, setRain] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [atFinale, setAtFinale] = useState(false);
 
   useEffect(() => {
     let dead = false; let rafS = 0; let prevKey = ""; let curArea = ""; let curIdx = -1; let heroIdx = 0;
@@ -242,6 +243,7 @@ export default function Landing() {
         m.jumpTo({ center: [lerp(prev.c[0], sec.c[0], arrive), lerp(prev.c[1], sec.c[1], arrive)], zoom: lerp(prev.z, sec.z, arrive), pitch: lerp(prev.p, sec.p, arrive) * (mob ? 0.4 : 1), bearing: lerp(prev.b, sec.b, arrive) * (mob ? 0.45 : 1), padding: mob && !sec.world ? { top: 0, right: 0, bottom: Math.round(vh * 0.42), left: 0 } : { top: 0, right: 0, bottom: 0, left: 0 } });
         positionVouch();
         const key = y < vh * 0.5 ? "hero" : sec.key;
+        setAtFinale(key === "finale");
         navRefs.current.forEach((nb) => nb && nb.classList.toggle("on", nb.dataset.k === key));
         document.querySelectorAll("[data-sec]").forEach((s) => s.querySelector(".panel")?.classList.toggle("shown", (s as HTMLElement).dataset.sec === key));
         document.querySelector(".finale-scrim")?.classList.toggle("on", key === "finale");
@@ -300,13 +302,16 @@ export default function Landing() {
       window.addEventListener("resize", onScroll);
     })();
 
+    // never gate the first screen's copy on the map loading — reveal the hero on mount
+    const heroReveal = window.setTimeout(() => { if (!dead) document.querySelector('[data-sec="hero"] .panel')?.classList.add("shown"); }, 60);
+
     // hero is alive — the focus walks Priya's signature picks, never one static pin
     const heroTimer = window.setInterval(() => {
       if (dead) return;
       if (window.scrollY < window.innerHeight * 0.5 && map.current?.getLayer?.("pl-ico")) { heroIdx++; setFocus("hero", heroIdx); }
     }, 3400);
 
-    return () => { dead = true; cancelAnimationFrame(rafS); clearInterval(heroTimer); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); try { map.current?.remove?.(); } catch { } map.current = null; };
+    return () => { dead = true; cancelAnimationFrame(rafS); clearInterval(heroTimer); clearTimeout(heroReveal); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); try { map.current?.remove?.(); } catch { } map.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -424,6 +429,7 @@ export default function Landing() {
         .gcard.ghost .gt{font-weight:600;font-size:.9rem;color:var(--ink);}
         .gcard.ghost .gs{font-size:.74rem;color:var(--accent);}
         .wcta{margin-top:30px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;}
+        .msheet{display:none;} /* base: hidden on desktop — the mobile rule below re-shows it (must precede the media query to win the cascade) */
         @media(max-width:760px){
           .chaprail{display:none;}
           .cta-pill{top:16px;bottom:auto;right:14px;left:auto;transform:translateY(-8px);padding:8px 14px;font-size:.78rem;box-shadow:0 8px 22px -8px rgba(230,162,62,.55);} .cta-pill.on{transform:none;}
@@ -453,7 +459,6 @@ export default function Landing() {
           .ms-line{font-style:italic;font-size:1.28rem;line-height:1.34;color:#F8EDD6;margin:0;text-shadow:0 2px 16px rgba(0,0,0,.95);}
           .ms-place{font-weight:600;font-size:.9rem;color:var(--accent);margin:11px 0 0;}
         }
-        .msheet{display:none;}
         @media(prefers-reduced-motion:reduce){.reveal,.worldwrap .rf,.gcard,.makecard .grow{opacity:1 !important;transform:none !important;transition:none;}.rain{display:none;}.map-stage{filter:none;transform:none;}}
       `}</style>
 
@@ -467,7 +472,7 @@ export default function Landing() {
       <div ref={msheetRef} className="msheet"><div className="ms-top"><span className="ms-kicker" /><span className="ms-prog" /></div><p className="ms-line" /><p className="ms-place" /></div>
 
       <div className="walktag"><span>a guide · <b>by Priya</b> · Bengaluru</span></div>
-      <a className={"cta-pill" + (scrolled ? " on" : "")} href="/v3/new">make a guide →</a>
+      <a className={"cta-pill" + (scrolled && !atFinale ? " on" : "")} href="/v3/new">make a guide →</a>
       <nav className="chaprail" aria-label="chapters">
         {SECS.map((n, i) => <button key={n.key} ref={(el) => { navRefs.current[i] = el; }} data-k={n.key} onClick={() => jump(n.key)}><span className="lbl">{n.key === "hero" ? "the city" : n.key === "make" ? "your turn" : n.key === "finale" ? "the world" : AREAS[n.area!]?.name}</span><span className="pip" /></button>)}
       </nav>
