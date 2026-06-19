@@ -154,7 +154,8 @@ export default function Landing() {
     (async () => {
       const maplibregl = (await import("maplibre-gl")).default;
       if (dead || !mapEl.current || map.current) return;
-      const m = new maplibregl.Map({ container: mapEl.current, style: "https://tiles.openfreemap.org/styles/dark", center: WAY[0].c, zoom: WAY[0].z, pitch: WAY[0].p, bearing: WAY[0].b, interactive: false, attributionControl: false, fadeDuration: 0, maxPitch: 60 });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const m: any = new maplibregl.Map({ container: mapEl.current, style: "https://tiles.openfreemap.org/styles/dark", center: WAY[0].c, zoom: WAY[0].z, pitch: WAY[0].p, bearing: WAY[0].b, interactive: false, attributionControl: false, fadeDuration: 0, maxPitch: 60 });
       map.current = m;
 
       m.on("load", async () => {
