@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { getGuide, listGuides } from "../lib/guides";
 import GuideView from "./GuideView";
+import LocalGuide from "./LocalGuide";
 
 type Params = { handle: string };
 
@@ -26,6 +26,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function Page({ params }: { params: Promise<Params> }) {
   const { handle } = await params;
   const guide = getGuide(handle);
-  if (!guide) notFound();
+  if (!guide) return <LocalGuide handle={handle.toLowerCase()} />;
   return <GuideView guide={guide} />;
 }

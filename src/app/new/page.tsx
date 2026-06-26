@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import b from "./builder.module.css";
 import GuideView from "../[handle]/GuideView";
 import { type Draft, EMPTY_DRAFT, loadDraft, saveDraft, draftToGuide, handleFromName } from "../lib/draft";
+import { publishDraft } from "../lib/published";
 import { searchPlaces, CATEGORIES, type PlaceSuggestion } from "../lib/places";
+import type { Guide } from "../lib/guides";
 
 export default function BuilderPage() {
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
@@ -13,6 +15,7 @@ export default function BuilderPage() {
   const [query, setQuery] = useState("");
   const [focusTake, setFocusTake] = useState<number | null>(null);
   const [toast, setToast] = useState("");
+  const [published, setPublished] = useState<Guide | null>(null);
 
   useEffect(() => { setDraft(loadDraft()); setLoaded(true); }, []);
   useEffect(() => { if (loaded) saveDraft(draft); }, [draft, loaded]);
@@ -54,9 +57,22 @@ export default function BuilderPage() {
   }
   function publish() {
     if (!ready) return;
-    flash("Looking sharp — saved. Your shareable link is the next step.");
+    setPublished(publishDraft(draft));
   }
   function flash(msg: string) { setToast(msg); setTimeout(() => setToast(""), 2400); }
+  function linkFor(h: string) { return (typeof window !== "undefined" ? window.location.origin : "") + "/" + h; }
+  async function copyLink() {
+    if (!published) return;
+    try { await navigator.clipboard.writeText(linkFor(published.handle)); flash("link copied ✓"); } catch { /* ignore */ }
+  }
+  async function shareLink() {
+    if (!published) return;
+    const url = linkFor(published.handle);
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try { await navigator.share({ title: published.title, text: `${published.title} — a Hotlist`, url }); return; } catch { /* fall through */ }
+    }
+    copyLink();
+  }
 
   return (
     <div className={b.shell}>
@@ -164,6 +180,22 @@ export default function BuilderPage() {
           </div>
         </aside>
       </div>
+
+      {published && (
+        <div className={b.scrim} onClick={() => setPublished(null)}>
+          <div className={b.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <p className={b.modalNote}>you&rsquo;re live ✦</p>
+            <h2 className={b.modalTitle}>{published.title} is published.</h2>
+            <p className={b.modalSub}>Anyone with the link can open it. Send it the next time someone asks where to eat.</p>
+            <div className={b.modalLink}><span className={b.modalUrl}>hotlist.to/</span><b>{published.handle}</b></div>
+            <div className={b.modalRow}>
+              <button className={b.modalCopy} onClick={copyLink}>Copy link</button>
+              <button className={b.modalShare} onClick={shareLink}>Share <span aria-hidden="true">↗</span></button>
+            </div>
+            <a className={b.modalView} href={`/${published.handle}`}>View your page <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      )}
 
       <div className={`${b.toastWrap} ${toast ? b.toastOn : ""}`} role="status" aria-live="polite">{toast}</div>
     </div>

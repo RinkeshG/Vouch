@@ -68,15 +68,21 @@ so it feels like making something, not filling a form.
 
 ---
 
-## Phase 3 — Publish & share  ☐
-Make it real and persistent — the create → publish → share loop, end to end.
+## Phase 3 — Publish & share  ◑ (loop done on-device; backend = 3b)
+The create → publish → open-the-link loop, end to end. **JTBD:** claim my link and share it.
 
-- ☐ Auth (O‑2) + persistence (DB), claim a `hotlist.to/<handle>` (O‑5).
-- ☐ Publish flow → a real public URL; copy‑link + share sheet; generated OG image.
-- ☐ Edit‑after‑publish.
+- ✅ Publish flow: Publish → an espresso **"you're live ✦"** moment with the
+  `hotlist.to/<handle>` link, **Copy link** + **Share** (native → clipboard) + **View your page**.
+- ✅ Persistence (`lib/published.ts`, localStorage map) + the public route renders published
+  guides via `LocalGuide` for non-seed handles; unclaimed handles get a "make this one" state.
+- ✅ Edit-after-publish (the draft persists; re-publish updates). *(Verified: built in /new →
+  published → /sam renders the live guide with the viral close.)*
+- ☐ **Phase 3b (needs the user / infra):** real auth (O‑2) + DB so the link works on
+  **another device**, a global handle namespace + claiming (O‑5), generated OG image. The
+  getters (`getPublished`/`publishDraft`) are the seam — swapping the body is the whole job.
 
-**Done =** a stranger creates a guide, publishes it, and the link genuinely works for
-someone else on another device.
+**Done (on-device) =** you create a guide, publish it, and open the real link. ✅
+**Done (cross-device) =** Phase 3b.
 
 ---
 
