@@ -121,6 +121,38 @@ body::before {
 /* mono "stamp" — labels, counters, ticket-text. Carries the zine texture. */
 .stamp { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 400; }
 
+/* ---- dark theme: a refined, editorial dark (amber on near-black) ----
+   Token-only override; every component reads tokens, so the whole product
+   flips by wrapping in .themeDark. (Comparison aid + a real per-guide skin.) */
+.themeDark {
+  --paper: #14100B;
+  --surface: #1E1710;
+  --surface-2: #251D13;
+  --ink: #F3E9DA;
+  --muted: #9A8A72;
+  --faint: #6F624E;
+  --body: #CBBDA6;
+  --line: #2D2618;
+  --line-strong: #3C3122;
+  --accent: #E8A24E;
+  --accent-hover: #F0B062;
+  --accent-pressed: #D8923E;
+  --accent-soft: #2A2114;
+  --accent-ink: #1A140C;
+  --espresso: #0F0C08;
+  --espresso-2: #1C160E;
+  --on-espresso: #F3E9DA;
+  --on-espresso-dim: #A2937A;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 14px rgba(0,0,0,.45), 0 1px 4px rgba(0,0,0,.3);
+  --shadow-lg: 0 18px 40px -24px rgba(0,0,0,.7);
+  --shadow-xl: 0 30px 60px -30px rgba(0,0,0,.75);
+  --shadow-accent: 0 14px 28px -14px rgba(232,162,78,.45);
+  background: var(--paper);
+  min-height: 100dvh;
+}
+.themeDark ::selection { background: var(--accent); color: var(--accent-ink); }
+
 /* ---- reduced motion ---- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
