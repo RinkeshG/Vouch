@@ -113,15 +113,11 @@ export default function BuilderPage() {
             onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
             aria-label="List title"
           />
-          <div className={b.metaRow}>
-            <div className={b.field}>
-              <input className={b.input} placeholder="Your name" value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} aria-label="Your name" />
-            </div>
-            <div className={b.field}>
-              <input className={b.input} placeholder="City" value={draft.city} onChange={(e) => setDraft((d) => ({ ...d, city: e.target.value }))} aria-label="City" />
-            </div>
+          <div className={b.eByline}>
+            by <input className={b.eInline} placeholder="your name" value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} aria-label="Your name" />
+            in <input className={b.eInline} placeholder="city" value={draft.city} onChange={(e) => setDraft((d) => ({ ...d, city: e.target.value }))} aria-label="City" />
           </div>
-          <textarea className={b.introInput} placeholder="One line about this list (optional). e.g. 'where I actually send people who ask.'" value={draft.intro} onChange={(e) => setDraft((d) => ({ ...d, intro: e.target.value }))} aria-label="Intro" />
+          <textarea className={b.introInput} placeholder="one line about this list — e.g. 'where I actually send people who ask.'" value={draft.intro} onChange={(e) => setDraft((d) => ({ ...d, intro: e.target.value }))} aria-label="Intro" />
           <p className={b.handlePeek}>your link will be <b>hotlist.to/{handleFromName(draft.name)}</b></p>
 
           <div className={b.sep} />
@@ -182,6 +178,10 @@ export default function BuilderPage() {
                     onChange={(e) => patchPlace(i, { take: e.target.value })}
                     rows={2}
                   />
+                  <div className={b.pcOrder}>
+                    <span className={b.pcOrderLabel}>Order</span>
+                    <input className={b.pcOrderInput} placeholder="what to get — the most useful line (optional)" value={p.order || ""} onChange={(e) => patchPlace(i, { order: e.target.value })} aria-label="What to order" />
+                  </div>
                   <div className={b.pcActions}>
                     <button className={b.pcBtn} onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">↑</button>
                     <button className={b.pcBtn} onClick={() => move(i, 1)} disabled={i === draft.places.length - 1} aria-label="Move down">↓</button>
