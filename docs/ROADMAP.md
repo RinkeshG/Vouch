@@ -50,14 +50,21 @@ mobile‑first page — the thing they'd actually share. ✅
 
 ---
 
-## Phase 2 — The builder (create)  ☐
-Making a guide. Local‑first is acceptable here; persistence lands in Phase 3.
+## Phase 2 — The builder (create)  ✅
+Making a guide. **JTBD:** capture my recommendations fast and watch my page become real —
+so it feels like making something, not filling a form.
 
-- ☐ Add a place (O‑3 — search / paste a link / manual), write the take, pick a category.
-- ☐ Reorder, edit, delete; a live preview of the public page as you build.
-- ☐ Title + intro + your name/handle.
+- ✅ Add a place: typeahead over a seeded Bangalore index (`lib/places.ts`) + free-text
+  "Add &lt;name&gt;"; the take input is a **handwritten (Caveat) note**, category select,
+  reorder (↑↓), delete. (O‑3: search + manual for now; paste-a-link later.)
+- ✅ Two-pane **studio** — editor left, a device-framed **live preview** right that IS the
+  public page (reuses `GuideView preview`); tabbed Edit/Preview on mobile.
+- ✅ Title + your name + city + intro; live `hotlist.to/<handle>` peek; localStorage draft
+  (`lib/draft.ts`, swappable for a backend); Publish enables when there's a name + a place.
+  *(Verified desktop + mobile: typeahead, add, take, filter auto-updates, live preview.)*
 
-**Done =** you can build a complete guide and see it render exactly as the public page will.
+**Done =** you can build a complete guide and see it render exactly as the public page will. ✅
+*(Publish currently saves the draft; a real shareable link is Phase 3.)*
 
 ---
 

@@ -10,7 +10,7 @@ const COVER_PINS = [
   { top: "52%", left: "40%" }, { top: "68%", left: "30%" }, { top: "36%", left: "82%" },
 ];
 
-export default function GuideView({ guide }: { guide: Guide }) {
+export default function GuideView({ guide, preview = false }: { guide: Guide; preview?: boolean }) {
   const cats = categoriesOf(guide);
   const [active, setActive] = useState<string>("All");
   const [saved, setSaved] = useState(false);
@@ -19,6 +19,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
   const places = active === "All" ? guide.places : guide.places.filter((p) => p.category === active);
 
   async function onShare() {
+    if (preview) return;
     const url = typeof window !== "undefined" ? window.location.href : "";
     const data = { title: guide.title, text: `${guide.title} — a Hotlist by ${guide.curator.name}`, url };
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -31,10 +32,12 @@ export default function GuideView({ guide }: { guide: Guide }) {
 
   return (
     <>
-      <header className={s.topbar}>
-        <a href="/" className={s.brand}><span className={s.brandDot} aria-hidden="true" />Hotlist</a>
-        <a href="/new" className={s.topMake}>Make yours</a>
-      </header>
+      {!preview && (
+        <header className={s.topbar}>
+          <a href="/" className={s.brand}><span className={s.brandDot} aria-hidden="true" />Hotlist</a>
+          <a href="/new" className={s.topMake}>Make yours</a>
+        </header>
+      )}
 
       <main className={s.page}>
         <div className={s.cover}>
@@ -92,7 +95,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
               </a>
             </div>
           ))}
-          {places.length === 0 && <p className={s.empty}>Nothing here yet.</p>}
+          {places.length === 0 && <p className={s.empty}>Your spots will land here.</p>}
         </div>
 
         <section className={s.viral}>
