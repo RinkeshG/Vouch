@@ -142,6 +142,9 @@ export default function BuilderPage() {
                 {searching && suggestions.length === 0 && (
                   <div className={b.addOpt} style={{ color: "var(--muted)", cursor: "default" }}><span className={b.addPin} aria-hidden="true" />searching places…</div>
                 )}
+                {!searching && suggestions.length === 0 && (
+                  <div className={b.addOpt} style={{ color: "var(--muted)", cursor: "default", fontSize: "0.82rem" }}>Not on the map? Add it by name &mdash;</div>
+                )}
                 {suggestions.map((p, i) => (
                   <button key={`${p.name}-${p.area}-${i}`} className={b.addOpt} onClick={() => addPlace(p)}>
                     <span className={b.addPin} aria-hidden="true" />

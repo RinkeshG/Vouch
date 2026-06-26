@@ -22,11 +22,14 @@ export async function GET(req: Request) {
   if (!q) return NextResponse.json({ results: [] });
 
   try {
-    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=10&lat=12.9716&lon=77.5946&lang=en`;
+    // bias to Bengaluru AND restrict to an India bounding box, so we never
+    // surface fuzzy out-of-region junk (Photon does that when OSM has no match)
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=12&lat=12.9716&lon=77.5946&bbox=68,6,98,37&lang=en`;
     const r = await fetch(url, { headers: { "User-Agent": "Hotlist/0.1 (place search)" }, cache: "no-store" });
     if (!r.ok) return NextResponse.json({ results: [] });
     const data = await r.json();
     type Feature = { properties?: Record<string, string>; geometry?: { coordinates?: [number, number] } };
+    const inIndia = (lat: number, lng: number) => lat > 6 && lat < 37 && lng > 68 && lng < 98;
     const results = ((data.features as Feature[]) || [])
       .map((f) => {
         const p = f.properties || {};
@@ -34,7 +37,8 @@ export async function GET(req: Request) {
         const area = p.suburb || p.district || p.neighbourhood || p.locality || p.city || p.street || p.county || "";
         return { name: p.name, area, category: category(p.osm_value), lat, lng };
       })
-      .filter((x) => x.name && typeof x.lat === "number")
+      // a real, named POI inside India — better to return nothing than the wrong city
+      .filter((x) => x.name && typeof x.lat === "number" && typeof x.lng === "number" && inIndia(x.lat, x.lng))
       .slice(0, 6);
     return NextResponse.json({ results });
   } catch {
