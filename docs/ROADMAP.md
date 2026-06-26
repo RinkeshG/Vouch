@@ -86,15 +86,21 @@ The create → publish → open-the-link loop, end to end. **JTBD:** claim my li
 
 ---
 
-## Phase 4 — Maps & richness  ☐
-The map view, done to a premium bar (D‑005) — not before.
+## Phase 4 — Maps & richness  ✅
+The map view, done to a premium bar (D‑005). **JTBD:** see where these spots are and get
+to the one I want.
 
-- ☐ Decide base style + pin treatment (O‑1) against the D‑005 look.
-- ☐ A real map view of a guide (refined pins, elegant base, **no dotted route**), a
-  selected‑place card, on‑brand controls.
-- ☐ Per‑place "where it is" map in the detail.
+- ✅ Base + pins (resolves O‑1): warmed Positron base (sepia/desaturate filter + faint
+  terracotta wash — muted, never colourful), **refined circular glowing terracotta pins**
+  with the place number (no teardrops), **no drawn routes**, on-brand zoom control.
+- ✅ Interactive map view of a guide (`GuideMap`, Leaflet via CDN) with a **List ⁄ Map**
+  toggle; tap a pin → an elegant **selected-place card** (category, name, area, the
+  handwritten take, Directions). Coords derived from area (`lib/geo.ts`) for seeded guides.
+  *(Verified desktop + mobile: 11 pins, warm base, select + card + directions.)*
+- ☐ Per-place "where it is" mini-map in a place detail (later); real per-place coords arrive
+  with the Phase 3b place provider (the area-derived coords are the stand-in until then).
 
-**Done =** the map looks designed and premium on its own, and clearly belongs to Hotlist.
+**Done =** the map looks designed and premium on its own, and clearly belongs to Hotlist. ✅
 
 ---
 

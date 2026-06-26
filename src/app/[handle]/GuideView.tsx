@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import s from "./guide.module.css";
+import mc from "./map.module.css";
+import GuideMap from "./GuideMap";
 import { type Guide, categoriesOf, mapsUrl } from "../lib/guides";
+import { hasMap } from "../lib/geo";
 
 const TILE = "https://a.basemaps.cartocdn.com/light_all/12/2931/1899@2x.png";
 const COVER_PINS = [
@@ -13,8 +16,10 @@ const COVER_PINS = [
 export default function GuideView({ guide, preview = false }: { guide: Guide; preview?: boolean }) {
   const cats = categoriesOf(guide);
   const [active, setActive] = useState<string>("All");
+  const [view, setView] = useState<"list" | "map">("list");
   const [saved, setSaved] = useState(false);
   const [toast, setToast] = useState(false);
+  const mapped = hasMap(guide);
   const first = guide.curator.name.split(" ")[0];
   const places = active === "All" ? guide.places : guide.places.filter((p) => p.category === active);
 
@@ -73,30 +78,45 @@ export default function GuideView({ guide, preview = false }: { guide: Guide; pr
           </div>
         </section>
 
-        <nav className={s.filters} aria-label="Filter by category">
-          <button className={`${s.chip} ${active === "All" ? s.chipOn : ""}`} onClick={() => setActive("All")}>All</button>
-          {cats.map((c) => (
-            <button key={c} className={`${s.chip} ${active === c ? s.chipOn : ""}`} onClick={() => setActive(c)}>{c}</button>
-          ))}
-        </nav>
-
-        <div className={s.list}>
-          {places.map((p, i) => (
-            <div className={s.item} key={`${p.name}-${i}`}>
-              <div className={s.itemHead}>
-                <span className={s.itemIndex}>{String(i + 1).padStart(2, "0")}</span>
-                <span className={s.itemName}>{p.name}</span>
-                <span className={s.itemCat}>{p.category}</span>
-              </div>
-              <div className={s.itemArea}>{p.area}</div>
-              <p className={s.itemTake}>{p.take}</p>
-              <a className={s.itemGo} href={mapsUrl(p, guide.curator.city)} target="_blank" rel="noopener noreferrer">
-                Directions <span aria-hidden="true">↗</span>
-              </a>
+        {mapped && (
+          <div className={s.viewRow}>
+            <div className={mc.toggle} role="tablist" aria-label="List or map">
+              <button className={`${mc.toggleBtn} ${view === "list" ? mc.toggleOn : ""}`} onClick={() => setView("list")}>List</button>
+              <button className={`${mc.toggleBtn} ${view === "map" ? mc.toggleOn : ""}`} onClick={() => setView("map")}>Map</button>
             </div>
-          ))}
-          {places.length === 0 && <p className={s.empty}>Your spots will land here.</p>}
-        </div>
+          </div>
+        )}
+
+        {mapped && view === "map" ? (
+          <GuideMap guide={guide} />
+        ) : (
+          <>
+            <nav className={s.filters} aria-label="Filter by category">
+              <button className={`${s.chip} ${active === "All" ? s.chipOn : ""}`} onClick={() => setActive("All")}>All</button>
+              {cats.map((c) => (
+                <button key={c} className={`${s.chip} ${active === c ? s.chipOn : ""}`} onClick={() => setActive(c)}>{c}</button>
+              ))}
+            </nav>
+
+            <div className={s.list}>
+              {places.map((p, i) => (
+                <div className={s.item} key={`${p.name}-${i}`}>
+                  <div className={s.itemHead}>
+                    <span className={s.itemIndex}>{String(i + 1).padStart(2, "0")}</span>
+                    <span className={s.itemName}>{p.name}</span>
+                    <span className={s.itemCat}>{p.category}</span>
+                  </div>
+                  <div className={s.itemArea}>{p.area}</div>
+                  <p className={s.itemTake}>{p.take}</p>
+                  <a className={s.itemGo} href={mapsUrl(p, guide.curator.city)} target="_blank" rel="noopener noreferrer">
+                    Directions <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              ))}
+              {places.length === 0 && <p className={s.empty}>Your spots will land here.</p>}
+            </div>
+          </>
+        )}
 
         <section className={s.viral}>
           <p className={s.viralNote}>your turn</p>

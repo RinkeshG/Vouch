@@ -89,7 +89,10 @@ itself is text‑led and gorgeous; it ships with zero image infrastructure.
 both rejected — a map cover "tells you nothing about the place."*
 **How:** the **take is the hero** of every card; warmth comes from type + the tint accent.
 
-**D‑005 · Design · OPEN · 2026-06-26 — The map must be properly designed (v3‑grade)**
+**D‑005 · Design · RESOLVED · 2026-06-26 — The map must be properly designed (v3‑grade)**
+*Built in Phase 4: warmed Positron base (sepia/desaturate + faint terracotta wash), refined
+circular glowing terracotta numbered pins (no teardrops), no drawn routes, on-brand zoom,
+an elegant selected-place card. `GuideMap` + `lib/geo.ts`. The direction below is what shipped.*
 The map is a real feature in a later phase and must look **premium and intentional**, not
 childish. Take craft cues from the old Vouch v3 map (a real styled map, refined glowing
 pins, elegant restraint) but rebuild for our **warm/light** system.

@@ -1,0 +1,41 @@
+/* Hotlist — the map view, to the D-005 bar: a muted, lightly-warmed base,
+   refined circular terracotta pins with a soft glow (no teardrops, no dotted
+   routes), an elegant selected-place card, on-brand controls. */
+
+.wrap { position: relative; margin-top: 8px; border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--line-strong); box-shadow: var(--shadow-md); }
+.map { height: min(64vh, 560px); width: 100%; background: var(--surface-2); }
+
+/* warm the muted Positron base + a faint terracotta wash — never colourful */
+.map :global(.leaflet-tile-pane) { filter: sepia(0.18) saturate(0.82) brightness(1.03) contrast(0.98); }
+.wrap::after { content: ""; position: absolute; inset: 0; z-index: 400; pointer-events: none; background: var(--accent); opacity: .045; mix-blend-mode: multiply; }
+.map :global(.leaflet-container) { background: #ECE7DD; font-family: var(--font-sans); }
+
+/* refined circular pin — glowing terracotta dot, not a teardrop */
+.pin { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; background: var(--accent); color: #fff; border: 2.5px solid #fff; box-shadow: 0 0 0 4px rgba(203,97,58,.22), 0 4px 10px rgba(44,36,24,.42); transition: transform .2s var(--ease-spring); cursor: pointer; }
+.pin b { font-family: var(--font-mono); font-weight: 500; font-size: 0.72rem; }
+.pin:hover { transform: scale(1.18); }
+.pinOn { transform: scale(1.25); box-shadow: 0 0 0 6px rgba(203,97,58,.3), 0 6px 14px rgba(44,36,24,.5); z-index: 600; }
+
+/* on-brand zoom control */
+.map :global(.leaflet-control-zoom) { border: none !important; box-shadow: var(--shadow-md) !important; border-radius: var(--r-md) !important; overflow: hidden; margin: 14px !important; }
+.map :global(.leaflet-control-zoom a) { width: 34px !important; height: 34px !important; line-height: 32px !important; background: var(--surface) !important; color: var(--ink) !important; border: none !important; font-size: 1.1rem !important; font-weight: 600; }
+.map :global(.leaflet-control-zoom a:first-child) { border-bottom: 1px solid var(--line) !important; }
+.map :global(.leaflet-control-zoom a:hover) { background: var(--surface-2) !important; color: var(--accent) !important; }
+
+.credit { position: absolute; right: 8px; bottom: 7px; z-index: 450; font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: .03em; color: var(--muted); opacity: .7; pointer-events: none; }
+
+/* selected-place card */
+.card { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 500; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-xl); padding: 16px 18px 17px; animation: cardUp .32s var(--ease-spring) both; }
+.cardClose { position: absolute; top: 12px; right: 14px; color: var(--faint); font-size: 0.9rem; }
+.cardClose:hover { color: var(--ink); }
+.cardCat { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.cardName { font-weight: 700; font-size: 1.24rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; margin-top: 4px; }
+.cardArea { font-size: 0.82rem; color: var(--muted); margin-top: 2px; font-weight: 500; }
+.cardTake { font-family: var(--font-hand); font-weight: 500; font-size: 1.34rem; line-height: 1.2; color: var(--ink); margin-top: 9px; padding-right: 8px; }
+.cardGo { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+@keyframes cardUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* list/map toggle */
+.toggle { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; }
+.toggleBtn { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.84rem; color: var(--muted); border-radius: var(--r-pill); padding: 7px 16px; transition: all var(--dur) var(--ease); }
+.toggleOn { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }

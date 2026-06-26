@@ -39,6 +39,9 @@
 .actSave:hover { border-color: var(--accent); color: var(--accent); }
 .actSaveOn { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
+/* list/map toggle row */
+.viewRow { display: flex; justify-content: center; margin: clamp(22px, 4vw, 30px) 0 4px; }
+
 /* filter chips — sticky so a long list stays navigable */
 .filters { position: sticky; top: 0; z-index: 10; display: flex; gap: 8px; overflow-x: auto; margin: clamp(22px, 4vw, 30px) -16px 4px; padding: 12px 16px; background: linear-gradient(180deg, var(--paper) 70%, transparent); scrollbar-width: none; }
 .filters::-webkit-scrollbar { display: none; }
