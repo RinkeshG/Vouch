@@ -1,0 +1,82 @@
+/* Hotlist — the public guide page. The artifact someone opens from a shared
+   link, on a phone. Reads like a printed city guide: a curator, their spots,
+   the take on each (handwritten = the value), one tap to directions. Mobile-first.
+   Reuses globals.css tokens + the landing's evolved system (D-010). */
+
+.page { width: 100%; max-width: 680px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 28px); padding-bottom: 64px; }
+
+/* tiny top bar — brand + make-yours, so the viral loop is always one tap away */
+.topbar { display: flex; align-items: center; justify-content: space-between; height: 60px; max-width: 680px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 28px); }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.18rem; letter-spacing: -0.02em; color: var(--ink); }
+.brandDot { width: 10px; height: 10px; border-radius: 999px; background: var(--accent); }
+.topMake { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); border: 1.5px solid var(--accent-soft); border-radius: var(--r-pill); padding: 7px 13px; transition: background var(--dur) var(--ease); }
+.topMake:hover { background: var(--accent-soft); }
+
+/* cover — a slim, muted city map strip (Phase 4 makes it real) */
+.cover { position: relative; height: clamp(150px, 30vw, 200px); border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.coverImg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.coverWash { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(251,242,228,.15), rgba(251,242,228,.05) 35%, rgba(251,242,228,.55)); }
+.coverTint { position: absolute; inset: 0; background: var(--accent); opacity: .05; mix-blend-mode: multiply; }
+.coverPin { position: absolute; width: 11px; height: 11px; border-radius: 999px; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 3px rgba(203,97,58,.18), 0 2px 5px rgba(44,36,24,.3); transform: translate(-50%, -50%); }
+.coverStamp { position: absolute; bottom: 12px; right: 13px; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); border: 1.5px solid var(--accent); opacity: .68; border-radius: 5px; padding: 4px 8px; transform: rotate(-3deg); background: rgba(251,242,228,.55); }
+
+/* curator header */
+.head { margin-top: clamp(18px, 3vw, 26px); }
+.headTop { display: flex; align-items: center; gap: 13px; }
+.headAv { width: 52px; height: 52px; flex: none; border-radius: 999px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 1.3rem; box-shadow: var(--shadow-sm); }
+.headWho { min-width: 0; }
+.headName { display: block; font-weight: 700; font-size: 1.05rem; color: var(--ink); line-height: 1.1; }
+.headHandle { display: block; font-family: var(--font-mono); font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+.headTitle { font-weight: 700; font-size: clamp(1.9rem, 6vw, 2.6rem); letter-spacing: -0.035em; line-height: 1.04; color: var(--ink); margin: 16px 0 0; }
+.headIntro { font-size: clamp(1.02rem, 2.4vw, 1.14rem); line-height: 1.55; color: var(--body); margin: 12px 0 0; font-weight: 500; }
+.headStats { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 16px 0 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .03em; color: var(--muted); }
+.headStats b { color: var(--accent); font-weight: 500; }
+.headActions { display: flex; gap: 10px; margin: 20px 0 0; }
+.actShare { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.96rem; color: var(--accent-ink); background: var(--accent); border-radius: var(--r-pill); padding: 12px 20px; box-shadow: var(--shadow-accent); transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease); }
+.actShare:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.actShare:active { transform: scale(.98); }
+.actSave { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.96rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-pill); padding: 12px 18px; transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+.actSave:hover { border-color: var(--accent); color: var(--accent); }
+.actSaveOn { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* filter chips — sticky so a long list stays navigable */
+.filters { position: sticky; top: 0; z-index: 10; display: flex; gap: 8px; overflow-x: auto; margin: clamp(22px, 4vw, 30px) -16px 4px; padding: 12px 16px; background: linear-gradient(180deg, var(--paper) 70%, transparent); scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.chip { flex: none; font-weight: 600; font-size: 0.88rem; color: var(--body); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-pill); padding: 8px 15px; white-space: nowrap; transition: all var(--dur) var(--ease); }
+.chip:hover { border-color: var(--accent); }
+.chipOn { color: var(--accent-ink); background: var(--ink); border-color: var(--ink); }
+
+/* place list — editorial, text-led, the take is the hero */
+.list { margin-top: 8px; }
+.item { display: block; padding: 20px 0; border-top: 1px solid var(--line); }
+.item:first-child { border-top: none; }
+.itemHead { display: flex; align-items: baseline; gap: 10px; }
+.itemIndex { font-family: var(--font-mono); font-size: 0.78rem; color: var(--faint); flex: none; padding-top: 3px; }
+.itemName { font-weight: 700; font-size: 1.24rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.15; }
+.itemCat { margin-left: auto; flex: none; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: .06em; text-transform: uppercase; color: var(--body); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 10px; }
+.itemArea { font-size: 0.86rem; color: var(--muted); margin: 3px 0 0 calc(0.78rem + 10px); font-weight: 500; }
+.itemTake { font-family: var(--font-hand); font-weight: 500; font-size: 1.42rem; line-height: 1.22; color: var(--ink); margin: 11px 0 0 calc(0.78rem + 10px); }
+.itemGo { display: inline-flex; align-items: center; gap: 6px; margin: 13px 0 0 calc(0.78rem + 10px); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); transition: gap var(--dur) var(--ease); }
+.itemGo:hover { gap: 10px; }
+.empty { padding: 40px 0; text-align: center; color: var(--muted); font-weight: 500; }
+
+/* viral close — espresso band, the "your turn" of the artifact (P-004) */
+.viral { margin-top: clamp(40px, 6vw, 64px); background: var(--espresso); color: var(--on-espresso); border-radius: var(--r-card); padding: clamp(30px, 6vw, 46px) clamp(24px, 5vw, 40px); text-align: center; position: relative; overflow: hidden; }
+.viral::before { content: ""; position: absolute; left: 50%; top: -20%; width: 360px; max-width: 120%; height: 70%; transform: translateX(-50%); background: radial-gradient(50% 60% at 50% 40%, rgba(239,138,79,.2), transparent 70%); pointer-events: none; }
+.viralNote { position: relative; font-family: var(--font-hand); font-size: 1.5rem; color: #F0B26C; margin: 0; }
+.viralTitle { position: relative; font-weight: 700; font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -0.03em; line-height: 1.06; color: var(--on-espresso); margin: 8px auto 0; max-width: 18ch; }
+.viralTitle em { color: #EF8A4F; font-style: normal; }
+.viralCta { position: relative; display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; font-weight: 700; font-size: 1rem; color: var(--accent-ink); background: var(--accent); border-radius: var(--r-pill); padding: 14px 26px; box-shadow: var(--shadow-accent); transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease); }
+.viralCta:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.viralMeta { position: relative; display: block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: .04em; color: var(--on-espresso-dim); margin-top: 16px; }
+
+.gfoot { margin-top: 32px; text-align: center; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: .04em; color: var(--faint); }
+.gfoot a { color: var(--muted); }
+
+/* copied toast */
+.toast { position: fixed; left: 50%; bottom: calc(24px + var(--safe-bottom)); transform: translateX(-50%) translateY(8px); z-index: 60; background: var(--ink); color: var(--paper); font-weight: 600; font-size: 0.9rem; padding: 12px 20px; border-radius: var(--r-pill); box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.toastOn { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 640px) {
+  .headActions { margin-top: 22px; }
+}

@@ -29,17 +29,24 @@ sees a real example, and there's a clear CTA — shippable, responsive, accessib
 
 ---
 
-## Phase 1 — The public page (read‑only)  ☐
+## Phase 1 — The public page (read‑only)  ✅
 The artifact itself: what someone opens from a shared link.
+**JTBD (visitor):** find places I'd actually go, trust the takes, act (directions), and
+leave wanting my own. **JTBD (owner):** look generous + tasteful, be useful without retyping.
 
-- ☐ A data shape for a guide (`{ handle, title, intro, curator, places[] }`, each place
-  `{ name, area, take, category, mapsUrl }`) + a seeded example guide.
-- ☐ Public route `/<handle>` (or `/g/<slug>`) rendering the guide: curator header,
-  category filter, text‑led place cards, the "your turn" close (P‑004).
-- ☐ Mobile‑first layout; real metadata + OG tags for sharing.
+- ✅ Data layer (`lib/guides.ts`) — `Guide { handle, title, intro, curator, sent, saved,
+  minutes, places[] }`, `place { name, area, category, take }`, `mapsUrl()` (Google deep
+  link — own the curation, rent the infra), `categoriesOf()`. 8 seeded guides.
+- ✅ Public route `/<handle>` — muted map cover + city stamp, curator header (avatar, title,
+  intro, `sent/saved/updated` receipts, Share + Save), **sticky category filter**, editorial
+  text‑led place list (mono index, handwritten take = hero, one‑tap **Directions**), the
+  espresso **"made this in N minutes → make yours"** viral close (P‑004), footer.
+- ✅ Mobile‑first; `generateMetadata` (OG/Twitter) + `generateStaticParams`. Share = native
+  share → clipboard + toast. *(Verified: desktop + mobile; filter works; per‑curator tints.)*
 
 **Done =** a logged‑out stranger can open a public guide URL and see a beautiful, fast,
-mobile‑first page — the thing they'd actually share.
+mobile‑first page — the thing they'd actually share. ✅
+*(Real persistence/sharing across devices = Phase 3; the map cover is decorative until Phase 4.)*
 
 ---
 

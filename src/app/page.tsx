@@ -72,7 +72,7 @@ function CityStamp() {
 
 function HotlistCard({ g }: { g: Guide }) {
   return (
-    <article className={s.hcard}>
+    <a className={s.hcard} href={`/${g.handle}`}>
       <div className={s.hcAccent} style={{ background: g.tint }} />
       {g.note && <span className={s.hcNote}>{g.note}</span>}
       <div className={s.hcHead}>
@@ -90,7 +90,7 @@ function HotlistCard({ g }: { g: Guide }) {
         ))}
       </div>
       <div className={s.hcFoot}><span>hotlist.to/<b>{g.handle}</b></span><span className={s.hcSent}>sent {g.sent}×</span></div>
-    </article>
+    </a>
   );
 }
 
