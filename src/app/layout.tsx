@@ -1,22 +1,41 @@
 import type { Metadata, Viewport } from "next";
+import { DM_Sans, Caveat, DM_Mono } from "next/font/google";
 import "./globals.css";
 
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+  display: "swap",
+});
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Vouch — Curated lists of your favorite places",
+  title: "Hotlist — your favourite places, one beautiful link",
   description:
-    "Build and share beautiful, curated lists of the places you love. Your taste, beautifully organized. Now in Bangalore.",
+    "Make your own guide to the places you love — your spots, your takes — and share it with one link. Like a personal city guide, but yours.",
   openGraph: {
-    title: "Vouch — Curated lists of your favorite places",
+    title: "Hotlist — your favourite places, one beautiful link",
     description:
-      "Build and share beautiful lists of the places you love. Now in Bangalore.",
-    siteName: "Vouch",
+      "Make a little guide to the places you love and share it anywhere. Your spots, your takes, one link.",
+    siteName: "Hotlist",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vouch",
+    title: "Hotlist",
     description:
-      "Build and share beautiful lists of the places you love. Now in Bangalore.",
+      "Make your own guide to the places you love — and share it with one link.",
   },
 };
 
@@ -24,28 +43,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#F2ECDF",
+  themeColor: "#FBF2E4",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700;1,9..144,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Caveat:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`${dmSans.variable} ${caveat.variable} ${dmMono.variable}`}>
       <body>{children}</body>
     </html>
   );

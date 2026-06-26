@@ -7,6 +7,27 @@
       "runtimeArgs": ["node_modules/.bin/next", "dev", "--turbopack"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "kh-redesign",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd '/Users/rinkeshgorasia/Documents/Codex/2026-05-18/act-like-a-combined-team-of/.claude/worktrees/keen-hopper-7963c5' && exec /Users/rinkeshgorasia/.nvm/versions/node/v22.17.0/bin/node node_modules/.bin/next dev -p 3002"],
+      "port": 3002,
+      "autoPort": true
+    },
+    {
+      "name": "rb-landing",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd '/Users/rinkeshgorasia/Documents/Codex/2026-05-18/act-like-a-combined-team-of/.claude/worktrees/romantic-brown-86326f' && exec /Users/rinkeshgorasia/.nvm/versions/node/v22.17.0/bin/node node_modules/.bin/next dev -p 3003"],
+      "port": 3003,
+      "autoPort": true
+    },
+    {
+      "name": "v2-mktg",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd '/Users/rinkeshgorasia/Documents/Codex/2026-05-18/act-like-a-combined-team-of/.claude/worktrees/v2-mktg' && exec /Users/rinkeshgorasia/.nvm/versions/node/v22.17.0/bin/node node_modules/.bin/next dev -p 3004"],
+      "port": 3004,
+      "autoPort": true
     }
   ]
 }

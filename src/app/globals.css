@@ -1,277 +1,127 @@
-/* ============================================================
-   Vouch Design Tokens
-   Warm paper-and-ink aesthetic. Editorial magazine feel.
-   4px grid. Fraunces + Instrument Sans. One accent (rust).
-   ============================================================ */
+/* ============================================================================
+   HOTLIST — design tokens + base. "Warm & tactile."
+   Cream paper, warm ink, one terracotta accent. DM Sans + Caveat (via
+   next/font → --font-sans / --font-hand, set in layout.tsx).
+   The single source of truth — components read these, never hard-code.
+   See docs/DECISIONS.md (D-001..D-006) and docs/DESIGN-SYSTEM.md.
+   ============================================================================ */
 
 :root {
-  /* — Colors (warm paper palette) — */
-  --v-paper: #F2ECDF;
-  --v-surface: #FAF7F0;
-  --v-surface-dim: #EBE6D9;
-  --v-ink: #181210;
-  --v-ink2: #564E44;
-  --v-ink3: #948A7C;
-  --v-seal: #B8412C;
-  --v-seal-hover: #A33824;
-  --v-seal-pressed: #8F3120;
-  --v-seal-dim: rgba(184, 65, 44, 0.07);
-  --v-seal-wash: rgba(184, 65, 44, 0.12);
-  --v-line: rgba(24, 18, 16, 0.08);
-  --v-line-strong: rgba(24, 18, 16, 0.15);
-  --v-faint: rgba(24, 18, 16, 0.04);
-  --v-muted: rgba(24, 18, 16, 0.45);
+  /* — surfaces & ink (D-003) — */
+  --paper: #FBF2E4;        /* page */
+  --surface: #FFFBF3;      /* raised cards */
+  --surface-2: #FCEFE0;    /* recessed / tinted panels */
+  --ink: #2C2418;          /* primary text */
+  --muted: #8A7A63;        /* secondary text */
+  --faint: #B6A88E;        /* tertiary / hints */
+  --body: #5F5444;         /* running body text */
+  --line: #EBDDC8;         /* hairline */
+  --line-strong: #E0CFB5;  /* stronger divider */
 
-  /* — Accent palette (sage, ochre for badges/highlights) — */
-  --v-sage: #7A8472;
-  --v-sage-dim: rgba(122, 132, 114, 0.10);
-  --v-ochre: #C49A4A;
-  --v-ochre-dim: rgba(196, 154, 74, 0.10);
-  --v-cream: #FBF6E9;
+  /* — one accent: terracotta — */
+  --accent: #CB613A;
+  --accent-hover: #B8512D;
+  --accent-pressed: #A2461F;
+  --accent-soft: #F7E4D7;  /* faint terracotta bg */
+  --accent-ink: #FFFFFF;   /* text on accent */
 
-  /* — Dark surfaces (share cards, OG images, footer) — */
-  --v-dark-paper: #121110;
-  --v-dark-surface: #1C1A18;
-  --v-dark-ink: #EDE8DF;
-  --v-dark-ink2: #948A7C;
-  --v-dark-seal: #D95640;
-  --v-dark-line: rgba(237, 232, 223, 0.08);
-  --v-dark-line-strong: rgba(237, 232, 223, 0.16);
-  --v-dark-muted: rgba(242, 236, 223, 0.50);
+  /* — espresso band (full-bleed dark sections — gives the page rhythm, D-010) — */
+  --espresso: #221A12;
+  --espresso-2: #2E241A;   /* raised card on espresso */
+  --espresso-line: #41342440; /* hairline on espresso */
+  --on-espresso: #F6ECDD;  /* primary text on espresso */
+  --on-espresso-dim: #B9A88E; /* secondary on espresso */
+  --dark: #2C2418;
+  --dark-soft: #F0C9A6;    /* warm tint text on dark */
+  --on-dark: #FBF2E4;
 
-  /* — Typography — */
-  --v-font-serif: 'Fraunces', serif;
-  --v-font-sans: 'Instrument Sans', sans-serif;
-  --v-font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --v-font-hand: 'Caveat', cursive;
+  /* — personality accents (deck + gallery — so no two cards are twins, D-010) — */
+  --a-terracotta: #CB613A;
+  --a-olive: #7C8C5A;
+  --a-ochre: #C98A3C;
+  --a-teal: #3E7C74;
+  --a-plum: #8E5A6B;
+  --a-brick: #B0492F;
+  --a-indigo: #6E7F9A;
+  --highlighter: #F4C84B;  /* sparingly — handwriting underline / "fresh" mark */
 
-  /* — Spacing (4px grid) — */
-  --v-sp1: 4px;
-  --v-sp2: 8px;
-  --v-sp3: 12px;
-  --v-sp4: 16px;
-  --v-sp5: 20px;
-  --v-sp6: 24px;
-  --v-sp7: 28px;
-  --v-sp8: 32px;
-  --v-sp10: 40px;
-  --v-sp12: 48px;
-  --v-sp16: 64px;
+  /* — category accents (earthy, muted — never compete with the accent) — */
+  --c-coffee: #C17A2B;
+  --c-food: #CB613A;
+  --c-drink: #9A6A33;
+  --c-view: #7C8C5A;
+  --c-shop: #B4724E;
 
-  /* — Radii — */
-  --v-radius-tag: 6px;
-  --v-radius-input: 10px;
-  --v-radius-card: 14px;
-  --v-radius-pill: 9999px;
+  /* — type (faces come from next/font) — */
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-hand: "Caveat", cursive;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", monospace;
 
-  /* — Shadows (layered, warm) — */
-  --v-shadow-sm: 0 1px 3px rgba(24, 18, 16, 0.06);
-  --v-shadow-md:
-    0 4px 12px rgba(24, 18, 16, 0.08),
-    0 1px 3px rgba(24, 18, 16, 0.04);
-  --v-shadow-lg:
-    0 8px 24px rgba(24, 18, 16, 0.10),
-    0 2px 6px rgba(24, 18, 16, 0.05);
-  --v-shadow-xl:
-    0 12px 40px rgba(24, 18, 16, 0.12),
-    0 4px 12px rgba(24, 18, 16, 0.06);
+  /* — radius — */
+  --r-xs: 6px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px;
+  --r-card: 22px; --r-pill: 999px;
 
-  /* — Transitions — */
-  --v-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --v-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --v-duration-fast: 120ms;
-  --v-duration-base: 200ms;
-  --v-duration-normal: 200ms;
-  --v-duration-sheet: 320ms;
-  --v-duration-spring: 400ms;
+  /* — spacing (4px grid) — */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px;
+  --s8: 32px; --s10: 40px; --s12: 48px; --s16: 64px; --s20: 80px; --s24: 96px;
 
-  /* — Safe areas (notched phones) — */
-  --v-safe-top: env(safe-area-inset-top, 0px);
-  --v-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --v-safe-left: env(safe-area-inset-left, 0px);
-  --v-safe-right: env(safe-area-inset-right, 0px);
+  /* — soft warm shadows — */
+  --shadow-sm: 0 1px 2px rgba(44, 36, 24, .05), 0 2px 8px rgba(44, 36, 24, .05);
+  --shadow-md: 0 4px 14px rgba(44, 36, 24, .07), 0 1px 4px rgba(44, 36, 24, .05);
+  --shadow-lg: 0 18px 40px -28px rgba(44, 36, 24, .5);
+  --shadow-xl: 0 30px 60px -34px rgba(44, 36, 24, .55);
+  --shadow-accent: 0 14px 28px -14px rgba(203, 97, 58, .6);
 
-  /* — Avatar tints (warmed) — */
-  --v-tint-0: #E4CEBC;
-  --v-tint-1: #C2D0BC;
-  --v-tint-2: #C0C9D4;
-  --v-tint-3: #D4C0AC;
-  --v-tint-4: #B4C4BC;
-  --v-tint-5: #CCBCD0;
-  --v-tint-6: #C4CCB4;
-  --v-tint-7: #D8C4B0;
-  --v-tint-8: #B0C0C8;
+  /* — motion — */
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.4, .5, 1);
+  --dur-fast: 130ms;
+  --dur: 220ms;
+  --dur-slow: 360ms;
+
+  /* — layout — */
+  --container: 1080px;
+  --container-wide: 1180px;
+
+  /* — safe areas — */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-
-/* ============================================================
-   Reset & Base
-   ============================================================ */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  -webkit-text-size-adjust: 100%;
-}
-
+/* ---- reset ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
 body {
-  font-family: var(--v-font-sans);
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: 16px;
   line-height: 1.5;
-  color: var(--v-ink);
-  background-color: var(--v-paper);
-}
-
-img,
-video,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-input,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
-}
-
-ul,
-ol {
-  list-style: none;
-}
-
-::selection {
-  background-color: var(--v-seal);
-  color: var(--v-dark-ink);
-}
-
-
-/* ============================================================
-   Typography Scale
-   ============================================================ */
-
-.v-hero {
-  font-family: var(--v-font-serif);
-  font-size: clamp(36px, 8vw, 64px);
-  line-height: 1.0;
-  letter-spacing: -0.02em;
-  font-weight: 400;
-  font-variation-settings: 'opsz' 144;
-}
-
-.v-display {
-  font-family: var(--v-font-serif);
-  font-size: clamp(28px, 5vw, 44px);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  font-weight: 400;
-  font-variation-settings: 'opsz' 72;
-}
-
-.v-title {
-  font-family: var(--v-font-serif);
-  font-size: clamp(20px, 3vw, 24px);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  color: var(--ink);
+  background: var(--paper);
   font-weight: 400;
 }
+img, svg, video { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+ul, ol { list-style: none; }
+::selection { background: var(--accent); color: #fff; }
 
-.v-heading {
-  font-family: var(--v-font-sans);
-  font-size: 17px;
-  line-height: 1.35;
-  letter-spacing: 0;
-  font-weight: 600;
+/* ---- focus (accessible, on-brand) ---- */
+:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ---- paper grain — barely-there tactility over the whole page ---- */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: .04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+@media (prefers-reduced-motion: no-preference) { body::before { will-change: auto; } }
 
-.v-body {
-  font-family: var(--v-font-sans);
-  font-size: 15px;
-  line-height: 1.5;
-  letter-spacing: 0;
-  font-weight: 400;
-}
+/* ---- helpers ---- */
+.hand { font-family: var(--font-hand); font-weight: 600; color: var(--accent); }
+/* mono "stamp" — labels, counters, ticket-text. Carries the zine texture. */
+.stamp { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 400; }
 
-.v-take {
-  font-family: var(--v-font-serif);
-  font-size: 15px;
-  line-height: 1.5;
-  letter-spacing: 0;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.v-note {
-  font-family: var(--v-font-sans);
-  font-size: 13px;
-  line-height: 1.45;
-  letter-spacing: 0;
-  font-weight: 400;
-}
-
-.v-label {
-  font-family: var(--v-font-sans);
-  font-size: 10px;
-  line-height: 1.2;
-  letter-spacing: 0.06em;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-
-/* ============================================================
-   Utilities
-   ============================================================ */
-
-.v-muted {
-  color: var(--v-muted);
-}
-
-.v-seal-text {
-  color: var(--v-seal);
-}
-
-.v-visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
+/* ---- reduced motion ---- */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

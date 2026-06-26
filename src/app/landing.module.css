@@ -1,0 +1,471 @@
+/* Hotlist — landing. Sells emotion-first (PAS + StoryBrand + show-don't-tell):
+   the dream artifact, the scattered-recs pain made vivid, the turn, the share
+   payoff, proof, CTA. Warm & tactile; reads from globals.css tokens.
+   See docs/DECISIONS.md (D-007 landing strategy). */
+
+.wrap { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: clamp(18px, 4vw, 40px); }
+.wrapWide { max-width: var(--container-wide); }
+
+/* ---------- nav ---------- */
+.nav { position: relative; z-index: 5; }
+.navInner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 1.32rem; letter-spacing: -0.02em; color: var(--ink); }
+.brandDot { width: 11px; height: 11px; border-radius: 999px; background: var(--accent); }
+.navLinks { display: flex; align-items: center; gap: clamp(14px, 3vw, 28px); }
+.navLink { font-weight: 500; font-size: 0.95rem; color: var(--muted); transition: color var(--dur) var(--ease); }
+.navLink:hover { color: var(--ink); }
+
+/* ---------- buttons ---------- */
+.btnPrimary { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 1.02rem; color: var(--accent-ink); background: var(--accent); border-radius: var(--r-pill); padding: 15px 28px; box-shadow: var(--shadow-accent); transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease); }
+.btnPrimary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btnPrimary:active { transform: scale(.98); }
+.btnPrimary.sm { font-size: 0.9rem; padding: 10px 18px; box-shadow: none; }
+.btnGhost { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 1rem; color: var(--ink); }
+.btnGhost:hover { color: var(--accent); }
+
+/* ---------- hero — dream artifact + emotional, specific headline ---------- */
+.hero { position: relative; overflow: hidden; padding-block: clamp(28px, 4vw, 56px) clamp(48px, 7vw, 92px); }
+.heroGrid { display: grid; grid-template-columns: 1fr; gap: clamp(40px, 5vw, 60px); align-items: center; }
+.h1 { font-weight: 700; font-size: clamp(2.7rem, 6vw, 4.7rem); line-height: 1.0; letter-spacing: -0.045em; color: var(--ink); margin: 0; max-width: 15ch; }
+.h1 .em { color: var(--accent); }
+.sub { font-size: clamp(1.1rem, 1.5vw, 1.3rem); line-height: 1.5; color: var(--body); margin: 24px 0 0; max-width: 40ch; font-weight: 500; }
+.heroCta { display: flex; align-items: center; gap: clamp(14px, 2vw, 22px); margin-top: 34px; flex-wrap: wrap; }
+.heroProof { margin-top: 22px; font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+
+/* the artifact, floating */
+.heroArt { position: relative; justify-self: center; width: 100%; max-width: 440px; }
+.artFloat { transform: rotate(-1.4deg); }
+.artNote { position: absolute; top: -22px; right: -6px; z-index: 3; font-family: var(--font-hand); font-size: 1.5rem; color: var(--accent); transform: rotate(5deg); }
+
+/* ---------- the guide artifact (the dream / the output) ---------- */
+.guide { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow-xl); overflow: hidden; }
+.guideHead { display: flex; align-items: center; gap: 13px; padding: 22px 22px 16px; }
+.guideAvatar { width: 48px; height: 48px; flex: none; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 1.15rem; }
+.guideHeadText { flex: 1; min-width: 0; }
+.guideTitle { display: block; font-weight: 700; font-size: 1.34rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+.guideMeta { display: block; font-size: 0.82rem; color: var(--muted); margin-top: 3px; font-weight: 500; }
+.guideTag { align-self: flex-start; font-family: var(--font-hand); font-size: 1.15rem; color: var(--accent); transform: rotate(3deg); white-space: nowrap; }
+.guideList { padding: 4px 8px 8px; }
+.entry { display: block; padding: 14px; border-radius: var(--r-lg); }
+.entry + .entry { border-top: 1px solid var(--line); }
+.entryTop { display: flex; align-items: baseline; gap: 8px; }
+.entryName { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.015em; color: var(--ink); }
+.entryArea { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+.entryCat { margin-left: auto; font-size: 0.72rem; font-weight: 600; color: var(--body); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px 10px; white-space: nowrap; }
+.entryTake { font-size: 0.98rem; line-height: 1.45; color: var(--body); margin-top: 6px; }
+.entryMeta { display: flex; align-items: center; gap: 10px; margin-top: 9px; font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+.entryMeta .maps { color: var(--accent); font-weight: 600; margin-left: auto; }
+.guideFoot { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px 18px; border-top: 1px solid var(--line); }
+.guideFootLink { font-size: 0.84rem; color: var(--muted); font-weight: 500; }
+.guideFootCount { font-weight: 600; color: var(--ink); font-size: 0.9rem; }
+
+/* ---------- section scaffold ---------- */
+.section { padding-block: clamp(56px, 9vw, 120px); }
+.center { text-align: center; }
+.kicker { font-weight: 600; font-size: 0.84rem; letter-spacing: 0.04em; color: var(--accent); margin: 0 0 16px; }
+.h2 { font-weight: 700; font-size: clamp(1.85rem, 3.5vw, 2.7rem); line-height: 1.08; letter-spacing: -0.03em; color: var(--ink); margin: 0; max-width: 30ch; }
+.h2.center { margin-inline: auto; }
+.h2 .dim { color: var(--faint); }
+.h2 .em { color: var(--accent); }
+.lead { font-size: clamp(1.08rem, 1.4vw, 1.24rem); line-height: 1.55; color: var(--body); margin: 18px 0 0; font-weight: 500; max-width: 46ch; }
+.lead.center { margin-inline: auto; }
+
+/* ---------- PAIN: the scattered "before", made vivid ---------- */
+.pain { background: #211B14; color: #EAE0CF; border-block: 1px solid #3A3024; }
+.painGrid { display: grid; grid-template-columns: 1fr; gap: clamp(34px, 5vw, 64px); align-items: center; }
+.painKicker { color: #C98B5C; font-weight: 600; font-size: 0.84rem; letter-spacing: 0.04em; margin: 0 0 16px; }
+.painTitle { font-weight: 700; font-size: clamp(2rem, 4.2vw, 3rem); line-height: 1.08; letter-spacing: -0.03em; color: #F4ECDC; margin: 0; max-width: 17ch; }
+.painTitle .em { color: #E68B52; }
+.painBody { font-size: 1.1rem; line-height: 1.55; color: #B9AC97; margin: 20px 0 0; max-width: 42ch; font-weight: 500; }
+.painTurn { display: block; margin-top: 18px; color: #F4ECDC; font-weight: 600; font-size: 1.18rem; }
+
+/* the mess: cool-toned, scattered, joyless */
+.mess { position: relative; min-height: 360px; }
+.messCard { position: absolute; background: #FAFAF8; color: #2b2b2b; border-radius: 14px; box-shadow: 0 24px 50px -24px rgba(0,0,0,.6); border: 1px solid rgba(0,0,0,.06); }
+.msgNotes { top: 0; left: 4%; width: 62%; transform: rotate(-4deg); padding: 14px 16px 16px; z-index: 2; }
+.notesBar { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+.notesDot { width: 9px; height: 9px; border-radius: 999px; }
+.notesName { margin-left: 6px; font-size: 0.72rem; color: #8a8a86; font-family: ui-monospace, monospace; }
+.notesLine { font-family: ui-monospace, monospace; font-size: 0.8rem; color: #555; line-height: 1.7; }
+.notesLine.strike { text-decoration: line-through; color: #aaa; }
+.msgMaps { bottom: 4%; right: 2%; width: 56%; transform: rotate(3deg); overflow: hidden; z-index: 3; }
+.mapsBar { background: #4285F4; color: #fff; font-weight: 600; font-size: 0.82rem; padding: 11px 14px; display: flex; align-items: center; gap: 8px; }
+.mapsRow { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-top: 1px solid #eee; }
+.mapsPin { width: 16px; height: 16px; border-radius: 50% 50% 50% 0; background: #9aa0a6; transform: rotate(-45deg); flex: none; }
+.mapsText { font-size: 0.82rem; color: #5f6368; }
+.msgChat { top: 36%; right: 30%; width: 60%; transform: rotate(-1deg); padding: 14px; background: #E6DDD2; z-index: 4; }
+.chatBubble { font-size: 0.84rem; line-height: 1.4; padding: 8px 12px; border-radius: 13px; max-width: 86%; margin-bottom: 8px; }
+.chatThem { background: #fff; color: #2b2b2b; border-bottom-left-radius: 4px; }
+.chatYou { background: #DCF8C6; color: #2b2b2b; margin-left: auto; border-bottom-right-radius: 4px; }
+.chatYou.long { color: #4a4a4a; }
+
+/* ---------- the turn / payoff: share moment ---------- */
+.payoffGrid { display: grid; grid-template-columns: 1fr; gap: clamp(34px, 5vw, 60px); align-items: center; }
+.phone { justify-self: center; width: 300px; max-width: 100%; background: var(--ink); border-radius: 38px; padding: 12px; box-shadow: var(--shadow-xl); }
+.phoneScreen { background: #ECE5DB; border-radius: 28px; overflow: hidden; }
+.phoneTop { background: #075E54; color: #fff; padding: 13px 16px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.9rem; }
+.phoneBody { padding: 16px 12px; min-height: 280px; }
+.pBubble { font-size: 0.86rem; line-height: 1.4; padding: 9px 13px; border-radius: 14px; max-width: 84%; margin-bottom: 10px; }
+.pThem { background: #fff; color: #222; border-bottom-left-radius: 4px; }
+.pYou { background: #DCF8C6; color: #222; margin-left: auto; border-bottom-right-radius: 4px; }
+.unfurl { margin-left: auto; max-width: 90%; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 8px 20px -12px rgba(0,0,0,.3); }
+.unfurlHead { display: flex; align-items: center; gap: 9px; padding: 11px 12px 9px; }
+.unfurlAv { width: 30px; height: 30px; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.8rem; flex: none; }
+.unfurlTitle { font-weight: 700; font-size: 0.92rem; color: var(--ink); line-height: 1.1; }
+.unfurlMeta { font-size: 0.72rem; color: var(--muted); }
+.unfurlNames { padding: 0 12px 11px; font-size: 0.8rem; color: var(--body); line-height: 1.4; }
+.unfurlLink { padding: 8px 12px; border-top: 1px solid var(--line); font-size: 0.72rem; color: var(--muted); }
+
+/* ---------- how it works (3 beats) ---------- */
+.steps { display: grid; grid-template-columns: 1fr; gap: clamp(16px, 2vw, 22px); margin-top: clamp(34px, 4vw, 52px); }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 26px 24px; box-shadow: var(--shadow-sm); }
+.stepNum { width: 38px; height: 38px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-size: 1.02rem; margin-bottom: 16px; }
+.stepTitle { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; color: var(--ink); margin: 0; }
+.stepBody { font-size: 0.98rem; line-height: 1.5; color: var(--body); margin: 8px 0 0; }
+
+/* ---------- proof: real hotlists ---------- */
+.examples { display: grid; grid-template-columns: 1fr; gap: clamp(16px, 2vw, 22px); margin-top: clamp(34px, 4vw, 52px); }
+.exampleCard { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 22px; box-shadow: var(--shadow-sm); transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.exampleCard:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.exHead { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+.exAvatar { width: 36px; height: 36px; flex: none; border-radius: 999px; display: grid; place-items: center; font-weight: 700; font-size: 0.9rem; color: #fff; }
+.exTitle { display: block; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.15; }
+.exBy { display: block; font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.exNames { font-size: 0.95rem; color: var(--body); line-height: 1.55; }
+.exMore { display: inline-block; margin-top: 12px; font-size: 0.82rem; font-weight: 600; color: var(--accent); }
+
+/* ---------- cta ---------- */
+.cta { padding-block: clamp(40px, 6vw, 80px); }
+.ctaInner { position: relative; overflow: hidden; background: var(--dark); border-radius: var(--r-card); padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 56px); text-align: center; }
+.ctaNote { font-family: var(--font-hand); font-size: 1.6rem; color: var(--dark-soft); margin: 0; transform: rotate(-2deg); }
+.ctaTitle { font-weight: 700; font-size: clamp(2.1rem, 4.6vw, 3.4rem); letter-spacing: -0.04em; color: var(--on-dark); margin: 10px 0 0; line-height: 1.02; }
+.ctaSub { font-size: 1.1rem; color: #D8C9B2; margin: 14px auto 0; max-width: 40ch; font-weight: 500; line-height: 1.5; }
+.ctaBtn { margin-top: 30px; }
+
+/* ---------- footer ---------- */
+.footer { border-top: 1px solid var(--line); padding-block: 30px 44px; }
+.footInner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 0.88rem; font-weight: 500; }
+
+/* ---------- HERO PRODUCT — a real, shared Hotlist page (map + curation) ---- */
+.product { width: 100%; max-width: 416px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow-xl); overflow: hidden; animation: productIn .9s var(--ease) both; }
+.productBar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.productDots { display: inline-flex; gap: 5px; }
+.productDots i { width: 9px; height: 9px; border-radius: 999px; background: var(--line-strong); }
+.productUrl { flex: 1; text-align: center; font-size: 0.76rem; color: var(--muted); font-weight: 500; letter-spacing: -0.01em; }
+.productShare { color: var(--accent); font-size: 0.86rem; font-weight: 600; }
+
+/* the map — muted, elegant, considered pins (D-005) */
+.productMap { position: relative; height: 168px; overflow: hidden; }
+.productMapImg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.productMapWash { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(251,242,228,.22), rgba(251,242,228,.05) 40%, rgba(251,242,228,.34)); }
+.productMapTint { position: absolute; inset: 0; background: var(--accent); opacity: .05; mix-blend-mode: multiply; }
+.mapPin { position: absolute; width: 12px; height: 12px; border-radius: 999px; background: var(--accent); border: 2.5px solid #fff; box-shadow: 0 0 0 4px rgba(203,97,58,.16), 0 3px 7px rgba(44,36,24,.35); transform: translate(-50%, -50%); animation: pinDrop .6s var(--ease-spring) both; }
+.mapPinHi { width: 14px; height: 14px; box-shadow: 0 0 0 5px rgba(203,97,58,.2), 0 4px 10px rgba(44,36,24,.4); z-index: 2; }
+.mapLabel { position: absolute; transform: translate(-50%, calc(-100% - 12px)); z-index: 3; background: var(--ink); color: var(--paper); font-size: 0.7rem; font-weight: 600; padding: 4px 9px; border-radius: 999px; white-space: nowrap; box-shadow: 0 6px 14px -6px rgba(44,36,24,.6); animation: pinDrop .6s var(--ease-spring) .35s both; }
+.mapLabel::after { content: ""; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%) rotate(45deg); width: 8px; height: 8px; background: var(--ink); }
+
+.productCurator { display: flex; align-items: center; gap: 11px; padding: 15px 17px 12px; }
+.productAv { width: 40px; height: 40px; flex: none; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 1rem; }
+.productName { display: block; font-weight: 700; font-size: 1.12rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+.productMeta { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 1px; font-weight: 500; }
+.productSaves { margin-left: auto; font-size: 0.76rem; color: var(--muted); font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+.productList { padding: 0 9px 10px; }
+.pEntry { padding: 12px 8px; }
+.pEntry + .pEntry { border-top: 1px solid var(--line); }
+.pEntryTop { display: flex; align-items: baseline; gap: 7px; }
+.pEntryName { font-weight: 700; font-size: 1.04rem; letter-spacing: -0.015em; color: var(--ink); }
+.pEntryArea { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.pEntryCat { margin-left: auto; font-size: 0.68rem; font-weight: 600; color: var(--body); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 2px 9px; }
+.pEntryTake { font-family: var(--font-hand); font-weight: 500; font-size: 1.2rem; line-height: 1.15; color: var(--ink); margin-top: 4px; }
+
+@keyframes productIn { from { opacity: 0; transform: translateY(22px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes pinDrop { 0% { opacity: 0; transform: translate(-50%, -150%) scale(.6); } 60% { opacity: 1; } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .product, .mapPin, .mapLabel { animation: none !important; } }
+
+/* ---------- FINALE — your page, blank and waiting (mirrors the hero) ----- */
+.finale { position: relative; overflow: hidden; padding-block: clamp(64px, 9vw, 130px); background: var(--surface-2); border-top: 1px solid var(--line); text-align: center; }
+.finaleGlow { position: absolute; left: 50%; top: -10%; width: 760px; max-width: 120%; height: 70%; transform: translateX(-50%); pointer-events: none; background: radial-gradient(50% 60% at 50% 40%, rgba(203,97,58,.14), transparent 70%); }
+.finaleKicker { position: relative; font-family: var(--font-hand); font-size: 1.6rem; color: var(--accent); margin: 0 0 6px; transform: rotate(-2deg); }
+.finaleTitle { position: relative; font-weight: 700; font-size: clamp(2.3rem, 5.2vw, 3.8rem); line-height: 1.02; letter-spacing: -0.04em; color: var(--ink); margin: 0 auto; max-width: 16ch; }
+.finaleTitle .em { color: var(--accent); }
+.finaleArt { position: relative; width: 100%; max-width: 400px; margin: clamp(34px, 5vw, 52px) auto 0; }
+.finaleCta { position: relative; margin-top: clamp(30px, 4vw, 44px); display: inline-flex; flex-direction: column; align-items: center; gap: 12px; }
+.finaleMeta { font-size: 0.86rem; color: var(--muted); font-weight: 500; }
+
+/* the empty product — same frame, waiting for you */
+.epProduct { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow-xl); overflow: hidden; text-align: left; }
+.epBar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.epUrl { flex: 1; text-align: center; font-size: 0.76rem; color: var(--muted); font-weight: 500; }
+.epUrl b { color: var(--accent); font-weight: 600; }
+.epMap { position: relative; height: 132px; background: repeating-linear-gradient(0deg, var(--surface-2) 0 1px, transparent 1px 26px), repeating-linear-gradient(90deg, var(--surface-2) 0 1px, transparent 1px 26px), var(--surface); display: grid; place-items: center; border-bottom: 1px solid var(--line); }
+.epMapGhost { width: 16px; height: 16px; border-radius: 50% 50% 50% 0; border: 2px dashed var(--accent-line, #E3B79E); transform: rotate(-45deg); opacity: .6; }
+.epMapHint { position: absolute; bottom: 12px; font-size: 0.74rem; color: var(--faint); font-weight: 500; }
+.epBody { padding: 16px 18px 20px; }
+.epTitle { font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--ink); display: inline-flex; align-items: center; }
+.epCursor { display: inline-block; width: 2px; height: 1.05em; background: var(--accent); margin-left: 3px; transform: translateY(2px); animation: blink 1.05s steps(1) infinite; }
+.epAdd { margin-top: 16px; display: flex; align-items: center; gap: 10px; padding: 13px 14px; border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); color: var(--muted); font-weight: 500; font-size: 0.95rem; }
+.epAddPlus { width: 26px; height: 26px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; flex: none; }
+@keyframes blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+
+/* ---------- reveal-on-scroll (tactility) ---------- */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.revealIn { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; } .epCursor { animation: none !important; } }
+
+/* ============================================================================
+   THE THROUGHLINE — a real Hotlist card, used in every section (pain, gallery,
+   finale) so the page is one product, not a parade of mockups.
+   ============================================================================ */
+.hcard { width: 300px; flex: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); box-shadow: var(--shadow-md); overflow: hidden; }
+.hcAccent { height: 4px; }
+.hcHead { display: flex; align-items: center; gap: 10px; padding: 15px 16px 0; }
+.hcAv { width: 34px; height: 34px; flex: none; border-radius: 999px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 0.82rem; }
+.hcName { display: block; font-weight: 600; font-size: 0.85rem; color: var(--ink); line-height: 1.2; }
+.hcHandle { display: block; font-size: 0.73rem; color: var(--muted); }
+.hcTitle { padding: 13px 16px 2px; font-weight: 700; font-size: 1.16rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.16; }
+.hcMeta { padding: 0 16px 13px; font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+.hcList { padding: 4px 16px 6px; border-top: 1px solid var(--line); }
+.hcEntry { padding: 9px 0; }
+.hcEntry + .hcEntry { border-top: 1px solid var(--line); }
+.hcPlace { font-weight: 600; font-size: 0.93rem; color: var(--ink); }
+.hcPlace b { font-weight: 500; font-size: 0.75rem; color: var(--muted); }
+.hcTake { font-family: var(--font-hand); font-weight: 500; font-size: 1.12rem; color: var(--ink); line-height: 1.12; margin-top: 2px; }
+.hcFoot { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); background: var(--surface-2); font-size: 0.74rem; color: var(--muted); font-weight: 500; }
+.hcFoot b { color: var(--accent); font-weight: 600; }
+
+/* ---------- the gallery — a living wall of real Hotlists ---------- */
+.gallerySec { padding-block: clamp(56px, 8vw, 110px); overflow: hidden; }
+.galleryHead { text-align: center; margin: 0 auto clamp(32px, 4vw, 50px); max-width: 32rem; padding-inline: 20px; }
+.gallery { position: relative; }
+.gallery::before, .gallery::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14%; z-index: 2; pointer-events: none; }
+.gallery::before { left: 0; background: linear-gradient(90deg, var(--paper), transparent); }
+.gallery::after { right: 0; background: linear-gradient(270deg, var(--paper), transparent); }
+.galRow { display: flex; gap: 18px; width: max-content; padding-inline: 9px; }
+.galRow + .galRow { margin-top: 18px; }
+.galRowA { animation: marqueeL 70s linear infinite; }
+.galRowB { animation: marqueeR 78s linear infinite; }
+.gallery:hover .galRow { animation-play-state: paused; }
+@keyframes marqueeL { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes marqueeR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .galRowA, .galRowB { animation: none !important; } }
+
+/* ---------- the pain — one designed contrast (drained vs alive) ---------- */
+.sectionHead { text-align: center; margin: 0 auto clamp(36px, 5vw, 56px); max-width: 35rem; }
+.contrastSec { background: var(--surface-2); border-block: 1px solid var(--line); }
+.contrastGrid { display: grid; grid-template-columns: 1fr; gap: clamp(26px, 4vw, 44px); align-items: center; }
+.contrastCol { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.contrastLabel { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; color: var(--muted); }
+.contrastLabel.live { color: var(--accent); }
+/* the drained "everywhere else" card */
+.deadCard { width: 300px; background: #ECEBE9; border: 1px solid #DCDBD8; border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+.deadHead { padding: 13px 16px; border-bottom: 1px solid #DEDDDA; font-weight: 600; font-size: 0.86rem; color: #76756f; display: flex; align-items: center; gap: 8px; }
+.deadStar { color: #b6b5b0; }
+.deadRow { display: flex; align-items: center; gap: 11px; padding: 13px 16px; }
+.deadRow + .deadRow { border-top: 1px solid #E2E1DE; }
+.deadPin { width: 13px; height: 13px; border-radius: 50% 50% 50% 0; background: #b9b8b3; transform: rotate(-45deg); flex: none; }
+.deadText { font-size: 0.92rem; color: #91908b; }
+.deadFoot { padding: 12px 16px; font-size: 0.74rem; color: #a8a7a2; border-top: 1px solid #E2E1DE; }
+.contrastVs { font-family: var(--font-hand); font-size: 1.5rem; color: var(--accent); }
+.contrastText { text-align: center; max-width: 30ch; margin: clamp(34px,4vw,46px) auto 0; }
+
+/* ---------- the finale — the dream, not an empty form ---------- */
+.dreamWrap { position: relative; display: flex; justify-content: center; margin: clamp(36px,5vw,54px) auto 0; }
+.dreamWrap .hcard { width: 340px; box-shadow: var(--shadow-xl); }
+.dreamGlow2 { position: absolute; inset: -20% -10%; z-index: -1; background: radial-gradient(50% 50% at 50% 45%, rgba(203,97,58,.16), transparent 70%); }
+
+/* ============================================================================
+   BEAT 2 — THE TAKE IS THE MAGIC. The facts are public; your one line is yours.
+   A single place: cold public facts up top, your handwritten take as the star.
+   ============================================================================ */
+.takeSec { padding-block: clamp(60px, 9vw, 120px); }
+.takeWrap { display: grid; grid-template-columns: 1fr; gap: clamp(34px, 5vw, 64px); align-items: center; max-width: 1000px; margin-inline: auto; }
+.takeLede { max-width: 19rem; margin-inline: auto; text-align: center; }
+.takeSub { font-size: clamp(1.02rem, 1.3vw, 1.16rem); line-height: 1.55; color: var(--body); margin: 18px auto 0; max-width: 34ch; font-weight: 500; }
+.takeCardWrap { position: relative; justify-self: center; width: 100%; max-width: 380px; }
+.takeStamp { position: absolute; top: -18px; right: -10px; z-index: 3; font-family: var(--font-hand); font-size: 1.45rem; color: var(--accent); transform: rotate(6deg); }
+.takeCard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow-lg); overflow: hidden; }
+/* the public facts — what everyone gets */
+.takeFacts { padding: 20px 22px 16px; background: var(--surface-2); border-bottom: 1px dashed var(--line-strong); }
+.takeName { font-weight: 700; font-size: 1.4rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+.takeMeta { font-size: 0.84rem; color: var(--muted); margin-top: 3px; font-weight: 500; }
+.takeStats { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 0.8rem; color: var(--faint); font-weight: 500; }
+.takeStars { color: #C9A24B; letter-spacing: 1px; }
+.takeStatsDot { color: var(--line-strong); }
+/* your take — the star */
+.takeBody { padding: 18px 22px 22px; }
+.takeKicker { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+.takeQuote { font-family: var(--font-hand); font-size: 1.62rem; line-height: 1.28; color: var(--ink); margin: 8px 0 0; }
+.takeSig { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.takeSigAv { width: 26px; height: 26px; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.74rem; }
+.takeSigName { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+
+/* ============================================================================
+   BEAT 3 — YOU SEND A PLACE, NOT A PARAGRAPH. The link unfurls into a page.
+   ============================================================================ */
+.sendSec { padding-block: clamp(60px, 9vw, 120px); background: var(--surface-2); border-block: 1px solid var(--line); }
+.sendWrap { display: grid; grid-template-columns: 1fr; gap: clamp(34px, 5vw, 64px); align-items: center; max-width: 1000px; margin-inline: auto; }
+.sendLede { max-width: 18ch; margin-inline: auto; text-align: center; }
+.chat { display: flex; flex-direction: column; gap: 11px; width: 100%; max-width: 340px; justify-self: center; }
+.cIn { align-self: flex-start; max-width: 84%; background: var(--surface); border: 1px solid var(--line); border-radius: 18px 18px 18px 5px; padding: 11px 15px; font-size: 0.92rem; line-height: 1.4; color: var(--body); box-shadow: var(--shadow-sm); }
+.cUnfurl { align-self: flex-end; width: 86%; border-radius: 18px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); animation: dropIn .6s var(--ease-spring) both; }
+.cUnfurlMap { position: relative; height: 96px; overflow: hidden; }
+.cUnfurlMap .productMapImg { filter: saturate(.92); }
+.cUnfurlBody { padding: 11px 14px 13px; }
+.cUnfurlAv { width: 28px; height: 28px; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.76rem; float: left; margin-right: 9px; }
+.cUnfurlTitle { font-weight: 700; font-size: 0.98rem; color: var(--ink); line-height: 1.1; }
+.cUnfurlMeta { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+.cUnfurlUrl { clear: both; margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 0.72rem; color: var(--accent); font-weight: 600; }
+.cReact { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 16px 5px; padding: 9px 14px; font-size: 0.9rem; color: var(--body); box-shadow: var(--shadow-sm); }
+@keyframes dropIn { 0% { opacity: 0; transform: translateY(14px) scale(.96); } 100% { opacity: 1; transform: none; } }
+
+/* ---------- finale: claim your link ---------- */
+.claimPill { position: relative; display: inline-flex; align-items: center; margin: clamp(26px, 4vw, 38px) auto 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-pill); padding: 13px 22px; font-size: clamp(1rem, 1.4vw, 1.18rem); box-shadow: var(--shadow-md); }
+.claimUrl { color: var(--muted); font-weight: 500; letter-spacing: -0.01em; }
+.claimHandle { color: var(--accent); font-weight: 700; }
+.claimCursor { display: inline-block; width: 2px; height: 1.05em; background: var(--accent); margin-left: 1px; transform: translateY(2px); animation: blink 1.05s steps(1) infinite; }
+
+/* ============================================================================
+   REDESIGN — editorial city-zine. Espresso bands, handwritten takes, mono
+   stamps, personality accents, props + receipts. (docs/DECISIONS.md D-010)
+   ============================================================================ */
+
+/* ---- hero: eyebrow, proof, props (coffee ring, friend sticky), receipts ---- */
+.heroEyebrow { color: var(--muted); margin-bottom: 20px; }
+.heroProof { color: var(--faint); margin-top: 24px; }
+.heroArt { position: relative; }
+.heroRing { position: absolute; bottom: -26px; left: -34px; width: 124px; height: 124px; border-radius: 999px; border: 3px solid rgba(150,104,64,.16); z-index: 0; }
+.heroRing::after { content: ""; position: absolute; inset: 8px; border-radius: 999px; border: 1.5px solid rgba(150,104,64,.1); }
+.heroSticky { position: absolute; z-index: 5; top: -24px; right: -8px; width: 132px; background: #FBE6A4; color: #7C5A1C; font-family: var(--font-hand); font-weight: 600; font-size: 1.24rem; line-height: 1.04; text-align: center; padding: 16px 14px 13px; border-radius: 3px; box-shadow: 0 14px 26px -14px rgba(80,60,20,.5); transform: rotate(4.5deg); }
+.heroSticky span { display: block; margin-top: 4px; font-size: 0.95rem; opacity: .72; }
+.productSent { margin-left: auto; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: .04em; color: var(--muted); }
+.productFootRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 16px 13px; border-top: 1px solid var(--line); }
+.productFootRow .stamp { color: var(--faint); }
+.cityStamp { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: .12em; color: var(--accent); border: 1.5px solid var(--accent); opacity: .6; border-radius: 5px; padding: 4px 8px; transform: rotate(-3.5deg); }
+.cityStampStar { font-size: .72rem; line-height: 0; }
+
+/* ---- BEAT 2: the send (espresso band) ---- */
+.dmSec { background: var(--espresso); color: var(--on-espresso); padding-block: clamp(64px, 10vw, 132px); position: relative; overflow: hidden; }
+.dmGrid { display: grid; grid-template-columns: 1fr; gap: clamp(40px, 6vw, 76px); align-items: center; }
+.dmKicker { color: #CD9460; margin-bottom: 18px; }
+.dmTitle { font-weight: 700; font-size: clamp(2.1rem, 4.6vw, 3.3rem); line-height: 1.04; letter-spacing: -0.035em; color: var(--on-espresso); margin: 0; max-width: 12ch; }
+.dmTitle .em { color: #EF8A4F; }
+.dmSub { font-size: clamp(1.06rem, 1.4vw, 1.24rem); line-height: 1.55; color: var(--on-espresso-dim); margin: 22px 0 0; max-width: 33ch; font-weight: 500; }
+.dmTag { font-family: var(--font-hand); font-size: 1.85rem; color: #F0B26C; margin: 24px 0 0; }
+.dmChat { display: flex; flex-direction: column; gap: 11px; width: 100%; max-width: 366px; justify-self: center; }
+.dmB { align-self: flex-start; max-width: 84%; background: var(--espresso-2); border: 1px solid rgba(255,255,255,.06); color: var(--on-espresso); border-radius: 19px 19px 19px 6px; padding: 12px 16px; font-size: 0.95rem; line-height: 1.42; box-shadow: 0 8px 18px -12px rgba(0,0,0,.7); }
+.dmUnfurl { align-self: flex-end; width: 90%; background: var(--surface); border-radius: 18px; overflow: hidden; box-shadow: 0 22px 44px -20px rgba(0,0,0,.75); }
+.dmUnfurlMap { position: relative; height: 108px; overflow: hidden; }
+.dmUnfurlBody { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+.dmUnfurlAv { width: 32px; height: 32px; flex: none; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.82rem; }
+.dmUnfurlTitle { font-weight: 700; font-size: 1rem; color: var(--ink); line-height: 1.1; }
+.dmUnfurlMeta { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+.dmUnfurlUrl { margin-left: auto; align-self: center; font-family: var(--font-mono); font-size: 0.66rem; color: var(--accent); white-space: nowrap; }
+.dmReact { align-self: flex-start; background: var(--espresso-2); border: 1px solid rgba(255,255,255,.06); color: var(--on-espresso); border-radius: 16px 16px 16px 6px; padding: 9px 14px; font-size: 0.92rem; box-shadow: 0 8px 18px -12px rgba(0,0,0,.7); }
+.revealIn .dmB, .revealIn .dmUnfurl, .revealIn .dmReact { animation: dmRise .6s var(--ease-spring) calc(var(--i, 0) * .15s) both; }
+@keyframes dmRise { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
+
+/* ---- BEAT 3: the loop ---- */
+.loopSec { padding-block: clamp(60px, 9vw, 120px); }
+.loopHead { text-align: center; max-width: 36rem; margin: 0 auto clamp(40px, 5vw, 64px); }
+.loopHead .h2 { max-width: none; }
+.loopFlow { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.loopStep { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 320px; }
+.loopNum { color: var(--faint); }
+.loopCard { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-md); padding: 16px; }
+.loopLabel { font-weight: 600; font-size: 0.98rem; color: var(--ink); }
+.loopArrow { width: 2px; height: 26px; background: repeating-linear-gradient(var(--line-strong) 0 4px, transparent 4px 8px); }
+.loopArrow::after { content: "▾"; position: relative; top: 18px; left: -5px; color: var(--line-strong); font-size: .8rem; }
+/* step 1 — add */
+.loopSearch { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 9px 14px; font-size: 0.9rem; color: var(--muted); }
+.loopResult { display: flex; align-items: center; gap: 9px; margin-top: 11px; padding: 4px 2px; font-weight: 700; color: var(--ink); }
+.loopResult span { font-weight: 500; color: var(--muted); font-size: 0.82rem; }
+.loopPin { width: 12px; height: 12px; border-radius: 999px; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 3px var(--accent-soft); flex: none; }
+/* step 2 — say why (hero) */
+.loopStepHero { max-width: 360px; }
+.loopSay { border: 1.5px solid var(--accent); box-shadow: var(--shadow-lg); position: relative; }
+.loopTakeLabel { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.loopTake { font-family: var(--font-hand); font-weight: 500; font-size: 1.5rem; line-height: 1.2; color: var(--ink); margin-top: 6px; }
+.loopCaret { display: inline-block; width: 2px; height: 1.05em; background: var(--accent); margin-left: 2px; transform: translateY(3px); animation: blink 1.05s steps(1) infinite; }
+.loopLabelHero { color: var(--accent); }
+/* step 3 — page */
+.loopPage { position: relative; }
+.loopUrl { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); }
+.loopUrl b { color: var(--accent); }
+.loopRows { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+.loopRows span { height: 9px; border-radius: 4px; background: var(--surface-2); }
+.loopRows span:nth-child(1) { width: 90%; } .loopRows span:nth-child(2) { width: 70%; } .loopRows span:nth-child(3) { width: 80%; }
+.loopLive { position: absolute; top: 14px; right: 14px; color: var(--a-olive); }
+
+/* ---- BEAT 4: taste identity (deck) ---- */
+.tasteSec { padding-block: clamp(60px, 9vw, 120px); }
+.tasteHead { max-width: 30rem; margin-bottom: clamp(32px, 4vw, 50px); }
+.tasteHead .h2 { max-width: 16ch; }
+.tasteDeck { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.tasteTag { position: relative; flex: 1 1 260px; max-width: 340px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--tag); border-radius: var(--r-md); box-shadow: var(--shadow-sm); padding: 16px 18px; transform: rotate(var(--r)); transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.tasteTag:hover { transform: rotate(0deg) translateY(-3px); box-shadow: var(--shadow-lg); }
+.tasteTagTop { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.tasteName { font-weight: 700; font-size: 1.08rem; letter-spacing: -0.01em; color: var(--ink); line-height: 1.18; }
+.tasteCount { color: var(--tag); white-space: nowrap; }
+.tastePeek { margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--line-strong); }
+.tastePlace { display: block; font-weight: 600; font-size: 0.84rem; color: var(--muted); }
+.tasteTake { display: block; font-family: var(--font-hand); font-weight: 500; font-size: 1.2rem; line-height: 1.1; color: var(--ink); margin-top: 2px; }
+.tasteCloser { flex: 1 1 220px; align-self: center; font-family: var(--font-hand); font-weight: 600; font-size: 1.8rem; line-height: 1.1; color: var(--accent); padding: 8px 16px; }
+.tasteCloser em { color: var(--ink); font-style: normal; }
+
+/* ---- gallery receipts: friend note + sent count + handwritten takes ---- */
+.hcNote { position: absolute; z-index: 4; top: -14px; right: -10px; background: #FBE6A4; color: #7C5A1C; font-family: var(--font-hand); font-weight: 600; font-size: 1.04rem; line-height: 1; padding: 8px 11px; border-radius: 3px; box-shadow: 0 8px 16px -10px rgba(80,60,20,.5); transform: rotate(5deg); }
+.hcard { position: relative; }
+.hcSent { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: .03em; color: var(--accent); }
+
+/* ---- BEAT 6: claim (espresso band) ---- */
+.claimSec { background: var(--espresso); color: var(--on-espresso); padding-block: clamp(72px, 11vw, 150px); text-align: center; position: relative; overflow: hidden; }
+.claimSec::before { content: ""; position: absolute; left: 50%; top: -10%; width: 720px; max-width: 120%; height: 60%; transform: translateX(-50%); background: radial-gradient(50% 60% at 50% 40%, rgba(239,138,79,.18), transparent 70%); pointer-events: none; }
+.claimKicker { position: relative; color: #CD9460; margin: 0 0 14px; }
+.claimTitle { position: relative; font-weight: 700; font-size: clamp(2.3rem, 5.4vw, 3.9rem); line-height: 1.02; letter-spacing: -0.04em; color: var(--on-espresso); margin: 0 auto; max-width: 16ch; }
+.claimTitle .em { color: #EF8A4F; }
+.claimSub { position: relative; font-size: clamp(1.06rem, 1.4vw, 1.22rem); color: var(--on-espresso-dim); margin: 18px 0 0; font-weight: 500; }
+.claimField { position: relative; display: inline-flex; align-items: center; gap: 2px; margin: clamp(28px, 4vw, 40px) auto 0; background: var(--espresso-2); border: 1.5px solid rgba(255,255,255,.1); border-radius: var(--r-pill); padding: 14px 20px; font-size: clamp(1.05rem, 1.5vw, 1.24rem); box-shadow: 0 18px 40px -22px rgba(0,0,0,.8); }
+.claimUrl { color: var(--on-espresso-dim); font-weight: 500; letter-spacing: -0.01em; }
+.claimHandle { color: #EF8A4F; font-weight: 700; }
+.claimCursor { display: inline-block; width: 2px; height: 1.05em; background: #EF8A4F; margin: 0 6px 0 1px; transform: translateY(2px); animation: blink 1.05s steps(1) infinite; }
+.claimOk { color: var(--a-olive); }
+.claimSec .claimOk { color: #93B06A; }
+.claimBtn { position: relative; margin-top: clamp(26px, 4vw, 36px); }
+.claimMeta { position: relative; display: block; color: var(--on-espresso-dim); margin-top: 18px; }
+
+/* ---------- responsive ---------- */
+@media (min-width: 820px) {
+  .heroGrid { grid-template-columns: 1.02fr 0.98fr; }
+  .painGrid { grid-template-columns: 0.95fr 1.05fr; }
+  .payoffGrid { grid-template-columns: 1fr 1fr; }
+  .steps { grid-template-columns: repeat(3, 1fr); }
+  .examples { grid-template-columns: repeat(3, 1fr); }
+  .contrastGrid { grid-template-columns: 1fr auto 1fr; max-width: 760px; margin-inline: auto; }
+  .takeWrap { grid-template-columns: 1fr 380px; max-width: 940px; }
+  .takeLede { text-align: left; margin-inline: 0; max-width: 26rem; }
+  .takeSub { margin-inline: 0; }
+  .sendWrap { grid-template-columns: 340px 1fr; max-width: 900px; }
+  .sendLede { text-align: left; margin-inline: 0; max-width: 24rem; justify-self: end; }
+  .chat { order: -1; }
+  .dmGrid { grid-template-columns: 1.05fr 384px; }
+  .loopFlow { flex-direction: row; align-items: center; justify-content: center; gap: 10px; }
+  .loopStep { width: auto; flex: 1 1 0; min-width: 0; max-width: none; }
+  .loopStepHero { flex: 1.32 1 0; }
+  .loopArrow { width: 36px; min-width: 36px; height: 2px; background: repeating-linear-gradient(90deg, var(--line-strong) 0 4px, transparent 4px 8px); }
+  .loopArrow::after { content: "▸"; top: -9px; left: 30px; }
+}
+@media (max-width: 700px) {
+  .heroRing, .heroSticky { display: none; }
+  .tasteCloser { flex-basis: 100%; text-align: center; }
+  .footer { padding-bottom: 96px; }
+}
+/* sticky mobile CTA — always one tap from making yours */
+.stickyCta { display: none; }
+@media (max-width: 700px) {
+  .stickyCta { display: flex; position: fixed; left: 12px; right: 12px; bottom: calc(12px + var(--safe-bottom)); z-index: 50; align-items: center; justify-content: center; gap: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.02rem; padding: 15px; border-radius: var(--r-pill); box-shadow: 0 14px 30px -10px rgba(203,97,58,.7); }
+}
+@media (max-width: 560px) {
+  .navLinks .hideSm { display: none; }
+  .btnPrimary { width: 100%; justify-content: center; }
+  .mess { min-height: 300px; }
+}
