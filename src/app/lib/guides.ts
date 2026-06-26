@@ -10,6 +10,8 @@ export type Place = {
   category: string;
   take: string;        // the why — your read on it, in plain words
   order?: string;      // the what-to-get — the single most useful line on the card
+  lat?: number;        // real coordinates (from the place search) — drives the map
+  lng?: number;
 };
 
 export type Guide = {

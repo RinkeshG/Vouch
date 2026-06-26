@@ -14,6 +14,8 @@ export default function BuilderPage() {
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<"edit" | "preview">("edit");
   const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
+  const [searching, setSearching] = useState(false);
   const [focusTake, setFocusTake] = useState<number | null>(null);
   const [toast, setToast] = useState("");
   const [published, setPublished] = useState<Guide | null>(null);
@@ -27,13 +29,25 @@ export default function BuilderPage() {
     setFocusTake(null);
   }, [focusTake]);
 
-  const suggestions = searchPlaces(query, draft.places.map((p) => p.name));
+  // debounced real search (keyless Photon via /api/places)
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) { setSuggestions([]); setSearching(false); return; }
+    setSearching(true);
+    const id = setTimeout(() => {
+      searchPlaces(q, draft.places.map((p) => p.name)).then((res) => { setSuggestions(res); setSearching(false); });
+    }, 220);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, draft.places.length]);
+
   const guide = draftToGuide(draft);
   const ready = draft.places.length >= 1 && draft.name.trim() !== "";
 
   function addPlace(p: PlaceSuggestion) {
-    setDraft((d) => ({ ...d, places: [...d.places, { name: p.name, area: p.area, category: p.category, take: "" }] }));
+    setDraft((d) => ({ ...d, places: [...d.places, { name: p.name, area: p.area, category: p.category, take: "", lat: p.lat, lng: p.lng }] }));
     setQuery("");
+    setSuggestions([]);
     setFocusTake(draft.places.length);
   }
   function addManual() {
@@ -125,8 +139,11 @@ export default function BuilderPage() {
             />
             {query.trim() !== "" && (
               <div className={b.addMenu}>
-                {suggestions.map((p) => (
-                  <button key={p.name} className={b.addOpt} onClick={() => addPlace(p)}>
+                {searching && suggestions.length === 0 && (
+                  <div className={b.addOpt} style={{ color: "var(--muted)", cursor: "default" }}><span className={b.addPin} aria-hidden="true" />searching places…</div>
+                )}
+                {suggestions.map((p, i) => (
+                  <button key={`${p.name}-${p.area}-${i}`} className={b.addOpt} onClick={() => addPlace(p)}>
                     <span className={b.addPin} aria-hidden="true" />
                     <span><span className={b.addOptName}>{p.name}</span> <span className={b.addOptArea}>· {p.area}</span></span>
                     <span className={b.addOptCat}>{p.category}</span>

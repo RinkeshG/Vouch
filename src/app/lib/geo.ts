@@ -45,6 +45,12 @@ export type PlacePoint = { place: Place; index: number; lat: number; lng: number
 export function pointsForGuide(g: Guide): PlacePoint[] {
   const pts: PlacePoint[] = [];
   g.places.forEach((place, index) => {
+    // real coordinates (from the place search) always win
+    if (typeof place.lat === "number" && typeof place.lng === "number") {
+      pts.push({ place, index, lat: place.lat, lng: place.lng });
+      return;
+    }
+    // fallback: approximate by area (seeded guides without coords)
     const base = AREA_COORDS[place.area];
     if (!base) return;
     const h = hash(place.name);

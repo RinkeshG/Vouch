@@ -2,7 +2,7 @@
    and-tap, not a blank text box. Free-text add still works for anything missing.
    Phase 3 swaps this for a real place provider (Google Places) behind searchPlaces(). */
 
-export type PlaceSuggestion = { name: string; area: string; category: string };
+export type PlaceSuggestion = { name: string; area: string; category: string; lat?: number; lng?: number };
 
 const INDEX: PlaceSuggestion[] = [
   { name: "Blue Tokai", area: "Koramangala", category: "Coffee" },
@@ -43,12 +43,24 @@ const INDEX: PlaceSuggestion[] = [
   { name: "Bangalore Oota Company", area: "Bellandur", category: "Lunch" },
 ];
 
-export function searchPlaces(query: string, exclude: string[] = []): PlaceSuggestion[] {
-  const q = query.trim().toLowerCase();
+/* Real search via the /api/places route (keyless Photon). Falls back to the
+   offline seed index if the network/route is unavailable, so the builder always
+   responds. Results carry real lat/lng, which flow onto the place + the map. */
+export async function searchPlaces(query: string, exclude: string[] = []): Promise<PlaceSuggestion[]> {
+  const q = query.trim();
   if (!q) return [];
   const ex = new Set(exclude.map((n) => n.toLowerCase()));
+  try {
+    const r = await fetch(`/api/places?q=${encodeURIComponent(q)}`);
+    if (r.ok) {
+      const { results } = (await r.json()) as { results: PlaceSuggestion[] };
+      const out = (results || []).filter((p) => p.name && !ex.has(p.name.toLowerCase()));
+      if (out.length) return out.slice(0, 6);
+    }
+  } catch { /* fall through to the offline seed */ }
+  const lc = q.toLowerCase();
   return INDEX.filter(
-    (p) => !ex.has(p.name.toLowerCase()) && (p.name.toLowerCase().includes(q) || p.area.toLowerCase().includes(q)),
+    (p) => !ex.has(p.name.toLowerCase()) && (p.name.toLowerCase().includes(lc) || p.area.toLowerCase().includes(lc)),
   ).slice(0, 6);
 }
 
