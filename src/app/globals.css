@@ -120,6 +120,9 @@ body::before {
 .hand { font-family: var(--font-hand); font-weight: 600; color: var(--accent); }
 /* mono "stamp" — labels, counters, ticket-text. Carries the zine texture. */
 .stamp { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 400; }
+/* theme toggle button (light/dark) — global, used in every top bar */
+.themeBtn { display: inline-grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); font-size: 0.98rem; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease); }
+.themeBtn:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); }
 
 /* ---- dark theme: a refined, editorial dark (amber on near-black) ----
    Token-only override; every component reads tokens, so the whole product
@@ -148,8 +151,6 @@ body::before {
   --shadow-lg: 0 18px 40px -24px rgba(0,0,0,.7);
   --shadow-xl: 0 30px 60px -30px rgba(0,0,0,.75);
   --shadow-accent: 0 14px 28px -14px rgba(232,162,78,.45);
-  background: var(--paper);
-  min-height: 100dvh;
 }
 .themeDark ::selection { background: var(--accent); color: var(--accent-ink); }
 

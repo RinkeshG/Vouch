@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Caveat, DM_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider, themeBootScript } from "./_theme";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -48,8 +49,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${caveat.variable} ${dmMono.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${dmSans.variable} ${caveat.variable} ${dmMono.variable}`} suppressHydrationWarning>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

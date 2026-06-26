@@ -1,5 +1,6 @@
 import s from "./landing.module.css";
 import { Reveal } from "./_reveal";
+import { ThemeToggle } from "./_theme";
 
 /* Hotlist — landing. A story told through the product (docs/DECISIONS.md D-009/D-010):
    you're already this person → same text every week → add/say-why/send →
@@ -145,6 +146,7 @@ export default function Landing() {
             <span className={s.brand}><span className={s.brandDot} aria-hidden="true" />Hotlist</span>
             <nav className={s.navLinks}>
               <a href="#gallery" className={`${s.navLink} ${s.hideSm}`}>Examples</a>
+              <ThemeToggle className="themeBtn" />
               <a href="/new" className={`${s.btnPrimary} ${s.sm}`}>Make yours</a>
             </nav>
           </div>

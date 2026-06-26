@@ -4,6 +4,7 @@ import { useState } from "react";
 import s from "./guide.module.css";
 import mc from "./map.module.css";
 import GuideMapView from "./GuideMapView";
+import { ThemeToggle } from "../_theme";
 import { type Guide, categoriesOf, mapsUrl } from "../lib/guides";
 import { hasMap } from "../lib/geo";
 
@@ -16,7 +17,7 @@ function Pin() {
   );
 }
 
-export default function GuideView({ guide, preview = false, theme = "warm" }: { guide: Guide; preview?: boolean; theme?: "warm" | "dark" }) {
+export default function GuideView({ guide, preview = false }: { guide: Guide; preview?: boolean }) {
   const cats = categoriesOf(guide);
   const [active, setActive] = useState<string>("All");
   const [view, setView] = useState<"cards" | "map">("cards");
@@ -40,11 +41,14 @@ export default function GuideView({ guide, preview = false, theme = "warm" }: { 
   }
 
   return (
-    <div className={theme === "dark" ? "themeDark" : undefined}>
+    <>
       {!preview && (
         <header className={s.topbar}>
           <a href="/" className={s.brand}><span className={s.brandDot} aria-hidden="true" />Hotlist</a>
-          <a href="/new" className={s.topMake}>Make yours</a>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <ThemeToggle className="themeBtn" />
+            <a href="/new" className={s.topMake}>Make yours</a>
+          </span>
         </header>
       )}
 
@@ -81,7 +85,7 @@ export default function GuideView({ guide, preview = false, theme = "warm" }: { 
         </div>
 
         {mapped && view === "map" ? (
-          <GuideMapView guide={guide} dark={theme === "dark"} />
+          <GuideMapView guide={guide} />
         ) : (
           <>
             {showFilter && (
@@ -131,6 +135,6 @@ export default function GuideView({ guide, preview = false, theme = "warm" }: { 
       </main>
 
       <div className={`${s.toast} ${toast ? s.toastOn : ""}`} role="status" aria-live="polite">link copied ✓</div>
-    </div>
+    </>
   );
 }

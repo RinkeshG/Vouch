@@ -23,10 +23,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-export default async function Page({ params, searchParams }: { params: Promise<Params>; searchParams: Promise<{ theme?: string }> }) {
+export default async function Page({ params }: { params: Promise<Params> }) {
   const { handle } = await params;
-  const { theme } = await searchParams;
   const guide = getGuide(handle);
   if (!guide) return <LocalGuide handle={handle.toLowerCase()} />;
-  return <GuideView guide={guide} theme={theme === "dark" ? "dark" : "warm"} />;
+  return <GuideView guide={guide} />;
 }

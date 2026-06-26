@@ -5,6 +5,7 @@ import b from "./builder.module.css";
 import GuideView from "../[handle]/GuideView";
 import { type Draft, EMPTY_DRAFT, loadDraft, saveDraft, draftToGuide, handleFromName } from "../lib/draft";
 import { publishDraft } from "../lib/published";
+import { ThemeToggle } from "../_theme";
 import { searchPlaces, CATEGORIES, type PlaceSuggestion } from "../lib/places";
 import type { Guide } from "../lib/guides";
 
@@ -79,6 +80,7 @@ export default function BuilderPage() {
       <header className={b.bar}>
         <a href="/" className={b.brand}><span className={b.brandDot} aria-hidden="true" />Hotlist</a>
         <div className={b.barRight}>
+          <ThemeToggle className="themeBtn" />
           <div className={b.tabs} role="tablist">
             <button className={`${b.tab} ${tab === "edit" ? b.tabOn : ""}`} onClick={() => setTab("edit")}>Edit</button>
             <button className={`${b.tab} ${tab === "preview" ? b.tabOn : ""}`} onClick={() => setTab("preview")}>Preview</button>

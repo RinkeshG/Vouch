@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import m from "./mapview.module.css";
+import { useTheme } from "../_theme";
 import { type Guide, mapsUrl } from "../lib/guides";
 import { pointsForGuide, type PlacePoint } from "../lib/geo";
+
+const tileUrl = (dark: boolean) => `https://{s}.basemaps.cartocdn.com/${dark ? "dark_all" : "light_all"}/{z}/{x}/{y}{r}.png`;
 
 let leafletPromise: Promise<unknown> | null = null;
 function loadLeaflet(): Promise<unknown> {
@@ -28,11 +31,14 @@ function loadLeaflet(): Promise<unknown> {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export default function GuideMapView({ guide, dark = false }: { guide: Guide; dark?: boolean }) {
+export default function GuideMapView({ guide }: { guide: Guide }) {
   const points = pointsForGuide(guide);
+  const { theme } = useTheme();
+  const dark = theme === "dark";
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const LRef = useRef<any>(null);
+  const tileRef = useRef<any>(null);
   const markers = useRef<{ marker: any; point: PlacePoint }[]>([]);
   const railRef = useRef<HTMLDivElement>(null);
   const cardEls = useRef<(HTMLButtonElement | null)[]>([]);
@@ -52,8 +58,7 @@ export default function GuideMapView({ guide, dark = false }: { guide: Guide; da
       LRef.current = L;
       const map = L.map(mapEl.current, { zoomControl: false, scrollWheelZoom: false, attributionControl: false });
       mapRef.current = map;
-      const tiles = dark ? "dark_all" : "light_all";
-      L.tileLayer(`https://{s}.basemaps.cartocdn.com/${tiles}/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", detectRetina: true, maxZoom: 19 }).addTo(map);
+      tileRef.current = L.tileLayer(tileUrl(dark), { subdomains: "abcd", detectRetina: true, maxZoom: 19 }).addTo(map);
       L.control.zoom({ position: "bottomright" }).addTo(map);
       points.forEach((p, i) => {
         const mk = L.marker([p.lat, p.lng], { icon: icon(L, p, i === 0) }).addTo(map);
@@ -67,7 +72,10 @@ export default function GuideMapView({ guide, dark = false }: { guide: Guide; da
     });
     return () => { dead = true; if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } markers.current = []; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guide.handle, dark]);
+  }, [guide.handle]);
+
+  // swap the basemap when the theme toggles (pins recolour via CSS vars on their own)
+  useEffect(() => { if (tileRef.current) tileRef.current.setUrl(tileUrl(dark)); }, [dark]);
 
   // keep map + rail in sync with the selected place
   useEffect(() => {
