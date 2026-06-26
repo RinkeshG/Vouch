@@ -72,7 +72,7 @@ export default function GuideV3() {
 
       <footer style={{ maxWidth: 1080, margin: "0 auto", padding: "30px 28px 56px", borderTop: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 10, fontSize: "0.78rem", color: "var(--muted)" }}><Monogram ini={guide.curator.ini} size={26} /> vouched by {guide.curator.name}</span>
-        <a href="/v3/new" style={{ fontSize: "0.78rem", color: "var(--accent)", textDecoration: "none" }}>make your own →</a>
+        <a href="/v2/new" style={{ fontSize: "0.78rem", color: "var(--accent)", textDecoration: "none" }}>make your own →</a>
       </footer>
 
       {toast && <div className="v3-fade" style={{ position: "fixed", bottom: 26, left: "50%", transform: "translateX(-50%)", zIndex: 70, background: "var(--surface)", border: "1px solid var(--accent-line)", borderRadius: "var(--r-pill)", padding: "10px 18px", display: "flex", alignItems: "center", gap: 10, boxShadow: "var(--shadow-lift)" }}><span style={{ color: "var(--accent)" }}>✓</span><span style={{ fontSize: "0.78rem", color: "var(--ink)" }}>{toast}</span></div>}

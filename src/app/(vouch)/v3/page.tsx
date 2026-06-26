@@ -74,17 +74,16 @@ const DEMO: Spot[] = [
   { name: "the rooftop", cat: "bar", vo: "go for the sky, not the cocktails. before sunset.", lng: 77.6250, lat: 12.9810 },
 ];
 
-/* Beat 4 — guides people have shared (placeholder, believable; swap for real ones) */
-type Guide = { name: string; ini: string; city: string; title: string; n: number; cat: string; lng: number; lat: number };
+/* Beat 4 — real lists people send their friends (Bengaluru, placeholder but
+   believable; titles in their own voice, no map covers — these are people's
+   taste, not pins). Swap for real ones later. */
+type Guide = { name: string; ini: string; area: string; title: string; n: number; peek: string };
 const WORLD: Guide[] = [
-  { name: "Priya", ini: "P", city: "Bengaluru", title: "where i actually take people", n: 6, cat: "coffee", lng: 77.59, lat: 12.97 },
-  { name: "Arjun", ini: "A", city: "Goa", title: "the Goa that isn't the beach clubs", n: 8, cat: "bar", lng: 73.83, lat: 15.49 },
-  { name: "Meera", ini: "M", city: "Lisbon", title: "miradouros & pastéis, my order", n: 7, cat: "dessert", lng: -9.14, lat: 38.72 },
-  { name: "Kenji", ini: "K", city: "Tokyo", title: "ten counters worth the queue", n: 10, cat: "dosa", lng: 139.69, lat: 35.68 },
-  { name: "Sara", ini: "S", city: "Lagos", title: "Lagos after dark, done right", n: 6, cat: "bar", lng: 3.38, lat: 6.52 },
-  { name: "Diego", ini: "D", city: "México City", title: "tacos i'd cross the city for", n: 9, cat: "food", lng: -99.13, lat: 19.43 },
-  { name: "Aylin", ini: "A", city: "İstanbul", title: "the Bosphorus, slowly", n: 7, cat: "coffee", lng: 28.97, lat: 41.01 },
-  { name: "Noah", ini: "N", city: "New York", title: "coffee & slices, downtown", n: 8, cat: "pizza", lng: -74.0, lat: 40.71 },
+  { name: "Priya R.", ini: "PR", area: "Indiranagar", title: "where i take people when i want them to like me", n: 6, peek: "Koshy's · Toit · VV Puram" },
+  { name: "Arjun", ini: "A", area: "Koramangala", title: "places that saved my broke weeks", n: 7, peek: "CTR · Brahmin's · military mess" },
+  { name: "Meera", ini: "M", area: "Indiranagar", title: "first dates that don't feel like interviews", n: 5, peek: "courtyards · easy exits · good coffee" },
+  { name: "Kabir", ini: "K", area: "Basavanagudi", title: "sunday mornings worth waking up for", n: 6, peek: "filter kaapi by two · idli at 7" },
+  { name: "Sara", ini: "S", area: "Malleshwaram", title: "where i take my parents", n: 5, peek: "old-school · quiet · proper dosa" },
 ];
 
 type Sec = { key: string; vh: number; c: [number, number]; z: number; p: number; b: number; area?: number; demo?: boolean; world?: boolean };
@@ -101,16 +100,6 @@ const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
-/* a real crop of the dark map where a place is — the product's native cover */
-const TILE = (lat: number, lng: number, z: number) => {
-  const n = 2 ** z, x = Math.floor(((lng + 180) / 360) * n);
-  const r = (lat * Math.PI) / 180, y = Math.floor(((1 - Math.asinh(Math.tan(r)) / Math.PI) / 2) * n);
-  return `https://a.basemaps.cartocdn.com/dark_all/${z}/${x}/${y}@2x.png`;
-};
-function coverStyle(cat: string, lat: number, lng: number, z: number): CSSProperties {
-  const t = TINT[cat] || "#CBA24B";
-  return { backgroundImage: `url("${TILE(lat, lng, z)}"), linear-gradient(150deg, ${t}40, #0e0a06)`, backgroundSize: "cover", backgroundPosition: "center" };
-}
 function thumbStyle(cat: string): CSSProperties {
   return { background: `linear-gradient(150deg, ${(TINT[cat] || "#CBA24B")}33, #15100a)` };
 }
@@ -178,7 +167,7 @@ export default function Landing() {
   const [atFinale, setAtFinale] = useState(false);
 
   useEffect(() => {
-    let dead = false; let rafS = 0; let prevKey = ""; let curArea = ""; let curIdx = -1; let heroIdx = 0;
+    let dead = false; let rafS = 0; let prevKey = ""; let curArea = ""; let curIdx = -1;
     let lit = contextLit(new Date(), null, null);
     let focus: { lng: number; lat: number } | null = null;
 
@@ -196,9 +185,7 @@ export default function Landing() {
       el.style.transform = `translate(${pt.x}px, ${pt.y}px)`; el.classList.add("on");
     }
     function setFocus(area: string, idx: number) {
-      let s: Spot | undefined, by = "", full = false, label = "", n = 0;
-      if (area === "hero") { const k = ((idx % HERO_PICKS.length) + HERO_PICKS.length) % HERO_PICKS.length; s = HERO_PICKS[k]; by = "priya"; full = true; }
-      else { const a = AREAS.find((x) => x.key === area); s = a?.spots[idx]; label = a?.name ?? ""; n = a?.spots.length ?? 0; }
+      const a = AREAS.find((x) => x.key === area); const s = a?.spots[idx]; const label = a?.name ?? "", n = a?.spots.length ?? 0; const by = "", full = false;
       const el = vouchRef.current;
       document.querySelectorAll<HTMLElement>(`[data-rowarea="${area}"]`).forEach((r) => r.classList.toggle("active", +(r.dataset.rowidx || -1) === idx));
       if (!s || !el) { focus = null; el?.classList.remove("on"); msheetRef.current?.classList.remove("on"); return; }
@@ -250,7 +237,7 @@ export default function Landing() {
         document.querySelector(".worldwrap")?.classList.toggle("shown", key === "finale");
         document.querySelector(".walktag")?.classList.toggle("on", sec.area != null && key !== "hero");
         // focus / the guide being read or made, per beat
-        if (key === "hero") setFocus("hero", heroIdx);
+        if (key === "hero") { focus = null; vouchRef.current?.classList.remove("on"); msheetRef.current?.classList.remove("on"); }
         else if (sec.area != null) { const nn = AREAS[sec.area].spots.length; const sp = clamp((localP - 0.28) / 0.7); setFocus(sec.key, clamp(Math.floor(sp * nn), 0, nn - 1)); }
         else if (sec.demo) buildMake(localP);
         else if (sec.world) { focus = null; vouchRef.current?.classList.remove("on"); msheetRef.current?.classList.remove("on"); }
@@ -290,7 +277,6 @@ export default function Landing() {
           applyGlow(m, lit);
           setReady(true);
           requestAnimationFrame(() => { m.setPaintProperty("pl-ico", "icon-opacity", 1); m.setPaintProperty("pl-glow", "circle-opacity", ["interpolate", ["linear"], ["zoom"], 10, 0.1, 13, 0.15, 16, 0.2]); });
-          setTimeout(() => { if (!dead && window.scrollY < window.innerHeight * 0.5) setFocus("hero", heroIdx); }, 950);
           onScroll();
           const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=12.97&longitude=77.59&current=weather_code,temperature_2m");
           const cur = (await r.json())?.current; const code = cur?.weather_code ?? null; const temp = cur?.temperature_2m ?? null;
@@ -305,13 +291,7 @@ export default function Landing() {
     // never gate the first screen's copy on the map loading — reveal the hero on mount
     const heroReveal = window.setTimeout(() => { if (!dead) document.querySelector('[data-sec="hero"] .panel')?.classList.add("shown"); }, 60);
 
-    // hero is alive — the focus walks Priya's signature picks, never one static pin
-    const heroTimer = window.setInterval(() => {
-      if (dead) return;
-      if (window.scrollY < window.innerHeight * 0.5 && map.current?.getLayer?.("pl-ico")) { heroIdx++; setFocus("hero", heroIdx); }
-    }, 3400);
-
-    return () => { dead = true; cancelAnimationFrame(rafS); clearInterval(heroTimer); clearTimeout(heroReveal); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); try { map.current?.remove?.(); } catch { } map.current = null; };
+    return () => { dead = true; cancelAnimationFrame(rafS); clearTimeout(heroReveal); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); try { map.current?.remove?.(); } catch { } map.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -372,6 +352,16 @@ export default function Landing() {
         .btn-ghost:hover{color:var(--ink);border-color:var(--line-2);}
         .cue{font-size:.78rem;color:var(--faint);margin-top:22px;display:flex;align-items:center;gap:8px;}
         .cue span{display:inline-block;width:34px;height:1px;background:linear-gradient(90deg,var(--accent),transparent);}
+        /* HERO — the copy + the artifact (a real guide card) + actions, over the living map */
+        .herowrap{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"copy card" "actions card";column-gap:clamp(32px,5vw,72px);align-items:center;width:100%;max-width:none;margin:0;padding:0 clamp(28px,7vw,120px);}
+        .hero-copy{grid-area:copy;}
+        .hero-actions{grid-area:actions;}
+        .herocard{grid-area:card;align-self:center;width:min(352px,34vw);background:linear-gradient(168deg,rgba(28,21,12,.97),rgba(15,11,7,.97));border:1px solid rgba(243,235,217,.13);border-radius:18px;padding:6px 6px 0;backdrop-filter:blur(12px);box-shadow:0 44px 90px -42px rgba(0,0,0,.95),0 2px 0 rgba(243,235,217,.05) inset;}
+        .herocard-foot{display:flex;align-items:center;justify-content:space-between;margin:2px 6px 0;padding:12px 7px 13px;border-top:1px solid var(--line);}
+        .hf-link{display:inline-flex;align-items:center;gap:5px;font-size:.8rem;font-weight:600;color:var(--accent);}
+        .hf-link::before{content:"↗";opacity:.8;font-weight:400;}
+        .hf-n{font-size:.72rem;color:var(--faint);}
+        .effort{font-size:.8rem;color:var(--faint);margin:12px 0 0;}
         .big{font-size:clamp(1.4rem,2.7vw,1.9rem);font-weight:600;color:var(--ink);margin:16px 0 0;letter-spacing:-.02em;}
         /* THE GUIDE CARD — the artifact. used in the walk (Priya's picks) and make (yours). */
         .guidecard{margin-top:20px;width:min(380px,100%);background:linear-gradient(168deg,rgba(28,21,12,.94),rgba(15,11,7,.95));border:1px solid rgba(243,235,217,.1);border-radius:18px;padding:6px 6px 8px;backdrop-filter:blur(12px);box-shadow:0 34px 80px -36px rgba(0,0,0,.9),0 2px 0 rgba(243,235,217,.04) inset;}
@@ -409,25 +399,24 @@ export default function Landing() {
         .worldwrap .rf.r2{transition-delay:.08s;} .worldwrap .rf.r3{transition-delay:.16s;}
         .wsub{font-size:1.04rem;line-height:1.6;color:var(--muted);margin:16px auto 0;max-width:46ch;}
         .wsub b{color:var(--ink);font-weight:600;}
-        .wgrid{margin:30px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:14px;}
-        .gcard{position:relative;display:block;text-align:left;border-radius:15px;overflow:hidden;text-decoration:none;background:linear-gradient(168deg,#1a140c,#100c07);border:1px solid rgba(243,235,217,.1);box-shadow:0 26px 54px -30px rgba(0,0,0,.9);opacity:0;transform:translateY(22px) scale(.96);transition:opacity .6s var(--e-out),transform .6s var(--e-out),border-color .25s,box-shadow .25s;}
+        .wgrid{margin:28px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px;}
+        /* finale cards — a person's list in their own voice; no map, this is taste not pins */
+        .gcard{position:relative;display:flex;flex-direction:column;text-align:left;border-radius:16px;text-decoration:none;background:linear-gradient(168deg,#1c1610,#100c07);border:1px solid rgba(243,235,217,.1);box-shadow:0 26px 54px -32px rgba(0,0,0,.9);padding:15px 17px 15px;min-height:176px;opacity:0;transform:translateY(22px) scale(.97);transition:opacity .6s var(--e-out),transform .6s var(--e-out),border-color .25s,box-shadow .25s;}
         .worldwrap.shown .gcard{opacity:1;transform:none;}
-        .worldwrap.shown .gcard:nth-child(1){transition-delay:.10s} .worldwrap.shown .gcard:nth-child(2){transition-delay:.16s} .worldwrap.shown .gcard:nth-child(3){transition-delay:.22s} .worldwrap.shown .gcard:nth-child(4){transition-delay:.28s} .worldwrap.shown .gcard:nth-child(5){transition-delay:.34s} .worldwrap.shown .gcard:nth-child(6){transition-delay:.40s} .worldwrap.shown .gcard:nth-child(7){transition-delay:.46s} .worldwrap.shown .gcard:nth-child(8){transition-delay:.52s} .worldwrap.shown .gcard:nth-child(9){transition-delay:.58s}
+        .worldwrap.shown .gcard:nth-child(1){transition-delay:.10s} .worldwrap.shown .gcard:nth-child(2){transition-delay:.17s} .worldwrap.shown .gcard:nth-child(3){transition-delay:.24s} .worldwrap.shown .gcard:nth-child(4){transition-delay:.31s} .worldwrap.shown .gcard:nth-child(5){transition-delay:.38s} .worldwrap.shown .gcard:nth-child(6){transition-delay:.45s}
         a.gcard:hover{border-color:var(--accent-line);box-shadow:0 30px 60px -28px rgba(0,0,0,.95),0 0 0 1px var(--accent-line);transform:translateY(-3px);}
-        .gcard-cover{height:92px;position:relative;}
-        .gcard-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(178deg,rgba(20,14,7,.05) 30%,rgba(15,11,7,.9));}
-        .gcard-pin{position:absolute;top:50%;left:50%;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 38% 32%,#FDEBC0,#E6A23E 64%);box-shadow:0 0 16px 4px rgba(230,162,62,.6),0 0 0 4px rgba(230,162,62,.16);z-index:1;}
-        .gcard-n{position:absolute;top:9px;right:9px;z-index:2;font-size:.62rem;font-weight:600;color:var(--ink);background:rgba(12,9,5,.66);border:1px solid var(--line-2);border-radius:999px;padding:2px 8px;backdrop-filter:blur(3px);}
-        .gcard-body{padding:11px 13px 13px;}
-        .gcard-title{font-weight:600;font-size:.88rem;line-height:1.28;color:var(--ink);letter-spacing:-.01em;}
-        .gcard-meta{display:flex;align-items:center;gap:8px;margin-top:11px;}
-        .gcard-mono{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.6rem;color:var(--accent-ink);background:linear-gradient(140deg,var(--accent-2),var(--accent));}
-        .gcard-who{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .gcard-q{font-family:Georgia,"Times New Roman",serif;font-size:2.3rem;line-height:.1;height:14px;color:var(--accent);opacity:.55;}
+        .gcard-title{font-weight:600;font-size:1.02rem;line-height:1.26;letter-spacing:-.01em;color:var(--ink);margin-top:10px;}
+        .gcard-peek{font-size:.76rem;line-height:1.45;color:var(--faint);margin-top:9px;}
+        .gcard-foot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;}
+        .gcard-mono{flex:none;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.58rem;color:var(--accent-ink);background:linear-gradient(140deg,var(--accent-2),var(--accent));}
+        .gcard-who{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
         .gcard-who b{color:var(--ink);font-weight:600;}
-        .gcard.ghost{border-style:dashed;border-color:var(--accent-line);background:rgba(230,162,62,.05);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:178px;text-align:center;}
+        .gcard-n{font-size:.72rem;color:var(--faint);font-variant-numeric:tabular-nums;}
+        .gcard.ghost{border-style:dashed;border-color:var(--accent-line);background:rgba(230,162,62,.05);align-items:center;justify-content:center;gap:8px;text-align:center;}
         .gcard.ghost .gp{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--accent);color:var(--accent);font-size:1.3rem;font-weight:400;line-height:1;}
-        .gcard.ghost .gt{font-weight:600;font-size:.9rem;color:var(--ink);}
-        .gcard.ghost .gs{font-size:.74rem;color:var(--accent);}
+        .gcard.ghost .gt{font-weight:600;font-size:.92rem;color:var(--ink);}
+        .gcard.ghost .gs{font-size:.76rem;color:var(--accent);}
         .wcta{margin-top:30px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;}
         .msheet{display:none;} /* base: hidden on desktop — the mobile rule below re-shows it (must precede the media query to win the cascade) */
         @media(max-width:760px){
@@ -435,9 +424,11 @@ export default function Landing() {
           .cta-pill{top:16px;bottom:auto;right:14px;left:auto;transform:translateY(-8px);padding:8px 14px;font-size:.78rem;box-shadow:0 8px 22px -8px rgba(230,162,62,.55);} .cta-pill.on{transform:none;}
           .walktag{top:14px;}
           .scrim-left{background:linear-gradient(0deg,rgba(6,4,2,.95) 0%,rgba(6,4,2,.6) 28%,transparent 54%);}
-          .chap.hero{align-items:flex-end;} .stick{align-items:flex-end;}
+          .stick{align-items:flex-end;}
           .panel{margin:0;max-width:none;width:100%;}
-          .chap.hero .panel,.chap.make .panel{padding:0 20px calc(env(safe-area-inset-bottom,16px) + 24px);}
+          .chap.make .panel{padding:0 20px calc(env(safe-area-inset-bottom,16px) + 24px);}
+          .herowrap{grid-template-columns:1fr;grid-template-areas:"copy" "card" "actions";row-gap:16px;padding:0 22px;}
+          .herocard{width:100%;}
           h1.hero-h{font-size:2.05rem;line-height:1.06;max-width:none;margin-top:10px;}
           .clarity{font-size:1rem;margin-top:12px;max-width:none;}
           .hero-cta{margin-top:18px;} .cue{display:none;}
@@ -448,7 +439,7 @@ export default function Landing() {
           .finale-stick{position:static;min-height:auto;padding:74px 0;}
           .worldwrap{width:100%;padding:0 16px;}
           .wgrid{grid-template-columns:repeat(2,1fr);gap:11px;margin-top:24px;}
-          .gcard-cover{height:74px;} .gcard-title{font-size:.8rem;} .gcard.ghost{min-height:150px;}
+          .gcard{min-height:148px;padding:14px 14px;} .gcard-title{font-size:.92rem;} .gcard-peek{font-size:.72rem;} .gcard.ghost{min-height:128px;}
           .finale h2{font-size:2.2rem !important;}
           .vchpin-card{display:none !important;} .vchpin-dot{width:24px;height:24px;}
           .msheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:6;padding:22px 22px calc(env(safe-area-inset-bottom,16px) + 20px);pointer-events:none;background:linear-gradient(180deg,transparent,rgba(7,5,2,.8) 22%,rgba(7,5,2,.97) 58%);opacity:0;transform:translateY(14px);transition:opacity .5s var(--e-out),transform .5s var(--e-out);}
@@ -471,21 +462,38 @@ export default function Landing() {
       <div ref={vouchRef} className="vchpin"><div className="vchpin-inner"><span className="vchpin-dot" /><div className="vchpin-card"><p className="vchpin-line" /><p className="vchpin-place" /><p className="vchpin-by" /></div></div></div>
       <div ref={msheetRef} className="msheet"><div className="ms-top"><span className="ms-kicker" /><span className="ms-prog" /></div><p className="ms-line" /><p className="ms-place" /></div>
 
-      <div className="walktag"><span>a guide · <b>by Priya</b> · Bengaluru</span></div>
-      <a className={"cta-pill" + (scrolled && !atFinale ? " on" : "")} href="/v3/new">make a guide →</a>
+      <div className="walktag"><span><b>Priya&apos;s</b> Bengaluru · a real list</span></div>
+      <a className={"cta-pill" + (scrolled && !atFinale ? " on" : "")} href="/v2/new">make your list →</a>
       <nav className="chaprail" aria-label="chapters">
-        {SECS.map((n, i) => <button key={n.key} ref={(el) => { navRefs.current[i] = el; }} data-k={n.key} onClick={() => jump(n.key)}><span className="lbl">{n.key === "hero" ? "the city" : n.key === "make" ? "your turn" : n.key === "finale" ? "the world" : AREAS[n.area!]?.name}</span><span className="pip" /></button>)}
+        {SECS.map((n, i) => <button key={n.key} ref={(el) => { navRefs.current[i] = el; }} data-k={n.key} onClick={() => jump(n.key)}><span className="lbl">{n.key === "hero" ? "the idea" : n.key === "make" ? "your turn" : n.key === "finale" ? "others" : AREAS[n.area!]?.name}</span><span className="pip" /></button>)}
       </nav>
       <div style={{ position: "fixed", zIndex: 8, top: 26, left: 28 }}><span style={{ fontWeight: 700, fontSize: "1.15rem", color: "var(--ink)", letterSpacing: "-0.02em" }}>vouch<span style={{ color: "var(--accent)" }}>.</span></span></div>
 
-      {/* I — what it is */}
+      {/* I — the artifact, stated plainly: the list you already send, with your name on it */}
       <section className="chap hero" data-sec="hero">
-        <div className="panel" style={{ maxWidth: 620 }}>
-          <p className="reveal eyebrow">vouch</p>
-          <h1 className="reveal d1 hero-h">Create a guide to the places you love — and share it with the world.</h1>
-          <p className="reveal d2 clarity">Your places, your notes, your name on each one. Here&apos;s a real one — scroll it.</p>
-          <div className="reveal d3 hero-cta"><a className="btn-primary" href="/v3/new">Make a guide — free, 2 min</a></div>
-          <p className="reveal d4 cue"><span /> scroll — here&apos;s one</p>
+        <div className="panel herowrap">
+          <div className="hero-copy">
+            <p className="reveal eyebrow">you already have this list</p>
+            <h1 className="reveal d1 hero-h">The places you keep sending friends — now with your name on it.</h1>
+            <p className="reveal d2 clarity">Today it lives in scattered chats, Notes and memory. Put it somewhere good — your spots, your words, on one link you can send.</p>
+          </div>
+          <aside className="reveal d2 herocard">
+            <div className="gc-head"><span className="gc-mono">PR</span><span><b>Priya&apos;s Bengaluru</b><i>the places i actually send people</i></span></div>
+            <div className="grows">
+              {HERO_PICKS.slice(0, 3).map((s) => (
+                <div className="grow" key={s.name}>
+                  <span className="grow-thumb" style={thumbStyle(s.cat)} dangerouslySetInnerHTML={{ __html: glyphSVG(s.cat, TINT[s.cat] || "#CBA24B", 17) }} />
+                  <span className="grow-b"><span className="grow-place">{s.name}</span><span className="grow-note">“{s.vo}”</span></span>
+                </div>
+              ))}
+            </div>
+            <div className="herocard-foot"><span className="hf-link">vouch.co/priya</span><span className="hf-n">a link you send · 6 places</span></div>
+          </aside>
+          <div className="hero-actions">
+            <div className="reveal d3 hero-cta"><a className="btn-primary" href="/v2/new">Make your Bengaluru list</a></div>
+            <p className="reveal d3 effort">free · a few places · about two minutes</p>
+            <p className="reveal d4 cue"><span /> here&apos;s a real one — scroll</p>
+          </div>
         </div>
       </section>
 
@@ -521,7 +529,7 @@ export default function Landing() {
             <h2 className="reveal d1" style={{ fontWeight: 600, fontSize: "clamp(2.1rem,4.6vw,3.1rem)", lineHeight: 1.02, letterSpacing: "-0.03em", color: "var(--ink)", margin: "8px 0 0", textShadow: "0 2px 26px rgba(0,0,0,.9)" }}>Yours is still empty.</h2>
             <p className="reveal d1 clarity">Add a place you love. Say why, in a line. Put your name on it.</p>
             <div className="reveal d2 guidecard makecard">
-              <div className="gc-head"><span className="gc-mono">YO</span><span><b>your guide</b><i><span className="makecount">0 places</span> · by you</i></span></div>
+              <div className="gc-head"><span className="gc-mono">YO</span><span><b>your list</b><i><span className="makecount">0 places</span> · by you</i></span></div>
               <div className="grows">
                 {DEMO.map((s, i) => (
                   <div className="grow" data-mk={i} key={s.name}>
@@ -531,32 +539,35 @@ export default function Landing() {
                 ))}
               </div>
             </div>
-            <p className="reveal d3 big">That&apos;s a guide.</p>
+            <p className="reveal d3 big">That&apos;s your list.</p>
           </div>
         </div>
       </section>
 
-      {/* IV — share it with the world: a wall of real guides */}
+      {/* IV — lists people actually send: a wall of real Bengaluru guides (no map covers — this is taste, not pins) */}
       <section className="chap finale" data-sec="finale" style={{ minHeight: `${SECS[6].vh * 100}vh` }}>
         <div className="finale-stick">
           <div className="worldwrap">
-            <p className="rf eyebrow" style={{ color: "var(--accent)" }}>a world of guides</p>
+            <p className="rf eyebrow" style={{ color: "var(--accent)" }}>lists people actually send</p>
             <h2 className="rf" style={{ fontWeight: 600, fontSize: "clamp(2.1rem,4.8vw,3.4rem)", lineHeight: 1.04, letterSpacing: "-0.025em", color: "var(--ink)", margin: "12px 0 0", textShadow: "0 2px 26px rgba(0,0,0,.9)" }}>Yours is the one that&apos;s missing.</h2>
-            <p className="rf r2 wsub">People are sharing the places they love — city by city. Add the one <b>you</b> know by heart.</p>
+            <p className="rf r2 wsub">Real Bengaluru lists, from people who know it — the ones they send when someone asks <b>“where should we go?”</b></p>
             <div className="wgrid">
               {WORLD.map((g) => (
-                <div className="gcard" key={g.city}>
-                  <div className="gcard-cover" style={coverStyle(g.cat, g.lat, g.lng, 11)}><span className="gcard-pin" /><span className="gcard-n">{g.n} places</span></div>
-                  <div className="gcard-body">
-                    <div className="gcard-title">{g.title}</div>
-                    <div className="gcard-meta"><span className="gcard-mono">{g.ini}</span><span className="gcard-who"><b>{g.name}</b> · {g.city}</span></div>
+                <a className="gcard" key={g.title} href="/v3/g/priya">
+                  <span className="gcard-q" aria-hidden="true">“</span>
+                  <div className="gcard-title">{g.title}</div>
+                  <div className="gcard-peek">{g.peek}</div>
+                  <div className="gcard-foot">
+                    <span className="gcard-mono">{g.ini}</span>
+                    <span className="gcard-who"><b>{g.name}</b> · {g.area}</span>
+                    <span className="gcard-n">{g.n}</span>
                   </div>
-                </div>
+                </a>
               ))}
-              <a className="gcard ghost" href="/v3/new"><span className="gp">+</span><span className="gt">your guide</span><span className="gs">start one →</span></a>
+              <a className="gcard ghost" href="/v2/new"><span className="gp">+</span><span className="gt">your list</span><span className="gs">start one →</span></a>
             </div>
             <div className="rf r3 wcta">
-              <a className="btn-primary" href="/v3/new">Create a guide — free, 2 min</a>
+              <a className="btn-primary" href="/v2/new">Make your Bengaluru list</a>
               <a className="btn-ghost" href="/v3/g/priya">open Priya&apos;s →</a>
             </div>
           </div>
