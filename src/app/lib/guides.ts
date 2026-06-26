@@ -8,7 +8,8 @@ export type Place = {
   name: string;
   area: string;
   category: string;
-  take: string;
+  take: string;        // the why — your read on it, in plain words
+  order?: string;      // the what-to-get — the single most useful line on the card
 };
 
 export type Guide = {
@@ -46,17 +47,17 @@ const GUIDES: Guide[] = [
     curator: { name: "Maya R.", initial: "M", tint: "#CB613A", city: "Bangalore" },
     sent: 142, saved: 318, updated: "2 days ago", minutes: 4,
     places: [
-      { name: "Blue Tokai", area: "Koramangala", category: "Coffee", take: "the cold brew that ruined all others for me. sit upstairs, by the window." },
-      { name: "Third Wave Coffee", area: "Indiranagar", category: "Coffee", take: "for when you actually need to work. plugs, quiet, the corner table is mine." },
-      { name: "Airlines Hotel", area: "Lavelle Rd", category: "Coffee", take: "filter under the rain trees, open air, 24/7. get there by 8am before the world wakes up." },
-      { name: "Toit", area: "Indiranagar", category: "Beer", take: "weekday only — weekends are a war zone. the toit weiss is the move." },
-      { name: "Dali & Gala", area: "Ulsoor", category: "Date night", take: "order something you can't pronounce. it works. dark, tiny, a little dramatic." },
-      { name: "Naru Noodle Bar", area: "Basavanagudi", category: "Date night", take: "book the second they open reservations. the tasting menu, no notes." },
-      { name: "Empire", area: "Indiranagar", category: "Late night", take: "chicken ghee roast at 1am. don't overthink it, don't read reviews, just go." },
-      { name: "Karavalli", area: "Residency Rd", category: "Big occasion", take: "where I take visiting parents. they'll bring it up for months. the appams." },
-      { name: "Vidyarthi Bhavan", area: "Basavanagudi", category: "Breakfast", take: "before 9am or don't bother. the masala dosa, crisp, ghee-drenched, perfect." },
-      { name: "Koshy's", area: "St Marks Rd", category: "Classic", take: "old-school, a little grumpy, never changes — thank god. chicken stew + appam." },
-      { name: "CTR (Shri Sagar)", area: "Malleshwaram", category: "Breakfast", take: "benne dosa. the standard every other dosa is quietly measured against." },
+      { name: "Blue Tokai", area: "Koramangala", category: "Coffee", take: "the cold brew that ruined all others for me. sit upstairs, by the window.", order: "cold brew, black" },
+      { name: "Third Wave Coffee", area: "Indiranagar", category: "Coffee", take: "where I go when I actually need to get work done — plugs, quiet, no one rushing you out.", order: "flat white + the corner table" },
+      { name: "Airlines Hotel", area: "Lavelle Rd", category: "Coffee", take: "filter under the rain trees, open air, 24/7. unbeatable at 8am before the city wakes up.", order: "filter coffee + a masala dosa" },
+      { name: "Toit", area: "Indiranagar", category: "Beer", take: "weekday only — weekends are a war zone. the rooftop earns the wait.", order: "the Toit Weiss + a basket of fries" },
+      { name: "Dali & Gala", area: "Ulsoor", category: "Date night", take: "dark, tiny, a little dramatic — the kind of place a date remembers.", order: "whatever the chef is pushing that night" },
+      { name: "Naru Noodle Bar", area: "Basavanagudi", category: "Date night", take: "book the second reservations open. it's a counter, but it's an event.", order: "the tasting menu — skip à la carte" },
+      { name: "Empire", area: "Indiranagar", category: "Late night", take: "the answer to a 1am question you didn't know you had. don't read reviews, just go.", order: "chicken ghee roast + butter naan" },
+      { name: "Karavalli", area: "Residency Rd", category: "Big occasion", take: "where I take visiting parents — coastal, lovely, they'll bring it up for months.", order: "the appams + Coorg pandi curry" },
+      { name: "Vidyarthi Bhavan", area: "Basavanagudi", category: "Breakfast", take: "before 9am or don't bother. a proper Bangalore rite of passage.", order: "masala dosa, extra ghee" },
+      { name: "Koshy's", area: "St Marks Rd", category: "Classic", take: "old-school, a little grumpy, never changes — thank god. a slice of old Bangalore.", order: "chicken stew + appam" },
+      { name: "CTR (Shri Sagar)", area: "Malleshwaram", category: "Breakfast", take: "the standard every other dosa is quietly measured against.", order: "benne masala dosa" },
     ],
   },
   {

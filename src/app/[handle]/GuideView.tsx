@@ -7,20 +7,24 @@ import GuideMap from "./GuideMap";
 import { type Guide, categoriesOf, mapsUrl } from "../lib/guides";
 import { hasMap } from "../lib/geo";
 
-const TILE = "https://a.basemaps.cartocdn.com/light_all/12/2931/1899@2x.png";
-const COVER_PINS = [
-  { top: "42%", left: "22%" }, { top: "30%", left: "55%" }, { top: "60%", left: "70%" },
-  { top: "52%", left: "40%" }, { top: "68%", left: "30%" }, { top: "36%", left: "82%" },
-];
+function Pin() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 21s6.5-5 6.5-10.5a6.5 6.5 0 1 0-13 0C5.5 16 12 21 12 21Z" stroke="currentColor" strokeWidth="2" />
+      <circle cx="12" cy="10.2" r="2.3" fill="currentColor" />
+    </svg>
+  );
+}
 
 export default function GuideView({ guide, preview = false }: { guide: Guide; preview?: boolean }) {
   const cats = categoriesOf(guide);
   const [active, setActive] = useState<string>("All");
-  const [view, setView] = useState<"list" | "map">("list");
+  const [view, setView] = useState<"cards" | "map">("cards");
   const [saved, setSaved] = useState(false);
   const [toast, setToast] = useState(false);
   const mapped = hasMap(guide);
   const first = guide.curator.name.split(" ")[0];
+  const showFilter = cats.length > 2;
   const places = active === "All" ? guide.places : guide.places.filter((p) => p.category === active);
 
   async function onShare() {
@@ -28,7 +32,7 @@ export default function GuideView({ guide, preview = false }: { guide: Guide; pr
     const url = typeof window !== "undefined" ? window.location.href : "";
     const data = { title: guide.title, text: `${guide.title} — a Hotlist by ${guide.curator.name}`, url };
     if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share(data); return; } catch { /* cancelled — fall through to copy */ }
+      try { await navigator.share(data); return; } catch { /* cancelled */ }
     }
     try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
     setToast(true);
@@ -45,75 +49,70 @@ export default function GuideView({ guide, preview = false }: { guide: Guide; pr
       )}
 
       <main className={s.page}>
-        <div className={s.cover}>
-          <div className={s.coverImg} style={{ backgroundImage: `url("${TILE}")` }} />
-          <div className={s.coverTint} />
-          <div className={s.coverWash} />
-          {COVER_PINS.map((p, i) => (
-            <span key={i} className={s.coverPin} style={{ top: p.top, left: p.left }} />
-          ))}
-          <span className={s.coverStamp}>{guide.curator.city} · {guide.places.length} spots</span>
-        </div>
-
         <section className={s.head}>
-          <div className={s.headTop}>
-            <span className={s.headAv} style={{ background: guide.curator.tint }}>{guide.curator.initial}</span>
-            <span className={s.headWho}>
-              <span className={s.headName}>{guide.curator.name}</span>
-              <span className={s.headHandle}>hotlist.to/{guide.handle}</span>
-            </span>
-          </div>
+          <p className={s.eyebrow}>a hotlist · {guide.curator.city}</p>
           <h1 className={s.headTitle}>{guide.title}</h1>
           <p className={s.headIntro}>{guide.intro}</p>
-          <div className={s.headStats}>
-            <span>sent <b>{guide.sent}×</b></span>
-            <span>saved by <b>{guide.saved}</b></span>
-            <span>updated {guide.updated}</span>
-          </div>
-          <div className={s.headActions}>
-            <button className={s.actShare} onClick={onShare}>Share <span aria-hidden="true">↗</span></button>
-            <button className={`${s.actSave} ${saved ? s.actSaveOn : ""}`} onClick={() => setSaved((v) => !v)} aria-pressed={saved}>
-              {saved ? "Saved ♥" : "Save ♡"}
-            </button>
+          <div className={s.headMeta}>
+            <span className={s.byline}>
+              <span className={s.bylineAv} style={{ background: guide.curator.tint }}>{guide.curator.initial}</span>
+              <span>
+                <span className={s.bylineName}>{guide.curator.name}</span>
+                <span className={s.bylineSub}>@{guide.handle} · sent {guide.sent}×</span>
+              </span>
+            </span>
+            <span className={s.headActions}>
+              <button className={s.actShare} onClick={onShare}>Share <span aria-hidden="true">↗</span></button>
+              <button className={`${s.actSave} ${saved ? s.actSaveOn : ""}`} onClick={() => setSaved((v) => !v)} aria-pressed={saved}>
+                {saved ? "Saved ♥" : "Save ♡"}
+              </button>
+            </span>
           </div>
         </section>
 
-        {mapped && (
-          <div className={s.viewRow}>
-            <div className={mc.toggle} role="tablist" aria-label="List or map">
-              <button className={`${mc.toggleBtn} ${view === "list" ? mc.toggleOn : ""}`} onClick={() => setView("list")}>List</button>
+        <div className={s.controls}>
+          {mapped ? (
+            <div className={mc.toggle} role="tablist" aria-label="Cards or map">
+              <button className={`${mc.toggleBtn} ${view === "cards" ? mc.toggleOn : ""}`} onClick={() => setView("cards")}>Cards</button>
               <button className={`${mc.toggleBtn} ${view === "map" ? mc.toggleOn : ""}`} onClick={() => setView("map")}>Map</button>
             </div>
-          </div>
-        )}
+          ) : <span />}
+          <span className={s.count}>{guide.places.length} places</span>
+        </div>
 
         {mapped && view === "map" ? (
-          <GuideMap guide={guide} />
+          <div style={{ marginTop: 22 }}><GuideMap guide={guide} /></div>
         ) : (
           <>
-            <nav className={s.filters} aria-label="Filter by category">
-              <button className={`${s.chip} ${active === "All" ? s.chipOn : ""}`} onClick={() => setActive("All")}>All</button>
-              {cats.map((c) => (
-                <button key={c} className={`${s.chip} ${active === c ? s.chipOn : ""}`} onClick={() => setActive(c)}>{c}</button>
-              ))}
-            </nav>
-
-            <div className={s.list}>
+            {showFilter && (
+              <nav className={s.filters} aria-label="Filter by category">
+                <button className={`${s.chip} ${active === "All" ? s.chipOn : ""}`} onClick={() => setActive("All")}>All</button>
+                {cats.map((c) => (
+                  <button key={c} className={`${s.chip} ${active === c ? s.chipOn : ""}`} onClick={() => setActive(c)}>{c}</button>
+                ))}
+              </nav>
+            )}
+            <div className={s.grid}>
               {places.map((p, i) => (
-                <div className={s.item} key={`${p.name}-${i}`}>
-                  <div className={s.itemHead}>
-                    <span className={s.itemIndex}>{String(i + 1).padStart(2, "0")}</span>
-                    <span className={s.itemName}>{p.name}</span>
-                    <span className={s.itemCat}>{p.category}</span>
+                <article className={s.card} key={`${p.name}-${i}`}>
+                  <div className={s.cardTop}>
+                    <span className={s.cardIndex}>{String(i + 1).padStart(2, "0")}</span>
+                    <span className={s.cardCat}>{p.category}</span>
                   </div>
-                  <div className={s.itemArea}>{p.area}</div>
-                  <p className={s.itemTake}>{p.take}</p>
-                  <a className={s.itemGo} href={mapsUrl(p, guide.curator.city)} target="_blank" rel="noopener noreferrer">
-                    Directions <span aria-hidden="true">↗</span>
+                  <h3 className={s.cardName}>{p.name}</h3>
+                  <a className={s.cardWhere} href={mapsUrl(p, guide.curator.city)} target="_blank" rel="noopener noreferrer">
+                    <Pin /> {p.area} <span aria-hidden="true">↗</span>
                   </a>
-                </div>
+                  <p className={s.cardTake}>{p.take}</p>
+                  {p.order && (
+                    <div className={s.cardOrder}>
+                      <span className={s.cardOrderLabel}>Order</span>
+                      <span className={s.cardOrderVal}>{p.order}</span>
+                    </div>
+                  )}
+                </article>
               ))}
-              {places.length === 0 && <p className={s.empty}>Your spots will land here.</p>}
+              {places.length === 0 && <p className={s.empty}>Nothing in this category yet.</p>}
             </div>
           </>
         )}
@@ -126,7 +125,8 @@ export default function GuideView({ guide, preview = false }: { guide: Guide; pr
         </section>
 
         <footer className={s.gfoot}>
-          a <a href="/">Hotlist</a> · made with ♥ in {guide.curator.city}
+          <span>a Hotlist, made in {guide.curator.city}</span>
+          <a href="/">hotlist.to <span aria-hidden="true">→</span></a>
         </footer>
       </main>
 
